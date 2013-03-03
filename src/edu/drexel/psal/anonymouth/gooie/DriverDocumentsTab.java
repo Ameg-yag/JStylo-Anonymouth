@@ -1,7 +1,7 @@
 package edu.drexel.psal.anonymouth.gooie;
 
 import edu.drexel.psal.anonymouth.calculators.Computer;
-import edu.drexel.psal.anonymouth.gooie.DocsTabDriver.ExtFilter;
+import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.projectDev.Attribute;
 import edu.drexel.psal.anonymouth.projectDev.DataAnalyzer;
 import edu.drexel.psal.anonymouth.projectDev.DocumentMagician;
@@ -51,7 +51,7 @@ import com.jgaap.generics.Document;
  * @author Joe Muoio
  *
  */
-public class EditorTabDriver {
+public class DriverDocumentsTab {
 	
 	
 	protected static SentenceTools sentenceTools;
@@ -120,7 +120,7 @@ public class EditorTabDriver {
 	protected static Highlighter.HighlightPainter painter4;
 	protected static Highlighter.HighlightPainter painter3;
 	
-	protected Translation translator = new Translation();
+	protected static Translation translator = new Translation();
 	
 	protected static TaggedDocument taggedDoc;
 	
@@ -146,13 +146,13 @@ public class EditorTabDriver {
 			}
 		}
 		
-		main.editorBox.getHighlighter().removeAllHighlights();
+		main.documentPane.getHighlighter().removeAllHighlights();
         try {
-			main.editorBox.getHighlighter().addHighlight(start, end, painter);
+			main.documentPane.getHighlighter().addHighlight(start, end, painter);
 			if (direction.equals("next"))
-				main.editorBox.setCaretPosition(end);
+				main.documentPane.setCaretPosition(end);
 			else if (direction.equals("prev"))
-				main.editorBox.setCaretPosition(start);
+				main.documentPane.setCaretPosition(start);
 			else if (direction.equals("none"))
 			{}
         } catch (BadLocationException e) {
@@ -178,9 +178,9 @@ public class EditorTabDriver {
 		int startHighlight=0, endHighlight=0;
 		int sentNum=ConsolidationStation.toModifyTaggedDocs.get(0).getSentNumber();
 		ArrayList<String> sentences=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedSentences();
-		main.editorBox.setHighlighter(editTracker);
+		main.documentPane.setHighlighter(editTracker);
 		String newText=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument();
-		main.editorBox.setText(newText);
+		main.documentPane.setText(newText);
 		boolean fixTabs=false;
 		numberTimesFixTabs=0;
 		for (int i=0;i<sentNum+1;i++){
@@ -264,7 +264,7 @@ public class EditorTabDriver {
 		findSynonyms(main,sentence);
 		
 		editTracker.removeAllHighlights();
-		main.editorBox.repaint();
+		main.documentPane.repaint();
 		int innerArrSize,outerArrSize=indexArray.size(), currentStart,currentEnd;
 		currentStart=startHighlight;
 		//Logger.logln("indexArr "+indexArray.toString(),Logger.LogOut.STDERR);
@@ -464,7 +464,8 @@ public class EditorTabDriver {
 //		main.editorHelpTabPane.setEnabled(b);
 	}
 	
-	protected static void initListeners(final GUIMain main){
+	protected static void initListeners(final GUIMain main)
+	{
 		
 		main.processButton.addActionListener(new ActionListener() {
 			@Override
@@ -542,7 +543,7 @@ public class EditorTabDriver {
 						int wekaIsRunningAnswer = wekaIsRunning();
 						if(wekaIsRunningAnswer != -1)
 						{
-							main.editorBox.getHighlighter().removeAllHighlights();
+							main.documentPane.getHighlighter().removeAllHighlights();
 							highlightedObjects.clear();
 							TheOracle.resetColorIndex();
 							main.resultsTablePane.setOpaque(false);
@@ -676,7 +677,7 @@ public class EditorTabDriver {
 					main.translationsTable.setValueAt("", i, 0);
 				main.translationEditPane.setText("Current Translation.");
 				sentence = taggedDoc.getCurrentSentence();
-				main.editorBox.setText(taggedDoc.getUntaggedDocument());
+				main.documentPane.setText(taggedDoc.getUntaggedDocument());
 				main.sentenceEditPane.setText(sentence.getUntagged().trim());
 				highlightSentence(sentence, main, "none");
 				
@@ -753,7 +754,7 @@ public class EditorTabDriver {
 						path += ".txt";
 					try {
 						BufferedWriter bw = new BufferedWriter(new FileWriter(path));
-						bw.write(main.editorBox.getText());
+						bw.write(main.documentPane.getText());
 						bw.flush();
 						bw.close();
 						Logger.log("Saved contents of current tab to "+path);
@@ -819,7 +820,7 @@ public class EditorTabDriver {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Logger.logln("All highlights cleared in GUI editor box.");
-				main.editorBox.getHighlighter().removeAllHighlights();
+				main.documentPane.getHighlighter().removeAllHighlights();
 				//main.featureNameLabel.setText("Feature Name: ");
 				//main.targetValueField.setText("null");
 				//main.presentValueField.setText("null");
@@ -850,7 +851,7 @@ public class EditorTabDriver {
 			public void actionPerformed(ActionEvent act){
 				highlightSelectionBoxSelectionNumber = main.getHighlightSelectionBox().getSelectedIndex();
 				Logger.logln("highlight selection box activity: selection number '"+highlightSelectionBoxSelectionNumber+"'");
-				if(main.editorBox.isEditable() == false){
+				if(main.documentPane.isEditable() == false){
 					spawnNew(main);
 				}
 				
@@ -862,7 +863,7 @@ public class EditorTabDriver {
 					main.searchInputBox.setSelectionColor(Color.yellow);
 				} else{
 					
-					HighlightMapMaker.document = main.editorBox.getText();
+					HighlightMapMaker.document = main.documentPane.getText();
 					try {
 						
 						theMirror.highlightRequestedNotSpecific(highlightingOptions[highlightSelectionBoxSelectionNumber].toString());
@@ -899,7 +900,7 @@ public class EditorTabDriver {
 		main.searchInputBox.addActionListener(new ActionListener(){
 			
 			public void actionPerformed(ActionEvent act){
-				HighlightMapMaker.document = main.editorBox.getText();
+				HighlightMapMaker.document = main.documentPane.getText();
 
 				searchBoxInputText = main.searchInputBox.getText();
 				searchBoxInputText = searchBoxInputText.trim();
@@ -1066,7 +1067,7 @@ public class EditorTabDriver {
 //				initEditorInnerTabListeners(main);
 //				main.processButton.setEnabled(true);
 //				/* todo I commented this block out to test the translated sentence functionality -- AweM
-//				main.editorBox.setEnabled(false);
+//				main.documentPane.setEnabled(false);
 //				ConsolidationStation.toModifyTaggedDocs.get(0).setSentenceCounter(-1);
 //				main.sentenceEditPane.setText(ConsolidationStation.toModifyTaggedDocs.get(0).getNextSentence());
 //				main.sentenceEditPane.setEnabled(true);
@@ -1074,7 +1075,7 @@ public class EditorTabDriver {
 //				main.sentenceEditPane.setEditable(true);
 //				trackEditSentence(main);
 //				Logger.logln(ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument());
-//				main.editorBox.setText(ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument());
+//				main.documentPane.setText(ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument());
 //				*/
 //				nextTabIndex++;
 //			}
@@ -1092,7 +1093,7 @@ public class EditorTabDriver {
 //		EditorTabDriver.eitsList.add(0,eits);
 //		EditorTabDriver.eits = EditorTabDriver.eitsList.get(0);
 //		EditorTabDriver.main.classificationLabel.setText("Please process your document in order to recieve a classification result.");
-//		main.editorBox.setEnabled(true);
+//		main.documentPane.setEnabled(true);
 //		main.editTP.addTab("Original",main.editBoxPanel);
 //		main.editTP.setSelectedIndex(0);
 //		//initEditorInnerTabListeners(main);
@@ -1210,7 +1211,7 @@ public class EditorTabDriver {
 //			
 //		});	*/
 //		
-//		main.editorBox.addMouseListener(new MouseListener(){
+//		main.documentPane.addMouseListener(new MouseListener(){
 //
 //			@Override
 //			public void mouseClicked(MouseEvent arg0) {
@@ -1234,7 +1235,7 @@ public class EditorTabDriver {
 //			@Override
 //			public void mousePressed(MouseEvent arg0) {
 //				// TODO Auto-generated method stub
-//				thisCaretPosition = main.editorBox.getCaretPosition();
+//				thisCaretPosition = main.documentPane.getCaretPosition();
 //				mouseEndPosition =0;
 //				checkForMouseInfluence = true;
 //				//System.out.println("Mouse press registered at index: "+thisCaretPosition);
@@ -1244,7 +1245,7 @@ public class EditorTabDriver {
 //			@Override
 //			public void mouseReleased(MouseEvent arg0) {
 //				// TODO Auto-generated method stub
-//				mouseEndPosition = main.editorBox.getCaretPosition();
+//				mouseEndPosition = main.documentPane.getCaretPosition();
 //				//System.out.println("Caret position registered at mousereleased: "+mouseEndPosition);
 //			}
 //			
@@ -1253,7 +1254,7 @@ public class EditorTabDriver {
 //		
 //		
 //		
-//		main.editorBox.addKeyListener(new KeyListener(){
+//		main.documentPane.addKeyListener(new KeyListener(){
 //
 //			@Override
 //			public void keyPressed(KeyEvent arg0) {
@@ -1280,13 +1281,13 @@ public class EditorTabDriver {
 //			@Override
 //			public void keyReleased(KeyEvent arg0) {
 //				
-//				thisCaretPosition = main.editorBox.getCaretPosition();
+//				thisCaretPosition = main.documentPane.getCaretPosition();
 //				//System.out.println("Caret postion resitered at keyreleased:  "+thisCaretPosition);
 //				if(keyJustTyped == true){
 //					keyJustTyped = false;
 //					//System.out.println("Should start present features continuous present value update thread..");
 //					BackendInterface.updatePresentFeatureNow(main, eits,theMirror);
-//					//int caretPos =main.editorBox.getCaretPosition();
+//					//int caretPos =main.documentPane.getCaretPosition();
 //					//System.out.println("Old Caret Postion: "+oldCaretPosition+" and current CARET POSITION IS: "+thisCaretPosition);
 //					//Collections.sort(highlightedObjects);
 //					if(oldCaretPosition < thisCaretPosition){
@@ -1298,7 +1299,7 @@ public class EditorTabDriver {
 //							HighlightMapper tempHm = hloi.next();
 //							if((tempHm.getStart() <= thisCaretPosition) && (oldCaretPosition <= tempHm.getEnd())){
 //								//System.out.println("FOUND object... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
-//								main.editorBox.getHighlighter().removeHighlight(tempHm.getHighlightedObject());
+//								main.documentPane.getHighlighter().removeHighlight(tempHm.getHighlightedObject());
 //								isGone = true;
 //							}	
 //							if ((oldCaretPosition <= tempHm.getStart() && !isGone))
@@ -1315,7 +1316,7 @@ public class EditorTabDriver {
 //							HighlightMapper tempHm = hloi.next();
 //							if((tempHm.getStart() <= oldCaretPosition) && (thisCaretPosition <= tempHm.getEnd())){
 //								//System.out.println("FOUND object ... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
-//								main.editorBox.getHighlighter().removeHighlight(tempHm.getHighlightedObject());
+//								main.documentPane.getHighlighter().removeHighlight(tempHm.getHighlightedObject());
 //								isGone = true;
 //							}	
 //							if ((thisCaretPosition <= tempHm.getStart()) && !isGone)
@@ -1342,7 +1343,7 @@ public class EditorTabDriver {
 //	}
 //	
 	public static void dispHighlights(){
-		Highlighter highlight = GUIMain.inst.editorBox.getHighlighter();
+		Highlighter highlight = GUIMain.inst.documentPane.getHighlighter();
 		HashMap<Color,ArrayList<int[]>> currentMap = HighlightMapMaker.highlightMap;
 		int i = 0;
 		if(!currentMap.isEmpty()){
@@ -1356,7 +1357,7 @@ public class EditorTabDriver {
 					try {
 						int[] tempHighlightIndices =theseIndices.get(i);
 						HighlightMapper hm =new HighlightMapper(tempHighlightIndices[0],tempHighlightIndices[1],highlight.addHighlight(theseIndices.get(i)[0],theseIndices.get(i)[1],thisPen));
-						EditorTabDriver.highlightedObjects.add(hm);
+						DriverDocumentsTab.highlightedObjects.add(hm);
 					} catch (BadLocationException e) {
 						Logger.logln("Error displaying highlights.");// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -1409,32 +1410,6 @@ public class EditorTabDriver {
 //		}	
 //	
 //	*/
-//	
-//	 /*class ProgressWindow implements Runnable {
-//
-//		GUIMain main;
-//		
-//		public ProgressWindow(GUIMain main){
-//			this.main = main;
-//			new Thread(this,"ClassifyingProgressBar").start();
-//		}
-//
-//
-//		@Override
-//		public void run() {
-//			main.editorProgressBar.setEnabled(true);
-//			main.editorProgressBar.setIndeterminate(true);	
-//		}
-//		
-//		public void stop(){
-//			main.editorProgressBar.setIndeterminate(false);
-//			main.editorProgressBar.setEnabled(false);
-//		}
-//		
-//		public void setText(String s){
-//			main.editingProgressBarLabel.setText(s);
-//		}
-//	}*/
 			
 	 class SuggestionCalculator implements Runnable{
 		//TODO: need to process sentence to find most salient features
@@ -1452,15 +1427,15 @@ public class EditorTabDriver {
 			int i;
 			boolean noChangeNeeded= false;
 			//System.out.println("SUGGESTION NUMBER IS: "+suggestionNumber);
-			EditorTabDriver.selectedFeature = EditorTabDriver.theFeatures[suggestionNumber].toString();
+			DriverDocumentsTab.selectedFeature = DriverDocumentsTab.theFeatures[suggestionNumber].toString();
 			//Logger.logln("Suggestion selected:"+EditorTabDriver.selectedFeature);
 			//EditorTabDriver.currentAttrib = EditorTabDriver.wizard.runSelectedFeature(suggestionNumber,false);
-			EditorTabDriver.currentAttrib = EditorTabDriver.wizard.getAttributes()[EditorTabDriver.suggestionToAttributeMap.get(suggestionNumber)];
-			EditorTabDriver.hasCurrentAttrib = true;
-			FeatureDriver theOneToUpdate = main.cfd.featureDriverAt(EditorTabDriver.featuresInCfd.indexOf(EditorTabDriver.currentAttrib.getGenericName().toString()));
+			DriverDocumentsTab.currentAttrib = DriverDocumentsTab.wizard.getAttributes()[DriverDocumentsTab.suggestionToAttributeMap.get(suggestionNumber)];
+			DriverDocumentsTab.hasCurrentAttrib = true;
+			FeatureDriver theOneToUpdate = main.cfd.featureDriverAt(DriverDocumentsTab.featuresInCfd.indexOf(DriverDocumentsTab.currentAttrib.getGenericName().toString()));
 			Logger.logln("Retrieved feature driver for currentAttrib");
 			Document currDoc = new Document();
-			currDoc.setText(main.editorBox.getText().toCharArray());
+			currDoc.setText(main.documentPane.getText().toCharArray());
 			List<Canonicizer> canonList = theOneToUpdate.getCanonicizers();
 			try{
 				Iterator<Canonicizer> canonIter = canonList.iterator();
@@ -1472,24 +1447,24 @@ public class EditorTabDriver {
 			TheOracle.setTheDocument(currDoc.stringify());
 			Logger.logln("Set document text to Computer and TheOracle");
 
-			Highlighter highlight = main.editorBox.getHighlighter();
+			Highlighter highlight = main.documentPane.getHighlighter();
 			HashMap<Color,ArrayList<int[]>> currentMap = new HashMap<Color,ArrayList<int[]>>();
 			try{
 				Logger.logln("Getting suggestion from Suggestor...");
-				EditorTabDriver.utterance = EditorTabDriver.theMirror.callRelevantSuggestor(EditorTabDriver.currentAttrib);
-				main.instructionsPane.setText(EditorTabDriver.utterance.getSuggestion());
-				if((EditorTabDriver.currentAttrib.getGenericName().toString()).contains("PERCENT"))
-					main.targetValueField.setText(Double.toString((Math.floor(EditorTabDriver.currentAttrib.getTargetValue()*10000+.5)/10000)*100));
+				DriverDocumentsTab.utterance = DriverDocumentsTab.theMirror.callRelevantSuggestor(DriverDocumentsTab.currentAttrib);
+				main.instructionsPane.setText(DriverDocumentsTab.utterance.getSuggestion());
+				if((DriverDocumentsTab.currentAttrib.getGenericName().toString()).contains("PERCENT"))
+					main.targetValueField.setText(Double.toString((Math.floor(DriverDocumentsTab.currentAttrib.getTargetValue()*10000+.5)/10000)*100));
 				else
-					main.targetValueField.setText(Double.toString((Math.floor(EditorTabDriver.currentAttrib.getTargetValue()*10000+.5)/10000)));
-				main.presentValueField.setText(Double.toString((Math.floor(EditorTabDriver.currentAttrib.getToModifyValue()*10000+.5)/10000)));
-				main.featureNameLabel.setText(EditorTabDriver.currentAttrib.getGenericName().toString()+" "+EditorTabDriver.currentAttrib.getStringInBraces()+":");
-				currentMap= EditorTabDriver.utterance.getHighlightMap();
-				noChangeNeeded = EditorTabDriver.utterance.getNoChangeNeeded();
+					main.targetValueField.setText(Double.toString((Math.floor(DriverDocumentsTab.currentAttrib.getTargetValue()*10000+.5)/10000)));
+				main.presentValueField.setText(Double.toString((Math.floor(DriverDocumentsTab.currentAttrib.getToModifyValue()*10000+.5)/10000)));
+				main.featureNameLabel.setText(DriverDocumentsTab.currentAttrib.getGenericName().toString()+" "+DriverDocumentsTab.currentAttrib.getStringInBraces()+":");
+				currentMap= DriverDocumentsTab.utterance.getHighlightMap();
+				noChangeNeeded = DriverDocumentsTab.utterance.getNoChangeNeeded();
 				Logger.logln("Suggestion obtained.");
 			} catch (Exception e){
 				e.printStackTrace();
-				EditorTabDriver.hasCurrentAttrib = false;
+				DriverDocumentsTab.hasCurrentAttrib = false;
 				JOptionPane.showMessageDialog(null, 
 						"Someone did something they shouldn't have, and an exception was thrown.\n" +
 								"If I were you, I'd point my finger at the person who wrote this.\n" +
@@ -1512,7 +1487,7 @@ public class EditorTabDriver {
 						try {
 							int[] tempHighlightIndices =theseIndices.get(i);
 							HighlightMapper hm =new HighlightMapper(tempHighlightIndices[0],tempHighlightIndices[1],highlight.addHighlight(theseIndices.get(i)[0],theseIndices.get(i)[1],thisPen));
-							EditorTabDriver.highlightedObjects.add(hm);
+							DriverDocumentsTab.highlightedObjects.add(hm);
 						} catch (BadLocationException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -1523,7 +1498,7 @@ public class EditorTabDriver {
 			else
 				Logger.logln("Highlight map empty - nothing to highlight. Finished in SuggestionCalculator");
 			main.processButton.setEnabled(true);
-			EditorTabDriver.okayToSelectSuggestion = true;
+			DriverDocumentsTab.okayToSelectSuggestion = true;
 			//System.out.println("Should exit Suggestion Calculator.");
 		} 
 	 }

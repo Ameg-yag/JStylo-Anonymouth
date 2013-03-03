@@ -27,7 +27,7 @@ import edu.drexel.psal.jstylo.canonicizers.*;
 import com.jgaap.canonicizers.*;
 import com.jgaap.generics.*;
 
-public class FeaturesTabDriver {
+public class DriverPreProcessTabFeatures {
 	
 	/* ======================
 	 * Features tab listeners

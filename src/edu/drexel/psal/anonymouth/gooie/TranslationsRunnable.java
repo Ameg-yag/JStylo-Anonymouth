@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import edu.drexel.psal.anonymouth.gooie.Translation;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
-public class TranslationsRunnable extends EditorTabDriver implements Runnable
+public class TranslationsRunnable implements Runnable
 {
 	private TaggedSentence sentence;
 	private GUIMain main;
@@ -47,33 +47,33 @@ public class TranslationsRunnable extends EditorTabDriver implements Runnable
 	public void run() 
 	{
 		setAllEnabled(false); // disable everything to start so there are no interruptions
-		main.editorHelpTabPane.setSelectedIndex(2); // or whatever index "Translation" tab is at
+		//main.topTabPane.setSelectedIndex(2); // or whatever index "Translation" tab is at
 		
 		ProgressWindow window = new ProgressWindow("Translating...", main);
 		// set up the progress bar
 		window.getProgressBar().setIndeterminate(false);
 		window.getProgressBar().setMinimum(0);
-		window.getProgressBar().setMaximum(translator.getUsedLangs().length);
+		window.getProgressBar().setMaximum(DriverDocumentsTab.translator.getUsedLangs().length);
 		window.getProgressBar().setValue(0);
 		
 		// finish set up for translation
 		Date start = new Date();
 		//main.translationsComboBox.addItem("ORIGINAL - " + sentence.getUntagged().trim());
 		//main.translationsComboBox.setSelectedIndex(0);
-		window.setText("Translating Sentence... 0 of " + translator.getUsedLangs().length + " languages.");
+		window.setText("Translating Sentence... 0 of " + DriverDocumentsTab.translator.getUsedLangs().length + " languages.");
 		
 		// translate all languages and add them and their anonIndex to the ArrayLists
-		for (int i = 0; i < translator.getUsedLangs().length; i++)
+		for (int i = 0; i < DriverDocumentsTab.translator.getUsedLangs().length; i++)
 		{
-			Language lang = translator.getUsedLangs()[i];
+			Language lang = DriverDocumentsTab.translator.getUsedLangs()[i];
 			
-			String translation = translator.getTranslation(sentence.getUntagged().trim(), lang);
+			String translation = DriverDocumentsTab.translator.getTranslation(sentence.getUntagged().trim(), lang);
 			TaggedSentence taggedTrans = new TaggedSentence(translation);
 			taggedTrans.tagAndGetFeatures();
 			sentence.getTranslations().add(taggedTrans);
 			main.translationsTable.setValueAt(sentence.getTranslations().get(i).getUntagged(), i, 0);
 			window.getProgressBar().setValue(i+1);
-			window.setText("Translating Sentence... " + (i+1) + " of " + translator.getUsedLangs().length + " languages.");
+			window.setText("Translating Sentence... " + (i+1) + " of " + DriverDocumentsTab.translator.getUsedLangs().length + " languages.");
 		}
 		
 		// sorts the translations by anonIndex and populates the translation drop down.

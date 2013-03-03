@@ -20,7 +20,7 @@ import com.jgaap.generics.Document;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.jstylo.generics.*;
 
-public class DocsTabDriver {
+public class DriverPreProcessTabDocuments {
 	
 	protected static ActionListener clearProblemSetAL;
 	protected static ActionListener loadProblemSetAL;
@@ -37,19 +37,6 @@ public class DocsTabDriver {
 	 * =======================
 	 */
 	
-	
-	protected static void setProbSetPathProperty(String path, GUIMain main)
-	{
-		// saves the path of the file chosen in the properties file
-		BufferedWriter writer;
-		try {
-			main.prop.setProperty("recentProbSet", "" + path);
-			writer = new BufferedWriter(new FileWriter(main.propFileName));
-			main.prop.store(writer, "User Preferences");
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-	}
 	
 	/**
 	 * Initialize all documents tab listeners.
@@ -118,8 +105,9 @@ public class DocsTabDriver {
 					
 					if (answer == JFileChooser.APPROVE_OPTION) {
 						String path = main.load.getSelectedFile().getAbsolutePath();
+						path = path.substring(path.indexOf("jsan_resources"));
 						
-						setProbSetPathProperty(path, main);
+						PropUtil.setProbSetPath(path);
 						
 						Logger.logln("Trying to load problem set from "+path);
 						try {
@@ -158,8 +146,9 @@ public class DocsTabDriver {
 				if (answer == JFileChooser.APPROVE_OPTION) {
 					File f = main.save.getSelectedFile();
 					String path = f.getAbsolutePath();
+					path = path.substring(path.indexOf("jsan_resources"));
 					
-					setProbSetPathProperty(path, main);
+					PropUtil.setProbSetPath(path);
 					
 					if (!path.toLowerCase().endsWith(".xml"))
 						path += ".xml";
@@ -624,8 +613,9 @@ public class DocsTabDriver {
 					
 					if (answer == JFileChooser.APPROVE_OPTION) {
 						String path = main.load.getSelectedFile().getAbsolutePath();
+						path = path.substring(path.indexOf("jsan_resources"));
 						
-						setProbSetPathProperty(path, main);
+						PropUtil.setProbSetPath(path);
 						
 						Logger.logln("Trying to load problem set from "+path);
 						try {
@@ -664,8 +654,9 @@ public class DocsTabDriver {
 				if (answer == JFileChooser.APPROVE_OPTION) {
 					File f = main.save.getSelectedFile();
 					String path = f.getAbsolutePath();
+					path = path.substring(path.indexOf("jsan_resources"));
 					
-					setProbSetPathProperty(path, main);
+					PropUtil.setProbSetPath(path);
 					
 					if (!path.toLowerCase().endsWith(".xml"))
 						path += ".xml";

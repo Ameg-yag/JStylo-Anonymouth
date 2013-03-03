@@ -125,18 +125,18 @@ public class BackendInterface {
 		}
 		
 		public void run(){
-			if((EditorTabDriver.hasCurrentAttrib == true)&&(EditorTabDriver.isWorkingOnUpdating == false)){
-				EditorTabDriver.isWorkingOnUpdating = true;
+			if((DriverDocumentsTab.hasCurrentAttrib == true) && (DriverDocumentsTab.isWorkingOnUpdating == false)){
+				DriverDocumentsTab.isWorkingOnUpdating = true;
 				//System.out.println("EditorTabDriver is working on updating: "+EditorTabDriver.isWorkingOnUpdating);
 				try {
 					double updatedPresentValue = 0;
 					
 					//System.out.println(EditorTabDriver.currentAttrib.getGenericName());
 					//System.out.println(EditorTabDriver.featuresInCfd.toString());
-					FeatureDriver theOneToUpdate = main.cfd.featureDriverAt(EditorTabDriver.featuresInCfd.indexOf(EditorTabDriver.currentAttrib.getGenericName().toString()));
+					FeatureDriver theOneToUpdate = main.cfd.featureDriverAt(DriverDocumentsTab.featuresInCfd.indexOf(DriverDocumentsTab.currentAttrib.getGenericName().toString()));
 					WekaInstancesBuilder wib = new WekaInstancesBuilder(false);
 					Document currDoc = new Document();
-					currDoc.setText(main.editorBox.getText().toCharArray());
+					currDoc.setText(main.documentPane.getText().toCharArray());
 					
 					List<Canonicizer> canonList = theOneToUpdate.getCanonicizers();
 					try{
@@ -148,7 +148,7 @@ public class BackendInterface {
 					
 					Computer.setTheDocument(currDoc);
 					
-					updatedPresentValue = theMirror.updatePresentValue(EditorTabDriver.currentAttrib);
+					updatedPresentValue = theMirror.updatePresentValue(DriverDocumentsTab.currentAttrib);
 					//else
 					main.presentValueField.setText(Double.toString(updatedPresentValue));
 					//System.out.println("PRESENT VALUE UPDATED!: "+updatedPresentValue);
@@ -177,7 +177,7 @@ public class BackendInterface {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				EditorTabDriver.isWorkingOnUpdating = false;
+				DriverDocumentsTab.isWorkingOnUpdating = false;
 				
 			}
 		}
@@ -236,19 +236,19 @@ public class BackendInterface {
 		
 		public String getDocFromCurrentTab()
 		{
-			return main.editorBox.getText();
+			return main.documentPane.getText();
 		}
 		
 		public void run()
 		{
 			try
 			{
-				main.editorBox.setEnabled(true);
+				main.documentPane.setEnabled(true);
 				DocumentMagician.numProcessRequests++;
 				TheOracle.resetColorIndex();
 				String tempDoc = "";
 				
-				if(EditorTabDriver.isFirstRun == true)
+				if(DriverDocumentsTab.isFirstRun == true)
 				{
 					ConsolidationStation.functionWords.run();
 					tempDoc = getDocFromCurrentTab();
@@ -264,7 +264,7 @@ public class BackendInterface {
 						Tagger.initTagger();
 						
 						pw.setText("Initialize Cluster Viewer...");
-						ClusterViewerDriver.initializeClusterViewer(main,true);
+						DriverClustersTab.initializeClusterViewer(main,true);
 						pw.setText("Initialize Cluster Viewer... Done");
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
@@ -296,8 +296,8 @@ public class BackendInterface {
 					else
 					{
 						magician.setModifiedDocument(tempDoc);
-						main.editorBox.setEditable(false);
-						main.editorBox.setEnabled(true);
+						main.documentPane.setEditable(false);
+						main.documentPane.setEnabled(true);
 						
 						pw.setText("Extracting and Clustering Features...");
 						try 
@@ -305,7 +305,7 @@ public class BackendInterface {
 							wizard.reRunModified(magician);
 							pw.setText("Extracting and Clustering Features... Done");
 							pw.setText("Initialize Cluster Viewer...");
-							ClusterViewerDriver.initializeClusterViewer(main,false);
+							DriverClustersTab.initializeClusterViewer(main,false);
 							pw.setText("Initialize Cluster Viewer... Done");
 							pw.setText("Classifying Documents...");
 							magician.runWeka();
@@ -324,13 +324,13 @@ public class BackendInterface {
 				}
 				int selectedIndex = 1;
 				int trueIndex = selectedIndex - 1;
-				Logger.logln("Cluster Group number '"+trueIndex+"' selected: " + ClusterViewerDriver.getStringRep()[selectedIndex]);
-				Logger.logln("Cluster Group chosen by Anonymouth: "+ClusterViewerDriver.getStringRep()[1]);
-				DataAnalyzer.selectedTargets = ClusterViewerDriver.getIntRep()[trueIndex];
-				Logger.logln("INTREP: "+ClusterViewerDriver.getIntRep()[trueIndex]);//added this.
-				EditorTabDriver.wizard.setSelectedTargets();
-				EditorTabDriver.signalTargetsSelected(main, true);
-				//eits.editorBox.setText(tempDoc);	
+				Logger.logln("Cluster Group number '"+trueIndex+"' selected: " + DriverClustersTab.getStringRep()[selectedIndex]);
+				Logger.logln("Cluster Group chosen by Anonymouth: "+DriverClustersTab.getStringRep()[1]);
+				DataAnalyzer.selectedTargets = DriverClustersTab.getIntRep()[trueIndex];
+				Logger.logln("INTREP: "+DriverClustersTab.getIntRep()[trueIndex]);//added this.
+				DriverDocumentsTab.wizard.setSelectedTargets();
+				DriverDocumentsTab.signalTargetsSelected(main, true);
+				//eits.documentPane.setText(tempDoc);	
 				//cpb.setText("Waiting for Target Selection...");
 				}
 				catch (Exception e)
@@ -383,8 +383,8 @@ public class BackendInterface {
 			pw.setText("Target Selected");
 //			TableCellRenderer renderer = new PredictionRenderer(main);
 //			main.resultsTable.setDefaultRenderer(Object.class, renderer);
-			EditorTabDriver.theFeatures = wizard.getAllRelevantFeatures();
-			Logger.logln("The Features are: "+EditorTabDriver.theFeatures.toString());
+			DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
+			Logger.logln("The Features are: "+DriverDocumentsTab.theFeatures.toString());
 			//main.suggestionTable.setModel(makeSuggestionListTable(EditorTabDriver.theFeatures));
 			//TableColumn tCol = main.suggestionTable.getColumnModel().getColumn(0);
 			//tCol.setMaxWidth(30);
@@ -392,7 +392,7 @@ public class BackendInterface {
 			//tCol.setPreferredWidth(30);
 			// make highlight bar
 			//main.highlightSelectionBox.setModel(makeHighlightBarModel());
-			TheOracle.setTheDocument(main.editorBox.getText());
+			TheOracle.setTheDocument(main.documentPane.getText());
 			main.nextSentenceButton.setEnabled(false);
 			main.prevSentenceButton.setEnabled(false);
 			main.transButton.setEnabled(false);
@@ -402,12 +402,12 @@ public class BackendInterface {
 			//main.editorProgressBar.setIndeterminate(true);	
 			
 			main.resultsTablePane.setOpaque(true);
-			EditorTabDriver.okayToSelectSuggestion = true;
-			if(EditorTabDriver.isFirstRun)
-				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.editorBox.getText(), true);
+			DriverDocumentsTab.okayToSelectSuggestion = true;
+			if(DriverDocumentsTab.isFirstRun)
+				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), true);
 			else
-				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.editorBox.getText(), false);
-			EditorTabDriver.isFirstRun = false;	
+				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
+			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;
 			
@@ -428,9 +428,9 @@ public class BackendInterface {
 			
 			Logger.logln("Finished in BackendInterface - postTargetSelection");
 			//main.editorProgressBar.setIndeterminate(false);	
-			EditorTabDriver.setAllDocTabUseable(true, main);
+			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.nextSentenceButton.doClick();
-			main.editBox.getViewport().setViewPosition(new java.awt.Point(0, 0));
+			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			
 			pw.closeWindow();
 			//cpb.setText("User Editing... Waiting to\"Re-process\"");
@@ -441,9 +441,9 @@ public class BackendInterface {
 	}
 	
 	public static ComboBoxModel makeHighlightBarModel(){
-		Iterator<FeatureList> yesHistIter = EditorTabDriver.yesCalcHistFeatures.iterator();
-		Iterator<FeatureList> noHistIter = EditorTabDriver.noCalcHistFeatures.iterator();
-		ArrayList<HighlightMapList> highlightersToInclude = new ArrayList<HighlightMapList>(EditorTabDriver.sizeOfCfd);
+		Iterator<FeatureList> yesHistIter = DriverDocumentsTab.yesCalcHistFeatures.iterator();
+		Iterator<FeatureList> noHistIter = DriverDocumentsTab.noCalcHistFeatures.iterator();
+		ArrayList<HighlightMapList> highlightersToInclude = new ArrayList<HighlightMapList>(DriverDocumentsTab.sizeOfCfd);
 		FeatureList tempFeat;
 		List<HighlightMapList> tempList;
 		HighlightMapList tempHML;
@@ -476,18 +476,18 @@ public class BackendInterface {
 				}
 		}
 		int i = 0;
-		EditorTabDriver.highlightingOptions = new HighlightMapList[count+1];
-		EditorTabDriver.highlightingOptions[0] = HighlightMapList.None;
+		DriverDocumentsTab.highlightingOptions = new HighlightMapList[count+1];
+		DriverDocumentsTab.highlightingOptions[0] = HighlightMapList.None;
 		for(i=1;i<count+1;i++)
-			EditorTabDriver.highlightingOptions[i] = highlightersToInclude.get(i-1);
-		return (new DefaultComboBoxModel(EditorTabDriver.highlightingOptions));
+			DriverDocumentsTab.highlightingOptions[i] = highlightersToInclude.get(i-1);
+		return (new DefaultComboBoxModel(DriverDocumentsTab.highlightingOptions));
 	}
 	
 	
 	public static ComboBoxModel makeInstantUpdateBarModel(){
-		ArrayList<FeatureList> calculatorsToInclude = new ArrayList<FeatureList>(EditorTabDriver.sizeOfCfd);
-		calculatorsToInclude.addAll(EditorTabDriver.yesCalcHistFeatures);
-		calculatorsToInclude.addAll(EditorTabDriver.noCalcHistFeatures);
+		ArrayList<FeatureList> calculatorsToInclude = new ArrayList<FeatureList>(DriverDocumentsTab.sizeOfCfd);
+		calculatorsToInclude.addAll(DriverDocumentsTab.yesCalcHistFeatures);
+		calculatorsToInclude.addAll(DriverDocumentsTab.noCalcHistFeatures);
 		ComboBoxModel calculatingOptions = new DefaultComboBoxModel(calculatorsToInclude.toArray());
 		return calculatingOptions;
 	}
@@ -498,7 +498,7 @@ public class BackendInterface {
 		String[] skip = {"COMPLEXITY","FLESCH_READING_EASE_SCORE","GUNNING_FOG_READABILITY_INDEX","AVERAGE_SENTENCE_LENGTH"};
 		int i=0;
 		int numDesiredSuggestions = numSuggestions - skip.length;
-		EditorTabDriver.suggestionToAttributeMap = new HashMap<Integer,Integer>(numDesiredSuggestions);
+		DriverDocumentsTab.suggestionToAttributeMap = new HashMap<Integer,Integer>(numDesiredSuggestions);
 		String[][] theModel = new String[numDesiredSuggestions][2]; 
 		int j=0;
 		i = 0;
@@ -521,7 +521,7 @@ public class BackendInterface {
 			}
 			theModel[i][0] = Integer.toString((i+1));
 			theModel[i][1] = suggestions[j];
-			EditorTabDriver.suggestionToAttributeMap.put(i,j);
+			DriverDocumentsTab.suggestionToAttributeMap.put(i,j);
 			j++;
 			i++;
 		}
@@ -566,9 +566,9 @@ public class BackendInterface {
 			main.resultsTableModel.addRow(new Object[]{predMap.get(predictions[i]), predictions[i] + "%"});
 		}
 		
-		EditorTabDriver.resultsMaxIndex = maxIndex;
-		EditorTabDriver.chosenAuthor = (String)authors[maxIndex];
-		EditorTabDriver.maxValue = (Object)biggest;
+		DriverDocumentsTab.resultsMaxIndex = maxIndex;
+		DriverDocumentsTab.chosenAuthor = (String)authors[maxIndex];
+		DriverDocumentsTab.maxValue = (Object)biggest;
 	}
 	
 }
@@ -582,8 +582,8 @@ class PredictionRenderer implements TableCellRenderer {
 	public PredictionRenderer(GUIMain main)
 	{
 		this.main = main;
-		this.main.chosenAuthor = EditorTabDriver.chosenAuthor;
-		this.main.resultsMaxIndex = EditorTabDriver.resultsMaxIndex;
+		this.main.chosenAuthor = DriverDocumentsTab.chosenAuthor;
+		this.main.resultsMaxIndex = DriverDocumentsTab.resultsMaxIndex;
 	}
 	  
 	  

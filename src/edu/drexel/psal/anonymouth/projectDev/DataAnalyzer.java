@@ -15,9 +15,9 @@ import java.util.NavigableMap;
 import java.util.Scanner;
 
 import edu.drexel.psal.anonymouth.gooie.ClusterViewer;
-import edu.drexel.psal.anonymouth.gooie.EditorTabDriver;
+import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
-import edu.drexel.psal.anonymouth.gooie.DocsTabDriver.ExtFilter;
+import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapMaker;
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.jstylo.generics.*;
@@ -254,7 +254,7 @@ public class DataAnalyzer{
 		int j = 0;
 		String strippedAttrib;
 		FeatureList genName;
-		EditorTabDriver.attributesMappedByName = new HashMap<FeatureList,Integer>(numFeatures);
+		DriverDocumentsTab.attributesMappedByName = new HashMap<FeatureList,Integer>(numFeatures);
 		
 		for(i=0; i<numFeatures;i++){
 			String attrib = (theArffFile.attribute((int) allInfoGain[i][1]).toString());
@@ -309,7 +309,7 @@ public class DataAnalyzer{
 			topAttribs[j].setInfoGain(allInfoGain[j][0]);
 			topAttribs[j].setToModifyValue(toModifyInstancesArray[0][toModifyIndex]);
 			genName = topAttribs[j].getGenericName();
-			EditorTabDriver.attributesMappedByName.put(genName, j);
+			DriverDocumentsTab.attributesMappedByName.put(genName, j);
 			featuresForClusterAnalyzer.add(topAttribs[j].getConcatGenNameAndStrInBraces());
 			strippedAttributeNames[j] = strippedAttrib;	
 			Logger.logln(topAttribs[j].getFullName()+" info gain for this feature is: "+topAttribs[j].getInfoGain()+", calcHist is: "+topAttribs[j].getCalcHist()+" string in the braces (if applicable): "+topAttribs[j].getStringInBraces()+" toModify value is: "+topAttribs[j].getToModifyValue()); 

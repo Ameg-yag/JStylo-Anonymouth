@@ -194,13 +194,13 @@ public class ClusterViewer extends JPanel {
 		allPanels = new JPanel[everySingleCluster.size()];
 		i=0;
 		int[] initialLayoverVals = new int[numFeatures];
-		ClusterViewerDriver.namePanels = new JPanel[numFeatures];
+		DriverClustersTab.namePanels = new JPanel[numFeatures];
 		String[] usedNames = new String[numFeatures];
 		while(outerLevel.hasNext())
 		{
 			JPanel namePanel = new JPanel();
 			namePanel.add(new JLabel(names[i]));
-			ClusterViewerDriver.namePanels[i] = namePanel;
+			DriverClustersTab.namePanels[i] = namePanel;
 			usedNames[i] = names[i];
 			
 			JPanel oneOfMany = new ClusterViewer(outerLevel.next(),i,minimums[i],maximums[i], authorMin[i],authorMax[i],presentValues[i]);

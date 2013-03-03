@@ -34,7 +34,7 @@ import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.anonymouth.gooie.Translation;
-import edu.drexel.psal.anonymouth.gooie.DocsTabDriver.ExtFilter;
+import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 
 import javax.swing.*;
@@ -467,18 +467,22 @@ public class PreProcessSettingsFrame extends JDialog
 			bottomPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
 			{
 				okButton = new JButton("Ok");
-				okButton.addActionListener(new ActionListener(){
+				okButton.addActionListener(new ActionListener()
+				{
 					@Override
-					public void actionPerformed(ActionEvent e) {
+					public void actionPerformed(ActionEvent e) 
+					{
 						closeWindow();
 					}
 				});
 				bottomPanel.add(okButton);
 				
 				cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener(){
+				cancelButton.addActionListener(new ActionListener()
+				{
 					@Override
-					public void actionPerformed(ActionEvent e) {
+					public void actionPerformed(ActionEvent e) 
+					{
 						closeWindow();
 					}
 				});
@@ -494,7 +498,8 @@ public class PreProcessSettingsFrame extends JDialog
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 	}
 	
-	private void initializeTree(JTree tree, DefaultMutableTreeNode top) {
+	private void initializeTree(JTree tree, DefaultMutableTreeNode top) 
+	{
 	    DefaultMutableTreeNode section = null;
 	    DefaultMutableTreeNode subSection = null;
 	    
@@ -1033,7 +1038,7 @@ public class PreProcessSettingsFrame extends JDialog
 				classJTree = new JTree();
 				classJTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 				classTreeScrollPane = new JScrollPane(classJTree);
-				ClassTabDriver.initAdvWekaClassifiersTree(this);
+				DriverPreProcessTabClassifiers.initAdvWekaClassifiersTree(this);
 				
 				classSelClassJListModel = new DefaultListModel();
 				classJList = new JList(classSelClassJListModel);

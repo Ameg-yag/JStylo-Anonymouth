@@ -1,7 +1,7 @@
 
 package edu.drexel.psal.anonymouth.projectDev;
 
-import edu.drexel.psal.anonymouth.gooie.EditorTabDriver;
+import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapMaker;
 import edu.drexel.psal.anonymouth.suggestors.Prophecy;
 import edu.drexel.psal.jstylo.generics.Logger;
@@ -38,7 +38,7 @@ public class TheMirror {
 		method = hmm.getClass().getDeclaredMethod(methodName,(Class<?>[])null);
 		method.invoke(hmm,(Object[])null);//{new String(pac.getName()), temp[0],temp[1]});
 		
-		EditorTabDriver.dispHighlights();
+		DriverDocumentsTab.dispHighlights();
 		Logger.logln("Highlighting complete.");
 	}
 	
@@ -49,7 +49,7 @@ public class TheMirror {
 		method = hmm.getClass().getDeclaredMethod(methodName, String.class);
 		method.invoke(hmm,specifier);//{new String(pac.getName()), temp[0],temp[1]});
 		
-		EditorTabDriver.dispHighlights();	
+		DriverDocumentsTab.dispHighlights();	
 		Logger.logln("Highlighting complete.");
 		
 	}

@@ -110,7 +110,7 @@ public class GUIUpdateInterface {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				main.editorBox.setText(main.mainDocPreview.stringify());
+				main.documentPane.setText(main.mainDocPreview.stringify());
 			}
 		}
 		

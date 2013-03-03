@@ -24,7 +24,7 @@ import weka.classifiers.lazy.*;
 import weka.classifiers.rules.ZeroR;
 import weka.classifiers.trees.*;
 
-public class ClassTabDriver {
+public class DriverPreProcessTabClassifiers {
 
 	/* =========================
 	 * Classifiers tab listeners
