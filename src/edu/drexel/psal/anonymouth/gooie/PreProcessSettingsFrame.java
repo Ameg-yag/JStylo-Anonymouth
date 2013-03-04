@@ -620,6 +620,7 @@ public class PreProcessSettingsFrame extends JDialog
 				// main label-----------------------------------
 				JLabel mainLabel = new JLabel("Main:");
 				mainLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				mainLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				mainLabel.setOpaque(true);
 				mainLabel.setBackground(main.tan);
 				mainLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -627,6 +628,7 @@ public class PreProcessSettingsFrame extends JDialog
 				// sample label--------------------------------
 				JLabel sampleLabel = new JLabel("Sample:");
 				sampleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				sampleLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				sampleLabel.setOpaque(true);
 				sampleLabel.setBackground(main.tan);
 				sampleLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -634,6 +636,7 @@ public class PreProcessSettingsFrame extends JDialog
 				// train label----------------------------------
 				JLabel trainLabel = new JLabel("Other Authors:");
 				trainLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				trainLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				trainLabel.setOpaque(true);
 				trainLabel.setBackground(main.tan);
 				trainLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -814,11 +817,13 @@ public class PreProcessSettingsFrame extends JDialog
 				
 				featuresListLabel = new JLabel("Features:");
 				featuresListLabel.setHorizontalAlignment(JLabel.CENTER);
+				featuresListLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				featuresListLabel.setOpaque(true);
 				featuresListLabel.setBackground(main.tan);
 				featuresListLabel.setBorder(BorderFactory.createRaisedBevelBorder());
 				
 				featuresInfoLabel = new JLabel("Feature Information:");
+				featuresInfoLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				featuresInfoLabel.setHorizontalAlignment(JLabel.CENTER);
 				featuresInfoLabel.setOpaque(true);
 				featuresInfoLabel.setBackground(main.tan);
@@ -1025,12 +1030,14 @@ public class PreProcessSettingsFrame extends JDialog
 
 				classAvClassJLabel = new JLabel("Available WEKA Classifiers:");
 				classAvClassJLabel.setHorizontalAlignment(JLabel.CENTER);
+				classAvClassJLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				classAvClassJLabel.setOpaque(true);
 				classAvClassJLabel.setBackground(main.tan);
 				classAvClassJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
 				
 				classSelClassJLabel = new JLabel("Selected WEKA Classifiers:");
 				classSelClassJLabel.setHorizontalAlignment(JLabel.CENTER);
+				classSelClassJLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				classSelClassJLabel.setOpaque(true);
 				classSelClassJLabel.setBackground(main.tan);
 				classSelClassJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -1059,6 +1066,7 @@ public class PreProcessSettingsFrame extends JDialog
 					
 				classDescJLabel = new JLabel("Classifier Description");
 				classDescJLabel.setHorizontalAlignment(JLabel.CENTER);
+				classDescJLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				classDescJLabel.setOpaque(true);
 				classDescJLabel.setBackground(main.tan);
 				classDescJLabel.setBorder(BorderFactory.createRaisedBevelBorder());

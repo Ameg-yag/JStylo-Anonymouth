@@ -25,7 +25,7 @@ public class PropUtil
 	protected static GUIMain main = GUIMain.inst;
 	public static enum Location // just so you cant mess up the input to methods by spelling stuff wrong
 	{
-		LEFT("left"), TOP("top"), RIGHT("right"), BOTTOM("bottom");
+		LEFT("left"), TOP("top"), RIGHT("right"), BOTTOM("bottom"), NONE("none");
 		
 		public String strRep;
 		Location(String rep)
@@ -46,6 +46,8 @@ public class PropUtil
 			return Location.RIGHT;
 		case "bottom":
 			return Location.BOTTOM;
+		case "none":
+			return Location.NONE;
 		}
 		return null;
 	}
@@ -62,6 +64,8 @@ public class PropUtil
 			return "right";
 		case BOTTOM:
 			return "bottom";
+		case NONE:
+			return "none";
 		}
 		return null;
 	}

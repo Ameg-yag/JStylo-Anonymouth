@@ -1,16 +1,10 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.swing.event.*;
 
 import edu.drexel.psal.anonymouth.projectDev.ClusterAnalyzer;
 import edu.drexel.psal.anonymouth.projectDev.ClusterGroup;
@@ -28,6 +22,30 @@ public class DriverClustersTab {
 	private static int[][] intRepresentation;
 	private static String[] stringRepresentation;
 	protected static JPanel[] namePanels;
+	
+	public static class alignListRenderer implements ListCellRenderer 
+	{
+		int alignValue;
+		protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
+		
+		public alignListRenderer(int value)
+		{
+			super();
+			alignValue = value;
+		}
+
+		public Component getListCellRendererComponent(JList list, Object value, int index,
+	      boolean isSelected, boolean cellHasFocus) 
+		{
+
+		    JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
+		        isSelected, cellHasFocus);
+		    
+		    renderer.setHorizontalAlignment(alignValue);
+		    
+		    return renderer;
+	    }
+	}
 	
 	public static int[][] getIntRep()
 	{
@@ -108,71 +126,43 @@ public class DriverClustersTab {
 		}
 	}
 	
-	public static void initListeners(GUIMain main) 
-	{
-		initSideListeners(main);
-		initTopListeners(main);
-	}
+	public static void initListeners(final GUIMain main) 
+	{	
+		main.featuresList.setCellRenderer(new alignListRenderer(SwingConstants.CENTER));
+		main.subFeaturesList.setCellRenderer(new alignListRenderer(SwingConstants.CENTER));
 		
-	public static void initSideListeners(final GUIMain main)
-	{
-		main.featuresBox.addItemListener(new ItemListener()
+		main.featuresList.addListSelectionListener(new ListSelectionListener()
 		{
 			@Override
-			public void itemStateChanged(ItemEvent e) 
+			public void valueChanged(ListSelectionEvent e) 
 			{
-				int index = main.featuresBox.getSelectedIndex();
-				main.subFeaturesBoxModel = new DefaultComboBoxModel(main.subfeatures.get(index).toArray());
-				main.subFeaturesBox.setModel(main.subFeaturesBoxModel);
+				int index = main.featuresList.getSelectedIndices()[0];
+				main.subFeaturesListModel = new DefaultListModel();
+				for (int i = 0; i < main.subfeatures.get(index).size(); i++)
+					main.subFeaturesListModel.addElement(main.subfeatures.get(index).get(i));
+				main.subFeaturesList.setModel(main.subFeaturesListModel);
+				main.subFeaturesListScrollPane.getVerticalScrollBar().setValue(0);
 				if (main.subfeatures.get(index).isEmpty())
 				{
-					main.subFeaturesBox.setEnabled(false);
-					findCluster(main, (String)main.featuresBox.getSelectedItem());
+					main.subFeaturesList.setEnabled(false);
+					findCluster(main, (String)main.featuresList.getSelectedValue());
 				}
 				else
-					main.subFeaturesBox.setEnabled(true);
+					main.subFeaturesList.setEnabled(true);
 			}
 		});
 		
-		main.subFeaturesBox.addItemListener(new ItemListener()
+		main.subFeaturesList.addListSelectionListener(new ListSelectionListener()
 		{
 			@Override
-			public void itemStateChanged(ItemEvent e) 
+			public void valueChanged(ListSelectionEvent e) 
 			{
-				findCluster(main, (String)main.featuresBox.getSelectedItem() + "--" + (String)main.subFeaturesBox.getSelectedItem());
+				findCluster(main, (String)main.featuresList.getSelectedValue() + "--" + (String)main.subFeaturesList.getSelectedValue());
 			}
 		});
 	}
-	
-	public static void initTopListeners(final GUIMain main)
-	{
-		main.featuresBox.addItemListener(new ItemListener()
-		{
-			@Override
-			public void itemStateChanged(ItemEvent e) 
-			{
-				int index = main.featuresBox.getSelectedIndex();
-				main.subFeaturesBoxModel = new DefaultComboBoxModel(main.subfeatures.get(index).toArray());
-				main.subFeaturesBox.setModel(main.subFeaturesBoxModel);
-				if (main.subfeatures.get(index).isEmpty())
-				{
-					main.subFeaturesBox.setEnabled(false);
-					findCluster(main, (String)main.featuresBox.getSelectedItem());
-				}
-				else
-					main.subFeaturesBox.setEnabled(true);
-			}
-		});
 		
-		main.subFeaturesBox.addItemListener(new ItemListener()
-		{
-			@Override
-			public void itemStateChanged(ItemEvent e) 
-			{
-				findCluster(main, (String)main.featuresBox.getSelectedItem() + "--" + (String)main.subFeaturesBox.getSelectedItem());
-			}
-		});
-	}
+
 
 	/*
 	main.clusterConfigurationBox.addActionListener(new ActionListener() {

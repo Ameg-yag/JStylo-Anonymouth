@@ -34,6 +34,7 @@ import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.anonymouth.gooie.Translation;
+import edu.drexel.psal.anonymouth.gooie.DriverClustersTab.alignListRenderer;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 
@@ -116,6 +117,7 @@ public class GUIMain extends javax.swing.JFrame
 	protected List<String> results;
 	
 	protected PreProcessSettingsFrame PPSP;
+	protected GeneralSettingsFrame GSP;
 
 	protected String defaultTrainDocsTreeName = "Authors"; 
 	protected Font defaultLabelFont = new Font("Verdana",0,16);
@@ -406,12 +408,10 @@ public class GUIMain extends javax.swing.JFrame
 		private TableModel oldResultsTableModel = null;
 		private TableCellRenderer tcr = new DefaultTableCellRenderer();
 		
-		protected JComboBox featuresBox;
-		protected DefaultComboBoxModel featuresBoxModel;
-		protected JComboBox subFeaturesBox;
-		protected DefaultComboBoxModel subFeaturesBoxModel;
+		protected JScrollPane featuresListScrollPane;
 		protected JList featuresList;
 		protected DefaultListModel featuresListModel;
+		protected JScrollPane subFeaturesListScrollPane;
 		protected JList subFeaturesList;
 		protected DefaultListModel subFeaturesListModel;
 		protected JScrollPane clusterScrollPane;
@@ -451,6 +451,9 @@ public class GUIMain extends javax.swing.JFrame
 	protected static ImageIcon iconNO;
 	protected static ImageIcon iconFINISHED;
 	public static ImageIcon icon;
+	
+	protected JMenuBar menuBar;
+	protected JMenuItem settingsGeneralMenuItem;
 	
 	// used for translation of sentences
 	protected Translation GUITranslator = new Translation();
@@ -532,21 +535,51 @@ public class GUIMain extends javax.swing.JFrame
 			this.setTitle("Anonymouth");
 			this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
 			
-			JMenuBar menuBar = new JMenuBar();
+			menuBar = new JMenuBar();
 			JMenu fileMenu = new JMenu("File");
-			JMenuItem printMenuItem = new JMenuItem("Print...");
 			JMenu settingsMenu = new JMenu("Settings");
-			JMenuItem settingsAdvancedMenuItem = new JMenuItem("Advanced...");
 			JMenu helpMenu = new JMenu("Help");
-			JMenuItem aboutMenuItem = new JMenuItem("About Anonymouth");
+			JMenu settingsTabMenu = new JMenu("Tabs");
+			settingsGeneralMenuItem = new JMenuItem("General...");
+			JMenu settingsTabClustersMenu = new JMenu("Clusters");
+			JMenu settingsTabPreprocessMenu = new JMenu("Pre-Process");
+			JMenu settingsTabSuggestionsMenu = new JMenu("Suggestions");
+			JMenu settingsTabTranslationsMenu = new JMenu("Translations");
+			JMenu settingsTabDocumentsMenu = new JMenu("Documents");
+			JMenu settingsTabResultsMenu = new JMenu("Results");
+			JMenuItem filePrintMenuItem = new JMenuItem("Print...");
+			JMenuItem helpAboutMenuItem = new JMenuItem("About Anonymouth");
 			
 			menuBar.add(fileMenu);
-			fileMenu.add(printMenuItem);
 			menuBar.add(settingsMenu);
-			settingsMenu.addSeparator();
-			settingsMenu.add(settingsAdvancedMenuItem);
 			menuBar.add(helpMenu);
-			helpMenu.add(aboutMenuItem);
+			
+			fileMenu.add(filePrintMenuItem);
+			
+			// ================== HAVE TO ADD ACTION LISTENERS TO THESE BUT NEED TO FIGURE OUT BEST WAY TO DO SO
+			
+			settingsMenu.add(settingsGeneralMenuItem);
+			settingsMenu.add(settingsTabMenu);
+				settingsTabMenu.add(settingsTabClustersMenu);
+					settingsTabClustersMenu.add(new JMenuItem("Left"));
+					settingsTabClustersMenu.add(new JMenuItem("Top"));
+					settingsTabClustersMenu.add(new JMenuItem("Right"));
+				settingsTabMenu.add(settingsTabPreprocessMenu);
+					settingsTabPreprocessMenu.add(new JMenuItem("Left"));
+					settingsTabPreprocessMenu.add(new JMenuItem("Right"));
+				settingsTabMenu.add(settingsTabSuggestionsMenu);
+					settingsTabSuggestionsMenu.add(new JMenuItem("Left"));
+					settingsTabSuggestionsMenu.add(new JMenuItem("Right"));
+				settingsTabMenu.add(settingsTabTranslationsMenu);
+					settingsTabTranslationsMenu.add(new JMenuItem("Left"));
+					settingsTabTranslationsMenu.add(new JMenuItem("Right"));
+				settingsTabMenu.add(settingsTabDocumentsMenu);
+					settingsTabDocumentsMenu.add(new JMenuItem("Top"));
+				settingsTabMenu.add(settingsTabResultsMenu);
+					settingsTabResultsMenu.add(new JMenuItem("Bottom"));
+			
+			helpMenu.add(helpAboutMenuItem);
+			
 			this.setJMenuBar(menuBar);
 			
 			setUpContentPane();
@@ -558,9 +591,11 @@ public class GUIMain extends javax.swing.JFrame
 			// init all settings panes
 			
 			PPSP = new PreProcessSettingsFrame(this);
+			GSP = new GeneralSettingsFrame(this);
 			
 			// initialize listeners - except for EditorTabDriver!
 			
+			DriverMenu.initListeners(this);
 			DriverClustersTab.initListeners(this);
 			DriverDocumentsTab.initListeners(this);
 			DriverPreProcessTab.initListeners(this);
@@ -759,7 +794,6 @@ public class GUIMain extends javax.swing.JFrame
 	{
 		Arrays.sort(names);
 		// add the holder at top
-		features.add("Select A Feature...");
 		subfeatures.add(new ArrayList<String>());
 		for (int i = 0; i < names.length; i++)
 		{
@@ -781,10 +815,7 @@ public class GUIMain extends javax.swing.JFrame
 				features.add(feature);
 				subfeatures.add(new ArrayList<String>());
 				if (subfeature != null)
-				{
-					subfeatures.get(features.indexOf(feature)).add("Select A Sub-Feature...");
 					subfeatures.get(features.indexOf(feature)).add(subfeature);
-				}
 					
 			}
 			else // if the feature does exist, add its subfeature to the subfeature list
@@ -793,8 +824,10 @@ public class GUIMain extends javax.swing.JFrame
 					subfeatures.get(features.indexOf(feature)).add(subfeature);
 			}
 		}
-		featuresBoxModel = new DefaultComboBoxModel(features.toArray());
-		featuresBox.setModel(featuresBoxModel);
+		featuresListModel = new DefaultListModel();
+		for (int i = 0; i < features.size(); i++)
+			featuresListModel.addElement(features.get(i));
+		featuresList.setModel(featuresListModel);
 	}
 	
 	/**
@@ -849,12 +882,14 @@ public class GUIMain extends javax.swing.JFrame
 			DefaultListModel mainDocListModel = new DefaultListModel();
 			prepMainDocList = new JList(mainDocListModel);
 			prepMainDocList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			prepMainDocList.setCellRenderer(new DriverClustersTab.alignListRenderer(SwingConstants.CENTER));
 			prepMainDocScrollPane = new JScrollPane(prepMainDocList);
 			
 			// sample documents list
 			DefaultListModel sampleDocsListModel = new DefaultListModel();
 			prepSampleDocsList = new JList(sampleDocsListModel);
 			prepSampleDocsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			prepSampleDocsList.setCellRenderer(new DriverClustersTab.alignListRenderer(SwingConstants.CENTER));
 			prepSampleDocsScrollPane = new JScrollPane(prepSampleDocsList);
 			
 			// main add button
@@ -879,10 +914,10 @@ public class GUIMain extends javax.swing.JFrame
 			trainCorpusJTreeScrollPane = new JScrollPane(trainCorpusJTree);
 			
 			// train add button
-			addTrainDocsJButton = new JButton("Add");
+			addTrainDocsJButton = new JButton("+");
 			
 			// train delete button
-			removeTrainDocsJButton = new JButton("Delete");
+			removeTrainDocsJButton = new JButton("-");
 			
 			prepDocumentsPanel.add(prepAdvButton, "skip 1, span 2");
 			prepDocumentsPanel.add(prepDocLabel, "skip 1, span, h 20!");
@@ -960,6 +995,7 @@ public class GUIMain extends javax.swing.JFrame
 			DefaultListModel selectedListModel = new DefaultListModel();
 			classJList = new JList(selectedListModel);
 			classJList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+			classJList.setCellRenderer(new DriverClustersTab.alignListRenderer(SwingConstants.CENTER));
 			prepSelectedClassScrollPane = new JScrollPane(classJList);
 			
 			classAddJButton = new JButton("Select");
@@ -1099,6 +1135,7 @@ public class GUIMain extends javax.swing.JFrame
 			//--------- Elements to Add Label ------------------
 			elementsToAddLabel = new JLabel("Elements To Add:");
 			elementsToAddLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			elementsToAddLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 			elementsToAddLabel.setOpaque(true);
 			elementsToAddLabel.setBackground(tan);
 			elementsToAddLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -1111,6 +1148,7 @@ public class GUIMain extends javax.swing.JFrame
 			//--------- Elements to Remove Label  ------------------
 			elementsToRemoveLabel = new JLabel("Elements To Remove:");
 			elementsToRemoveLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			elementsToRemoveLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 			elementsToRemoveLabel.setOpaque(true);
 			elementsToRemoveLabel.setBackground(tan);
 			elementsToRemoveLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -1140,6 +1178,7 @@ public class GUIMain extends javax.swing.JFrame
 			//--------- translationsLabel ------------------
 			translationsLabel = new JLabel("Translations:");
 			translationsLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			translationsLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 			translationsLabel.setOpaque(true);
 			translationsLabel.setBackground(tan);
 			translationsLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -1204,6 +1243,7 @@ public class GUIMain extends javax.swing.JFrame
 			{
             	sentenceBoxLabel = new JLabel("Sentence:");
             	sentenceBoxLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            	sentenceBoxLabel.setFont(new Font("Ariel", Font.BOLD, 12));
             	sentenceBoxLabel.setOpaque(true);
             	sentenceBoxLabel.setBackground(tan);
             	sentenceBoxLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -1242,6 +1282,7 @@ public class GUIMain extends javax.swing.JFrame
                 
                 translationsBoxLabel = new JLabel("Translation:");
                 translationsBoxLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                translationsBoxLabel.setFont(new Font("Ariel", Font.BOLD, 12));
                 translationsBoxLabel.setOpaque(true);
                 translationsBoxLabel.setBackground(tan);
                 translationsBoxLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -1279,6 +1320,7 @@ public class GUIMain extends javax.swing.JFrame
             	
                 editBoxLabel = new JLabel("Document:");
                 editBoxLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                editBoxLabel.setFont(new Font("Ariel", Font.BOLD, 12));
                 editBoxLabel.setOpaque(true);
                 editBoxLabel.setBackground(tan);
                 editBoxLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -1373,76 +1415,16 @@ public class GUIMain extends javax.swing.JFrame
 					"[][20]0[grow, fill]"));
 		else if (location == PropUtil.Location.TOP)
 			clustersPanel.setLayout(new MigLayout(
-					"wrap 2, ins 0",
-					"[][grow, fill]",
-					"[20]0[grow, fill]"));
+					"wrap 2, fill, ins 0, gap 0 0",
+					"[70%][30%]",
+					"[20][][grow]"));
 		else
 			throw new Exception();
 		
 		{ // --------------cluster panel components
-			JPanel legend = new JPanel();
-			if (location== PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
-				legend.setLayout(new MigLayout(
-						"wrap, fill, ins 0",
-						"[][grow, fill]",
-						"[20]0[20][20]0[20][20]0[20]0[20]"));
-			else if (location == PropUtil.Location.TOP)
-				legend.setLayout(new MigLayout(
-						"wrap, fill, ins 0",
-						"[][grow, fill]",
-						"[20]0[grow, fill][20]0[grow, fill][20]0[20]0[20]"));
-			else
-				throw new Exception();
-			
-			{ // --------------------legend panel components
-				JLabel featuresLabel = new JLabel("Features:");
-				featuresLabel.setHorizontalAlignment(SwingConstants.CENTER);
-				featuresLabel.setOpaque(true);
-				featuresLabel.setBackground(tan);
-				featuresLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-				
-				featuresBox = new JComboBox();
-				((JLabel)featuresBox.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
-				
-				JLabel subFeaturesLabel = new JLabel("Sub-Features:");
-				subFeaturesLabel.setHorizontalAlignment(SwingConstants.CENTER);
-				subFeaturesLabel.setOpaque(true);
-				subFeaturesLabel.setBackground(tan);
-				subFeaturesLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-				
-				subFeaturesBox = new JComboBox();
-				((JLabel)subFeaturesBox.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
-				subFeaturesBox.setEnabled(false);
-				
-				JLabel presentValueLabel = new JLabel("Present Value:");
-				
-				JPanel presentValuePanel = new JPanel();
-				presentValuePanel.setBackground(Color.black);
-				
-				JLabel normalRangeLabel = new JLabel("Normal Range:");
-				
-				JPanel normalRangePanel = new JPanel();
-				normalRangePanel.setBackground(Color.red);
-				
-				JLabel safeZoneLabel = new JLabel("Safe Zone:");
-				
-				JPanel safeZonePanel = new JPanel();
-				safeZonePanel.setBackground(Color.green);
-				
-				legend.add(featuresLabel, "span 2, grow");
-				legend.add(featuresBox, "span 2, grow");
-				legend.add(subFeaturesLabel, "span 2, grow");
-				legend.add(subFeaturesBox, "span 2, grow");
-				legend.add(presentValueLabel);
-				legend.add(presentValuePanel);
-				legend.add(normalRangeLabel);
-				legend.add(normalRangePanel);
-				legend.add(safeZoneLabel);
-				legend.add(safeZonePanel);
-			}
-				
 			JLabel clustersLabel = new JLabel("Clusters:");
 			clustersLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			clustersLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 			clustersLabel.setOpaque(true);
 			clustersLabel.setBackground(tan);
 			clustersLabel.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -1462,17 +1444,108 @@ public class GUIMain extends javax.swing.JFrame
 			clusterScrollPane = new JScrollPane(holderPanel);
 			clusterScrollPane.setOpaque(true);
 			
+			JLabel legendLabel = new JLabel("Legend:");
+			legendLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			legendLabel.setFont(new Font("Ariel", Font.BOLD, 12));
+			legendLabel.setOpaque(true);
+			legendLabel.setBackground(tan);
+			legendLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+			
+			JPanel legendPanel = new JPanel();
+			if (location== PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
+				legendPanel.setLayout(new MigLayout(
+						"wrap, fill, ins 0",
+						"[][grow, fill]",
+						"[20]0[20][20]0[20][20]0[20]0[20]"));
+			else if (location == PropUtil.Location.TOP)
+				legendPanel.setLayout(new MigLayout(
+						"wrap 2",
+						"20[][100]",
+						"grow, fill"));
+			else
+				throw new Exception();
+			
+			{ // --------------------legend panel components
+				JLabel presentValueLabel = new JLabel("Present Value:");
+				
+				JPanel presentValuePanel = new JPanel();
+				presentValuePanel.setBackground(Color.black);
+				
+				JLabel normalRangeLabel = new JLabel("Normal Range:");
+				
+				JPanel normalRangePanel = new JPanel();
+				normalRangePanel.setBackground(Color.red);
+				
+				JLabel safeZoneLabel = new JLabel("Safe Zone:");
+				
+				JPanel safeZonePanel = new JPanel();
+				safeZonePanel.setBackground(Color.green);
+				
+				legendPanel.add(presentValueLabel, "grow");
+				legendPanel.add(presentValuePanel, "grow");
+				legendPanel.add(normalRangeLabel, "grow");
+				legendPanel.add(normalRangePanel, "grow");
+				legendPanel.add(safeZoneLabel, "grow");
+				legendPanel.add(safeZonePanel, "grow");
+			}
+			
+			JPanel featuresPanel = new JPanel();
+			if (location== PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
+				featuresPanel.setLayout(new MigLayout(
+						"wrap 2, fill, ins 0",
+						"grow, fill",
+						"[20]0[grow, fill]"));
+			else if (location == PropUtil.Location.TOP)
+				featuresPanel.setLayout(new MigLayout(
+						"wrap, fill, ins 0",
+						"grow, fill",
+						"0[20]0[grow, fill][20]0[grow, fill]0"));
+			else
+				throw new Exception();
+			
+			{ // --------------------legend panel components
+				JLabel featuresLabel = new JLabel("Features:");
+				featuresLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				featuresLabel.setFont(new Font("Ariel", Font.BOLD, 12));
+				featuresLabel.setOpaque(true);
+				featuresLabel.setBackground(tan);
+				featuresLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				
+				featuresListModel = new DefaultListModel();
+				featuresList = new JList(featuresListModel);
+				featuresListScrollPane = new JScrollPane(featuresList);
+				
+				JLabel subFeaturesLabel = new JLabel("Sub-Features:");
+				subFeaturesLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				subFeaturesLabel.setFont(new Font("Ariel", Font.BOLD, 12));
+				subFeaturesLabel.setOpaque(true);
+				subFeaturesLabel.setBackground(tan);
+				subFeaturesLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				
+				subFeaturesListModel = new DefaultListModel();
+				subFeaturesList = new JList(subFeaturesListModel);
+				subFeaturesList.setEnabled(false);
+				subFeaturesListScrollPane = new JScrollPane(subFeaturesList);
+				
+				featuresPanel.add(featuresLabel, "grow");
+				featuresPanel.add(featuresListScrollPane, "grow");
+				featuresPanel.add(subFeaturesLabel, "grow");
+				featuresPanel.add(subFeaturesListScrollPane, "grow");
+			}
+			
 			if (location== PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
 			{
-				clustersPanel.add(legend);
+				clustersPanel.add(legendPanel);
 				clustersPanel.add(clustersLabel);
 				clustersPanel.add(clusterScrollPane);
 			}
 			else if (location == PropUtil.Location.TOP)
 			{
-				clustersPanel.add(legend, "w 25%!, spany, grow");
-				clustersPanel.add(clustersLabel, "grow");
-				clustersPanel.add(clusterScrollPane, "grow");
+				clustersPanel.add(clustersLabel, "grow, h 20!");
+				clustersPanel.add(legendLabel, "grow, h 20!");
+				clustersPanel.add(clusterScrollPane, "grow, spany");
+				clustersPanel.add(legendPanel, "grow");
+				clustersPanel.add(featuresPanel, "spany, grow");
 			}
 			else
 				throw new Exception();
@@ -1486,10 +1559,11 @@ public class GUIMain extends javax.swing.JFrame
 		resultsPanel.setLayout(new MigLayout(
 				"wrap 2, ins 0",
 				"[100:20%:][grow, fill]",
-				"[20][grow, fill]"));
+				"0[20][grow, fill]0"));
 		{
 			resultsTableLabel = new JLabel("Classification Results:");
 			resultsTableLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			resultsTableLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 			resultsTableLabel.setOpaque(true);
 			resultsTableLabel.setBackground(tan);
 			resultsTableLabel.setBorder(BorderFactory.createRaisedBevelBorder());
