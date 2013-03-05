@@ -1,9 +1,9 @@
 #User Preferences
-#Tue Mar 05 13:57:34 EST 2013
-suggestionsTabLocation=left
-preProcessTabLocation=left
+#Tue Mar 05 17:03:02 EST 2013
+suggestionsTabLocation=right
+preProcessTabLocation=right
 resultsTabLocation=bottom
-translationsTabLocation=left
-clustersTabLocation=top
-recentProbSet=C\:\\Users\\Jeff\\workspace\\PSAL\\JStylo-Anonymouth\\jsan_resources\\problem_sets\\jeff_Desktop.xml
+translationsTabLocation=right
+clustersTabLocation=left
 documentsTabLocation=top
+recentProbSet=jsan_resources\\problem_sets\\jeff_Desktop.xml

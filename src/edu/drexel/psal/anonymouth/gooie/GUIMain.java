@@ -578,7 +578,20 @@ public class GUIMain extends javax.swing.JFrame
 			
 			this.setJMenuBar(menuBar);
 			
-			setUpContentPane();
+			// ----- create all the tabs based on tab location (for some)
+			// ----- must be done first so the lists and tables below refer to a location (not null)
+			leftTabPane = new JTabbedPane();
+			topTabPane = new JTabbedPane();
+			rightTabPane = new JTabbedPane();
+			bottomTabPane = new JTabbedPane();
+			createPPTab();
+			createSugTab();
+			createTransTab();
+			createDocumentTab();
+			createClustersTab();
+			createResultsTab();
+			
+			setUpContentPane(false);
 			
 			// final property settings
 			
@@ -607,22 +620,9 @@ public class GUIMain extends javax.swing.JFrame
 	 * Adds everything to the content pane.
 	 * @throws Exception 
 	 */
-	protected void setUpContentPane() throws Exception
+	protected void setUpContentPane(boolean initListeners) throws Exception
 	{
 		getContentPane().removeAll();
-		
-		// ----- create all the tabs based on tab location (for some)
-		// ----- must be done first so the lists and tables below refer to a location (not null)
-		leftTabPane = new JTabbedPane();
-		topTabPane = new JTabbedPane();
-		rightTabPane = new JTabbedPane();
-		bottomTabPane = new JTabbedPane();
-		createPPTab();
-		createSugTab();
-		createTransTab();
-		createDocumentTab();
-		createClustersTab();
-		createResultsTab();
 		
 		// ------- initialize PARALLEL arrays for the panels, their names, and their locations
 		ArrayList<String> panelNames = new ArrayList<String>();
@@ -698,6 +698,17 @@ public class GUIMain extends javax.swing.JFrame
 		
 		getContentPane().revalidate();
 		getContentPane().repaint();
+		
+//		if (initListeners == true)
+//		{
+//			DriverMenu.initListeners(this);
+//			DriverClustersTab.initListeners(this);
+//			DriverDocumentsTab.initListeners(this);
+//			DriverPreProcessTab.initListeners(this);
+//			DriverResultsTab.initListeners(this);
+//			DriverSuggestionsTab.initListeners(this);
+//			DriverTranslationsTab.initListeners(this);
+//		}
 	}
 	
 	public boolean documentsAreReady()

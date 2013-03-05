@@ -157,7 +157,7 @@ public class GeneralSettingsFrame extends JDialog
 					public void actionPerformed(ActionEvent e) 
 					{
 						try {
-							main.setUpContentPane();
+							main.setUpContentPane(true);
 						} catch (Exception e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
