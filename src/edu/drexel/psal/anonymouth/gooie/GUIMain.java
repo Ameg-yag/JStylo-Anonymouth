@@ -144,11 +144,7 @@ public class GUIMain extends javax.swing.JFrame
 	protected JPanel editorTab;
 	
 	// documents tab
-	protected String propFileName = "jsan_resources/anonymouth_prop.prop";
-	File propFile = new File(propFileName);
-	Properties prop = new Properties();
-	protected JFileChooser load = new JFileChooser();
-	protected JFileChooser save = new JFileChooser();
+	
 	
 	protected JLabel testDocsJLabel;
 	protected JButton trainDocPreviewJButton;
@@ -513,16 +509,16 @@ public class GUIMain extends javax.swing.JFrame
 		// properties file -----------------------------------
 		BufferedReader propReader = null;
 		
-		if (!propFile.exists())
+		if (!PropUtil.propFile.exists())
 		{
-			try {propFile.createNewFile();} 
+			try {PropUtil.propFile.createNewFile();} 
 			catch (IOException e1) {e1.printStackTrace();}
 		}
 		
-		try {propReader = new BufferedReader (new FileReader(propFileName));} 
+		try {propReader = new BufferedReader (new FileReader(PropUtil.propFileName));} 
 		catch (FileNotFoundException e) {e.printStackTrace();}
 		
-		try {prop.load(propReader);}
+		try {PropUtil.prop.load(propReader);}
 		catch (IOException e) {e.printStackTrace();}
 	}
 
@@ -649,9 +645,9 @@ public class GUIMain extends javax.swing.JFrame
 		panelLocations.add(PropUtil.getPreProcessTabLocation());
 		panelLocations.add(PropUtil.getSuggestionsTabLocation());
 		panelLocations.add(PropUtil.getTranslationsTabLocation());
-		panelLocations.add(PropUtil.Location.TOP); // documents
+		panelLocations.add(PropUtil.getDocumentsTabLocation());
 		panelLocations.add(PropUtil.getClustersTabLocation());
-		panelLocations.add(PropUtil.Location.BOTTOM); // results
+		panelLocations.add(PropUtil.getResultsTabLocation());
 		
 		// ----- form the column specifications
 		String columnString = "";
@@ -693,13 +689,12 @@ public class GUIMain extends javax.swing.JFrame
 		// ------ add all tab panes, if they need to be added
 		if (panelLocations.contains(PropUtil.Location.LEFT))
 			getContentPane().add(leftTabPane, "width 250!, spany");
-		
-		getContentPane().add(topTabPane, "width 600:100%:, grow");
-		
+		if (panelLocations.contains(PropUtil.Location.TOP))
+			getContentPane().add(topTabPane, "width 600:100%:, grow");
 		if (panelLocations.contains(PropUtil.Location.RIGHT))
 			getContentPane().add(rightTabPane, "width 250!, spany");
-		
-		getContentPane().add(bottomTabPane, "width 600:100%:, grow, height 150:25%:");
+		if (panelLocations.contains(PropUtil.Location.BOTTOM))
+			getContentPane().add(bottomTabPane, "width 600:100%:, grow, height 150:25%:");
 		
 		getContentPane().revalidate();
 		getContentPane().repaint();

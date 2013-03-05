@@ -98,13 +98,13 @@ public class DriverPreProcessTabDocuments {
 							JOptionPane.YES_NO_CANCEL_OPTION);
 				}
 				if (answer == 0) {
-					main.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-					if (main.prop.getProperty("recentProbSet") != null)
-						main.load.setSelectedFile(new File(main.prop.getProperty("recentProbSet")));
-					answer = main.load.showDialog(main, "Load Problem Set");
+					PropUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+					if (PropUtil.prop.getProperty("recentProbSet") != null)
+						PropUtil.load.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
+					answer = PropUtil.load.showDialog(main, "Load Problem Set");
 					
 					if (answer == JFileChooser.APPROVE_OPTION) {
-						String path = main.load.getSelectedFile().getAbsolutePath();
+						String path = PropUtil.load.getSelectedFile().getAbsolutePath();
 						path = path.substring(path.indexOf("jsan_resources"));
 						
 						PropUtil.setProbSetPath(path);
@@ -138,13 +138,13 @@ public class DriverPreProcessTabDocuments {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln("'Save Problem Set' button clicked on the documents tab.");
 				
-				main.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-				if (main.prop.getProperty("recentProbSet") != null)
-					main.save.setSelectedFile(new File(main.prop.getProperty("recentProbSet")));
-				int answer = main.save.showSaveDialog(main);
+				PropUtil.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+				if (PropUtil.prop.getProperty("recentProbSet") != null)
+					PropUtil.save.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
+				int answer = PropUtil.save.showSaveDialog(main);
 				
 				if (answer == JFileChooser.APPROVE_OPTION) {
-					File f = main.save.getSelectedFile();
+					File f = PropUtil.save.getSelectedFile();
 					String path = f.getAbsolutePath();
 					path = path.substring(path.indexOf("jsan_resources"));
 					
@@ -606,13 +606,13 @@ public class DriverPreProcessTabDocuments {
 							JOptionPane.YES_NO_CANCEL_OPTION);
 				}
 				if (answer == 0) {
-					main.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-					if (main.prop.getProperty("recentProbSet") != null)
-						main.load.setSelectedFile(new File(main.prop.getProperty("recentProbSet")));
-					answer = main.load.showDialog(main, "Load Problem Set");
+					PropUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+					if (PropUtil.prop.getProperty("recentProbSet") != null)
+						PropUtil.load.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
+					answer = PropUtil.load.showDialog(main, "Load Problem Set");
 					
 					if (answer == JFileChooser.APPROVE_OPTION) {
-						String path = main.load.getSelectedFile().getAbsolutePath();
+						String path = PropUtil.load.getSelectedFile().getAbsolutePath();
 						path = path.substring(path.indexOf("jsan_resources"));
 						
 						PropUtil.setProbSetPath(path);
@@ -646,13 +646,13 @@ public class DriverPreProcessTabDocuments {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln("'Save Problem Set' button clicked on the documents tab.");
 				
-				main.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-				if (main.prop.getProperty("recentProbSet") != null)
-					main.save.setSelectedFile(new File(main.prop.getProperty("recentProbSet")));
-				int answer = main.save.showSaveDialog(main);
+				PropUtil.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+				if (PropUtil.prop.getProperty("recentProbSet") != null)
+					PropUtil.save.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
+				int answer = PropUtil.save.showSaveDialog(main);
 				
 				if (answer == JFileChooser.APPROVE_OPTION) {
-					File f = main.save.getSelectedFile();
+					File f = PropUtil.save.getSelectedFile();
 					String path = f.getAbsolutePath();
 					path = path.substring(path.indexOf("jsan_resources"));
 					
