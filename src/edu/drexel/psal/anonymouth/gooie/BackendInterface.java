@@ -280,6 +280,7 @@ public class BackendInterface {
 					Logger.logln(" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
 					Logger.logln(wekaResults.toString());
 					makeResultsTable(wekaResults, main);
+					ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
 				}
 				else //This reprocesses
 				{
