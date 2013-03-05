@@ -613,6 +613,8 @@ public class GUIMain extends javax.swing.JFrame
 	 */
 	protected void setUpContentPane() throws Exception
 	{
+		getContentPane().removeAll();
+		
 		// ----- create all the tabs based on tab location (for some)
 		// ----- must be done first so the lists and tables below refer to a location (not null)
 		leftTabPane = new JTabbedPane();
@@ -698,6 +700,9 @@ public class GUIMain extends javax.swing.JFrame
 			getContentPane().add(rightTabPane, "width 250!, spany");
 		
 		getContentPane().add(bottomTabPane, "width 600:100%:, grow, height 150:25%:");
+		
+		getContentPane().revalidate();
+		getContentPane().repaint();
 	}
 	
 	public boolean documentsAreReady()
