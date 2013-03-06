@@ -119,7 +119,8 @@ public class CumulativeFeatureDriver {
 		for (int i=0; i<features.size(); i++) {
 			EventDriver ed = features.get(i).getUnderlyingEventDriver();
 			Document currDoc = doc instanceof StringDocument ?
-					new StringDocument((StringDocument) doc) : new Document(doc);
+					new StringDocument((StringDocument) doc) :
+					new Document(doc.getFilePath(),doc.getAuthor(),doc.getTitle());
 			
 			// apply canonicizers
 			try {
