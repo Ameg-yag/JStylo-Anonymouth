@@ -76,15 +76,15 @@ public class PropUtil
 	}
 	
 	/**
-	 * Sets the previous problem set path, so the user doesn't need to go searching for it.
-	 * @param path - path of the file in string form
+	 * Sets the previous problem set filename, so the user doesn't need to go searching for it. Must be in jsan_resources/problem_sets.
+	 * @param filename - name of the file in string form (e.g. ps.xml)
 	 */
-	protected static void setProbSetPath(String path)
+	protected static void setRecentProbSet(String filename)
 	{
 		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
 		try {
-			prop.setProperty("recentProbSet", path);
+			prop.setProperty("recentProbSet", filename);
 			writer = new BufferedWriter(new FileWriter(propFileName));
 			prop.store(writer, "User Preferences");
 		} catch (Exception e) {

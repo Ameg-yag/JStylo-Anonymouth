@@ -393,10 +393,10 @@ public class BackendInterface {
 			// make highlight bar
 			//main.highlightSelectionBox.setModel(makeHighlightBarModel());
 			TheOracle.setTheDocument(main.documentPane.getText());
-			main.nextSentenceButton.setEnabled(false);
-			main.prevSentenceButton.setEnabled(false);
-			main.transButton.setEnabled(false);
-			main.appendSentenceButton.setEnabled(false);
+//			main.nextSentenceButton.setEnabled(false);
+//			main.prevSentenceButton.setEnabled(false);
+//			main.transButton.setEnabled(false);
+//			main.appendSentenceButton.setEnabled(false);
 			pw.setText("Tagging all documents... Done");
 			
 			//main.editorProgressBar.setIndeterminate(true);	
@@ -429,7 +429,7 @@ public class BackendInterface {
 			Logger.logln("Finished in BackendInterface - postTargetSelection");
 			//main.editorProgressBar.setIndeterminate(false);	
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
-			main.nextSentenceButton.doClick();
+//			main.nextSentenceButton.doClick();
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			
 			pw.closeWindow();

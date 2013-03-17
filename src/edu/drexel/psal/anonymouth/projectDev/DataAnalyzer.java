@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.Scanner;
 
-import edu.drexel.psal.anonymouth.gooie.ClusterViewer;
+import edu.drexel.psal.anonymouth.gooie.ClusterPanel;
+import edu.drexel.psal.anonymouth.gooie.DriverClustersTab;
 import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
@@ -477,28 +478,28 @@ public class DataAnalyzer{
 	 */
 	public int runAllTopFeatures(){
 		Logger.logln("called runAllTopFeatures");
-		int sel = 0;
 		int numAttribs = topAttributes.length;
 		int numAuthors = DocumentMagician.numSampleAuthors;
 		int maxClusters = 0;
 		int tempMaxClusters;
-		for(sel=0;sel<numAttribs;sel++){
-				Cluster[] orderedClusters;
-				TargetExtractor extractor = new TargetExtractor(numAuthors, topAttributes[sel]);
-				//System.out.println("Clusters for "+importantAttribs[sel]+" :");
-				extractor.aMeansCluster();
-				orderedClusters = extractor.getPreferredOrdering();
-				topAttributes[sel].setOrderedClusters(orderedClusters);
-				//topAttributes[sel].setDeltaValue(extractor.getTargetValue()-topAttributes[sel].getToModifyValue()); // If NEGATIVE, reduce toModifyValue. If POSITIVE, increase toModifyValue
-				tempMaxClusters = orderedClusters.length;
-				if(tempMaxClusters > maxClusters)
-					maxClusters = tempMaxClusters;
-				FeatureList needsSuggestion = topAttributes[sel].getGenericName();
-				//System.out.print(needsSuggestion);
-				//System.out.print("=> target value: "+topAttributes[sel].getTargetValue());
-				//System.out.print(" => present value: "+topAttributes[sel].getToModifyValue());
-				//System.out.print(" => author's values: "+topAttributes[sel].getAuthorAvg()+" with a standard deviation of: "+topAttributes[sel].getAuthorStdDev());
-				//System.out.println();
+		for(int sel = 0; sel < numAttribs; sel++)
+		{
+			Cluster[] orderedClusters;
+			TargetExtractor extractor = new TargetExtractor(numAuthors, topAttributes[sel]);
+			//System.out.println("Clusters for "+importantAttribs[sel]+" :");
+			extractor.aMeansCluster();
+			orderedClusters = extractor.getPreferredOrdering();
+			topAttributes[sel].setOrderedClusters(orderedClusters);
+			//topAttributes[sel].setDeltaValue(extractor.getTargetValue()-topAttributes[sel].getToModifyValue()); // If NEGATIVE, reduce toModifyValue. If POSITIVE, increase toModifyValue
+			tempMaxClusters = orderedClusters.length;
+			if(tempMaxClusters > maxClusters)
+				maxClusters = tempMaxClusters;
+			FeatureList needsSuggestion = topAttributes[sel].getGenericName();
+			//System.out.print(needsSuggestion);
+			//System.out.print("=> target value: "+topAttributes[sel].getTargetValue());
+			//System.out.print(" => present value: "+topAttributes[sel].getToModifyValue());
+			//System.out.print(" => author's values: "+topAttributes[sel].getAuthorAvg()+" with a standard deviation of: "+topAttributes[sel].getAuthorStdDev());
+			//System.out.println();
 		}
 		Logger.logln("Max number of clusters (after clustering all features): "+maxClusters);
 		return maxClusters;
@@ -526,7 +527,7 @@ public class DataAnalyzer{
 		//long endTime = System.currentTimeMillis();
 		//System.out.println("Time elapsed while using ClusterAnalyzer: "+(endTime-startTime));
 		Logger.logln("calling makeViewer");
-		ClusterViewer.makeViewer(topAttributes);
+		DriverClustersTab.makePanels(topAttributes);
 		//ClusterViewerFrame.startClusterViewer();
 		Logger.logln("viewer made");
 	}
@@ -601,7 +602,7 @@ public class DataAnalyzer{
 		//int maxClusters = runAllTopFeatures();
 		//runClusterAnalysis(maxClusters);
 		Logger.logln("Calling makeViewer in ClusterViewer after re-running modified.");
-		ClusterViewer.makeViewer(topAttributes);
+		DriverClustersTab.makePanels(topAttributes);
 		Logger.logln("viewer made");
 	}
 	

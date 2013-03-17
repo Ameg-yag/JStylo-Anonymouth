@@ -1,0 +1,49 @@
+Started log log/Anonymouth_anonymous_2013-03-15_17-30-34.txt
+===================================================
+17-30-35: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\9_features.xml
+17-30-35: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_feature_set.xml
+17-30-35: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_feature_set_limited.xml
+17-30-35: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_german.xml
+17-30-35: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_limited_norm.xml
+17-30-35: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_russian.xml
+17-30-35: Populating event drivers...
+17-30-35: adding event drivers under Basic
+17-30-35: adding event drivers under Part-Of-Speech
+17-30-35: adding event drivers under Grams
+17-30-35: adding event drivers under Dictionary
+17-30-35: adding event drivers under Counters
+17-30-35: adding event drivers under Readability Metrics
+17-30-35: adding event drivers under Misc.
+17-30-35: done!
+17-30-35: Populating canonicizers...
+17-30-35: done!
+17-30-35: Populating event cullers...
+17-30-35: done!
+17-30-35: Creating Documents Tab...
+17-30-37: 'Load Problem Set' button clicked on the documents tab
+17-30-38: Trying to load problem set jeff_Desktop.xml
+17-30-38: GUI Update: update documents tab with current problem set started
+17-30-40: Preset feature set selected in the features tab.
+17-30-40: loaded preset feature set: WritePrints
+17-30-40: Preset feature set selected in the features tab.
+17-30-40: loaded preset feature set: WritePrints
+17-30-41: Classifier selected in the available classifiers tree in the classifiers tab: SMO
+17-30-41: 'Add' button clicked in the analysis tab.
+17-30-41: Classifier tree unselected in the classifiers tab.
+17-30-44: Intial processing starting...
+17-30-44: Created DataAnalyzer
+17-30-44: Created new DocumentMagician, is sparse?  ... false
+17-30-44: Numer of features to return: 200
+17-30-44: calling backendInterface for preTargetSelectionProcessing
+17-30-44: FINISHED INITIALIZING FUNCTION WORDS
+17-30-44: Process button pressed for first time (initial run) in editor tab
+17-30-44: called runIntitial in DataAnalyzer
+17-30-44: Entered initialDocToData in DocumentMagician
+17-30-44: True test doc author: ~* you *~
+17-30-44: Dummy author: ~* you *~
+17-30-44: Calling runPrimaryDocOps
+17-30-44: Setting CumulativeFeatureDriver in DocumentMagician
+17-30-44: Building train (with author) and toModify instances
+17-30-44: InstanceConstuctor constructed
+17-30-44: Saving temporary file: ./edited_documents/anonymous_unmodified.txt
+17-30-44: Runnng JStylo WekaInstancesBuilder from runInstanceBuilder in InstanceConstructor

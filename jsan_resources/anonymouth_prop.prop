@@ -1,9 +1,9 @@
 #User Preferences
-#Tue Mar 05 17:03:02 EST 2013
+#Sun Mar 17 18:14:00 EDT 2013
 suggestionsTabLocation=right
 preProcessTabLocation=right
 resultsTabLocation=bottom
 translationsTabLocation=right
 clustersTabLocation=left
 documentsTabLocation=top
-recentProbSet=jsan_resources\\problem_sets\\jeff_Desktop.xml
+recentProbSet=jeff_Desktop.xml

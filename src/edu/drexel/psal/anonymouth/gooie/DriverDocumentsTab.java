@@ -36,6 +36,8 @@ import java.util.Set;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
@@ -131,7 +133,7 @@ public class DriverDocumentsTab {
 			BackendInterface.postTargetSelectionProcessing(main, wizard, magician);
 	}
 	
-	protected static void highlightSentence(TaggedSentence sentence, GUIMain main, String direction)
+	protected static void highlightSentence(TaggedSentence sentence, GUIMain main)
 	{
 		String sent = sentence.getUntagged().trim();
 		int start = 0;
@@ -149,12 +151,6 @@ public class DriverDocumentsTab {
 		main.documentPane.getHighlighter().removeAllHighlights();
         try {
 			main.documentPane.getHighlighter().addHighlight(start, end, painter);
-			if (direction.equals("next"))
-				main.documentPane.setCaretPosition(end);
-			else if (direction.equals("prev"))
-				main.documentPane.setCaretPosition(start);
-			else if (direction.equals("none"))
-			{}
         } catch (BadLocationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -424,17 +420,21 @@ public class DriverDocumentsTab {
 	}
 	
 	
-	private static boolean checkSentFor(String currentSent, String str) {
+	private static boolean checkSentFor(String currentSent, String str) 
+	{
 		// TODO Auto-generated method stub
-		Scanner parser=new Scanner(currentSent);
-		boolean inSent=false;
+		Scanner parser = new Scanner(currentSent);
+		boolean inSent = false;
 		String tempStr;
-		while(parser.hasNext()){
-			tempStr=parser.next();
+		while(parser.hasNext())
+		{
+			tempStr = parser.next();
 			if(tempStr.matches(cleanWordRegex))
-				tempStr=tempStr.substring(0,tempStr.length()-1);
-			if(tempStr.equalsIgnoreCase(str)){
-				inSent=true;
+				tempStr = tempStr.substring(0,tempStr.length()-1);
+			
+			if(tempStr.equalsIgnoreCase(str))
+			{
+				inSent = true;
 				break;
 			}
 		}
@@ -449,25 +449,41 @@ public class DriverDocumentsTab {
 	public static void setAllDocTabUseable(boolean b, GUIMain main)
 	{
 		//main.processButton.setEnabled(b);
-		main.appendSentenceButton.setEnabled(b);
-		main.nextSentenceButton.setEnabled(b);
-		main.prevSentenceButton.setEnabled(b);
-		main.transButton.setEnabled(b);
-		main.sentenceEditPane.setEditable(b);
-		main.translationEditPane.setEditable(b);
+//		main.appendSentenceButton.setEnabled(b);
+//		main.nextSentenceButton.setEnabled(b);
+//		main.prevSentenceButton.setEnabled(b);
+//		main.transButton.setEnabled(b);
+//		main.sentenceEditPane.setEditable(b);
+//		main.translationEditPane.setEditable(b);
 		main.resultsTable.setEnabled(b);
-		main.restoreSentenceButton.setEnabled(b);
-		main.SaveChangesButton.setEnabled(b);
-		main.copyToSentenceButton.setEnabled(b);
-		main.saveButton.setEnabled(b);
-		main.dictButton.setEnabled(b);
+//		main.restoreSentenceButton.setEnabled(b);
+//		main.SaveChangesButton.setEnabled(b);
+//		main.copyToSentenceButton.setEnabled(b);
+//		main.saveButton.setEnabled(b);
+//		main.dictButton.setEnabled(b);
 //		main.editorHelpTabPane.setEnabled(b);
 	}
 	
 	protected static void initListeners(final GUIMain main)
 	{
+		main.documentPane.addCaretListener(new CaretListener() 
+		{
+			@Override
+			public void caretUpdate(CaretEvent e) 
+			{
+				int caret = e.getDot();
+				//String 
+				if (taggedDoc != null)
+				{
+					ArrayList<TaggedSentence> sentences = taggedDoc.getTaggedSentences();
+				}
+				
+			}
+			
+		});
 		
-		main.processButton.addActionListener(new ActionListener() {
+		main.processButton.addActionListener(new ActionListener() 
+		{
 			@Override
 			public synchronized void actionPerformed(ActionEvent event) 
 			{
@@ -493,8 +509,7 @@ public class DriverDocumentsTab {
 				else
 				{
 					// ----- confirm they want to process
-					if (JOptionPane.showConfirmDialog(main,"Are you sure you're ready to process the document? \n\nThis will open a new tab for the processed document","Process?",
-							JOptionPane.YES_NO_OPTION) == 0)
+					if (true) // ---- can be a confirm dialog to make sure they want to process.
 					{
 						// ----- if this is the first run, do everything that needs to be ran the first time
 						if(isFirstRun==true)
@@ -559,29 +574,29 @@ public class DriverDocumentsTab {
 			}
 		});
 		
-		main.nextSentenceButton.addActionListener(new ActionListener(){
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				TaggedSentence sentence = ConsolidationStation.toModifyTaggedDocs.get(0).getNextSentence();
-				if (sentence.hasTranslations())
-				{
-					for (int i = 0; i < main.translationsTable.getRowCount(); i++)
-						main.translationsTable.setValueAt(sentence.getTranslations().get(i).getUntagged(), i, 0);
-				}
-				else
-				{
-					for (int i = 0; i < main.translationsTable.getRowCount(); i++)
-						main.translationsTable.setValueAt("", i, 0);
-				}
-				main.translationEditPane.setText("Current Translation.");
-				main.sentenceEditPane.setText(sentence.getUntagged().trim());
-				main.sentenceEditPane.setCaretPosition(0);
-				highlightSentence(sentence, main, "next");
-			}
-			
-		});
+//		main.nextSentenceButton.addActionListener(new ActionListener(){
+//			
+//			@Override
+//			public void actionPerformed(ActionEvent arg0)
+//			{
+//				TaggedSentence sentence = ConsolidationStation.toModifyTaggedDocs.get(0).getNextSentence();
+//				if (sentence.hasTranslations())
+//				{
+//					for (int i = 0; i < main.translationsTable.getRowCount(); i++)
+//						main.translationsTable.setValueAt(sentence.getTranslations().get(i).getUntagged(), i, 0);
+//				}
+//				else
+//				{
+//					for (int i = 0; i < main.translationsTable.getRowCount(); i++)
+//						main.translationsTable.setValueAt("", i, 0);
+//				}
+//				main.translationEditPane.setText("Current Translation.");
+//				main.sentenceEditPane.setText(sentence.getUntagged().trim());
+//				main.sentenceEditPane.setCaretPosition(0);
+//				highlightSentence(sentence, main, "next");
+//			}
+//			
+//		});
 		/*main.refreshButtonEditor.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0){
@@ -604,173 +619,173 @@ public class DriverDocumentsTab {
 			}			
 			
 		});*/
-		main.prevSentenceButton.addActionListener(new ActionListener()
-		{
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				TaggedSentence sentence = ConsolidationStation.toModifyTaggedDocs.get(0).getPrevSentence();
-				if (sentence.hasTranslations())
-				{
-					for (int i = 0; i < main.translationsTable.getRowCount(); i++)
-						main.translationsTable.setValueAt(sentence.getTranslations().get(i).getUntagged(), i, 0);
-				}
-				else
-				{
-					for (int i = 0; i < main.translationsTable.getRowCount(); i++)
-						main.translationsTable.setValueAt("", i, 0);
-				}
-				main.translationEditPane.setText("Current Translation.");
-				main.sentenceEditPane.setText(sentence.getUntagged().trim());
-				main.sentenceEditPane.setCaretPosition(0);
-				highlightSentence(sentence, main, "prev");
-			}
-			
-		});
+//		main.prevSentenceButton.addActionListener(new ActionListener()
+//		{
+//			
+//			@Override
+//			public void actionPerformed(ActionEvent arg0)
+//			{
+//				TaggedSentence sentence = ConsolidationStation.toModifyTaggedDocs.get(0).getPrevSentence();
+//				if (sentence.hasTranslations())
+//				{
+//					for (int i = 0; i < main.translationsTable.getRowCount(); i++)
+//						main.translationsTable.setValueAt(sentence.getTranslations().get(i).getUntagged(), i, 0);
+//				}
+//				else
+//				{
+//					for (int i = 0; i < main.translationsTable.getRowCount(); i++)
+//						main.translationsTable.setValueAt("", i, 0);
+//				}
+//				main.translationEditPane.setText("Current Translation.");
+//				main.sentenceEditPane.setText(sentence.getUntagged().trim());
+//				main.sentenceEditPane.setCaretPosition(0);
+//				highlightSentence(sentence, main, "prev");
+//			}
+//			
+//		});
 		
-		main.transButton.addActionListener(new ActionListener()
-		{
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				TaggedSentence sentence = ConsolidationStation.toModifyTaggedDocs.get(0).getCurrentSentence();
-				if (sentence.hasTranslations())
-				{
-					for (int i = 0; i < main.translationsTable.getRowCount(); i++)
-						main.translationsTable.setValueAt(sentence.getTranslations().get(i).getUntagged(), i, 0);
-				}
-				else
-				{
-					doTranslations(sentence, main);
-				}
-				main.sentenceEditPane.setText(sentence.getUntagged().trim());
-			}
-			
-		});
+//		main.transButton.addActionListener(new ActionListener()
+//		{
+//			
+//			@Override
+//			public void actionPerformed(ActionEvent arg0)
+//			{
+//				TaggedSentence sentence = ConsolidationStation.toModifyTaggedDocs.get(0).getCurrentSentence();
+//				if (sentence.hasTranslations())
+//				{
+//					for (int i = 0; i < main.translationsTable.getRowCount(); i++)
+//						main.translationsTable.setValueAt(sentence.getTranslations().get(i).getUntagged(), i, 0);
+//				}
+//				else
+//				{
+//					doTranslations(sentence, main);
+//				}
+////				main.sentenceEditPane.setText(sentence.getUntagged().trim());
+//			}
+//			
+//		});
 		
-		main.restoreSentenceButton.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Logger.logln("Sentence at index " + ConsolidationStation.toModifyTaggedDocs.get(0).getSentNumber() + " restored.");
-				main.sentenceEditPane.setText(ConsolidationStation.toModifyTaggedDocs.get(0).getCurrentSentence().getUntagged().trim());
-			}
-			
-		});	
+//		main.restoreSentenceButton.addActionListener(new ActionListener(){
+//
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) {
+//				Logger.logln("Sentence at index " + ConsolidationStation.toModifyTaggedDocs.get(0).getSentNumber() + " restored.");
+//				main.sentenceEditPane.setText(ConsolidationStation.toModifyTaggedDocs.get(0).getCurrentSentence().getUntagged().trim());
+//			}
+//			
+//		});	
+//		
+//		main.SaveChangesButton.addActionListener(new ActionListener()
+//		{
+//
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) 
+//			{
+//				Logger.logln("Changes to sentence at index " + taggedDoc.getSentNumber() + " saved to TaggedDocument.");
+//				
+//				// need to know which sentences are the beginnings of paragraphs
+//				TaggedSentence sentence = new TaggedSentence(" " + main.sentenceEditPane.getText());
+//				taggedDoc.removeTaggedSentence(taggedDoc.getSentNumber());
+//				taggedDoc.addTaggedSentence(sentence, taggedDoc.getSentNumber());
+//				
+//				for (int i = 0; i < main.translationsTable.getRowCount(); i++)
+//					main.translationsTable.setValueAt("", i, 0);
+//				main.translationEditPane.setText("Current Translation.");
+//				sentence = taggedDoc.getCurrentSentence();
+//				main.documentPane.setText(taggedDoc.getUntaggedDocument());
+//				main.sentenceEditPane.setText(sentence.getUntagged().trim());
+//				highlightSentence(sentence, main, "none");
+//				
+//					//main.sentenceEditPane.setText(ConsolidationStation.toModifyTaggedDocs.get(0).getCurrentLiveTaggedSentence());
+//			}
+//			
+//		});
+//		
+//		main.copyToSentenceButton.addActionListener(new ActionListener()
+//		{
+//			
+//			@Override
+//			public void actionPerformed(ActionEvent arg0)
+//			{
+//				String translation = main.translationEditPane.getText();
+//				if (!translation.equals("Current Translation."))
+//				{
+//					main.sentenceEditPane.setText(translation);
+//				}
+//			}
+//			
+//		});
 		
-		main.SaveChangesButton.addActionListener(new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) 
-			{
-				Logger.logln("Changes to sentence at index " + taggedDoc.getSentNumber() + " saved to TaggedDocument.");
-				
-				// need to know which sentences are the beginnings of paragraphs
-				TaggedSentence sentence = new TaggedSentence(" " + main.sentenceEditPane.getText());
-				taggedDoc.removeTaggedSentence(taggedDoc.getSentNumber());
-				taggedDoc.addTaggedSentence(sentence, taggedDoc.getSentNumber());
-				
-				for (int i = 0; i < main.translationsTable.getRowCount(); i++)
-					main.translationsTable.setValueAt("", i, 0);
-				main.translationEditPane.setText("Current Translation.");
-				sentence = taggedDoc.getCurrentSentence();
-				main.documentPane.setText(taggedDoc.getUntaggedDocument());
-				main.sentenceEditPane.setText(sentence.getUntagged().trim());
-				highlightSentence(sentence, main, "none");
-				
-					//main.sentenceEditPane.setText(ConsolidationStation.toModifyTaggedDocs.get(0).getCurrentLiveTaggedSentence());
-			}
-			
-		});
 		
-		main.copyToSentenceButton.addActionListener(new ActionListener()
-		{
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				String translation = main.translationEditPane.getText();
-				if (!translation.equals("Current Translation."))
-				{
-					main.sentenceEditPane.setText(translation);
-				}
-			}
-			
-		});
+//		main.appendSentenceButton.addActionListener(new ActionListener(){
+//			
+//			@Override
+//			public void actionPerformed(ActionEvent arg0)
+//			{
+//					Logger.logln("Add sentence button pressed.");
+//					String tempSent = ConsolidationStation.toModifyTaggedDocs.get(0).addNextSentence(main.sentenceEditPane.getText());
+//					//ConsolidationStation.toModifyTaggedDocs.get(0).removeAndReplace(main.getSentenceEditPane().getText());
+//					main.sentenceEditPane.setText(tempSent);
+//					trackEditSentence(main);
+//			}
+//			
+//		});
 		
+//		main.dictButton.addActionListener(new ActionListener(){
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				Logger.logln("dictionary button clicked.");
+//				if(dictDead = true){
+//				SwingUtilities.invokeLater(new Runnable() {
+//					public void run() {
+//						DictionaryConsole inst = new DictionaryConsole();
+//						inst.setLocationRelativeTo(null);
+//						inst.setVisible(true);
+//					}
+//				});
+//				dictDead = false;
+//				}
+//			}
+//			
+//			
+//		});
 		
-		main.appendSentenceButton.addActionListener(new ActionListener(){
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-					Logger.logln("Add sentence button pressed.");
-					String tempSent = ConsolidationStation.toModifyTaggedDocs.get(0).addNextSentence(main.sentenceEditPane.getText());
-					//ConsolidationStation.toModifyTaggedDocs.get(0).removeAndReplace(main.getSentenceEditPane().getText());
-					main.sentenceEditPane.setText(tempSent);
-					trackEditSentence(main);
-			}
-			
-		});
-		
-		main.dictButton.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Logger.logln("dictionary button clicked.");
-				if(dictDead = true){
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						DictionaryConsole inst = new DictionaryConsole();
-						inst.setLocationRelativeTo(null);
-						inst.setVisible(true);
-					}
-				});
-				dictDead = false;
-				}
-			}
-			
-			
-		});
-		
-		main.saveButton.addActionListener(new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
-				Logger.logln("Save document button clicked.");
-				JFileChooser save = new JFileChooser();
-				save.addChoosableFileFilter(new ExtFilter("txt files (*.txt)", "txt"));
-				int answer = save.showSaveDialog(main);
-				
-				if (answer == JFileChooser.APPROVE_OPTION) {
-					File f = save.getSelectedFile();
-					String path = f.getAbsolutePath();
-					if (!path.toLowerCase().endsWith(".txt"))
-						path += ".txt";
-					try {
-						BufferedWriter bw = new BufferedWriter(new FileWriter(path));
-						bw.write(main.documentPane.getText());
-						bw.flush();
-						bw.close();
-						Logger.log("Saved contents of current tab to "+path);
-					} catch (IOException exc) {
-						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
-						Logger.logln(exc.toString(),LogOut.STDERR);
-						JOptionPane.showMessageDialog(null,
-								"Failed saving contents of current tab into:\n"+path,
-								"Save Problem Set Failure",
-								JOptionPane.ERROR_MESSAGE);
-					}
-				} 
-				else
-		            Logger.logln("Save contents of current tab canceled");
-			}
-		});
+//		main.saveButton.addActionListener(new ActionListener()
+//		{
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e) 
+//			{
+//				Logger.logln("Save document button clicked.");
+//				JFileChooser save = new JFileChooser();
+//				save.addChoosableFileFilter(new ExtFilter("txt files (*.txt)", "txt"));
+//				int answer = save.showSaveDialog(main);
+//				
+//				if (answer == JFileChooser.APPROVE_OPTION) {
+//					File f = save.getSelectedFile();
+//					String path = f.getAbsolutePath();
+//					if (!path.toLowerCase().endsWith(".txt"))
+//						path += ".txt";
+//					try {
+//						BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+//						bw.write(main.documentPane.getText());
+//						bw.flush();
+//						bw.close();
+//						Logger.log("Saved contents of current tab to "+path);
+//					} catch (IOException exc) {
+//						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
+//						Logger.logln(exc.toString(),LogOut.STDERR);
+//						JOptionPane.showMessageDialog(null,
+//								"Failed saving contents of current tab into:\n"+path,
+//								"Save Problem Set Failure",
+//								JOptionPane.ERROR_MESSAGE);
+//					}
+//				} 
+//				else
+//		            Logger.logln("Save contents of current tab canceled");
+//			}
+//		});
 	}
 		
 		

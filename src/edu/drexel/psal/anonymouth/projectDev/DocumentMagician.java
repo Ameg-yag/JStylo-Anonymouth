@@ -261,7 +261,10 @@ public class DocumentMagician {
 		String pathToTempModdedDoc = writeDirectory+ThePresident.sessionName+"_unmodified.txt";
 		Logger.logln("Saving temporary file: "+pathToTempModdedDoc);
 		try {
-			FileWriter writer = new FileWriter(new File(pathToTempModdedDoc));
+			File tempModdedDoc = new File(pathToTempModdedDoc);
+			if (!tempModdedDoc.exists())
+				tempModdedDoc.createNewFile();
+			FileWriter writer = new FileWriter(tempModdedDoc);
 			writer.write(toModifySet.get(0).stringify());
 			writer.close();
 		} catch (IOException e) {

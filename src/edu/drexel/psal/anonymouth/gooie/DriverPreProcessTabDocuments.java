@@ -85,47 +85,62 @@ public class DriverPreProcessTabDocuments {
 		loadProblemSetAL = new ActionListener()
 		{
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Load Problem Set' button clicked on the documents tab");
-				
-				int answer = 0;
-				// ask if current problem set is not empty
-				if (main.ps != null && (main.ps.hasAuthors() || main.ps.hasTestDocs())) {
-					answer = JOptionPane.showConfirmDialog(null,
-							"Loading Problem Set will override current. Continue?",
-							"Load Problem Set",
-							JOptionPane.WARNING_MESSAGE,
-							JOptionPane.YES_NO_CANCEL_OPTION);
-				}
-				if (answer == 0) {
-					PropUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-					if (PropUtil.prop.getProperty("recentProbSet") != null)
-						PropUtil.load.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
-					answer = PropUtil.load.showDialog(main, "Load Problem Set");
+			public void actionPerformed(ActionEvent e) 
+			{
+				try
+				{
+					Logger.logln("'Load Problem Set' button clicked on the documents tab");
 					
-					if (answer == JFileChooser.APPROVE_OPTION) {
-						String path = PropUtil.load.getSelectedFile().getAbsolutePath();
-						path = path.substring(path.indexOf("jsan_resources"));
-						
-						PropUtil.setProbSetPath(path);
-						
-						Logger.logln("Trying to load problem set from "+path);
-						try {
-							main.ps = new ProblemSet(path);
-							ProblemSet temp = main.ps;
-							GUIUpdateInterface.updateProblemSet(main);
-						} catch (Exception exc) {
-							Logger.logln("Failed loading "+path, LogOut.STDERR);
-							Logger.logln(exc.toString(),LogOut.STDERR);
-							JOptionPane.showMessageDialog(null,
-									"Failed loading problem set from:\n"+path,
-									"Load Problem Set Failure",
-									JOptionPane.ERROR_MESSAGE);
+					int answer = 0;
+					// ask if current problem set is not empty
+					if (main.ps != null && (main.ps.hasAuthors() || main.ps.hasTestDocs())) 
+					{
+						answer = JOptionPane.showConfirmDialog(null,
+								"Loading Problem Set will override current. Continue?",
+								"Load Problem Set",
+								JOptionPane.WARNING_MESSAGE,
+								JOptionPane.YES_NO_CANCEL_OPTION);
+					}
+					if (answer == 0) 
+					{
+						PropUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+						if (PropUtil.prop.getProperty("recentProbSet") != null)
+						{
+							String absPath = PropUtil.propFile.getAbsolutePath();
+							String problemSetDir = absPath.substring(0, absPath.indexOf("anonymouth_prop")-1) + "\\problem_sets\\";
+							PropUtil.load.setCurrentDirectory(new File(problemSetDir));
+							PropUtil.load.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
 						}
-			            
-			        } else {
-			            Logger.logln("Load problem set canceled");
-			        }
+						answer = PropUtil.load.showDialog(main, "Load Problem Set");
+						
+						if (answer == JFileChooser.APPROVE_OPTION) {
+							String path = PropUtil.load.getSelectedFile().getAbsolutePath();
+							String filename = PropUtil.load.getSelectedFile().getName();
+							//path = path.substring(path.indexOf("jsan_resources"));
+							
+							PropUtil.setRecentProbSet(filename);
+							
+							Logger.logln("Trying to load problem set " + filename);
+							try {
+								main.ps = new ProblemSet(path);
+								ProblemSet temp = main.ps;
+								GUIUpdateInterface.updateProblemSet(main);
+							} catch (Exception exc) {
+								Logger.logln("Failed loading "+path, LogOut.STDERR);
+								Logger.logln(exc.toString(),LogOut.STDERR);
+								JOptionPane.showMessageDialog(null,
+										"Failed loading problem set from:\n"+path,
+										"Load Problem Set Failure",
+										JOptionPane.ERROR_MESSAGE);
+							}
+				            
+				        } else {
+				            Logger.logln("Load problem set canceled");
+				        }
+					}
+				} catch (NullPointerException arg)
+				{
+					arg.printStackTrace();
 				}
 			}
 		};
@@ -146,9 +161,9 @@ public class DriverPreProcessTabDocuments {
 				if (answer == JFileChooser.APPROVE_OPTION) {
 					File f = PropUtil.save.getSelectedFile();
 					String path = f.getAbsolutePath();
-					path = path.substring(path.indexOf("jsan_resources"));
+					String filename = f.getName();
 					
-					PropUtil.setProbSetPath(path);
+					PropUtil.setRecentProbSet(filename);
 					
 					if (!path.toLowerCase().endsWith(".xml"))
 						path += ".xml";
@@ -608,14 +623,20 @@ public class DriverPreProcessTabDocuments {
 				if (answer == 0) {
 					PropUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
 					if (PropUtil.prop.getProperty("recentProbSet") != null)
+					{
+						String absPath = PropUtil.propFile.getAbsolutePath();
+						String problemSetDir = absPath.substring(0, absPath.indexOf("anonymouth_prop")-1) + "\\problem_sets\\";
+						PropUtil.load.setCurrentDirectory(new File(problemSetDir));
 						PropUtil.load.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
+					}
 					answer = PropUtil.load.showDialog(main, "Load Problem Set");
 					
 					if (answer == JFileChooser.APPROVE_OPTION) {
 						String path = PropUtil.load.getSelectedFile().getAbsolutePath();
-						path = path.substring(path.indexOf("jsan_resources"));
+						String filename = PropUtil.load.getSelectedFile().getName();
+						//path = path.substring(path.indexOf("jsan_resources"));
 						
-						PropUtil.setProbSetPath(path);
+						PropUtil.setRecentProbSet(filename);
 						
 						Logger.logln("Trying to load problem set from "+path);
 						try {
@@ -654,9 +675,9 @@ public class DriverPreProcessTabDocuments {
 				if (answer == JFileChooser.APPROVE_OPTION) {
 					File f = PropUtil.save.getSelectedFile();
 					String path = f.getAbsolutePath();
-					path = path.substring(path.indexOf("jsan_resources"));
+					String filename = f.getName();
 					
-					PropUtil.setProbSetPath(path);
+					PropUtil.setRecentProbSet(filename);
 					
 					if (!path.toLowerCase().endsWith(".xml"))
 						path += ".xml";
