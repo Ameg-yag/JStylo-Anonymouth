@@ -407,6 +407,7 @@ public class BackendInterface {
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), true);
 			else
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
+			main.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;

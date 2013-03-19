@@ -301,7 +301,7 @@ public class GeneralSettingsFrame extends JDialog
 					resultsLocationLabel.setBorder(BorderFactory.createRaisedBevelBorder());
 					resultsLocationLabel.setOpaque(true);
 					resultsLocationLabel.setBackground(main.tan);
-					resultsLocationComboBoxModel = new DefaultComboBoxModel(new String[]{"Bottom"});
+					resultsLocationComboBoxModel = new DefaultComboBoxModel(new String[]{"Left", "Right", "Bottom"});
 					resultsLocationComboBox = new JComboBox(resultsLocationComboBoxModel);
 					
 					JLabel preprocessLocationLabel = new JLabel("Pre-Process Tab:");

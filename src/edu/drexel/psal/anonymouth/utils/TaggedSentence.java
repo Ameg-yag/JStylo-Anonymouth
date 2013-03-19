@@ -40,6 +40,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 
 	protected String untagged;
 	protected ArrayList<Word> wordsInSentence;
+	protected ArrayList<String> translationNames = new ArrayList<String>();
 	protected ArrayList<TaggedSentence> translations = new ArrayList<TaggedSentence>();
 	
 	private int PROBABLE_MAX = 3;
@@ -86,6 +87,21 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 		return translations;
 	}
 	
+	public void setTranslations(ArrayList<TaggedSentence> set)
+	{
+		translations = set;
+	}
+	
+	public ArrayList<String> getTranslationNames() 
+	{
+		return translationNames;
+	}
+	
+	public void setTranslationNames(ArrayList<String> set)
+	{
+		translationNames = set;
+	}
+	
 	public void sortTranslations(){
 		int numTranslations = translations.size();
 		double[][]  toSort = new double[translations.size()][2]; // [Anonymity Index][index of specific translation] => will sort by col 1 (AI)
@@ -101,12 +117,15 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 			}
 		});
 		
-		ArrayList<TaggedSentence> sorted = new ArrayList<TaggedSentence>(numTranslations);
+		ArrayList<TaggedSentence> sortedTrans = new ArrayList<TaggedSentence>(numTranslations);
+		ArrayList<String> sortedTranNames = new ArrayList<String>(numTranslations);
 		for(i = 0; i<numTranslations; i++){
-				sorted.add(i,translations.get((int)toSort[i][1]));
+			sortedTrans.add(i,translations.get((int)toSort[i][1]));
+			sortedTranNames.add(i,translationNames.get((int)toSort[i][1]));
 		}
 		
-		translations = sorted; // set translations to be the same list of translated sentences, but now in order of Anonymity Index
+		translations = sortedTrans; // set translations to be the same list of translated sentences, but now in order of Anonymity Index
+		translationNames = sortedTranNames; // set translations to be the same list of translated sentences, but now in order of Anonymity Index
 	}
 	
 	public boolean hasTranslations()

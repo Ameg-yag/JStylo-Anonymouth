@@ -1,8 +1,8 @@
 #User Preferences
-#Sun Mar 17 18:14:00 EDT 2013
+#Tue Mar 19 13:23:59 EDT 2013
 suggestionsTabLocation=right
 preProcessTabLocation=right
-resultsTabLocation=bottom
+resultsTabLocation=left
 translationsTabLocation=right
 clustersTabLocation=left
 documentsTabLocation=top

@@ -125,6 +125,7 @@ public class DriverDocumentsTab {
 	protected static Translation translator = new Translation();
 	
 	protected static TaggedDocument taggedDoc;
+	protected static int currentSentNum;
 	
 	private static int numberTimesFixTabs;
 	
@@ -157,11 +158,9 @@ public class DriverDocumentsTab {
         }
 	}
 	
-	protected static void doTranslations(TaggedSentence sentence, GUIMain main)
+	protected static void doTranslations(ArrayList<TaggedSentence> sentences, GUIMain main)
 	{
-		TranslationsRunnable translation = new TranslationsRunnable(sentence, main); 
-		Thread transThread = new Thread(translation);
-		transThread.start(); 
+		main.GUITranslator.load(sentences);
 	}
 	
 	/*
@@ -207,7 +206,7 @@ public class DriverDocumentsTab {
 		//removeTracker = new DefaultHighlighter();
 		painter2 = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,0,0,128));
 
-		startHighlight=startHighlight;
+		startHighlight = startHighlight;
 		
 		ArrayList<ArrayList<Integer>> indexArray=new ArrayList<ArrayList<Integer>>();
 		ArrayList<Integer> tempArray;
@@ -476,6 +475,45 @@ public class DriverDocumentsTab {
 				if (taggedDoc != null)
 				{
 					ArrayList<TaggedSentence> sentences = taggedDoc.getTaggedSentences();
+					int start = caret;
+					int end = caret;
+					String selection = "";
+					
+					while (!selection.equals(".") && !selection.equals("!") && !selection.equals("?") && end != main.documentPane.getText().length()-1)
+					{
+						selection = main.documentPane.getText().substring(end, end+1);
+						end += 1;
+					}
+					selection = "";
+					while (!selection.equals(".") && !selection.equals("!") && !selection.equals("?") && start != 0)
+					{
+						selection = main.documentPane.getText().substring(start-1, start);
+						start -= 1;
+					}
+					
+					if (start != 0)
+					{
+						selection = main.documentPane.getText().substring(start+1, start+2);
+						while (!selection.equals(".") && !selection.equals("!") && !selection.equals("?") && !Character.isLetter(selection.toCharArray()[0]))
+						{
+							start += 1;
+							selection = main.documentPane.getText().substring(start, start + 1);
+						}
+					}
+					
+					selection = main.documentPane.getText().substring(start, end);
+					for (int i = 0; i < sentences.size(); i++)
+					{
+						TaggedSentence sentence = sentences.get(i);
+						if (sentence.getUntagged().contains(selection))
+						{
+							currentSentNum = i+1;
+							highlightSentence(sentence, main);
+							DriverTranslationsTab.showTranslations(sentence.getUntagged().trim());
+							break;
+						}
+					}
+						
 				}
 				
 			}

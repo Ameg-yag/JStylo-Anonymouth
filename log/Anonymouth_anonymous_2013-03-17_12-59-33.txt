@@ -1,0 +1,22 @@
+Started log log/Anonymouth_anonymous_2013-03-17_12-59-33.txt
+===================================================
+12-59-33: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\9_features.xml
+12-59-33: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_feature_set.xml
+12-59-33: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_feature_set_limited.xml
+12-59-33: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_german.xml
+12-59-33: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_limited_norm.xml
+12-59-33: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_russian.xml
+12-59-33: Populating event drivers...
+12-59-33: adding event drivers under Basic
+12-59-33: adding event drivers under Part-Of-Speech
+12-59-33: adding event drivers under Grams
+12-59-33: adding event drivers under Dictionary
+12-59-33: adding event drivers under Counters
+12-59-33: adding event drivers under Readability Metrics
+12-59-33: adding event drivers under Misc.
+12-59-33: done!
+12-59-33: Populating canonicizers...
+12-59-33: done!
+12-59-33: Populating event cullers...
+12-59-33: done!
+12-59-34: Creating Documents Tab...

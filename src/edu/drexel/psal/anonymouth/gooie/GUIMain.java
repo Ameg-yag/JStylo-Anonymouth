@@ -257,9 +257,11 @@ public class GUIMain extends javax.swing.JFrame
 		
 	protected JPanel translationsPanel;
 		protected JLabel translationsLabel;
-		protected JTable translationsTable;
+		protected ScrollablePanel translationsHolderPanel;
 		protected JScrollPane translationsScrollPane;
-		protected JComboBox translationsComboBox;
+		protected JPanel progressPanel;
+		protected JLabel translationsProgressLabel;
+		protected JProgressBar translationsProgressBar;
 	
 	protected JPanel informationPanel;
 		protected JLabel sentenceEditorLabel;
@@ -340,6 +342,10 @@ public class GUIMain extends javax.swing.JFrame
 		
 		protected JTabbedPane rightTabPane;
 		protected JPanel clustersPanel;
+		protected JLabel clustersLabel;
+		protected JPanel featuresPanel;
+		protected JLabel legendLabel;
+		protected JPanel legendPanel;
 		private String oldEditorBoxDoc = " ";
 		private TableModel oldResultsTableModel = null;
 		private TableCellRenderer tcr = new DefaultTableCellRenderer();
@@ -351,7 +357,7 @@ public class GUIMain extends javax.swing.JFrame
 		protected JList subFeaturesList;
 		protected DefaultListModel subFeaturesListModel;
 		protected JScrollPane clusterScrollPane;
-		protected ScrollablePanel holderPanel;
+		protected ScrollablePanel clusterHolderPanel;
 		protected JPanel topPanel;
 		protected JButton reClusterAllButton;
 		protected JButton refreshButton;
@@ -397,7 +403,7 @@ public class GUIMain extends javax.swing.JFrame
 	protected static String titleHeight = "25";
 	
 	// used for translation of sentences
-	protected Translation GUITranslator = new Translation();
+	protected static Translator GUITranslator;
 	
 	// not yet used, may be used to minimize the document, features, or classifiers part of the preprocess panel
 	protected boolean docPPIsShowing = true;
@@ -425,6 +431,7 @@ public class GUIMain extends javax.swing.JFrame
 					System.err.println("Look-and-Feel error!");
 				}
 				inst = new GUIMain();
+				GUITranslator = new Translator(inst);
 				inst.setDefaultCloseOperation(EXIT_ON_CLOSE);
 			
 				inst.setLocationRelativeTo(null);
@@ -599,22 +606,39 @@ public class GUIMain extends javax.swing.JFrame
 		int columnNumber = 0;
 		if (panelLocations.contains(PropUtil.Location.LEFT))
 		{
-			columnString.concat("[]");
+			columnString = columnString.concat("[]");
 			columnNumber++;
 		}
-		columnString.concat("[grow, growprio 110, fill]");
-		columnNumber++;
+		if (panelLocations.contains(PropUtil.Location.TOP) || panelLocations.contains(PropUtil.Location.BOTTOM))
+		{
+			columnString = columnString.concat("[grow, growprio 110, fill]");
+			columnNumber++;
+		}
 		if (panelLocations.contains(PropUtil.Location.RIGHT))
 		{
-			columnString.concat("[]");
+			columnString = columnString.concat("[]");
 			columnNumber++;
+		}
+		
+		// ----- form the row specifications
+		String rowString = "";
+		if (panelLocations.contains(PropUtil.Location.TOP))
+		{
+			rowString = rowString.concat("[grow, fill]");
+		}
+		if (panelLocations.contains(PropUtil.Location.BOTTOM))
+		{
+			rowString = rowString.concat("[150:25%:]");
 		}
 		
 		// ------ set the content pane layout based on the tab locations
 		getContentPane().setLayout(new MigLayout(
-				"wrap " + columnNumber + ", fill, gap 10 10", // layout constraints
+				"wrap " + columnNumber + ", gap 10 10", // layout constraints
 				columnString, // column constraints
-				"[grow, fill][150:25%:]")); // row constraints)
+				rowString)); // row constraints)
+		
+		//------ fix all the layouts you need to
+		fixLayouts();
 		
 		// ------ add all tabs to their correct tab panes
 		for (int i = 0; i < panels.size(); i++)
@@ -639,7 +663,7 @@ public class GUIMain extends javax.swing.JFrame
 		if (panelLocations.contains(PropUtil.Location.RIGHT))
 			getContentPane().add(rightTabPane, "width 250!, spany");
 		if (panelLocations.contains(PropUtil.Location.BOTTOM))
-			getContentPane().add(bottomTabPane, "width 600:100%:, grow, height 150:25%:");
+			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:");
 		
 		getContentPane().revalidate();
 		getContentPane().repaint();
@@ -654,6 +678,66 @@ public class GUIMain extends javax.swing.JFrame
 //			DriverSuggestionsTab.initListeners(this);
 //			DriverTranslationsTab.initListeners(this);
 //		}
+	}
+	
+	/**
+	 * Adjusts a tabs layout based on its location property. If this is not done, the tab will be arranged for the wrong location.
+	 */
+	public void fixLayouts()
+	{
+		PropUtil.Location clustersLocation = PropUtil.getClustersTabLocation();
+		if (clustersLocation == PropUtil.Location.LEFT || clustersLocation == PropUtil.Location.RIGHT)
+		{
+			clustersPanel.setLayout(new MigLayout(
+					"wrap, ins 0, gap 0 0",
+					"grow, fill",
+					"[][grow, fill][]"));
+			
+			clustersPanel.removeAll();
+			clustersPanel.add(clustersLabel);
+			clustersPanel.add(clusterScrollPane);
+			clustersPanel.add(featuresPanel, "h 250!");
+		}
+		else if (clustersLocation == PropUtil.Location.TOP)
+		{
+			clustersPanel.setLayout(new MigLayout(
+					"wrap 2, fill, ins 0, gap 0",
+					"[70%][30%]",
+					"[][][grow, fill]"));
+			
+			clustersPanel.removeAll();
+			clustersPanel.add(clustersLabel, "grow, h " + titleHeight + "!");
+			clustersPanel.add(legendLabel, "grow, h " + titleHeight + "!");
+			clustersPanel.add(clusterScrollPane, "grow, spany");
+			clustersPanel.add(legendPanel, "grow");
+			clustersPanel.add(featuresPanel, "spany, grow");
+		}
+		
+		PropUtil.Location resultsLocation = PropUtil.getResultsTabLocation();
+		if (resultsLocation == PropUtil.Location.LEFT || resultsLocation == PropUtil.Location.RIGHT)
+		{
+			resultsPanel.setLayout(new MigLayout(
+					"wrap, ins 0, gap 0 0",
+					"grow, fill",
+					"[][grow, fill][]"));
+			
+			resultsPanel.removeAll();
+			resultsPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
+			resultsPanel.add(resultsMainPanel, "grow");
+			resultsPanel.add(new JScrollPane(displayTextArea), "h 150!");
+		}
+		else if (resultsLocation == PropUtil.Location.BOTTOM)
+		{
+			resultsPanel.setLayout(new MigLayout(
+					"wrap 2, ins 0, gap 0 0",
+					"[100:20%:][grow, fill]",
+					"[][grow, fill]"));
+			
+			resultsPanel.removeAll();
+			resultsPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
+			resultsPanel.add(new JScrollPane(displayTextArea), "grow");
+			resultsPanel.add(resultsMainPanel, "grow");
+		}
 	}
 	
 	public boolean documentsAreReady()
@@ -1124,61 +1208,63 @@ public class GUIMain extends javax.swing.JFrame
 	private JPanel createTransTab()
 	{
 		translationsPanel = new JPanel();
-		MigLayout settingsLayout = new MigLayout(
-				"fill, wrap 1, ins 0, gap 0 0",
-				"grow, fill",
-				"[][grow, fill]");
-		translationsPanel.setLayout(settingsLayout);
-		{//================= Translations Tab ==============
-			//--------- translationsLabel ------------------
+		translationsPanel.setLayout(new MigLayout(
+					"wrap, ins 0, gap 0 0",
+					"grow, fill",
+					"[][grow, fill][]"));
+		{ // --------------cluster panel components
 			translationsLabel = new JLabel("Translations:");
 			translationsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			translationsLabel.setFont(titleFont);
 			translationsLabel.setOpaque(true);
 			translationsLabel.setBackground(tan);
 			translationsLabel.setBorder(rlborder);
-            
-          //--------- TranslationsTable model ------------------
-        	String[][] tableFiller = new String[GUITranslator.getUsedLangs().length][1];
-        	for (int i = 0; i < GUITranslator.getUsedLangs().length; i++)
-        	{
-        		String name = GUITranslator.getName(GUITranslator.getUsedLangs()[i]);
-        		String[] temp = {"", name};
-        		tableFiller[i] = temp;
-        	}
-        	String[] tableHeaderFiller = {"Translation:", "Language:"};
-            DefaultTableModel translationTableModel = new DefaultTableModel(tableFiller, tableHeaderFiller)
-            {
-            	@Override
-                public boolean isCellEditable(int row, int column) {
-                   //all cells false
-                   return false;
-                }
-            };
-            
-          //--------- TranslationTable and scroll pane ------------------
-			translationsTable = new JTable(translationTableModel)
-			{	
-				//http://blog.marcnuri.com/blog/defaul/2007/03/15/JTable-Row-Alternate-Row-Background
-			    public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
-			    {
-			        Component returnComp = super.prepareRenderer(renderer, row, column);
-			        Color alternateColor = tan;
-			        Color whiteColor = Color.WHITE;
-			        if (!returnComp.getBackground().equals(getSelectionBackground())){
-			            Color bg = (row % 2 == 0 ? alternateColor : whiteColor);
-			            returnComp .setBackground(bg);
-			            bg = null;
-			        }
-			        return returnComp;
-			    }
+			
+			translationsHolderPanel = new ScrollablePanel()
+			{
+				public boolean getScrollableTracksViewportWidth()
+				{
+					return true;
+				}
 			};
-			translationsScrollPane = new JScrollPane(translationsTable);
-            
-            translationsPanel.add(translationsLabel, "h " + titleHeight + "!");
-            translationsPanel.add(translationsScrollPane);
-		}//================= End Translations Tab ==============
-	return translationsPanel;
+			translationsHolderPanel.setScrollableUnitIncrement(SwingConstants.VERTICAL, ScrollablePanel.IncrementType.PIXELS, 74);
+			translationsHolderPanel.setAutoscrolls(true);
+			translationsHolderPanel.setOpaque(true);
+			translationsHolderPanel.setLayout(new MigLayout(
+					"wrap, ins 0, gap 0",
+					"grow, fill",
+					""));
+			translationsScrollPane = new JScrollPane(translationsHolderPanel);
+			translationsScrollPane.setOpaque(true);
+			
+			progressPanel = new JPanel();
+			progressPanel.setLayout(new MigLayout(
+					"wrap, fill, ins 0",
+					"grow, fill",
+					"[][][20]"));
+			{
+				JLabel translationsProgressTitleLabel = new JLabel("Progress:");
+				translationsProgressTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				translationsProgressTitleLabel.setFont(titleFont);
+				translationsProgressTitleLabel.setOpaque(true);
+				translationsProgressTitleLabel.setBackground(tan);
+				translationsProgressTitleLabel.setBorder(rlborder);
+				
+				translationsProgressLabel = new JLabel("No Translations Pending.");
+				translationsProgressLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				
+				translationsProgressBar = new JProgressBar();
+				
+				progressPanel.add(translationsProgressTitleLabel, "grow, h 25!");
+				progressPanel.add(translationsProgressLabel, "grow");
+				progressPanel.add(translationsProgressBar, "grow");
+			}
+			
+			translationsPanel.add(translationsLabel, "grow, h 25!");
+			translationsPanel.add(translationsScrollPane, "grow");
+			translationsPanel.add(progressPanel, "grow");
+		}
+		return translationsPanel;
 	}
 	
 	private JPanel createDocumentTab()
@@ -1365,9 +1451,9 @@ public class GUIMain extends javax.swing.JFrame
 		clustersPanel = new JPanel();
 		if (location == PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
 			clustersPanel.setLayout(new MigLayout(
-					"wrap, ins 0, gap 0 0",
+					"wrap, ins 0",
 					"grow, fill",
-					"[][grow, fill][]"));
+					"0[]0[grow, fill][]0"));
 		else if (location == PropUtil.Location.TOP)
 			clustersPanel.setLayout(new MigLayout(
 					"wrap 2, fill, ins 0, gap 0",
@@ -1377,36 +1463,36 @@ public class GUIMain extends javax.swing.JFrame
 			throw new Exception();
 		
 		{ // --------------cluster panel components
-			JLabel clustersLabel = new JLabel("Clusters:");
+			clustersLabel = new JLabel("Clusters:");
 			clustersLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			clustersLabel.setFont(titleFont);
 			clustersLabel.setOpaque(true);
 			clustersLabel.setBackground(tan);
 			clustersLabel.setBorder(rlborder);
 			
-			holderPanel = new ScrollablePanel()
+			clusterHolderPanel = new ScrollablePanel()
 			{
 				public boolean getScrollableTracksViewportWidth()
 				{
 					return true;
 				}
 			};
-			holderPanel.setScrollableUnitIncrement(SwingConstants.VERTICAL, ScrollablePanel.IncrementType.PIXELS, 74);
-			holderPanel.setAutoscrolls(true);
-			holderPanel.setOpaque(true);
-			BoxLayout holderPanelLayout = new BoxLayout(holderPanel, javax.swing.BoxLayout.Y_AXIS);
-			holderPanel.setLayout(holderPanelLayout);
-			clusterScrollPane = new JScrollPane(holderPanel);
+			clusterHolderPanel.setScrollableUnitIncrement(SwingConstants.VERTICAL, ScrollablePanel.IncrementType.PIXELS, 74);
+			clusterHolderPanel.setAutoscrolls(true);
+			clusterHolderPanel.setOpaque(true);
+			BoxLayout clusterHolderPanelLayout = new BoxLayout(clusterHolderPanel, javax.swing.BoxLayout.Y_AXIS);
+			clusterHolderPanel.setLayout(clusterHolderPanelLayout);
+			clusterScrollPane = new JScrollPane(clusterHolderPanel);
 			clusterScrollPane.setOpaque(true);
 			
-			JLabel legendLabel = new JLabel("Legend:");
+			legendLabel = new JLabel("Legend:");
 			legendLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			legendLabel.setFont(titleFont);
 			legendLabel.setOpaque(true);
 			legendLabel.setBackground(tan);
 			legendLabel.setBorder(rlborder);
 			
-			JPanel legendPanel = new JPanel();
+			legendPanel = new JPanel();
 			legendPanel.setLayout(new MigLayout(
 					"wrap 2",
 					"20[][100]",
@@ -1436,11 +1522,11 @@ public class GUIMain extends javax.swing.JFrame
 				legendPanel.add(safeZonePanel, "grow");
 			}
 			
-			JPanel featuresPanel = new JPanel();
+			featuresPanel = new JPanel();
 				featuresPanel.setLayout(new MigLayout(
-						"wrap, fill, ins 0",
+						"wrap, fill, ins 0, gap 0 0",
 						"grow, fill",
-						"0[]0[grow, fill][]0[grow, fill]0"));
+						"[][grow, fill][][grow, fill]"));
 			{ // --------------------legend panel components
 				JLabel featuresLabel = new JLabel("Features:");
 				featuresLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1492,13 +1578,22 @@ public class GUIMain extends javax.swing.JFrame
 		return clustersPanel;
 	}
 	
-	private JPanel createResultsTab()
+	private JPanel createResultsTab() throws Exception
 	{
 		resultsPanel = new JPanel();
-		resultsPanel.setLayout(new MigLayout(
-				"wrap 2, ins 0, gap 0 0",
-				"[100:20%:][grow, fill]",
-				"[][grow, fill]"));
+		PropUtil.Location location = PropUtil.getResultsTabLocation();
+		if (location == PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
+			resultsPanel.setLayout(new MigLayout(
+					"wrap, ins 0, gap 0 0",
+					"grow, fill",
+					"[][grow, fill][]"));
+		else if (location == PropUtil.Location.BOTTOM)
+			resultsPanel.setLayout(new MigLayout(
+					"wrap 2, ins 0, gap 0 0",
+					"[100:20%:][grow, fill]",
+					"[][grow, fill]"));
+		else
+			throw new Exception();
 		{
 			resultsTableLabel = new JLabel("Classification Results:");
 			resultsTableLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1507,32 +1602,27 @@ public class GUIMain extends javax.swing.JFrame
 			resultsTableLabel.setBackground(tan);
 			resultsTableLabel.setBorder(rlborder);
 			
-			resultsOptionsPanel = new JPanel();
-			resultsOptionsPanel.setLayout(new MigLayout(
-					"wrap 2, ins 0",
-					"[][grow, fill]",
-					"[][grow, fill]"));
-			{
-				JLabel displayTypeLabel = new JLabel("Display:");
-				
-				displayComboBoxModel = new DefaultComboBoxModel(new String[]{"Table"});
-				displayComboBox = new JComboBox(displayComboBoxModel);
-				
-				displayTextArea = new JTextArea();
-				
-				resultsOptionsPanel.add(displayTypeLabel);
-				resultsOptionsPanel.add(displayComboBox, "grow");
-				resultsOptionsPanel.add(new JScrollPane(displayTextArea), "span, grow");
-			}
+			displayTextArea = new JTextArea();
 			
 			resultsMainPanel = new JPanel();
 			{
 				makeResultsTable();
 			}
 			
-			resultsPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-			resultsPanel.add(resultsOptionsPanel, "grow");
-			resultsPanel.add(resultsMainPanel, "grow");
+			if (location == PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
+			{
+				resultsPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
+				resultsPanel.add(resultsMainPanel, "grow");
+				resultsPanel.add(new JScrollPane(displayTextArea), "h 150!");
+			}
+			else if (location == PropUtil.Location.BOTTOM)
+			{
+				resultsPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
+				resultsPanel.add(new JScrollPane(displayTextArea), "grow");
+				resultsPanel.add(resultsMainPanel, "grow");
+			}
+			else
+				throw new Exception();
 		}
         
         return resultsPanel;

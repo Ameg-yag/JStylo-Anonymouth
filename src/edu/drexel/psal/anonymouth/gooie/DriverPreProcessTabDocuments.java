@@ -1,5 +1,6 @@
 package edu.drexel.psal.anonymouth.gooie;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.*;
 import java.io.BufferedReader;
@@ -22,6 +23,7 @@ import edu.drexel.psal.jstylo.generics.*;
 
 public class DriverPreProcessTabDocuments {
 	
+	protected static MouseListener documentLabelClickAL;
 	protected static ActionListener clearProblemSetAL;
 	protected static ActionListener loadProblemSetAL;
 	protected static ActionListener saveProblemSetAL;
@@ -54,24 +56,72 @@ public class DriverPreProcessTabDocuments {
 	//=======================================================================================================================
 	protected static void initMainListeners(final GUIMain main)
 	{
+		documentLabelClickAL = new MouseListener()
+		{
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) 
+			{
+				main.prepDocLabel.setBackground(Color.YELLOW);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) 
+			{
+				if (main.documentsAreReady())
+					main.prepDocLabel.setBackground(main.ready);
+				else
+					main.prepDocLabel.setBackground(main.notReady);
+					
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0)
+			{
+				main.PPSP.tree.setSelectionRow(1);
+				main.PPSP.openWindow();
+				if (main.documentsAreReady())
+					main.prepDocLabel.setBackground(main.ready);
+				else
+					main.prepDocLabel.setBackground(main.notReady);
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0)
+			{
+				
+			}
+			
+		};
+		main.prepDocLabel.addMouseListener(documentLabelClickAL);
+		
 		// new problem set button
 		clearProblemSetAL = new ActionListener() 
 		{
 			
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e)
+			{
 				Logger.logln("'Clear Problem Set' button clicked on the documents tab");
 				
 				int answer = -1;
 				// ask if current problem set is not empty
-				if (main.ps != null && (main.ps.hasAuthors() || main.ps.hasTestDocs())) {
+				if (main.ps != null && (main.ps.hasAuthors() || main.ps.hasTestDocs())) 
+				{
 					answer = JOptionPane.showConfirmDialog(null,
 							"Are you sure you want to clear the current problem set?",
 							"Clear Current Problem Set",
 							JOptionPane.WARNING_MESSAGE,
 							JOptionPane.YES_NO_CANCEL_OPTION);
 				}
-				if (answer == 0) {					
+				if (answer == 0) 
+				{					
 					main.ps = new ProblemSet();
 					main.ps.setTrainCorpusName(main.defaultTrainDocsTreeName);
 					GUIUpdateInterface.updateProblemSet(main);// todo This needs to be fixed.. someone screwed it up.. (see function for where it fails -- there's a note)

@@ -167,7 +167,7 @@ public class DriverClustersTab {
 			i++;
 			
 		}
-		GUIMain.inst.addClusterFeatures(usedNames);
+		GUIMain.inst.addClusterFeatures(usedNames); //--- fills the features and subfeatures list for searching
 		/*
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -199,7 +199,7 @@ public class DriverClustersTab {
 			}
 			clusterPanels[i].setPreferredSize(new Dimension(800,40));
 			finalPanels[i].setPreferredSize(new Dimension(800,60));
-			main.holderPanel.add(finalPanels[i]);
+			main.clusterHolderPanel.add(finalPanels[i]);
 		}
 		
 		boolean cgIsSet = setClusterGroup();
@@ -234,9 +234,9 @@ public class DriverClustersTab {
 	
 	public static void findCluster(GUIMain main, String name)
 	{
-		for (int i = 0; i < main.holderPanel.getComponentCount(); i = i + 2)
+		for (int i = 0; i < main.clusterHolderPanel.getComponentCount(); i = i + 2)
 		{
-			JPanel panel = (JPanel)main.holderPanel.getComponent(i);
+			JPanel panel = (JPanel)main.clusterHolderPanel.getComponent(i);
 			JLabel label = (JLabel)((JPanel)panel.getComponent(0)).getComponent(0);
 			String labelName = label.getText();
 			if (name.equals(labelName))
@@ -349,10 +349,10 @@ public class DriverClustersTab {
 //				int i =0;
 //				JPanel[] firstThreePanels = new JPanel[3];
 //				for(i=0;i<3;i++)
-//					firstThreePanels[i] = (JPanel) main.holderPanel.getComponent(i);
-//				main.holderPanel.removeAll();
+//					firstThreePanels[i] = (JPanel) main.clusterHolderPanel.getComponent(i);
+//				main.clusterHolderPanel.removeAll();
 //				for(i=0;i<3;i++)
-//					main.holderPanel.add(firstThreePanels[i]);
+//					main.clusterHolderPanel.add(firstThreePanels[i]);
 //				int maxClusters =EditorTabDriver.wizard.runAllTopFeatures();
 //				EditorTabDriver.wizard.runClusterAnalysis(maxClusters);
 //				initializeClusterViewer(main,false);

@@ -1,9 +1,12 @@
 package edu.drexel.psal.anonymouth.gooie;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -34,6 +37,8 @@ public class DriverPreProcessTabFeatures {
 	 * ======================
 	 */
 	
+	protected static MouseListener featuresLabelClickAL;
+	
 	/**
 	 * Initialize all documents tab listeners.
 	 */
@@ -48,6 +53,51 @@ public class DriverPreProcessTabFeatures {
 	 */
 	protected static void initMainListeners(final GUIMain main) 
 	{
+		featuresLabelClickAL = new MouseListener()
+		{
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) 
+			{
+				main.prepFeatLabel.setBackground(Color.YELLOW);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) 
+			{
+				if (main.featuresAreReady())
+					main.prepFeatLabel.setBackground(main.ready);
+				else
+					main.prepFeatLabel.setBackground(main.notReady);
+					
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0)
+			{
+				main.PPSP.tree.setSelectionRow(2);
+				main.PPSP.openWindow();
+				if (main.featuresAreReady())
+					main.prepFeatLabel.setBackground(main.ready);
+				else
+					main.prepFeatLabel.setBackground(main.notReady);
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0)
+			{
+				
+			}
+			
+		};
+		main.prepFeatLabel.addMouseListener(featuresLabelClickAL);
+		
 		// feature set buttons
 		// ===================
 		
