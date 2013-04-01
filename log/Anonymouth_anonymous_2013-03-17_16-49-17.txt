@@ -1,0 +1,32 @@
+Started log log/Anonymouth_anonymous_2013-03-17_16-49-17.txt
+===================================================
+16-49-17: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\9_features.xml
+16-49-17: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_feature_set.xml
+16-49-17: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_feature_set_limited.xml
+16-49-17: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_german.xml
+16-49-18: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_limited_norm.xml
+16-49-18: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_russian.xml
+16-49-18: Populating event drivers...
+16-49-18: adding event drivers under Basic
+16-49-18: adding event drivers under Part-Of-Speech
+16-49-18: adding event drivers under Grams
+16-49-18: adding event drivers under Dictionary
+16-49-18: adding event drivers under Counters
+16-49-18: adding event drivers under Readability Metrics
+16-49-18: adding event drivers under Misc.
+16-49-18: done!
+16-49-18: Populating canonicizers...
+16-49-18: done!
+16-49-18: Populating event cullers...
+16-49-18: done!
+16-49-18: Creating Documents Tab...
+16-50-45: 'Load Problem Set' button clicked on the documents tab
+16-50-46: Trying to load problem set jeff_Desktop.xml
+16-50-46: GUI Update: update documents tab with current problem set started
+16-50-57: Preset feature set selected in the features tab.
+16-50-57: loaded preset feature set: WritePrints (Limited)
+16-50-57: Preset feature set selected in the features tab.
+16-50-57: loaded preset feature set: WritePrints (Limited)
+16-50-58: Classifier selected in the available classifiers tree in the classifiers tab: SMO
+16-50-58: 'Add' button clicked in the analysis tab.
+16-50-58: Classifier tree unselected in the classifiers tab.

@@ -78,12 +78,12 @@ public class GeneralSettingsFrame extends JDialog
 	
 	protected JPanel tabLocationsPanel;
 	protected JPanel tabLocationsMainPanel;
-	protected JComboBox documentsLocationComboBox;
-	protected JComboBox resultsLocationComboBox;
-	protected JComboBox preprocessLocationComboBox;
-	protected JComboBox suggestionsLocationComboBox;
-	protected JComboBox translationsLocationComboBox;
-	protected JComboBox clustersLocationComboBox;
+	protected static JComboBox documentsLocationComboBox;
+	protected static JComboBox resultsLocationComboBox;
+	protected static JComboBox preprocessLocationComboBox;
+	protected static JComboBox suggestionsLocationComboBox;
+	protected static JComboBox translationsLocationComboBox;
+	protected static JComboBox clustersLocationComboBox;
 	protected DefaultComboBoxModel documentsLocationComboBoxModel;
 	protected DefaultComboBoxModel resultsLocationComboBoxModel;
 	protected DefaultComboBoxModel preprocessLocationComboBoxModel;
@@ -95,6 +95,14 @@ public class GeneralSettingsFrame extends JDialog
 	protected JButton okButton;
 	protected JButton cancelButton;
 	
+	// all "previous" variables which hold the values of variables when the settings frame was opened
+	protected PropUtil.Location prevDocumentsLocation;
+	protected PropUtil.Location prevResultsLocation;
+	protected PropUtil.Location prevPreprocessLocation;
+	protected PropUtil.Location prevSuggestionsLocation;
+	protected PropUtil.Location prevTranslationsLocation;
+	protected PropUtil.Location prevClustersLocation;
+	
 	public GeneralSettingsFrame(GUIMain main)
 	{
 		super(main, "General Settings", Dialog.ModalityType.APPLICATION_MODAL);
@@ -102,7 +110,7 @@ public class GeneralSettingsFrame extends JDialog
 		setVisible(false);
 	}
 	
-	private void init(GUIMain main)
+	private void init(final GUIMain main)
 	{
 		this.main = main;
 		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
@@ -148,6 +156,13 @@ public class GeneralSettingsFrame extends JDialog
 					@Override
 					public void actionPerformed(ActionEvent e) 
 					{
+						try {
+							main.setUpContentPane(true);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						
 						closeWindow();
 					}
 				});
@@ -159,6 +174,11 @@ public class GeneralSettingsFrame extends JDialog
 					@Override
 					public void actionPerformed(ActionEvent e) 
 					{
+						PropUtil.setPreProcessTabLocation(prevPreprocessLocation);
+						PropUtil.setSuggestionsTabLocation(prevSuggestionsLocation);
+						PropUtil.setTranslationsTabLocation(prevTranslationsLocation);
+						PropUtil.setClustersTabLocation(prevClustersLocation);
+						
 						closeWindow();
 					}
 				});
@@ -208,6 +228,13 @@ public class GeneralSettingsFrame extends JDialog
 	{
 		this.setVisible(true);
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
+		
+		prevDocumentsLocation = PropUtil.Location.TOP;
+		prevResultsLocation = PropUtil.Location.BOTTOM;
+		prevPreprocessLocation = PropUtil.getPreProcessTabLocation();
+		prevSuggestionsLocation = PropUtil.getSuggestionsTabLocation();
+		prevTranslationsLocation = PropUtil.getTranslationsTabLocation();
+		prevClustersLocation = PropUtil.getClustersTabLocation();
 	}
 	
 	public void closeWindow() 
@@ -274,7 +301,7 @@ public class GeneralSettingsFrame extends JDialog
 					resultsLocationLabel.setBorder(BorderFactory.createRaisedBevelBorder());
 					resultsLocationLabel.setOpaque(true);
 					resultsLocationLabel.setBackground(main.tan);
-					resultsLocationComboBoxModel = new DefaultComboBoxModel(new String[]{"Bottom"});
+					resultsLocationComboBoxModel = new DefaultComboBoxModel(new String[]{"Left", "Right", "Bottom"});
 					resultsLocationComboBox = new JComboBox(resultsLocationComboBoxModel);
 					
 					JLabel preprocessLocationLabel = new JLabel("Pre-Process Tab:");
@@ -325,6 +352,126 @@ public class GeneralSettingsFrame extends JDialog
 			}
 			tabLocationsPanel.add(tabLocationsLabel, "h 30!");
 			tabLocationsPanel.add(tabLocationsMainPanel);
+			
+			initListeners();
 		}
+	}
+	
+	public static void initListeners()
+	{
+		ActionListener documentsAL;
+		ActionListener resultsAL;
+		ActionListener preprocessAL;
+		ActionListener suggestionsAL;
+		ActionListener translationsAL;
+		ActionListener clustersAL;
+		
+		documentsAL = new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				String item = (String)documentsLocationComboBox.getSelectedItem();
+				if (item == "Left")
+					PropUtil.setDocumentsTabLocation(PropUtil.Location.LEFT);
+				if (item == "Top")
+					PropUtil.setDocumentsTabLocation(PropUtil.Location.TOP);
+				if (item == "Right")
+					PropUtil.setDocumentsTabLocation(PropUtil.Location.RIGHT);
+				if (item == "Bottom")
+					PropUtil.setDocumentsTabLocation(PropUtil.Location.BOTTOM);
+			}
+		};
+		documentsLocationComboBox.addActionListener(documentsAL);
+		
+		resultsAL = new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				String item = (String)resultsLocationComboBox.getSelectedItem();
+				if (item == "Left")
+					PropUtil.setResultsTabLocation(PropUtil.Location.LEFT);
+				if (item == "Top")
+					PropUtil.setResultsTabLocation(PropUtil.Location.TOP);
+				if (item == "Right")
+					PropUtil.setResultsTabLocation(PropUtil.Location.RIGHT);
+				if (item == "Bottom")
+					PropUtil.setResultsTabLocation(PropUtil.Location.BOTTOM);
+			}
+		};
+		resultsLocationComboBox.addActionListener(resultsAL);
+		
+		preprocessAL = new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				String item = (String)preprocessLocationComboBox.getSelectedItem();
+				if (item == "Left")
+					PropUtil.setPreProcessTabLocation(PropUtil.Location.LEFT);
+				if (item == "Top")
+					PropUtil.setPreProcessTabLocation(PropUtil.Location.TOP);
+				if (item == "Right")
+					PropUtil.setPreProcessTabLocation(PropUtil.Location.RIGHT);
+				if (item == "Bottom")
+					PropUtil.setPreProcessTabLocation(PropUtil.Location.BOTTOM);
+			}
+		};
+		preprocessLocationComboBox.addActionListener(preprocessAL);
+		
+		suggestionsAL = new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				String item = (String)suggestionsLocationComboBox.getSelectedItem();
+				if (item == "Left")
+					PropUtil.setSuggestionsTabLocation(PropUtil.Location.LEFT);
+				if (item == "Top")
+					PropUtil.setSuggestionsTabLocation(PropUtil.Location.TOP);
+				if (item == "Right")
+					PropUtil.setSuggestionsTabLocation(PropUtil.Location.RIGHT);
+				if (item == "Bottom")
+					PropUtil.setSuggestionsTabLocation(PropUtil.Location.BOTTOM);
+			}
+		};
+		suggestionsLocationComboBox.addActionListener(suggestionsAL);
+		
+		translationsAL = new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				String item = (String)translationsLocationComboBox.getSelectedItem();
+				if (item == "Left")
+					PropUtil.setTranslationsTabLocation(PropUtil.Location.LEFT);
+				if (item == "Top")
+					PropUtil.setTranslationsTabLocation(PropUtil.Location.TOP);
+				if (item == "Right")
+					PropUtil.setTranslationsTabLocation(PropUtil.Location.RIGHT);
+				if (item == "Bottom")
+					PropUtil.setTranslationsTabLocation(PropUtil.Location.BOTTOM);
+			}
+		};
+		translationsLocationComboBox.addActionListener(translationsAL);
+		
+		clustersAL = new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				String item = (String)clustersLocationComboBox.getSelectedItem();
+				if (item == "Left")
+					PropUtil.setClustersTabLocation(PropUtil.Location.LEFT);
+				if (item == "Top")
+					PropUtil.setClustersTabLocation(PropUtil.Location.TOP);
+				if (item == "Right")
+					PropUtil.setClustersTabLocation(PropUtil.Location.RIGHT);
+				if (item == "Bottom")
+					PropUtil.setClustersTabLocation(PropUtil.Location.BOTTOM);
+			}
+		};
+		clustersLocationComboBox.addActionListener(clustersAL);
 	}
 }

@@ -15,7 +15,7 @@ import com.memetix.mst.translate.Translate;
  */
 public class Translation {
 	
-	private Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
+	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
 			Language.CHINESE_SIMPLIFIED, Language.CHINESE_TRADITIONAL,Language.CZECH,
 			Language.DANISH,Language.DUTCH,Language.ESTONIAN,Language.FINNISH,
 			Language.FRENCH,Language.GERMAN,Language.GREEK,Language.HAITIAN_CREOLE,
@@ -27,12 +27,12 @@ public class Translation {
 			Language.SLOVENIAN,Language.SPANISH, Language.SWEDISH, 
 			Language.THAI, Language.TURKISH, Language.UKRAINIAN, Language.VIETNAMESE};
 	
-	private Language usedLangs[] = {Language.ARABIC, Language.CZECH, Language.DANISH,Language.DUTCH,
+	private static Language usedLangs[] = {Language.ARABIC, Language.CZECH, Language.DANISH,Language.DUTCH,
 			Language.FRENCH,Language.GERMAN,Language.GREEK, Language.HUNGARIAN,
 			Language.ITALIAN,Language.JAPANESE, Language.KOREAN, Language.POLISH, Language.RUSSIAN,
 			Language.SPANISH, Language.VIETNAMESE};
 	
-	private HashMap<Language, String> names = new HashMap<Language, String>();
+	private static HashMap<Language, String> names = new HashMap<Language, String>();
 	
 	public Translation()
 	{
@@ -75,7 +75,7 @@ public class Translation {
 		names.put(allLangs[36], "Vietnamese");
 	}
 
-	public String getTranslation(String original, Language other)
+	public static String getTranslation(String original, Language other)
 	{
 		Translate.setClientId("drexel1"/* Enter your Windows Azure Client Id here */);
 	    Translate.setClientSecret("+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE="/* Enter your Windows Azure Client Secret here */);
@@ -124,17 +124,17 @@ public class Translation {
     	return null;
     }
 	
-	public String getName(Language lang)
+	public static String getName(Language lang)
 	{
 		return names.get(lang);
 	}
 	
-	public Language[] getAllLangs()
+	public static Language[] getAllLangs()
 	{
 		return allLangs;
 	}
 	
-	public Language[] getUsedLangs()
+	public static Language[] getUsedLangs()
 	{
 		return usedLangs;
 	}

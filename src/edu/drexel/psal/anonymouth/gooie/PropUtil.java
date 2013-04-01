@@ -22,7 +22,12 @@ import edu.drexel.psal.jstylo.generics.*;
 
 public class PropUtil
 {
-	protected static GUIMain main = GUIMain.inst;
+	protected static String propFileName = "jsan_resources/anonymouth_prop.prop";
+	protected static File propFile = new File(propFileName);
+	protected static Properties prop = new Properties();
+	protected static JFileChooser load = new JFileChooser();
+	protected static JFileChooser save = new JFileChooser();
+	
 	public static enum Location // just so you cant mess up the input to methods by spelling stuff wrong
 	{
 		LEFT("left"), TOP("top"), RIGHT("right"), BOTTOM("bottom"), NONE("none");
@@ -71,20 +76,94 @@ public class PropUtil
 	}
 	
 	/**
-	 * Sets the previous problem set path, so the user doesn't need to go searching for it.
-	 * @param path - path of the file in string form
+	 * Sets the previous problem set filename, so the user doesn't need to go searching for it. Must be in jsan_resources/problem_sets.
+	 * @param filename - name of the file in string form (e.g. ps.xml)
 	 */
-	protected static void setProbSetPath(String path)
+	protected static void setRecentProbSet(String filename)
 	{
 		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
 		try {
-			main.prop.setProperty("recentProbSet", path);
-			writer = new BufferedWriter(new FileWriter(main.propFileName));
-			main.prop.store(writer, "User Preferences");
+			prop.setProperty("recentProbSet", filename);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Sets the location of the documents tab
+	 * @param location - Should only use LEFT, TOP, or RIGHT
+	 */
+	protected static void setDocumentsTabLocation(Location location)
+	{
+		// saves the path of the file chosen in the properties file
+		BufferedWriter writer;
+		try {
+			prop.setProperty("documentsTabLocation", "" + location.strRep);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Gets the location of the translations tab (default location also set here)
+	 */
+	protected static Location getDocumentsTabLocation()
+	{
+		String location = "";
+		try {
+			location = prop.getProperty("documentsTabLocation");
+			if (location == null)
+			{
+				prop.setProperty("documentsTabLocation", "top");
+				location = prop.getProperty("documentsTabLocation");
+			}
+		} catch (NullPointerException e) {
+			prop.setProperty("documentsTabLocation", "top");
+			location = prop.getProperty("documentsTabLocation");
+		}
+		return stringToLocation(location);
+	}
+	
+	/**
+	 * Sets the location of the clusters tab
+	 * @param location - Should only use LEFT, TOP, or RIGHT
+	 */
+	protected static void setResultsTabLocation(Location location)
+	{
+		// saves the path of the file chosen in the properties file
+		BufferedWriter writer;
+		try {
+			prop.setProperty("resultsTabLocation", "" + location.strRep);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Gets the location of the translations tab (default location also set here)
+	 */
+	protected static Location getResultsTabLocation()
+	{
+		String location = "";
+		try {
+			location = prop.getProperty("resultsTabLocation");
+			if (location == null)
+			{
+				prop.setProperty("resultsTabLocation", "bottom");
+				location = prop.getProperty("resultsTabLocation");
+			}
+		} catch (NullPointerException e) {
+			prop.setProperty("resultsTabLocation", "bottom");
+			location = prop.getProperty("resultsTabLocation");
+		}
+		return stringToLocation(location);
 	}
 	
 	/**
@@ -96,9 +175,9 @@ public class PropUtil
 		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
 		try {
-			main.prop.setProperty("clustersTabLocation", "" + location.strRep);
-			writer = new BufferedWriter(new FileWriter(main.propFileName));
-			main.prop.store(writer, "User Preferences");
+			prop.setProperty("clustersTabLocation", "" + location.strRep);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -111,9 +190,15 @@ public class PropUtil
 	{
 		String location = "";
 		try {
-			location = main.prop.getProperty("clustersTabLocation");
+			location = prop.getProperty("clustersTabLocation");
+			if (location == null)
+			{
+				prop.setProperty("clustersTabLocation", "top");
+				location = prop.getProperty("clustersTabLocation");
+			}
 		} catch (NullPointerException e) {
-			location = "top"; // default
+			prop.setProperty("clustersTabLocation", "top");
+			location = prop.getProperty("clustersTabLocation");
 		}
 		return stringToLocation(location);
 	}
@@ -127,9 +212,9 @@ public class PropUtil
 		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
 		try {
-			main.prop.setProperty("preProcessTabLocation", "" + location.strRep);
-			writer = new BufferedWriter(new FileWriter(main.propFileName));
-			main.prop.store(writer, "User Preferences");
+			prop.setProperty("preProcessTabLocation", "" + location.strRep);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -142,9 +227,15 @@ public class PropUtil
 	{
 		String location = "";
 		try {
-			location = main.prop.getProperty("preProcessTabLocation");
+			location = prop.getProperty("preProcessTabLocation");
+			if (location == null)
+			{
+				prop.setProperty("preProcessTabLocation", "left");
+				location = prop.getProperty("preProcessTabLocation");
+			}
 		} catch (NullPointerException e) {
-			location = "left"; // default
+			prop.setProperty("preProcessTabLocation", "left");
+			location = prop.getProperty("preProcessTabLocation");
 		}
 		return stringToLocation(location);
 	}
@@ -158,9 +249,9 @@ public class PropUtil
 		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
 		try {
-			main.prop.setProperty("suggestionsTabLocation", "" + location.strRep);
-			writer = new BufferedWriter(new FileWriter(main.propFileName));
-			main.prop.store(writer, "User Preferences");
+			prop.setProperty("suggestionsTabLocation", "" + location.strRep);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -173,9 +264,15 @@ public class PropUtil
 	{
 		String location = "";
 		try {
-			location = main.prop.getProperty("suggestionsTabLocation");
+			location = prop.getProperty("suggestionsTabLocation");
+			if (location == null)
+			{
+				prop.setProperty("suggestionsTabLocation", "left");
+				location = prop.getProperty("suggestionsTabLocation");
+			}
 		} catch (NullPointerException e) {
-			location = "left"; // default
+			prop.setProperty("suggestionsTabLocation", "left");
+			location = prop.getProperty("preProcessTabLocation");
 		}
 		return stringToLocation(location);
 	}
@@ -189,9 +286,9 @@ public class PropUtil
 		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
 		try {
-			main.prop.setProperty("translationsTabLocation", "" + location.strRep);
-			writer = new BufferedWriter(new FileWriter(main.propFileName));
-			main.prop.store(writer, "User Preferences");
+			prop.setProperty("translationsTabLocation", "" + location.strRep);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -204,9 +301,15 @@ public class PropUtil
 	{
 		String location = "";
 		try {
-			location = main.prop.getProperty("translationsTabLocation");
+			location = prop.getProperty("translationsTabLocation");
+			if (location == null)
+			{
+				prop.setProperty("translationsTabLocation", "left");
+				location = prop.getProperty("translationsTabLocation");
+			}
 		} catch (NullPointerException e) {
-			location = "left"; // default
+			prop.setProperty("translationsTabLocation", "left");
+			location = prop.getProperty("translationsTabLocation");
 		}
 		return stringToLocation(location);
 	}

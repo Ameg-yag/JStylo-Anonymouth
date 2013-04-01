@@ -3,8 +3,11 @@ package edu.drexel.psal.anonymouth.gooie;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.*;
 
 import javax.swing.*;
@@ -31,6 +34,7 @@ public class DriverPreProcessTabClassifiers {
 	 * =========================
 	 */
 	
+	protected static MouseListener classifierLabelClickAL;
 	protected static Classifier tmpClassifier;
 	
 	/**
@@ -47,6 +51,51 @@ public class DriverPreProcessTabClassifiers {
 	 */
 	protected static void initMainListeners(final GUIMain main) 
 	{
+		classifierLabelClickAL = new MouseListener()
+		{
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) 
+			{
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) 
+			{
+				main.prepClassLabel.setBackground(Color.YELLOW);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) 
+			{
+				if (main.classifiersAreReady())
+					main.prepClassLabel.setBackground(main.ready);
+				else
+					main.prepClassLabel.setBackground(main.notReady);
+					
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0)
+			{
+				main.PPSP.tree.setSelectionRow(3);
+				main.PPSP.openWindow();
+				if (main.classifiersAreReady())
+					main.prepClassLabel.setBackground(main.ready);
+				else
+					main.prepClassLabel.setBackground(main.notReady);
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0)
+			{
+				
+			}
+			
+		};
+		main.prepClassLabel.addMouseListener(classifierLabelClickAL);
+		
 		
 		// available classifiers tree
 		// ==========================

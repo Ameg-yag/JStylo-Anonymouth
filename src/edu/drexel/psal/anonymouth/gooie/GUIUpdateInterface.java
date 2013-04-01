@@ -103,14 +103,18 @@ public class GUIUpdateInterface {
 			{
 				dlm.addElement(testDocs.get(i).getTitle());
 				dlm2.addElement(testDocs.get(i).getTitle());
-				main.docNameLabel.setText(testDocs.get(i).getTitle());
+//				main.docNameLabel.setText(testDocs.get(i).getTitle());
 				main.mainDocPreview = main.ps.testDocAt(0);
 				try {
 					main.mainDocPreview.load();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				main.documentPane.setText(main.mainDocPreview.stringify());
+				try {
+					main.documentPane.setText(main.mainDocPreview.stringify());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		

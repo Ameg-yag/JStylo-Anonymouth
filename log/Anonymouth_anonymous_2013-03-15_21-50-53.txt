@@ -1,0 +1,22 @@
+Started log log/Anonymouth_anonymous_2013-03-15_21-50-53.txt
+===================================================
+21-50-53: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\9_features.xml
+21-50-53: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_feature_set.xml
+21-50-53: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_feature_set_limited.xml
+21-50-53: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_german.xml
+21-50-53: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_limited_norm.xml
+21-50-53: Reading CumulativeFeatureDriver from C:\Users\Jeff\git\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_russian.xml
+21-50-53: Populating event drivers...
+21-50-53: adding event drivers under Basic
+21-50-53: adding event drivers under Part-Of-Speech
+21-50-53: adding event drivers under Grams
+21-50-53: adding event drivers under Dictionary
+21-50-53: adding event drivers under Counters
+21-50-53: adding event drivers under Readability Metrics
+21-50-53: adding event drivers under Misc.
+21-50-53: done!
+21-50-53: Populating canonicizers...
+21-50-53: done!
+21-50-53: Populating event cullers...
+21-50-53: done!
+21-50-53: Creating Documents Tab...

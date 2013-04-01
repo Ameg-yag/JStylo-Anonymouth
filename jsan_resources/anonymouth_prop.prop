@@ -1,3 +1,9 @@
 #User Preferences
-#Fri Mar 01 14:21:15 EST 2013
-recentProbSet=C\:\\Users\\Jeff\\workspace\\PSAL\\JStylo-Anonymouth\\jsan_resources\\problem_sets\\jeff_Desktop.xml
+#Tue Mar 19 13:23:59 EDT 2013
+suggestionsTabLocation=right
+preProcessTabLocation=right
+resultsTabLocation=left
+translationsTabLocation=right
+clustersTabLocation=left
+documentsTabLocation=top
+recentProbSet=jeff_Desktop.xml

@@ -13,14 +13,9 @@ import edu.drexel.psal.anonymouth.projectDev.Attribute;
 import edu.drexel.psal.anonymouth.projectDev.Cluster;
 import edu.drexel.psal.anonymouth.utils.Pair;
 
-public class ClusterViewer extends JPanel {
+public class ClusterPanel extends JPanel {
 	
 	//double[] features = {3.3, 3.5, 2.1, 7.8, 9.5, 5.5, 6.1,14.9, 18.0,19.6};
-	Cluster[] clusters;
-	int numClusters;
-	protected static JPanel[] allPanels;
-	protected static int numFeatures;
-	protected static int[] selectedClustersByFeature;
 	
 	double xoffset = 20;
 	double yoffset;
@@ -38,8 +33,11 @@ public class ClusterViewer extends JPanel {
 	private Color transRed = new Color(1.0f,0f,0f,.9f);
 	private Color transBlue = new Color(0f,0f,1.0f,.9f);
 	
+	Cluster[] clusters;
+	int numClusters;
 	
-	public ClusterViewer(Cluster[] clusters,int featureNumber, double minimum, double maximum, double authorMin, double authorMax, double presentValue){
+	public ClusterPanel(Cluster[] clusters,int featureNumber, double minimum, double maximum, double authorMin, double authorMax, double presentValue)
+	{
 		this.clusters = clusters;
 		this.numClusters = clusters.length;
 		this.minimum = minimum;
@@ -48,10 +46,11 @@ public class ClusterViewer extends JPanel {
 		this.authorMax = authorMax;
 		this.presentValue = presentValue;
 		this.featureNumber = featureNumber;
-		this.setBorder(BorderFactory.createLoweredBevelBorder());
+		this.setBackground(Color.WHITE);
 	}
 	
-	public double transform(double value, boolean noOffset){
+	public double transform(double value, boolean noOffset)
+	{
 		double temp = value - minimum;
 		if(noOffset == false)
 			temp = temp*scale + xoffset;
@@ -60,12 +59,14 @@ public class ClusterViewer extends JPanel {
 		return temp;
 	}
 	
-	public String roundToString(int precision, double value){
+	public String roundToString(int precision, double value)
+	{
 		// precision is some multiple of 10
 		return  Double.toString(Math.floor(value*precision+.5)/precision);
 	}
 		
-	protected void paintComponent(Graphics g){
+	protected void paintComponent(Graphics g)
+	{
 		super.paintComponent(g);
 		setPreferredSize(new Dimension(800,50));
 		Graphics2D g2 = (Graphics2D)g;
@@ -110,7 +111,7 @@ public class ClusterViewer extends JPanel {
 			g2.fill(new Ellipse2D.Double(centroid-Math.sqrt(dim), yoffset-Math.sqrt(dim),dim,dim));
 			*/
 			
-			int selectedCluster = selectedClustersByFeature[featureNumber];
+			int selectedCluster = DriverClustersTab.selectedClustersByFeature[featureNumber];
 			if(i == selectedCluster-1){ // this needs to be offset by 1, because a '1' was added to the cluster numbers to avoid
 				// a cluster being number '0'. 
 				g2.setColor(highlightColor);
@@ -134,92 +135,6 @@ public class ClusterViewer extends JPanel {
 		dim = 7;
 		g2.fill(new Ellipse2D.Double(transPresentValue-Math.sqrt(dim), yoffset-Math.sqrt(dim),dim,dim));
 		
-	}
-	
-	public static void makeViewer(Attribute[] theOnesYouWantToSee){
-		//System.out.println("length of theOnesYouWantToSee: "+theOnesYouWantToSee.length);
-		int numFeatures = theOnesYouWantToSee.length;
-		double[] minimums = new double[numFeatures]; 
-		double[] maximums = new double[numFeatures];
-		double[] authorMin = new double[numFeatures];
-		double[] authorMax = new double[numFeatures];
-		double[] presentValues = new double[numFeatures];
-		String[] names = new String[numFeatures];
-		
-		int i = 0;
-		ArrayList<Cluster[]> everySingleCluster = new ArrayList<Cluster[]>(numFeatures);
-		double tempMinMax;
-		String tempString;
-		String dashes;
-		selectedClustersByFeature = new int[numFeatures];
-		double tempAuthorMinMax;
-		for(i=0; i< numFeatures;i++){
-			selectedClustersByFeature[i] = -1; // initialize with no clusters selected;
-			everySingleCluster.add(i,theOnesYouWantToSee[i].getOrderedClusters());
-			authorMin[i] = theOnesYouWantToSee[i].getAuthorAvg() - theOnesYouWantToSee[i].getAuthorConfidence();
-			if(authorMin[i] <  0)
-				authorMin[i] = 0;
-			authorMax[i] = theOnesYouWantToSee[i].getAuthorAvg() + theOnesYouWantToSee[i].getAuthorConfidence();	
-			presentValues[i] = theOnesYouWantToSee[i].getToModifyValue();
-			tempMinMax = theOnesYouWantToSee[i].getTrainMax();
-			tempAuthorMinMax = authorMax[i];
-			
-			if(tempAuthorMinMax < presentValues[i])
-				tempAuthorMinMax = presentValues[i];
-			
-			if(tempAuthorMinMax > tempMinMax)
-				maximums[i] = tempAuthorMinMax;
-			else
-				maximums[i] = tempMinMax; 
-			tempMinMax = theOnesYouWantToSee[i].getTrainMin();
-			tempAuthorMinMax = authorMin[i];
-			
-			if(tempAuthorMinMax > presentValues[i])
-				tempAuthorMinMax = presentValues[i];
-			
-			if(tempAuthorMinMax < tempMinMax)
-				minimums[i] = tempAuthorMinMax;
-			else
-				minimums[i] = tempMinMax;
-			//System.out.println(presentValues[i]);
-			tempString = theOnesYouWantToSee[i].getStringInBraces();
-			if(tempString == "")
-				dashes = "";
-			else
-				dashes = "--";
-			names[i] = theOnesYouWantToSee[i].getGenericName()+dashes+tempString;
-		}
-		
-		Iterator<Cluster[]> outerLevel = everySingleCluster.iterator();
-		allPanels = new JPanel[everySingleCluster.size()];
-		i=0;
-		int[] initialLayoverVals = new int[numFeatures];
-		DriverClustersTab.namePanels = new JPanel[numFeatures];
-		String[] usedNames = new String[numFeatures];
-		while(outerLevel.hasNext())
-		{
-			JPanel namePanel = new JPanel();
-			namePanel.add(new JLabel(names[i]));
-			DriverClustersTab.namePanels[i] = namePanel;
-			usedNames[i] = names[i];
-			
-			JPanel oneOfMany = new ClusterViewer(outerLevel.next(),i,minimums[i],maximums[i], authorMin[i],authorMax[i],presentValues[i]);
-			
-			allPanels[i] = oneOfMany;
-			initialLayoverVals[i] = 1;
-			i++;
-			
-		}
-		GUIMain.inst.addClusterFeatures(usedNames);
-		/*
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				ClusterViewerFrame inst = new ClusterViewerFrame();
-				inst.setLocationRelativeTo(null);
-				inst.setVisible(true);
-				}
-			});
-			*/
 	}
 }
 
