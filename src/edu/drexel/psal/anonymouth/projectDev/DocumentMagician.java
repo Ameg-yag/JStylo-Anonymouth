@@ -33,7 +33,7 @@ import com.jgaap.generics.Document;
  */
 public class DocumentMagician {
 	
-	private String writeDirectory = "./edited_documents/";
+	private String writeDirectory = ThePresident.DOC_MAGICIAN_WRITE_DIR;
 	
 	/**
 	 * private boolean variable, true if sparse data is expected, false otherwise

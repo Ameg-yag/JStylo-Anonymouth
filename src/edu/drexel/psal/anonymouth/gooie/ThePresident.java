@@ -28,8 +28,9 @@ public class ThePresident {
 	//protected static ImageIcon buffImg;
 	public static ImageIcon LOGO;
 	public static String sessionName;
-	public static String TEMP_DIR =  "temp/"; // TODO: put in "options"
-	public static String GRAMMAR_DIR = "grammar_data/";//TODO: put in "options"
+	public static final String DOC_MAGICIAN_WRITE_DIR = "./.edited_documents/";
+	public static final String TEMP_DIR =  ".temp/"; // TODO: put in "options"
+	public static final String GRAMMAR_DIR = "grammar_data/";//TODO: put in "options"
 	//public static boolean SHOULD_KEEP_TEMP_CLEAN_DOCS = false; // TODO : put in "options" XXX not used!!
 	public static boolean SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = true; // TODO: put in "options"
 	public static boolean SAVE_TAGGED_DOCUMENTS = true; // TODO: put in "options
@@ -112,6 +113,11 @@ public class ThePresident {
 		Logger.setFilePrefix("Anonymouth_"+sessionName);
 		Logger.logFile = true;	
 		Logger.initLogFile();
+		File dm_write_dir = new File(DOC_MAGICIAN_WRITE_DIR);
+		if (!dm_write_dir.exists()){
+			Logger.logln("Creating directory for DocumentMagician to write to...");
+			dm_write_dir.mkdir();
+		}
 		Logger.logln("Gooie starting...");
 		GUIMain.startGooie();
 	}
