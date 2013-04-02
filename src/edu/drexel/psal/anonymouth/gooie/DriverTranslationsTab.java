@@ -28,8 +28,8 @@ import javax.swing.event.ListSelectionListener;
 import net.miginfocom.swing.MigLayout;
 
 import edu.drexel.psal.JSANConstants;
-import edu.drexel.psal.anonymouth.projectDev.Attribute;
-import edu.drexel.psal.anonymouth.projectDev.Cluster;
+import edu.drexel.psal.anonymouth.engine.Attribute;
+import edu.drexel.psal.anonymouth.engine.Cluster;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 import edu.drexel.psal.jstylo.eventDrivers.*;

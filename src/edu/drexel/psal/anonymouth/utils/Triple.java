@@ -1,6 +1,6 @@
 package edu.drexel.psal.anonymouth.utils;
 
-import edu.drexel.psal.anonymouth.projectDev.FeatureList;
+import edu.drexel.psal.anonymouth.engine.FeatureList;
 
 /**
  *	Holds: string in braces, infogain, and featureName  

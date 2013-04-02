@@ -20,7 +20,7 @@ import com.jgaap.generics.Document;
 import com.jgaap.generics.EventGenerationException;
 import com.jgaap.generics.EventSet;
 
-import edu.drexel.psal.anonymouth.projectDev.FeatureList;
+import edu.drexel.psal.anonymouth.engine.FeatureList;
 import edu.drexel.psal.jstylo.eventDrivers.SentenceCounterEventDriver;
 import edu.drexel.psal.jstylo.eventDrivers.WordCounterEventDriver;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;

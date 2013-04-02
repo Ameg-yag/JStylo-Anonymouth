@@ -16,9 +16,9 @@ import java.util.regex.Pattern;
 
 import com.jgaap.JGAAPConstants;
 
+import edu.drexel.psal.anonymouth.engine.Attribute;
+import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.gooie.ErrorHandler;
-import edu.drexel.psal.anonymouth.projectDev.Attribute;
-import edu.drexel.psal.anonymouth.projectDev.DataAnalyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.stanford.nlp.ling.HasWord;

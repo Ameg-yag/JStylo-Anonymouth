@@ -2,7 +2,7 @@ package edu.drexel.psal.anonymouth.utils;
 
 import java.util.ArrayList;
 
-import edu.drexel.psal.anonymouth.projectDev.DataAnalyzer;
+import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.utils.POS.TheTags;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;

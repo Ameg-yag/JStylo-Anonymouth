@@ -659,11 +659,11 @@ public class GUIMain extends javax.swing.JFrame
 		if (panelLocations.contains(PropUtil.Location.LEFT))
 			getContentPane().add(leftTabPane, "width 250!, spany");
 		if (panelLocations.contains(PropUtil.Location.TOP))
-			getContentPane().add(topTabPane, "width 600:100%:, grow");
+			getContentPane().add(topTabPane, "width 60:100%:, grow");
 		if (panelLocations.contains(PropUtil.Location.RIGHT))
-			getContentPane().add(rightTabPane, "width 250!, spany");
+			getContentPane().add(rightTabPane, "width 353!, spany"); // MUST be at LEAST 353 for Mac OS X. 
 		if (panelLocations.contains(PropUtil.Location.BOTTOM))
-			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:");
+			getContentPane().add(bottomTabPane, "width 60:100%:, height 150:25%:");
 		
 		getContentPane().revalidate();
 		getContentPane().repaint();

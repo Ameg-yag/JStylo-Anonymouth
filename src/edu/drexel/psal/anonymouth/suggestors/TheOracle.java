@@ -8,8 +8,8 @@ import java.util.HashMap;
 import com.jgaap.JGAAPConstants;
 import com.jgaap.generics.EventGenerationException;
 
+import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
-import edu.drexel.psal.anonymouth.projectDev.Attribute;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 

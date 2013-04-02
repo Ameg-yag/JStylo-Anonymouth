@@ -1,7 +1,7 @@
 package edu.drexel.psal.anonymouth.suggestors;
 
-import edu.drexel.psal.anonymouth.projectDev.Attribute;
-import edu.drexel.psal.anonymouth.projectDev.FeatureList;
+import edu.drexel.psal.anonymouth.engine.Attribute;
+import edu.drexel.psal.anonymouth.engine.FeatureList;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 public class StringFormulator {

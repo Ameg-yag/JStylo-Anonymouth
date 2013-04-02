@@ -1,4 +1,4 @@
-package edu.drexel.psal.anonymouth.projectDev;
+package edu.drexel.psal.anonymouth.engine;
 
 /**
  * Wrapper for int[]. Allows using integer arrays as keys in HashMap, and does other generally intelligent things. 

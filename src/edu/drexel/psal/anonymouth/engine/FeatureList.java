@@ -1,4 +1,4 @@
-package edu.drexel.psal.anonymouth.projectDev;
+package edu.drexel.psal.anonymouth.engine;
 
 /**
  * Contains all features known to Anonymouth. By having a standardized set of feature names, reflection may be confidently used to call suggestors and calculators

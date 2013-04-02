@@ -26,11 +26,11 @@ import com.jgaap.generics.Canonicizer;
 import com.jgaap.generics.Document;
 
 import edu.drexel.psal.anonymouth.calculators.Computer;
-import edu.drexel.psal.anonymouth.projectDev.DataAnalyzer;
-import edu.drexel.psal.anonymouth.projectDev.DocumentMagician;
-import edu.drexel.psal.anonymouth.projectDev.FeatureList;
-import edu.drexel.psal.anonymouth.projectDev.Mapper;
-import edu.drexel.psal.anonymouth.projectDev.TheMirror;
+import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
+import edu.drexel.psal.anonymouth.engine.DocumentMagician;
+import edu.drexel.psal.anonymouth.engine.FeatureList;
+import edu.drexel.psal.anonymouth.engine.Mapper;
+import edu.drexel.psal.anonymouth.engine.TheMirror;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
 import edu.drexel.psal.anonymouth.suggestors.TheOracle;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;

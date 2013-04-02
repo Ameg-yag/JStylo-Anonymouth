@@ -10,11 +10,11 @@ import javax.swing.event.*;
 
 import net.miginfocom.swing.MigLayout;
 
-import edu.drexel.psal.anonymouth.projectDev.Attribute;
-import edu.drexel.psal.anonymouth.projectDev.Cluster;
-import edu.drexel.psal.anonymouth.projectDev.ClusterAnalyzer;
-import edu.drexel.psal.anonymouth.projectDev.ClusterGroup;
-import edu.drexel.psal.anonymouth.projectDev.DataAnalyzer;
+import edu.drexel.psal.anonymouth.engine.Attribute;
+import edu.drexel.psal.anonymouth.engine.Cluster;
+import edu.drexel.psal.anonymouth.engine.ClusterAnalyzer;
+import edu.drexel.psal.anonymouth.engine.ClusterGroup;
+import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 public class DriverClustersTab {

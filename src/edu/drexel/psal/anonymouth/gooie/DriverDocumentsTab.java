@@ -1,12 +1,12 @@
 package edu.drexel.psal.anonymouth.gooie;
 
 import edu.drexel.psal.anonymouth.calculators.Computer;
+import edu.drexel.psal.anonymouth.engine.Attribute;
+import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
+import edu.drexel.psal.anonymouth.engine.DocumentMagician;
+import edu.drexel.psal.anonymouth.engine.FeatureList;
+import edu.drexel.psal.anonymouth.engine.TheMirror;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
-import edu.drexel.psal.anonymouth.projectDev.Attribute;
-import edu.drexel.psal.anonymouth.projectDev.DataAnalyzer;
-import edu.drexel.psal.anonymouth.projectDev.DocumentMagician;
-import edu.drexel.psal.anonymouth.projectDev.FeatureList;
-import edu.drexel.psal.anonymouth.projectDev.TheMirror;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapMaker;
 import edu.drexel.psal.anonymouth.suggestors.Prophecy;

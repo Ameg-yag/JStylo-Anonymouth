@@ -9,8 +9,8 @@ import java.util.Scanner;
 
 import javax.swing.*;
 
-import edu.drexel.psal.anonymouth.projectDev.Attribute;
-import edu.drexel.psal.anonymouth.projectDev.Cluster;
+import edu.drexel.psal.anonymouth.engine.Attribute;
+import edu.drexel.psal.anonymouth.engine.Cluster;
 import edu.drexel.psal.anonymouth.utils.Pair;
 
 public class ClusterPanel extends JPanel {

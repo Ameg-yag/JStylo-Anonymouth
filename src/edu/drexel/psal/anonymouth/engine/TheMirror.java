@@ -1,5 +1,5 @@
 
-package edu.drexel.psal.anonymouth.projectDev;
+package edu.drexel.psal.anonymouth.engine;
 
 import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapMaker;
@@ -26,7 +26,7 @@ public class TheMirror {
 
 	private String suggestorPackage = "edu.drexel.psal.anonymouth.suggestors";
 	private String calculatorsPackage = "edu.drexel.psal.anonymouth.calculators";
-	private String projectDevPackage = "edu.drexel.psal.anonymouth.projectDev";
+	private String projectDevPackage = "edu.drexel.psal.anonymouth.engine";
 	
 	Method method;
 	

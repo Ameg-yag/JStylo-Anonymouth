@@ -14,10 +14,10 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
+import edu.drexel.psal.anonymouth.engine.Attribute;
+import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
+import edu.drexel.psal.anonymouth.engine.FeatureList;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
-import edu.drexel.psal.anonymouth.projectDev.Attribute;
-import edu.drexel.psal.anonymouth.projectDev.DataAnalyzer;
-import edu.drexel.psal.anonymouth.projectDev.FeatureList;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.stanford.nlp.ling.TaggedWord;

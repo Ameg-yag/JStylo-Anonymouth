@@ -14,8 +14,8 @@ import java.util.regex.Pattern;
 import com.jgaap.JGAAPConstants;
 
 import edu.stanford.nlp.ling.TaggedWord;
-import edu.drexel.psal.anonymouth.projectDev.Attribute;
-import edu.drexel.psal.anonymouth.projectDev.DataAnalyzer;
+import edu.drexel.psal.anonymouth.engine.Attribute;
+import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.utils.POS.TheTags;
 
 import edu.drexel.psal.anonymouth.utils.*;
