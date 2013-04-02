@@ -1,7 +1,8 @@
 package edu.drexel.psal.jstylo.analyzers;
 
 import edu.drexel.psal.jstylo.generics.Analyzer;
-import edu.drexel.psal.jstylo.generics.RelaxedEvaluation;
+import edu.drexel.psal.jstylo.generics.Logger;
+import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
 import java.util.*;
 
@@ -113,6 +114,79 @@ public class WekaAnalyzer extends Analyzer {
 		return res;
 	}
 	
+	
+	/**
+	 * Does the same thing as the other classify method, however this version also accepts a path to load/save the classifier from/to.
+	 * If 'is_save' == true, a classifier will be saved to 'classifier_path'. If 'is_save' == false, a classifier will be loaded from 'classifier_path'.
+	 * Other than that, the two 'classify' methods are the same in every way.
+	 * @param classifier_path the path to load/save the classifer from/to
+	 * @param is_save if true, classifier will be loaded. If false, classifier will be saved
+	 * @param trainingSet
+	 * @param testSet
+	 * @param unknownDocs
+	 * @return
+	 */
+	public Map<String, Map<String, Double>> classify(String classifier_path, boolean is_load, Instances trainingSet,
+			Instances testSet, List<Document> unknownDocs) {
+		this.trainingSet = trainingSet;
+		this.testSet = testSet;
+		
+		// initialize authors (extract from training set)
+		List<String> authors = new ArrayList<String>();
+		Attribute authorsAttr = trainingSet.attribute("authorName");
+		for (int i=0; i< authorsAttr.numValues(); i++)
+			authors.add(i,authorsAttr.value(i));
+		this.authors = authors;
+		
+		int numOfInstances = testSet.numInstances();
+		int numOfAuthors = authors.size();
+		
+		Map<String,Map<String, Double>> res = new HashMap<String,Map<String,Double>>(numOfInstances);
+		for (int i=0; i<numOfInstances; i++)
+			res.put(unknownDocs.get(i).getTitle(), new HashMap<String,Double>(numOfAuthors));
+		
+		// train classifier
+		trainingSet.setClass(authorsAttr);
+		
+		if(is_load == false){
+			try {
+				classifier.buildClassifier(trainingSet);
+				weka.core.SerializationHelper.write(classifier_path, classifier);
+			} catch (Exception e) {
+				Logger.logln("ERROR writing classifier to file!",LogOut.STDERR);
+				e.printStackTrace();
+			}
+		}
+		else{
+			try{
+				classifier =(Classifier) weka.core.SerializationHelper.read(classifier_path);
+			} catch (Exception e){
+				Logger.logln("ERROR reading classifier from file!",LogOut.STDERR);
+				e.printStackTrace();
+			}
+		}
+		
+		// classify test cases
+		Map<String,Double> map;
+		double[] currRes;
+		for (int i=0; i<testSet.numInstances(); i++) {
+			Instance test = testSet.instance(i);
+			test.setDataset(trainingSet);
+			map = res.get(unknownDocs.get(i).getTitle());
+			try {
+				currRes = classifier.distributionForInstance(test);
+				for (int j=0; j<numOfAuthors; j++) {
+					map.put(authors.get(j), currRes[j]);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		results = res;
+		return res;
+	}
+	
 	/**
 	 * Trains the Weka classifier using the given training set, and then classifies all instances in the given test set.
 	 * Before classifying, it removes the second attribute in both sets, that is the document title. This should be used when
@@ -182,35 +256,6 @@ public class WekaAnalyzer extends Analyzer {
 			e.printStackTrace();
 		}
 		
-		return eval;
-	}
-	
-	@Override
-	public RelaxedEvaluation runCrossValidation(Instances data, int folds, long randSeed,
-			int relaxFactor) {
-		// setup
-		data.setClass(data.attribute("authorName"));
-		Instances randData = new Instances(data);
-		Random rand = new Random(randSeed);
-		randData.randomize(rand);
-		randData.stratify(folds);
-
-		// run CV
-		RelaxedEvaluation eval = null;
-		try {
-			eval = new RelaxedEvaluation(randData, relaxFactor);
-			for (int n = 0; n < folds; n++) {
-				Instances train = randData.trainCV(folds, n);
-				Instances test = randData.testCV(folds, n);
-				// build and evaluate classifier
-				Classifier clsCopy = Classifier.makeCopy(classifier);
-				clsCopy.buildClassifier(train);
-				eval.evaluateModel(clsCopy, test);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 		return eval;
 	}
 	

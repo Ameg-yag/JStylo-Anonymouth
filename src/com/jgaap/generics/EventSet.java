@@ -28,7 +28,6 @@ import java.util.List;
  *  In JGAAP, an "event" is a token or feature that will be extracted from the 
  *  document as an atomic unit.
  */
-//hello
 public class EventSet implements Iterable<Event> {
 
     /** Events are currently stored as a ArrayList of Events */

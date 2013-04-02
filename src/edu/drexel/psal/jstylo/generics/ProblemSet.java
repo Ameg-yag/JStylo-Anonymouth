@@ -19,7 +19,7 @@ public class ProblemSet {
 	 * ======
 	 */
 	
-	private SortedMap<String,List<Document>> trainDocsMap;
+	private Map<String,List<Document>> trainDocsMap;
 	
 	private List<Document> testDocs;
 	
@@ -40,8 +40,8 @@ public class ProblemSet {
 	 * Default constructor for ProblemSet. Initializes training documents map, name, and test document list to be empty.
 	 */
 	public ProblemSet() {
-		trainDocsMap = new TreeMap<String,List<Document>>();
-		testDocs = new LinkedList<Document>();
+		trainDocsMap = new HashMap<String,List<Document>>();
+		testDocs = new ArrayList<Document>();
 		trainCorpusName = "";
 	}
 	
@@ -52,9 +52,9 @@ public class ProblemSet {
 	 * @param trainDocsMap
 	 * 		The map of training documents to set to.
 	 */
-	public ProblemSet(String trainCorpusName, SortedMap<String,List<Document>> trainDocsMap) {
+	public ProblemSet(String trainCorpusName, Map<String,List<Document>> trainDocsMap) {
 		this.trainDocsMap = trainDocsMap;
-		testDocs = new LinkedList<Document>();
+		testDocs = new ArrayList<Document>();
 		this.trainCorpusName = trainCorpusName;
 	}
 	
@@ -65,7 +65,7 @@ public class ProblemSet {
 	 * 		The test documents list to set to.
 	 */
 	public ProblemSet(List<Document> testDocs) {
-		trainDocsMap = new TreeMap<String,List<Document>>();
+		trainDocsMap = new HashMap<String,List<Document>>();
 		this.testDocs = testDocs;
 		trainCorpusName = "";
 	}
@@ -79,7 +79,7 @@ public class ProblemSet {
 	 * @param testDocs
 	 * 		The test documents list to set to.
 	 */
-	public ProblemSet(String trainCorpusName, SortedMap<String,List<Document>> trainDocsMap, List<Document> testDocs) {
+	public ProblemSet(String trainCorpusName, Map<String,List<Document>> trainDocsMap, List<Document> testDocs) {
 		this.trainDocsMap = trainDocsMap;
 		this.testDocs = testDocs;
 		this.trainCorpusName = trainCorpusName;
@@ -109,11 +109,11 @@ public class ProblemSet {
 		this.trainCorpusName = other.trainCorpusName;
 		
 		// training docs
-		this.trainDocsMap = new TreeMap<String,List<Document>>();
-		LinkedList<Document> docs;
+		this.trainDocsMap = new HashMap<String,List<Document>>(other.trainDocsMap.size());
+		List<Document> docs;
 		Document newDoc;
 		for (String author: other.trainDocsMap.keySet()) {
-			docs = new LinkedList<Document>();
+			docs = new ArrayList<Document>(other.trainDocsMap.get(author).size());
 			for (Document doc: other.trainDocsMap.get(author)) {
 				newDoc = new Document(doc.getFilePath(),doc.getAuthor(),doc.getTitle());
 				docs.add(newDoc);
@@ -122,7 +122,7 @@ public class ProblemSet {
 		}
 		
 		// test docs
-		docs = new LinkedList<Document>();
+		docs = new ArrayList<Document>(other.testDocs.size());
 		for (Document doc: other.testDocs) {
 			newDoc = new Document(doc);
 			docs.add(newDoc);
@@ -143,9 +143,10 @@ public class ProblemSet {
 	 * @throws IOException
 	 */
 	public void writeToXML(String filename) throws IOException {
-		PrintWriter pw = new PrintWriter(new FileWriter(filename), true);
-		writeXMLString(pw);
-		pw.close();
+		FileWriter fstream = new FileWriter(filename);
+		BufferedWriter out = new BufferedWriter(fstream);
+		out.write(toXMLString());
+		out.close();
 	}
 	
 	
@@ -177,7 +178,7 @@ public class ProblemSet {
 	 */
 	public boolean addTrainDoc(String author, Document doc) {
 		if (trainDocsMap.get(author) == null)
-			trainDocsMap.put(author,new LinkedList<Document>());
+			trainDocsMap.put(author,new ArrayList<Document>());
 		return trainDocsMap.get(author).add(doc);
 	}
 	
@@ -216,7 +217,7 @@ public class ProblemSet {
 		if (trainDocsMap.get(author) == null) {
 			
 			Collections.shuffle(docs);
-			List<Document> newDocsSet = new LinkedList<Document>();
+			List<Document> newDocsSet = new ArrayList<Document>();
 			newDocsSet = docs.subList(0, docsToAdd);
 			trainDocsMap.put(author,newDocsSet);
 			return true;
@@ -455,7 +456,7 @@ public class ProblemSet {
 	 * 		The list of all training documents.
 	 */
 	public List<Document> getAllTrainDocs() {
-		List<Document> allTrainDocs = new LinkedList<Document>();
+		List<Document> allTrainDocs = new ArrayList<Document>();
 		for (String key: trainDocsMap.keySet())
 			allTrainDocs.addAll(trainDocsMap.get(key));
 		return allTrainDocs;
@@ -571,38 +572,24 @@ public class ProblemSet {
 	 * 		The XML String representation of the problem set.
 	 */
 	public String toXMLString() {
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		try{
-			writeXMLString(pw);
-		} catch (IOException e) {
-			// should not happen!
-		}
-		String res = sw.toString();
-		pw.close();
-		return res;
-	}
-	
-	public String writeXMLString(PrintWriter pw) throws IOException {
 		String res = "<?xml version=\"1.0\"?>\n";
-		pw.println("<problem-set>");
-		pw.println("\t<training name=\""+trainCorpusName+"\">");
-		Set<String> sortedAuthors = trainDocsMap.keySet();
+		res += "<problem-set>\n";
+		res += "\t<training name=\""+trainCorpusName+"\">\n";
+		List<String> sortedAuthors = new ArrayList<String>(trainDocsMap.keySet());
+		Collections.sort(sortedAuthors);
 		for (String author: sortedAuthors) {
-			pw.println("\t\t<author name=\""+author+"\">");
+			res += "\t\t<author name=\""+author+"\">\n";
 			List<Document> docs = trainDocsMap.get(author);
 			for (Document doc: docs)
-				pw.println("\t\t\t<document title=\"" + doc.getTitle() + "\">" +
-						doc.getFilePath().replace('\\','/') + "</document>");
-			pw.println("\t\t</author>");
+				res += "\t\t\t<document title=\""+doc.getTitle()+"\">"+doc.getFilePath().replace('\\','/')+"</document>\n";
+			res += "\t\t</author>\n";
 		}
-		pw.println("\t</training>");
-		pw.println("\t<test>");
+		res += "\t</training>\n";
+		res += "\t<test>\n";
 		for (Document doc: testDocs)
-			pw.println("\t\t<document title=\"" + doc.getTitle() + "\">" +
-					doc.getFilePath().replace('\\', '/') + "</document>");
-		pw.println("\t</test>");
-		pw.println("</problem-set>");
+			res += "\t\t<document title=\""+doc.getTitle()+"\">"+doc.getFilePath().replace('\\', '/')+"</document>\n";
+		res += "\t</test>\n";
+		res += "</problem-set>\n";
 		
 		return res;
 	}
@@ -695,7 +682,6 @@ public class ProblemSet {
 			//get a new instance of parser
 			SAXParser sp = spf.newSAXParser();
 			//parse the file and also register this class for call backs
-			System.out.println("filename->"+filename);
 			sp.parse(filename, this);
 		}
 		
@@ -781,11 +767,5 @@ public class ProblemSet {
 				throw new SAXException("unrecognized closing tag: "+qName);
 			}
         }
-	}
-	
-	public static void main(String[] args) throws Exception {
-		ProblemSet ps = new ProblemSet("jsan_resources/problem_sets/amt_imitation_short.xml");
-		System.out.println(ps.toXMLString());
-		ps.writeToXML("d:/tmp/a.xml");
 	}
 }

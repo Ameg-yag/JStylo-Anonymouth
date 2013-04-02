@@ -5,7 +5,7 @@ import com.jgaap.generics.Document;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 /**
- * Tags documents 
+ * Parses documents.....
  * @author Andrew W.E. McDonald
  *
  */

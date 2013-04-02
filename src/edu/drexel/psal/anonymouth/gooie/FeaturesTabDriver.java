@@ -1,4 +1,4 @@
-package edu.drexel.psal.jstylo.GUI;
+package edu.drexel.psal.anonymouth.gooie;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,12 +17,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import edu.drexel.psal.JSANConstants;
-import edu.drexel.psal.jstylo.GUI.DocsTabDriver.ExtFilter;
-import edu.drexel.psal.jstylo.generics.CumulativeFeatureDriver;
-import edu.drexel.psal.jstylo.generics.FeatureDriver;
-import edu.drexel.psal.jstylo.generics.Logger;
+import edu.drexel.psal.jstylo.eventDrivers.*;
+import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
+import edu.drexel.psal.jstylo.GUI.DocsTabDriver.ExtFilter;
+import edu.drexel.psal.jstylo.canonicizers.*;
 
+import com.jgaap.canonicizers.*;
 import com.jgaap.generics.*;
 
 public class FeaturesTabDriver {
@@ -101,7 +102,6 @@ public class FeaturesTabDriver {
 		// add feature set
 		main.featuresAddSetJButton.addActionListener(new ActionListener() {
 			
-			@SuppressWarnings("unchecked")
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Logger.logln("'Add Feature Set' button clicked in the features tab.");
@@ -136,7 +136,6 @@ public class FeaturesTabDriver {
 		// load from file button
 		main.featuresLoadSetFromFileJButton.addActionListener(new ActionListener() {
 			
-			@SuppressWarnings("unchecked")
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Logger.logln("'Import from XML' button clicked in the features tab.");
@@ -165,25 +164,15 @@ public class FeaturesTabDriver {
 							CumulativeFeatureDriver cfd = new CumulativeFeatureDriver(path);
 							for (int i=0; i<main.featuresSetJComboBoxModel.getSize(); i++) {
 								if (cfd.getName().equals(main.featuresSetJComboBoxModel.getElementAt(i))) {
-									int ans = JOptionPane.showConfirmDialog(main,
-											"Feature set '"+cfd.getName()+"' already exists.\n"+
-											"Do you wish to override?",
-											"Import Feature Set",
-											JOptionPane.YES_NO_OPTION);
-									if (ans == JOptionPane.YES_OPTION) {
-										// case 1: replace existing
-										main.cfd = cfd;
-										main.presetCFDs.set(i-1,cfd);
-										main.featuresSetJComboBox.setSelectedIndex(i);
-										GUIUpdateInterface.updateFeatureSetView(main);
-										return;
-									} else {
-										// case 2: don't do anything
-										return;
-									}
+									main.featuresSetJComboBoxModel.removeElementAt(i);
+									//JOptionPane.showMessageDialog(main,
+										//	"Feature set already exists.",
+										//	"Import Feature Set",
+										//	JOptionPane.INFORMATION_MESSAGE);
+									//return;
 								}
 							}
-							// case 3: add new cfd
+									
 							main.cfd = cfd;
 							main.presetCFDs.add(cfd);
 							main.featuresSetJComboBoxModel.addElement(cfd.getName());
@@ -407,7 +396,7 @@ public class FeaturesTabDriver {
 
 		// about button
 		// ============
-
+/*
 		main.featuresAboutJButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -415,7 +404,7 @@ public class FeaturesTabDriver {
 				GUIUpdateInterface.showAbout(main);
 			}
 		});
-		
+	*/	
 		// back button
 		main.featuresBackJButton.addActionListener(new ActionListener() {
 
@@ -439,6 +428,10 @@ public class FeaturesTabDriver {
 							"Feature Set Error",
 							JOptionPane.ERROR_MESSAGE);
 				} else {
+					if(main.cfd.getName().equals("9 feature-set") && main.cfd.numOfFeatureDrivers() == 9){;
+						EditorTabDriver.isUsingNineFeatures = true;
+						Logger.logln("Is using nine feature set? .... true");
+					}
 					main.mainJTabbedPane.setSelectedIndex(2);
 				}
 			}
@@ -470,8 +463,7 @@ public class FeaturesTabDriver {
 		main.presetCFDs = new ArrayList<CumulativeFeatureDriver>();
 		
 		try {
-			File file = new File(JSANConstants.JSAN_FEATURESETS_PREFIX);
-			File[] featureSetFiles = file.listFiles(new FilenameFilter() {
+			File[] featureSetFiles = new File(JSANConstants.JSAN_FEATURESETS_PREFIX).listFiles(new FilenameFilter() {
 				public boolean accept(File dir, String name) {
 					return name.endsWith(".xml");
 				}

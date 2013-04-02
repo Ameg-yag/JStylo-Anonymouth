@@ -13,9 +13,8 @@ import java.util.Map;
 import java.util.Scanner;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.functions.SMO;
 import weka.core.Instances;
-import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
+import edu.drexel.psal.anonymouth.gooie.EditorTabDriver;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
@@ -54,9 +53,7 @@ public class DocumentMagician {
 	
 	public static int numSampleAuthors;
 	
-	public static boolean classifier_saved = false;
-	
-	public static String classifier_path = "";
+	private boolean classifier_saved = false;
 	
 	private List<Document> trainSet;
 	
@@ -211,7 +208,6 @@ public class DocumentMagician {
 			writer.write(modifiedDocument);
 			writer.close();
 		} catch (IOException e) {
-			
 			//TODO: log this. 
 			e.printStackTrace();
 		}
@@ -261,10 +257,7 @@ public class DocumentMagician {
 		String pathToTempModdedDoc = writeDirectory+ThePresident.sessionName+"_unmodified.txt";
 		Logger.logln("Saving temporary file: "+pathToTempModdedDoc);
 		try {
-			File tempModdedDoc = new File(pathToTempModdedDoc);
-			if (!tempModdedDoc.exists())
-				tempModdedDoc.createNewFile();
-			FileWriter writer = new FileWriter(tempModdedDoc);
+			FileWriter writer = new FileWriter(new File(pathToTempModdedDoc));
 			writer.write(toModifySet.get(0).stringify());
 			writer.close();
 		} catch (IOException e) {
@@ -325,14 +318,12 @@ public class DocumentMagician {
 	public synchronized void runWeka(){
 		Logger.logln("Called runWeka");
 		WekaAnalyzer waz = new WekaAnalyzer(theClassifier);
-		// hack this is just for testing purposes
-		classifier_path = "trained_classifiers/"+ThePresident.sessionName;
 		if(classifier_saved == false){
-			wekaResultMap = waz.classify(authorAndTrainDat,toModifyDat,toModifySet);// ?
+			wekaResultMap = waz.classify("trained_classifiers/Andrew_test.model", false,authorAndTrainDat,toModifyDat,toModifySet);// ?
 			classifier_saved = true;
 		}
 		else{
-			wekaResultMap = waz.classify(authorAndTrainDat,toModifyDat,toModifySet);// ?
+			wekaResultMap = waz.classify("trained_classifiers/Andrew_test.model", true,authorAndTrainDat,toModifyDat,toModifySet);// ?
 		}
 		Logger.logln("Weka Done");
 	}

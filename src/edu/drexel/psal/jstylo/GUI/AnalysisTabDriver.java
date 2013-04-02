@@ -100,7 +100,7 @@ public class AnalysisTabDriver {
 				}
 				
 				// write to ARFF
-				JFileChooser save = new JFileChooser(main.defaultLoadSaveDir);
+				JFileChooser save = new JFileChooser();
 				save.addChoosableFileFilter(new ExtFilter("Attribute-Relation File Format (*.arff)", "arff"));
 				int answer = save.showSaveDialog(main);
 
@@ -112,7 +112,6 @@ public class AnalysisTabDriver {
 					boolean succeeded = WekaInstancesBuilder.writeSetToARFF(path, main.wib.getTrainingSet());
 					if (succeeded) {
 						Logger.log("Saved training features to arff: "+path);
-						main.defaultLoadSaveDir = (new File(path)).getParent();
 					} else {
 						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
 						JOptionPane.showMessageDialog(null,
@@ -145,7 +144,7 @@ public class AnalysisTabDriver {
 				}
 				
 				// write to CSV
-				JFileChooser save = new JFileChooser(main.defaultLoadSaveDir);
+				JFileChooser save = new JFileChooser();
 				save.addChoosableFileFilter(new ExtFilter("Comma-separated values (*.csv)", "csv"));
 				int answer = save.showSaveDialog(main);
 
@@ -157,7 +156,6 @@ public class AnalysisTabDriver {
 					boolean succeeded = WekaInstancesBuilder.writeSetToCSV(path, main.wib.getTrainingSet());
 					if (succeeded) {
 						Logger.log("Saved training features to csv: "+path);
-						main.defaultLoadSaveDir = (new File(path)).getParent();
 					} else {
 						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
 						JOptionPane.showMessageDialog(null,
@@ -190,7 +188,7 @@ public class AnalysisTabDriver {
 				}
 				
 				// write to ARFF
-				JFileChooser save = new JFileChooser(main.defaultLoadSaveDir);
+				JFileChooser save = new JFileChooser();
 				save.addChoosableFileFilter(new ExtFilter("Attribute-Relation File Format (*.arff)", "arff"));
 				int answer = save.showSaveDialog(main);
 
@@ -202,7 +200,6 @@ public class AnalysisTabDriver {
 					boolean succeeded = WekaInstancesBuilder.writeSetToARFF(path, main.wib.getTestSet());
 					if (succeeded) {
 						Logger.log("Saved test features to arff: "+path);
-						main.defaultLoadSaveDir = (new File(path)).getParent();
 					} else {
 						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
 						JOptionPane.showMessageDialog(null,
@@ -235,7 +232,7 @@ public class AnalysisTabDriver {
 				}
 
 				// write to CSV
-				JFileChooser save = new JFileChooser(main.defaultLoadSaveDir);
+				JFileChooser save = new JFileChooser();
 				save.addChoosableFileFilter(new ExtFilter("Comma-separated values (*.csv)", "csv"));
 				int answer = save.showSaveDialog(main);
 
@@ -247,7 +244,6 @@ public class AnalysisTabDriver {
 					boolean succeeded = WekaInstancesBuilder.writeSetToARFF(path, main.wib.getTestSet());
 					if (succeeded) {
 						Logger.log("Saved test features to csv: "+path);
-						main.defaultLoadSaveDir = (new File(path)).getParent();
 					} else {
 						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
 						JOptionPane.showMessageDialog(null,
@@ -353,7 +349,7 @@ public class AnalysisTabDriver {
 				}
 
 				// write to text file
-				JFileChooser save = new JFileChooser(main.defaultLoadSaveDir);
+				JFileChooser save = new JFileChooser();
 				save.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
 				int answer = save.showSaveDialog(main);
 
@@ -370,7 +366,6 @@ public class AnalysisTabDriver {
 						bw.write(main.results.get(selected));
 						bw.flush();
 						bw.close();
-						main.defaultLoadSaveDir = (new File(path)).getParent();
 					} catch (Exception e) {
 						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
 						JOptionPane.showMessageDialog(null,

@@ -1,9 +1,6 @@
 package edu.drexel.psal.jstylo.analyzers.writeprints;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URL;
 import java.util.*;
 
@@ -14,6 +11,8 @@ import com.jgaap.generics.*;
 
 import weka.attributeSelection.InfoGainAttributeEval;
 import weka.core.Attribute;
+import weka.core.FastVector;
+import weka.core.Instance;
 import weka.core.Instances;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.smu.tspell.wordnet.Synset;
@@ -58,23 +57,57 @@ public class WriteprintsAnalyzer extends Analyzer {
 	private boolean averageFeatureVectors = true;
 	
 	/**
+	 * Whether to reduce the feature space.
+	 */
+	private boolean reduceFeatureSpace = false;
+	
+	/**
+	 * Whether to calculate word-based features synonym count for pattern disruption.
+	 */
+	private boolean calcSynCount = false;	
+	
+	/**
+	 * Whether to count synonyms only in the first synset returned by Wordnet.
+	 */
+	private boolean useFirstSynsetOnly = true;
+
+	/**
 	 * Local logger
 	 */
-	public static MultiplePrintStream log = new MultiplePrintStream();
+	protected static MultiplePrintStream log = new MultiplePrintStream();
 	
-	/* ===================
-	 * Getters and Setters
-	 * ===================
+	
+	/* ============
+	 * Constructors
+	 * ============
 	 */
 	
-	public boolean averageFeatureVectors()
-	{
-		return averageFeatureVectors;
+	/**
+	 * Default constructor for WriteprintsAnalyzer.
+	 */
+	public WriteprintsAnalyzer() {
+		// default constructor
 	}
 	
-	public void setAverageFeatureVectors(boolean averageFeatureVectors)
-	{
+	/**
+	 * Constructor for WriteprintsAnalyzer.
+	 * @param averageFeatureVectors
+	 * 		Whether to average all feature vectors into one. Increases performance.
+	 * @param reduceFeatureSpace
+	 * 		Whether to apply feature space reduction for large feature classes (e.g.
+	 * 		word bigrams) by information gain.
+	 * @param calcSynCount
+	 * 		Whether to apply word-based features synonym count calculation to be
+	 * 		used for pattern disruption.
+	 * @param useFirstSynsetOnly
+	 * 		Whether to count synonyms only in the first synset returned by Wordnet.
+	 */
+	public WriteprintsAnalyzer(boolean averageFeatureVectors,
+			boolean reduceFeatureSpace, boolean calcSynCount, boolean useFirstSynsetOnly) {
 		this.averageFeatureVectors = averageFeatureVectors;
+		this.reduceFeatureSpace = reduceFeatureSpace;
+		this.calcSynCount = calcSynCount;
+		this.useFirstSynsetOnly = useFirstSynsetOnly;
 	}
 	
 	
@@ -94,24 +127,62 @@ public class WriteprintsAnalyzer extends Analyzer {
 		 */
 		log.println("> Learning");
 		
+		// reduce feature space by info-gain
+		if (reduceFeatureSpace) {
+			Pair<Instances,Instances> newSets = reduceFeatures(trainingSet, testSet);
+			trainingSet = newSets.getFirst();
+			testSet = newSets.getSecond();
+		}
+		double[] IG = null;
+		// calculate information-gain over only training authors
+		// (after reduction)
+		log.println("Calculating information gain over training authors data");
+		int numFeatures = trainingSet.numAttributes() - 1;
+		try {
+			IG = calcInfoGain(trainingSet, numFeatures);
+		} catch (Exception e) {
+			System.err.println("Error evaluating information gain.");
+			e.printStackTrace();
+			return null;
+		}
+
 		trainAuthorData.clear();
 		testAuthorData.clear();
 		
 		// initialize features, basis and writeprint matrices
+		boolean authorHasInstances;
 		Attribute classAttribute = trainingSet.classAttribute();
 		int numAuthors = classAttribute.numValues();
 		String authorName;
 		AuthorWPData authorData;
+		int authorsInRow = 5;
 		// training set
+		int numTrainInstances = trainingSet.numInstances();
 		log.println("Initializing training authors data:");
 		for (int i = 0; i < numAuthors; i++) {
 			authorName = classAttribute.value(i);
 			authorData = new AuthorWPData(authorName);
-			log.println("- " + authorName);
-			authorData.initFeatureMatrix(trainingSet, averageFeatureVectors);
-			trainAuthorData.add(authorData);
-			authorData.initBasisAndWriteprintMatrices();
+			log.print(authorName + "  ");
+			// check whether this training author has any instances
+			authorHasInstances = false;
+			for (int j = 0; j < numTrainInstances; j++) {
+				if (trainingSet.instance(j).stringValue(classAttribute).equals(authorName)) {
+					authorHasInstances = true;
+					break;
+				}
+			}
+			if (!authorHasInstances) {
+				log.print("(no data)  ");
+			}
+			else {
+				authorData.initFeatureMatrix(trainingSet, averageFeatureVectors);
+				trainAuthorData.add(authorData);
+				authorData.initBasisAndWriteprintMatrices();
+			}
+			if ((i + 1) % authorsInRow == 0)
+				log.println();
 		}
+		log.println();
 		// test set
 		int numTestInstances = testSet.numInstances();
 		// train-test mode
@@ -123,10 +194,12 @@ public class WriteprintsAnalyzer extends Analyzer {
 						String.format("%03d", i) + "_" +
 						unknownDocs.get(i).getTitle();
 				authorData = new AuthorWPData(authorName);
-				log.println("- " + authorName);
+				log.print(authorName + "  ");
 				authorData.initFeatureMatrix(testSet, i, averageFeatureVectors);
 				testAuthorData.add(authorData);				
 				authorData.initBasisAndWriteprintMatrices();
+				if ((i + 1) % authorsInRow == 0)
+					log.println();
 			}
 		}
 		// CV mode
@@ -135,31 +208,38 @@ public class WriteprintsAnalyzer extends Analyzer {
 			for (int i = 0; i < numAuthors; i++) {
 				authorName = classAttribute.value(i);
 				authorData = new AuthorWPData(authorName);
-				log.println("- " + authorName);
-				authorData.initFeatureMatrix(testSet, averageFeatureVectors);
-				testAuthorData.add(authorData);
-				authorData.initBasisAndWriteprintMatrices();
+				log.print(authorName + "  ");
+				// check whether this test author has any instances
+				authorHasInstances = false;
+				for (int j = 0; j < numTestInstances; j++) {
+					if (testSet.instance(j).stringValue(classAttribute).equals(authorName)) {
+						authorHasInstances = true;
+						break;
+					}
+				}
+				if (!authorHasInstances) {
+					log.print("(no data)  ");
+				}
+				else {
+					authorData.initFeatureMatrix(testSet, averageFeatureVectors);
+					testAuthorData.add(authorData);
+					authorData.initBasisAndWriteprintMatrices();
+				}
+				if ((i + 1) % authorsInRow == 0)
+					log.println();
 			}
 		}
+		log.println();
 		
 		// initialize result set
 		results = new HashMap<String,Map<String,Double>>(trainAuthorData.size());
 		
-		// calculate information-gain over only training authors
-		log.println("Calculating information gain over training authors data");
-		double[] IG = null;
-		int numFeatures = trainingSet.numAttributes() - 1;
-		try {
-			IG = calcInfoGain(trainingSet, numFeatures);
-		} catch (Exception e) {
-			System.err.println("Error evaluating information gain.");
-			e.printStackTrace();
-			return null;
-		}
-		
 		// initialize synonym count mapping
-		log.println("Initializing word synonym count");
-		Map<Integer,Integer> wordsSynCount = calcSynonymCount(trainingSet,numFeatures);
+		Map<Integer,Integer> wordsSynCount = null;
+		if (calcSynCount) {
+			log.println("Initializing word synonym count");
+			wordsSynCount = calcSynonymCount(trainingSet,numFeatures,useFirstSynsetOnly);
+		}
 		
 		
 		/* =======
@@ -171,9 +251,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 		Matrix testPattern, trainPattern;
 		double dist1, dist2, totalDist;
 		AuthorWPData testDataCopy, trainDataCopy;
+		int count = 0;
+		authorsInRow = 12;
 		for (AuthorWPData testData: testAuthorData) {
 			Map<String,Double> testRes = new HashMap<String,Double>();
-			log.println("Test author: " + testData.authorName);
+			log.print(testData.authorName + "  ");
+			count++;
+			if (count % authorsInRow == 0)
+				log.println();
 			for (AuthorWPData trainData: trainAuthorData) {
 				testDataCopy = testData.halfClone();
 				trainDataCopy = trainData.halfClone();
@@ -225,8 +310,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		
 		// run CV - use half the folds for training, half for testing
 		// E.g. for 10 folds, use 1-5 for training, 6-10 for testing; 2-6 for training, 1 + 7-10 for testing, etc.
-		Instances train = new Instances(data,0);
-		Instances test = new Instances(data,0);
+		Instances train, test;
 		Instances tmp;
 		int tmpSize;
 		Map<String,Map<String,Double>> results;
@@ -236,26 +320,37 @@ public class WriteprintsAnalyzer extends Analyzer {
 		double max;
 		String selected;
 		for (int i = 0; i < folds; i ++) {
-			log.println("Running experiment " + (i + 1) + " out of " + folds);
-			
+			log.println("Running experiment " + (i + 1) + " out of " + folds);			
 			// initialize
-			train.delete();
-			test.delete();
+			train = new Instances(data,0);
+			test = new Instances(data,0);
 			
+			log.print("> Training folds: ");
 			// prepare training set
 			for (int j = i; j < i + half; j++) {
+				log.print(j % folds + " ");
 				tmp = foldData[j % folds];
 				tmpSize = tmp.numInstances();
 				for (int k = 0; k < tmpSize; k++)
 					train.add(tmp.instance(k));
 			}
+			log.println();
+			//train = randData.trainCV(folds, i);
+			log.print("> Test folds: ");
 			// prepare test set
 			for (int j = i + half; j < i + folds; j++) {
+				log.print(j % folds + " ");
 				tmp = foldData[j % folds];
 				tmpSize = tmp.numInstances();
 				for (int k = 0; k < tmpSize; k++)
 					test.add(tmp.instance(k));
 			}
+			log.println();
+			//test = randData.testCV(folds, i);
+			
+			// write to files
+			//WekaInstancesBuilder.writeSetToARFF("./train_" + i + ".arff", train);
+			//WekaInstancesBuilder.writeSetToARFF("./test_" + i + ".arff", test);
 			
 			// classify
 			results = classify(train, test, null);
@@ -285,160 +380,299 @@ public class WriteprintsAnalyzer extends Analyzer {
 		return null;
 	}
 	
-	@Override
-	/**
-	 * TODO
+	
+	/* ===================
+	 * Getters and Setters
+	 * ===================
 	 */
-	public Object runCrossValidation(Instances data, int folds, long randSeed,
-			int relaxFactor) {
-		// TODO Auto-generated method stub
-		return null;
+	
+	/**
+	 * The <code>averageFeatureVectors</code> parameter sets whether to average
+	 * all feature vectors for each author or to hold a vector per document.
+	 * Increases performance when set to <code>true</code> (by default).
+	 * @return <code>true</code> if the classifier is set to average all feature
+	 * vectors for each author, across all author's documents.<br>
+	 */
+	public boolean isAverageFeatureVectors() {
+		return averageFeatureVectors;
+	}
+
+	/**
+	 * Setter for <code>averageFeatureVectors</code>. If set to <code>true</code>,
+	 * averages all feature vectors per each author. Increases performance when
+	 * set to <code>true</code> (by default).
+	 * @param averageFeatureVectors
+	 * 		The value to set.
+	 */
+	public void setAverageFeatureVectors(boolean averageFeatureVectors) {
+		this.averageFeatureVectors = averageFeatureVectors;
+	}
+
+	/**
+	 * @return <code>true</code> if the classifier is set to apply
+	 * Information Gain over all varying-size feature classes (e.g. word bigrams),
+	 * to be reduced to the value defined in <code>featureReductionThreshold</code>.
+	 */
+	public boolean isReduceFeatureSpace() {
+		return reduceFeatureSpace;
+	}
+
+	/**
+	 * Setter for <code>reduceFeatureSpace</code>. If set to <code>true</code>,
+	 * reduces the feature space by applying Information Gain on all varying-size
+	 * feature classes (e.g. word bigrams) and reducing them to the top
+	 * <code>featureReductionThreshold</code> features.
+	 * @param reduceFeatureSpace
+	 * 		The value to be set.
+	 */
+	public void setReduceFeatureSpace(boolean reduceFeatureSpace) {
+		this.reduceFeatureSpace = reduceFeatureSpace;
 	}
 	
 	/**
-	 * Calculates and returns a mapping of authors to the number of documents of
-	 * the corresponding author in the first dataset, the second dataset, and 
-	 * the distances measured between them.<br>
-	 * Both datasets must have the same features, including the same set of
-	 * authors in the class attribute.
-	 * @param dataset1
-	 * @param dataset2
-	 * @return
+	 * @return <code>true</code> if the classifier is set to calculate synonym
+	 * count for all word-based features, to be integrated in the feature 
+	 * pattern disruption calculation. Otherwise, all word-based features
+	 * are addressed as all other features in the pattern disruption calculation. 
 	 */
-	public SortedMap<String, double[]> getCrossDatasetsDistances(
-			Instances dataset1, Instances dataset2) {
-		log.println(">>> getCrossDatasetsDistances started");
-		
-		/* ========
-		 * LEARNING
-		 * ========
-		 */
-		log.println("> Learning");
-		
-		List<AuthorWPData> dataset1AuthorData = new LinkedList<AuthorWPData>();
-		List<AuthorWPData> dataset2AuthorData = new LinkedList<AuthorWPData>();
-				
-		// initialize features, basis and writeprint matrices
-		Attribute classAttribute = dataset1.classAttribute();
-		int numAuthors = classAttribute.numValues();
-		String authorName;
-		AuthorWPData authorData;
-		
-		// dataset1
-		log.println("Initializing dataset1 authors data:");
-		for (int i = 0; i < numAuthors; i++) {
-			authorName = classAttribute.value(i);
-			authorData = new AuthorWPData(authorName);
-			log.println("- " + authorName);
-			authorData.initFeatureMatrix(dataset1, averageFeatureVectors);
-			dataset1AuthorData.add(authorData);
-			authorData.initBasisAndWriteprintMatrices();
-		}
-		
-		// dataset2
-		log.println("Initializing dataset2 authors data:");
-		for (int i = 0; i < numAuthors; i++) {
-			authorName = classAttribute.value(i);
-			authorData = new AuthorWPData(authorName);
-			log.println("- " + authorName);
-			authorData.initFeatureMatrix(dataset2, averageFeatureVectors);
-			dataset2AuthorData.add(authorData);
-			authorData.initBasisAndWriteprintMatrices();
-		}
-		
-		// initialize result set
-		SortedMap<String, double[]> results = new TreeMap<String,double[]>();
-		
-		// calculate information-gain
-		log.println("Calculating information gain over dataset1");
-		double[] IG1 = null;
-		int numFeatures = dataset1.numAttributes() - 1;
-		try {
-			IG1 = calcInfoGain(dataset1, numFeatures);
-		} catch (Exception e) {
-			System.err.println("Error evaluating information gain.");
-			e.printStackTrace();
-			return null;
-		}
-		log.println("Calculating information gain over dataset1");
-		double[] IG2 = null;
-		try {
-			IG2 = calcInfoGain(dataset2, numFeatures);
-		} catch (Exception e) {
-			System.err.println("Error evaluating information gain.");
-			e.printStackTrace();
-			return null;
-		}
-		
-		// initialize synonym count mapping
-		log.println("Initializing word synonym count");
-		Map<Integer,Integer> wordsSynCount =
-				calcSynonymCount(dataset1,numFeatures);
-		
-		
-		/* =====================
-		 * CALCULATING DISTANCES
-		 * =====================
-		 */
-		log.println("> Calculating distances");
-		
-		Matrix dataset1Pattern, dataset2Pattern;
-		double dist1, dist2, avgDist;
-		AuthorWPData dataset1DataCopy, dataset2DataCopy;
-		double min = Double.MAX_VALUE;
-		String minAuthor = "";
-		for (AuthorWPData dataset1Data: dataset1AuthorData) {
-			log.println("dataset1 author: " + dataset1Data.authorName);
-			for (AuthorWPData dataset2Data: dataset2AuthorData)
-			{
-				//log.print("- dataset2 author: " + dataset2Data.authorName + ": ");
-				
-				dataset1DataCopy = dataset1Data.halfClone();
-				dataset2DataCopy = dataset2Data.halfClone();
-
-				// compute pattern matrices BEFORE adding pattern disruption
-				dataset1Pattern = AuthorWPData.generatePattern(dataset2Data, dataset1Data);
-				dataset2Pattern = AuthorWPData.generatePattern(dataset1Data, dataset2Data);
-
-				// add pattern disruptions
-				dataset1DataCopy.addPatternDisruption(dataset2Data, IG2, wordsSynCount, dataset2Pattern);
-				dataset2DataCopy.addPatternDisruption(dataset1Data, IG1, wordsSynCount, dataset1Pattern);
-
-				// compute pattern matrices AFTER adding pattern disruption
-				dataset1Pattern = AuthorWPData.generatePattern(dataset2DataCopy, dataset1DataCopy);
-				dataset2Pattern = AuthorWPData.generatePattern(dataset1DataCopy, dataset2DataCopy);
-
-				// compute distances
-				dist2 = sumEuclideanDistance(dataset1Pattern, dataset2DataCopy.writeprint);
-				dist1 = sumEuclideanDistance(dataset2Pattern, dataset1DataCopy.writeprint);
-
-				// compute the average distance
-				avgDist = (dist1 + dist2) / 2;
-				results.put(dataset1Data.authorName + "," + dataset2Data.authorName,
-						new double[]{
-						dataset1Data.numAuthorInstances,
-						dataset2Data.numAuthorInstances,
-						avgDist
-				});
-				if (min > avgDist)
-				{
-					min = avgDist;
-					minAuthor = dataset2Data.authorName;
-				}
-				//log.println(avgDist);
-			}
-			log.println("minimum distance author: " + minAuthor +
-					", distance: " + min);
-		}
-		log.println(">>> getCrossDatasetsDistances finished");
-		return results;
+	public boolean isCalcSynCount() {
+		return calcSynCount;
 	}
+	
+	/**
+	 * Setter for <code>calcSynCount</code>. If set to <code>true</code>,
+	 * calculates synonym count for all word-based features to be integrated
+	 * in the pattern disruption calculation for those features.
+	 * @param calcSynCount
+	 * 		The value to be set.
+	 */
+	public void setCalcSynCount(boolean calcSynCount) {
+		this.calcSynCount = calcSynCount;
+	}
+	
+	/**
+	 * @return
+	 * 		The value to reduce the feature-class with the given name prefix to
+	 * 		if the <code>reduceFeatureSpace</code> is set to <code>true</code>,
+	 * 		and -1 otherwise (or in the case the given feature prefix is not set
+	 * 		to be reduced).
+	 */
+	public static int getFeatureReductionThreshold(String key) {
+		Integer res = toReduceFeatures.get(key);
+		if (res == null)
+			return -1;
+		return res;
+	}
+	
+	/**
+	 * Sets the value to reduce the given feature-classe name prefix to, if the
+	 * <code>reduceFeatureSpace</code> is set to <code>true</code>, to the
+	 * given one.
+	 * @param featureNamePrefix
+	 * 		The name prefix of the feature-class to reduce.
+	 * @param featureReductionThreshold
+	 * 		The value to set to.
+	 */
+	public static void setFeatureReductionThreshold(String featureNamePrefix,
+			int featureReductionThreshold) {
+		toReduceFeatures.put(featureNamePrefix, featureReductionThreshold);
+	}
+	
 	
 	/* ===============
 	 * utility methods
 	 * ===============
 	 */
 	
+	/**
+	 * Used to identify features that should be
+	 * reduced by info-gain
+	 */
+	private static Map<String,Integer> toReduceFeatures = new HashMap<String,Integer>();
+	static {
+		toReduceFeatures.put("letter-bigrams",50);
+		toReduceFeatures.put("letter-trigrams",50);
+		toReduceFeatures.put("digit-bigrams",50);
+		toReduceFeatures.put("digit-trigrams",50);
+		toReduceFeatures.put("function-words",300);
+		toReduceFeatures.put("POS-bigrams",50);
+		toReduceFeatures.put("POS-trigrams",50);
+		toReduceFeatures.put("bag-of-words",300);
+		toReduceFeatures.put("word-bigrams",50);
+		toReduceFeatures.put("word-trigrams",50);
+		toReduceFeatures.put("misspellings",50);
+	};
+	
+	/**
+	 * Reduces the feature space by removing the lowest information-gain n-gram
+	 * features (e.g. POS bigrams, word trigrams etc.) and misspelled words,
+	 * as defined in <code>toReduceFeatures</code>.<br>
+	 * The reduction is based on the information gain extracted from the given
+	 * training set only. 
+	 * @param train
+	 * @param test
+	 */
+	private static Pair<Instances,Instances> reduceFeatures(Instances train, Instances test) {
+		log.println("Reducing feature space");
+		log.println("Number of attributes before: " + train.numAttributes());
+		// calculate information-gain over only training authors
+		log.println("Calculating information gain over training authors data");
+		double[] IG = null;
+		int numFeatures = train.numAttributes() - 1;
+		try {
+			IG = calcInfoGain(train, numFeatures);
+		} catch (Exception e) {
+			System.err.println("Error evaluating information gain.");
+			e.printStackTrace();
+			return null;
+		}
+		
+		// find feature indices ranges
+		Map<String,int[]> featureRanges =
+				new HashMap<String,int[]>(toReduceFeatures.size());
+		int[] range;
+		boolean foundFirst, foundSecond;
+		for (String feature: toReduceFeatures.keySet()) {
+			int featureReductionThreshold = toReduceFeatures.get(feature);
+			foundFirst = false;
+			foundSecond = false;
+			range = new int[2];
+			for (int i = 0; i < numFeatures; i++) {
+				if (train.attribute(i).name().startsWith(feature)) {
+					if (!foundFirst) {
+						range[0] = i;
+						foundFirst = true;
+					}
+				}
+				else {
+					if (foundFirst) {
+						range[1] = i - 1;
+						foundSecond = true;
+						break;
+					}
+				}
+			}
+			if (!foundSecond)
+				range[1] = numFeatures - 1;
+			log.println(feature + ": [" + range[0] + "," + range[1] + "]");
+			if (range[1] - range[0] + 1 > featureReductionThreshold)
+				featureRanges.put(feature, range);
+		}		
+		
+		// mark indices of features to save
+		Comparator<double[]> IGcomp = new Comparator<double[]>() {
+			@Override
+			public int compare(double[] arg0, double[] arg1) {
+				double diff = arg0[1] - arg1[1];
+				if (diff < 0) return -1;
+				if (diff > 0) return 1;
+				return 0;
+			}
+		};
+		List<Integer> indicesToSave = new ArrayList<Integer>();
+		double[][] featureIndicesIG;
+		int featureIGLen;
+		int count;
+		log.println("calculating features to save");
+		for (String feature: toReduceFeatures.keySet()) {
+			int featureReductionThreshold = toReduceFeatures.get(feature);
+			range = featureRanges.get(feature);
+			if (range == null)
+				continue;
+			log.print(feature + ": ");
+			featureIGLen = range[1] - range[0] + 1;
+			featureIndicesIG = new double[featureIGLen][2];
+			log.print("initializing... ");
+			for (int i = 0; i < featureIGLen; i++) {
+				featureIndicesIG[i][0] = i + range[0];
+				featureIndicesIG[i][1] = IG[i + range[0]];
+			}
+			log.print("sorting... ");
+			Arrays.sort(featureIndicesIG, IGcomp);
+			log.print("adding feature indices to be saved... ");
+			count = 0;
+			for (int i = 0; i < featureReductionThreshold; i++) {
+				indicesToSave.add((int) featureIndicesIG[i][0]);
+				count++;
+			}
+			log.println("done! total features to save: " + count);
+		}
+		log.print("adding all features that weren't candidates to be removed... ");
+		boolean inList;
+		String attrName;
+		for (int i = 0; i < numFeatures; i++) {
+			inList = false;
+			attrName = train.attribute(i).name();
+			for (String prefix: toReduceFeatures.keySet())
+				if (attrName.startsWith(prefix)) {
+					inList = true;
+					break;
+				}
+			if (!inList)
+				indicesToSave.add(i);
+		}
+		log.println("done!");
+		log.print("sorting all features to be saved by indices... ");
+		Collections.sort(indicesToSave);
+		int newNumFeatures = indicesToSave.size();		
+		log.println("done!");
+		
+		// create new attribute list without the removed indices
+		log.print("creating new attribute list... ");
+		FastVector newAttrList = new FastVector(newNumFeatures);
+		Iterator<Integer> indicesToSaveIter = indicesToSave.iterator();
+		for (int i = 0; i < newNumFeatures - 1; i++)
+			newAttrList.addElement(train.attribute(indicesToSaveIter.next().intValue()));
+		// handle class attribute
+		Attribute classAttr = train.classAttribute();
+		FastVector newClassAttr = new FastVector(classAttr.numValues());
+		for (int i = 0; i < classAttr.numValues(); i++)
+			newClassAttr.addElement(classAttr.value(i));
+		newAttrList.addElement(new Attribute(classAttr.name(), newClassAttr));
+		log.println("done!");
+		
+		// create new training set
+		log.print("creating new training set... ");
+		int numTrainInst = train.numInstances();
+		Instances newTrain = new Instances(train.relationName(), newAttrList, numTrainInst);
+		newTrain.setClassIndex(newNumFeatures - 1);
+		Instance inst, newInst;
+		for (int i = 0; i < numTrainInst; i++) {
+			inst = train.instance(i);
+			newInst = new Instance(newNumFeatures);
+			// copy all relevant features
+			int j = 0;
+			for (; j < newNumFeatures - 1; j++)
+				newInst.setValue(j, inst.value(indicesToSave.get(j)));
+			// copy class attribute
+			newInst.setValue(newTrain.classAttribute(),
+					newTrain.classAttribute().value((int) inst.classValue()));
+			newTrain.add(newInst);
+		}
+		log.println("done!");
+		
+		// create new test set
+		log.print("creating new test set... ");
+		int numTestInst = test.numInstances();
+		Instances newTest = new Instances(test.relationName(), newAttrList, numTestInst);
+		newTest.setClassIndex(newNumFeatures - 1);
+		for (int i = 0; i < numTestInst; i++) {
+			inst = test.instance(i);
+			newInst = new Instance(newNumFeatures);
+			// copy all relevant features
+			int j = 0;
+			for (; j < newNumFeatures - 1; j++)
+				newInst.setValue(j, inst.value(indicesToSave.get(j)));
+			// copy class attribute
+			newInst.setValue(newTest.classAttribute(),
+					newTest.classAttribute().value((int) inst.classValue()));
+			newTest.add(newInst);
+		}
+		log.println("done!");
+				
+		return new Pair<Instances, Instances>(newTrain, newTest);
+	}
+		
 	private static WordNetDatabase wndb = null;
 	
 	/**
@@ -456,11 +690,11 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * Used to identify word-based features.
 	 */
 	private static String[] wordFeatures = {
-		"Function-Words",
-		"Words",
-		"Word-Bigrams",
-		"Word-Trigrams",
-		"Misspelled-Words"
+		"function-words",
+		"bag-of-words",
+		"word-bigrams",
+		"word-trigrams",
+		//"misspellings"
 	};
 	
 	/**
@@ -472,10 +706,15 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * 		The training set from which to extract the features.
 	 * @param numFeatures
 	 * 		The number of features.
+	 * @param firstSynsetOnly
+	 * 		Whether to count only the number of synonyms in the first synset returned by Wordnet
+	 * 		or count all synonyms in all synsets.
 	 * @return
 	 * 		A mapping from the word feature indices of the given training set to the synonym count.
 	 */
-	private static Map<Integer,Integer> calcSynonymCount(Instances trainingSet, int numFeatures) {
+	private static Map<Integer,Integer> calcSynonymCount(Instances trainingSet,
+			int numFeatures, boolean firstSynsetOnly) {
+		log.println("Calculating synonym count for word-based features:");
 		
 		// initialize
 		Map<Integer,Integer> synCountMap = new HashMap<Integer,Integer>(numFeatures);
@@ -497,7 +736,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 			// check whether it is a word feature, else continue
 			isWordFeature = false;
 			for (String wordFeature: wordFeatures)
-				if (featureName.startsWith(wordFeature)) {
+				if (featureName.toLowerCase().contains(wordFeature)) {
 					isWordFeature = true;
 					break;
 				}
@@ -519,14 +758,16 @@ public class WriteprintsAnalyzer extends Analyzer {
 
 				// count synonyms
 				synonyms = new HashSet<String>();
-				for (Synset synset: synsets)
+				for (Synset synset: synsets) {
 					synonyms.addAll(Arrays.asList(synset.getWordForms()));
+					if (firstSynsetOnly)
+						break;
+				}
 				if (!synonyms.isEmpty())
 					synCount *= synonyms.size();
 			}
 			synCountMap.put(j, synCount);
 		}
-
 		return synCountMap;
 	}
 	
@@ -579,7 +820,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * 		The second matrix.
 	 * @return
 	 */
-	private static double sumEuclideanDistance(Matrix a, Matrix b) {
+	protected static double sumEuclideanDistance(Matrix a, Matrix b) {
 		double sum = 0;
 		double colsDiff, tmp;
 		int numACols = a.getColumnDimension();
@@ -596,9 +837,30 @@ public class WriteprintsAnalyzer extends Analyzer {
 				sum += Math.sqrt(colsDiff) / total;
 			}
 		}
+		/*
+		log.println("Total comparisons for distance: " +
+				numACols + " x " + numBCols + " = " + total);
+		*/
 		return sum;
 	}
 	
+	/**
+	 * Setter for the local logger.
+	 * @param log
+	 * 		The logger to set to.
+	 */
+	public static void setLogger(MultiplePrintStream log) {
+		WriteprintsAnalyzer.log = log;
+	}
+	
+	/**
+	 * Getter for the local logger.
+	 * @return
+	 * 		The local logger.
+	 */
+	public static MultiplePrintStream getLogger() {
+		return log;
+	}
 	
 	// ============================================================================================
 	// ============================================================================================
@@ -608,79 +870,39 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * Main for testing.
 	 * @param args
 	 */
+	/*
 	public static void main(String[] args) throws Exception {
 		// initialize log
 		PrintStream logPS = new PrintStream(new File("./log/" + MultiplePrintStream.getLogFilename()));
 		log = new MultiplePrintStream(System.out, logPS);
-		
 		WriteprintsAnalyzer wa = new WriteprintsAnalyzer();
 		
-		//ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "drexel_1_train_test.xml");
-		//ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "drexel_1.xml");
-		//ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "amt.xml");
 		/*
+		ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "drexel_1.xml");
 		CumulativeFeatureDriver cfd =
-				new CumulativeFeatureDriver(JSANConstants.JSAN_FEATURESETS_PREFIX + "writeprints_feature_set_limited.xml");
+				new CumulativeFeatureDriver(JSANConstants.JSAN_FEATURESETS_PREFIX + "writeprints_feature_set.xml");
 		WekaInstancesBuilder wib = new WekaInstancesBuilder(false);
 		List<Document> trainingDocs = ps.getAllTrainDocs();
-		List<Document> testDocs = ps.getTestDocs();
 		int numTrainDocs = trainingDocs.size();
-		int numTestDocs = testDocs.size();
 		
 		// extract features
-		System.out.println("feature pre extraction");
-		trainingDocs.addAll(testDocs);
 		System.out.println("feature extraction");
 		wib.prepareTrainingSet(trainingDocs, cfd);
 		System.out.println("feature post extraction");
 		Instances trainingSet = wib.getTrainingSet();
-		Instances testSet = new Instances(
-				trainingSet,
-				numTrainDocs,
-				numTestDocs);
-		wib.setTestSet(testSet);
-		int total = numTrainDocs + numTestDocs;
-		for (int i = total - 1; i >= numTrainDocs; i--)
-			trainingSet.delete(i);
 		System.out.println("done!");
 		
 		Instances train = wib.getTrainingSet();
-		Instances test = wib.getTestSet();
-		WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_train.arff", train);
-		WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_test.arff", test);
+		WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_all_train.arff", train);
 		System.exit(0);
 		*/
-		Instances train = new Instances(new FileReader(new File("d:/tmp/drexel_1_train.arff")));
+	/*
+		Instances train = new Instances(new FileReader(
+				new File("d:/dev/writeprints.cs613.project/arff/cv/drexel_1_limited_50_cv.arff")));
 		train.setClassIndex(train.numAttributes() - 1);
-		//Instances test = new Instances(new FileReader(new File("d:/tmp/drexel_1_tt_test.arff")));
-		//test.setClassIndex(test.numAttributes() - 1);
-		
-		// classify
-		/*
-		System.out.println("classification");
-		Map<String,Map<String, Double>> res = wa.classify(train, test, ps.getTestDocs());
-		System.out.println("done!");
-		Map<String,Double> docMap;
-		String selectedAuthor = null;
-		double maxValue;
-		double success = 0;
-		for (String doc: res.keySet()) {
-			maxValue = Double.NEGATIVE_INFINITY;
-			docMap = res.get(doc);
-			System.out.println(doc+":");
-			for (String key: docMap.keySet())
-				if (maxValue < docMap.get(key)) {
-					selectedAuthor = key;
-					maxValue = docMap.get(key);
-				}
-			System.out.println("- "+selectedAuthor+": "+maxValue);
-			success += doc.replaceFirst(TEST_AUTHOR_NAME_PREFIX + "\\d+_", "").startsWith(selectedAuthor) ? 1 : 0;
-		}
-		success = 100 * success / res.size();
-		System.out.printf("Total accuracy: %.2f\n",success);
-		*/
 		
 		// cross-validation
 		wa.runCrossValidation(train, 10, 0);
 	}
+	*/
 }

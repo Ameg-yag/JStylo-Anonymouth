@@ -834,16 +834,16 @@ public class FeatureWizardDriver {
 	 * Returns the isCalcHist value for the given event driver class name (false for counters and readability metrics).
 	 */
 	public static boolean getIsCalcHist(String className) {
-		if (className.endsWith("eventDrivers.CharCounterEventDriver") ||
-				className.endsWith("eventDrivers.LetterCounterEventDriver") ||
-				className.endsWith("eventDrivers.WordCounterEventDriver") ||
-				className.endsWith("eventDrivers.UniqueWordsCounterEventDriver") ||
-				className.endsWith("eventDrivers.SyllableCounterEventDriver") ||
-				className.endsWith("eventDrivers.SentenceCounterEventDriver") ||
-				className.endsWith("eventDrivers.EventsCounterEventDriver") ||
-				className.endsWith("eventDrivers.FleschReadingEaseScoreEventDriver") ||
-				className.endsWith("eventDrivers.RegexpCounterEventDriver") ||
-				className.endsWith("eventDrivers.GunningFogIndexEventDriver"))
+		if (className.equals("eventDrivers.CharCounterEventDriver") ||
+				className.equals("eventDrivers.LetterCounterEventDriver") ||
+				className.equals("eventDrivers.WordCounterEventDriver") ||
+				className.equals("eventDrivers.UniqueWordsCounterEventDriver") ||
+				className.equals("eventDrivers.SyllableCounterEventDriver") ||
+				className.equals("eventDrivers.SentenceCounterEventDriver") ||
+				className.equals("eventDrivers.EventsCounterEventDriver") ||
+				className.equals("eventDrivers.FleschReadingEaseScoreEventDriver") ||
+				className.equals("eventDrivers.RegexpCounterEventDriver") ||
+				className.equals("eventDrivers.GunningFogIndexEventDriver"))
 			return false;
 		else return true;
 	}
@@ -869,9 +869,7 @@ public class FeatureWizardDriver {
 		"edu.drexel.psal.jstylo.canonicizers.RemoveFirstNLines",
 		"edu.drexel.psal.jstylo.canonicizers.StripEdgesPunctuation",
 		"edu.drexel.psal.jstylo.canonicizers.WordEndsPunctSeparator",
-		"edu.drexel.psal.jstylo.canonicizers.StripSpaces",
-		"edu.drexel.psal.jstylo.canonicizers.ApplySpecialKeys",
-		"edu.drexel.psal.jstylo.canonicizers.RemoveSpecialKeys"
+		"edu.drexel.psal.jstylo.canonicizers.StripSpaces"
 	};
 	
 	// event drivers

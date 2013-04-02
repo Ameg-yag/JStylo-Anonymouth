@@ -9,7 +9,7 @@ package edu.drexel.psal.anonymouth.gooie;
 //
 // RJHM van den Bergh , rvdb@comweb.nl
 
-import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
+import edu.drexel.psal.anonymouth.gooie.DocsTabDriver.ExtFilter;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
@@ -176,7 +176,7 @@ public class Console extends WindowAdapter implements WindowListener, ActionList
 		this.notifyAll(); // stop all threads
 		try { reader.join(1000);pin.close();   } catch (Exception e){}		
 		try { reader2.join(1000);pin2.close(); } catch (Exception e){}
-		DriverDocumentsTab.consoleDead = true;
+		EditorTabDriver.consoleDead = true;
 	}		
 		
 	public synchronized void windowClosing(WindowEvent evt)

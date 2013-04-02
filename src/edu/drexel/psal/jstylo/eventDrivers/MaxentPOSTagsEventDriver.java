@@ -35,17 +35,8 @@ public class MaxentPOSTagsEventDriver extends EventDriver {
 	}
 	
 	protected static MaxentTagger tagger = null;
-    protected static String taggerPath = "com/jgaap/resources/models/postagger/english-left3words-distsim.tagger";
-	//protected static String taggerPath = "com/jgaap/resources/models/postagger/german-fast.tagger";
+	protected static String taggerPath = "com/jgaap/resources/models/postagger/english-left3words-distsim.tagger";
 	
-	public static String getTaggerPath() {
-		return taggerPath;
-	}
-
-	public static void setTaggerPath(String taggerPath) {
-		MaxentPOSTagsEventDriver.taggerPath = taggerPath;
-	}
-
 	@SuppressWarnings("static-access")
 	@Override
 	public EventSet createEventSet(Document doc) {
@@ -77,7 +68,6 @@ public class MaxentPOSTagsEventDriver extends EventDriver {
 		MaxentTagger t = null;
 		try {
 			//tagger = new MaxentTagger();
-			
 			t = new MaxentTagger(taggerPath);
 		} catch (Exception e) {
 			Logger.logln("MaxentTagger failed to load tagger from ",LogOut.STDERR);

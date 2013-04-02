@@ -1,20 +1,13 @@
 package edu.drexel.psal.anonymouth.utils;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
-import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.projectDev.Attribute;
 import edu.drexel.psal.anonymouth.projectDev.DataAnalyzer;
 import edu.drexel.psal.anonymouth.projectDev.FeatureList;
@@ -61,6 +54,13 @@ public class ConsolidationStation {
 	}
 	
 	
+	/**
+	 * Starts the consolidation process
+	 */
+	public void beginConsolidation(){
+		
+		
+	}
 	
 	public static void setAllDocsTagged(boolean allDocsTagged){
 		ConsolidationStation.allDocsTagged = allDocsTagged;
@@ -75,16 +75,10 @@ public class ConsolidationStation {
 		for(Word word:taggedSent.wordsInSentence){
 			setWordFeatures(word);
 		}
-		setSentenceFeatures(taggedSent);
 		return taggedSent;
 	}
 	
 	
-	
-	/**
-	 * Adds Reference objects to each Word objects' SparseReferences indicating which features were found in each word, and how many times that feature was found
-	 * @param word
-	 */
 	public static void setWordFeatures(Word word){
 		String wordString=word.word;
 		int strSize=wordString.length(), tempNumber;
@@ -107,222 +101,18 @@ public class ConsolidationStation {
 					//add the feature to the word and have it appearing tempNumber times.
 					//Logger.logln("AddNewReference from ConsolStation.featurePacker");
 					//Logger.logln("Value i: "+i+" Value indexOf Attrib: "+DataAnalyzer.topAttributes[i].getIndexNumber()+" Attribute: "+DataAnalyzer.topAttributes[i].getFullName()+" the word: "+wordString);
-					word.wordLevelFeaturesFound.addNewReference(i, tempNumber);
-					//Logger.logln("Added a feature: "+word.wordLevelFeaturesFound.toString());
+					word.featuresFound.addNewReference(i, tempNumber);
+					//Logger.logln("Added a feature: "+word.featuresFound.toString());
 				}
 			}
 		}
 	}
-	
-	
-	/**
-	 * Same as {@link #setWordFeatures(Word word)}, except on the sentence level. 
-	 * 
-	 * NOTE: Should be called AFTER {@link #setWordFeatures(Word word)}
-	 *  
-	 * @param word
-	 */
-	public static void setSentenceFeatures(TaggedSentence sent){
-		// TODO -- We already found the 'word' level features, and they are stored differently/independently... so, we start with word bigrams, and move up (trigrams, possibly POS bi/trigrams, and punctutation)
-		String sentString = sent.untagged;
-		int strSize = sentString.length(); 
-		int sibSize;
-		int tempNumber;
-		int attribLen = DataAnalyzer.lengthTopAttributes;
-		int numFound = 0;
-		GramMatcher gm = new GramMatcher();
-		for(int i=0;i<attribLen;i++){
-			String stringInBrace=DataAnalyzer.topAttributes[i].getStringInBraces();
-			if(!stringInBrace.equals("") && stringInBrace.charAt(0) == '('){// if the string in braces begins with an opening parenthesis, it is a word or POS bigram or trigram feature
-				//System.out.printf("Finding feature number '%d':  '%s'\n",i,stringInBrace);
-				// Check the number of open parentheses -- if (1), continue, if (2), it's a bigram, if (3) it's a trigram
-				int numOpenParens =0;
-				sibSize = stringInBrace.length();
-				for(int j = 0; j < sibSize; j++){
-					if(stringInBrace.charAt(j) == '(')
-						numOpenParens += 1;
-				}
-				if(numOpenParens <= 1)
-					continue;// we want bi and tri grams. not unigrams that happen to have a parenthesis
-				else if(numOpenParens == 2){
-					// do bigram stuff
-					numFound = gm.getOccurrencesOfBigram(stringInBrace, sentString);
-				}
-				else if(numOpenParens == 3){
-					// do trigram stuff
-					numFound = gm.getOccurrencesOfTrigram(stringInBrace,sentString);
-					
-				}
-			
-				if(numFound > 0){
-					//add a reference to the feature and the number of times it appeared to the sentence 
-					//Logger.logln("AddNewReference from ConsolStation.featurePacker");
-					//Logger.logln("Value i: "+i+" Value indexOf Attrib: "+DataAnalyzer.topAttributes[i].getIndexNumber()+" Attribute: "+DataAnalyzer.topAttributes[i].getFullName()+" the word: "+wordString);
-					sent.sentenceLevelFeaturesFound.addNewReference(i, numFound);
-					//Logger.logln("Added a feature: "+word.wordLevelFeaturesFound.toString());
-				}
-			}
-		}
-	}
-	
-	
-	/**
-	 * This is the test method to see if a bunch of translated sentences may be able to be pieced together to produce an anonymous document
-	 * It replaces the original sentences with the best replacement out of the replacements given for each sentence (version 1)
-	 * It outputs files containing the new document text comprised of the first, second, third, etc. best replacements. This exits Anonymouth when finished. (version 2)
-	 * @param attributable The TaggedDocument (which must already be fully tagged, with all SparseReferences added [i.e. all features found])
-	 * @param newSentences Basically a 2D array of sentences. Each inner ArrayList contains all potential sentence substitutions for the sentence number that corresponds to that ArrayList's index in the outer ArrayList.  
-	 */
-	public static void anonymizeDocument(TaggedDocument attributable, ArrayList<ArrayList<String>> newSentences, boolean doVersionTwo){
-		int sentenceNumber, numOptions;
-		int numSents = newSentences.size();
-		String tempSent;
-		ArrayList<ArrayList<TaggedSentence>> replacements = new ArrayList<ArrayList<TaggedSentence>>(numSents); 
-		ArrayList<double[][]> allAnonymityIndices = new ArrayList<double[][]>(numSents);
-		int optionNumber =0;
-		// for each sentence in the document
-		System.out.printf("Creating anonymous document...\n");
-		for(sentenceNumber = 0; sentenceNumber < numSents; sentenceNumber++){
-			Iterator<String> sentenceChoices = newSentences.get(sentenceNumber).iterator();
-			numOptions = 12; 
-			ArrayList<TaggedSentence> taggedOptions = new ArrayList<TaggedSentence>(numOptions);
-			double[][] anonymityIndices = new double[numOptions][2];
-			optionNumber = 0;
-			// create a TaggedSentence for each alternative sentence for that sentence, calculate the Anonymity Index, and save both in parallel ArrayLists
-			System.out.printf("For sentence number '%d':\n",sentenceNumber);
-			while(sentenceChoices.hasNext()){
-				tempSent = sentenceChoices.next();
-				if(tempSent.trim().equals("")){
-					anonymityIndices[optionNumber][0] = -999999; // very small number
-					anonymityIndices[optionNumber][1] = optionNumber; 
-					optionNumber += 1;
-					continue;
-				}
-				System.out.println("The next sentence is: "+tempSent);
-				TaggedSentence ts = new TaggedSentence(tempSent);
-				ts.tagAndGetFeatures();
-				System.out.println("Features tagged and gotten...");
-				anonymityIndices[optionNumber][0] = ts.getSentenceAnonymityIndex();
-				anonymityIndices[optionNumber][1] = optionNumber; // need a way to keep track of the indices of the actual replacement sentences
-				taggedOptions.add(optionNumber,ts);
-				System.out.printf("option '%d' (with AI '%f'): %s\n",optionNumber,anonymityIndices[optionNumber][0],ts.getUntagged());
-				optionNumber += 1;
-			}
-			allAnonymityIndices.add(sentenceNumber,anonymityIndices); 
-			replacements.add(sentenceNumber,taggedOptions);
-		}
-		// Now we know the Anonymity Index of each possible substitute for each sentence, so we find the sentence with the highest Anonymity
-		for(sentenceNumber = 0; sentenceNumber < numSents; sentenceNumber++){
-			double[][] thisSentenceOptionsAI = allAnonymityIndices.get(sentenceNumber);
-			// sort the 2D array of doubles by the Anonymity Index, which is index '0'. Index '1' contains the original index (which corresponds to the actual sentence's index in its own array (the inner arrays in 'replacements')
-			Arrays.sort(thisSentenceOptionsAI, new Comparator<double[]>(){
-				public int compare(final double[] first, final double[] second){
-					return ((-1)*((Double)first[0]).compareTo(((Double)second[0]))); // multiplying by -1 will sort from greatest to least, which saves work.
-				}
-			});
-			// todo: for these tests, print out the AI ratings, along with each sentence.
-			//bestReplacementIndices[sentenceNumber] = bestIndex; 
-			allAnonymityIndices.set(sentenceNumber,thisSentenceOptionsAI);
-		}
-		System.out.printf("Replacement sentences analyzed...\n");
-		// todo for the time being, just to test this out, I'm going to replace all sentences in the TaggedDocument with each sentences highest ranked replacement
-		// BUT, this should do something more intelligent. 
-		int actualSentenceIndex;
-		if(!doVersionTwo){
-			double ayEye;
-			for(sentenceNumber = 0; sentenceNumber < numSents; sentenceNumber++){
-				String untaggedOrig = attributable.taggedSentences.get(sentenceNumber).getUntagged();
-				numOptions = replacements.get(sentenceNumber).size();
-				if(numOptions < 1)
-					continue;
-				ayEye = allAnonymityIndices.get(sentenceNumber)[0][0]; // Since this was sorted in reverse order, index '0' contains the highest AI, and index '1' tells us the index of the corresponding sentence in its array.
-				actualSentenceIndex = (int) allAnonymityIndices.get(sentenceNumber)[0][1]; // Since this was sorted in reverse order, index '0' contains the highest AI, and index '1' tells us the index of the corresponding sentence in its array.
-				String untaggedNew = replacements.get(sentenceNumber).get(actualSentenceIndex).getUntagged();
-				// test code to make sure that everything is working as planned
-				System.out.printf("The original sentence: %s\n",untaggedOrig);	
-				System.out.printf("Will be replaced with (AI of '%f'); %s\n",ayEye,untaggedNew);
-				// now, we replace the original sentence with the old sentence.
-				attributable.taggedSentences.set(sentenceNumber,replacements.get(sentenceNumber).get(actualSentenceIndex));
-			}
-			System.out.printf("Document anonymized.\n");
-		}
-		else{
-			double[] ayEyeRay;
-			int numTranslations = 12;
-			String replacementSent;
-			String replacementDoc;
-			int qualityRank; // as ranked / determined by Anonymity Index
-			String dirName = "translation_test_results/"+ThePresident.sessionName;
-			File authorsDir = new File(dirName);
-			if(!authorsDir.exists()){
-				if(!authorsDir.mkdir()){
-					Logger.log("Error! Failed creating directory to put replacement documents in.",LogOut.STDERR);
-					System.exit(0);
-				}
-			}
-			File anonIndexRecord = new File(dirName+"/Anonymity_Index_Records.txt");
-			BufferedWriter anonIndexWriter = null;
-			try {
-				anonIndexWriter = new BufferedWriter(new FileWriter(anonIndexRecord));
-				anonIndexWriter.write("Anonymity Index Record for test: "+ThePresident.sessionName+"\n");
-				anonIndexWriter.write("\nNote: Each sentence in the original document had 12 possible alternatives (translations). Twelve new documents were assembled. \nEach document is comprised entirely of a single tier of sentences: so, of all possible choices for each sentence, the ones that had the highest anonymity index comprise the lowest ranked document, the ones with the second highest comprise the second lowest ranked document, etc.\n\n"+ThePresident.sessionName+"\n");
-				anonIndexWriter.flush();
-				for(qualityRank = 0; qualityRank < numTranslations; qualityRank ++){ // because these were sorted in reverse order, '0' is the highest quality.
-					ayEyeRay = new double[numSents];
-					replacementDoc = "";
-					for(sentenceNumber = 0; sentenceNumber < numSents; sentenceNumber++){
-						numOptions = replacements.get(sentenceNumber).size();
-						if(numOptions < 1){
-							replacementSent = "["+attributable.taggedSentences.get(sentenceNumber).getUntagged() +"]";
-							ayEyeRay[sentenceNumber] = attributable.taggedSentences.get(sentenceNumber).getSentenceAnonymityIndex();
-						}
-						else{
-							//System.out.println("sentenceNumber: "+sentenceNumber+" numOptions: "+numOptions+"+ qualityRank = "+qualityRank);
-							ayEyeRay[sentenceNumber] = allAnonymityIndices.get(sentenceNumber)[qualityRank][0]; // Since this was sorted in reverse order, index '0' contains the highest AI, and index '1' tells us the index of the corresponding sentence in its array.
-							actualSentenceIndex = (int) allAnonymityIndices.get(sentenceNumber)[qualityRank][1]; // Since this was sorted in reverse order, index '0' contains the highest AI, and index '1' tells us the index of the corresponding sentence in its array.
-							replacementSent = replacements.get(sentenceNumber).get(actualSentenceIndex).getUntagged();
-						}
-						replacementDoc += replacementSent;
-					}
-					int indexNum = 0;
-					int numSentsMinusOne = numSents - 1;
-					anonIndexWriter.write("For document with rank '"+qualityRank+"', the anoymity indices were (left => sentence '0', right => last sentence):\n[");
-					for(indexNum = 0; indexNum<numSents; indexNum++){
-						if(indexNum != numSentsMinusOne)
-							anonIndexWriter.write(" "+ayEyeRay[indexNum]+",");
-						else
-							anonIndexWriter.write(" "+ayEyeRay[indexNum]+"]\n\n");
-					}
-					anonIndexWriter.flush();
-					File thisReplacementDoc = new File(dirName+"/"+ThePresident.sessionName+"_AnonIndex_"+qualityRank+".txt");
-					try {
-						BufferedWriter buffWrite = new BufferedWriter(new FileWriter(thisReplacementDoc));
-						buffWrite.write(replacementDoc+"\n");
-						buffWrite.close();
-					} catch (IOException e) {
-						Logger.log("Error writing anonymized document to file!",LogOut.STDERR);
-						e.printStackTrace();
-					}
-				}
-				anonIndexWriter.close();
-			} catch (IOException e1) {
-				Logger.log("Error! Failed creating directory to put replacement documents in.",LogOut.STDERR);
-				System.exit(0);
-				e1.printStackTrace();
-			}
-			
-		}
-		
-		//return anonymousDoc;
-	}
-	
-	
 	
 	/**
 	 * Goes through all Words in all TaggedSentences in all TaggedDocuments, sorts them from least to greatest in terms of Anonymity Index, and returns either the lowest ranked or
 	 * highest ranked percent as strings.
 	 * NOTE:
-	 * * percentToReturn, the percent of highest or lowest ranked words (String) to return, should be a number between 0 and 1.
+	 * 	* percentToReturn, the percent of highest or lowest ranked words (String) to return, should be a number between 0 and 1.
 	 * * if findTopToRemove is false, the highest ranked Words will be returned (as Strings) (these would then be the most important words to ADD to the documentToAnonymize)
 	 * * if findTopToRemove is true, the lowest ranked Words will be returned (as String) (these would then be the most important words to REMOVE from the documentToAnonymize)
 	 * @param docsToConsider the TaggedDocuments to extract Words from
@@ -390,8 +180,8 @@ public class ConsolidationStation {
 				//mergingMap.put(w.word,temp);
 				if(w.equals(mergingMap.get(w.word))){
 					//check is sparse ref the same
-					if(!w.wordLevelFeaturesFound.equals(mergingMap.get(w.word).wordLevelFeaturesFound)){
-						Logger.logln("The wordLevelFeaturesFound in the words are not equal.",Logger.LogOut.STDERR);
+					if(!w.featuresFound.equals(mergingMap.get(w.word).featuresFound)){
+						Logger.logln("The featuresFound in the words are not equal.",Logger.LogOut.STDERR);
 					}
 				}
 				else{
@@ -448,7 +238,234 @@ public class ConsolidationStation {
 		return newWord;
 	}
 	
+/*	
+	 * runs through all attributes in attribs and pulls out the stringInBraces if it is there, and the percent (positive and negative)  
+	 * change needed
+	 * 
+	 
+	public static void findIndicesOfAttribsWithStringInBraces(){
+		for(Attribute attrib:attribs){
+			if (attrib.getCalcHist() == false)
+				continue; // ignore single valued features
+			String tempID;
+			FeatureList feature;
+			double tempInfoGain;
+			feature = attrib.getGenericName();
+			tempID = attrib.getStringInBraces();
+			double tempPercentChange=attrib.getPercentChangeNeeded();
+			tempInfoGain = attrib.getInfoGain();
+			if (tempPercentChange > 0){
+				Triple trip = new Triple(tempID,tempPercentChange,tempInfoGain);
+				toAdd.add(trip);
+			}
+			else if(tempPercentChange < 0){
+				Triple trip = new Triple(tempID,tempPercentChange,tempInfoGain);
+				toRemove.add(trip);
+			}
+		}			
+	}
+*/	
+	
+/*
+	public void findWordsToAdd(){//Only loops through otherSampleTaggedDocs.
+		// TODO I think this should take a global (to this function) hashmap of String -> Word objects, and run through all features in the 'toAdd' list, checking them 
+		// against each TaggedWord words in otherSampleTaggedWords. When it finds that one of the TaggedWord words contains the feature its checking, it should
+		// find out how many times that feature appears in the TaggedWord word, and then:
+			// If the hashmap contains the Word, read the value from the map, adjustVals, and replace it
+			// else, create new entry in hashmap
+		int taggedDocsIndex, toAddIndex;
+		ArrayList<Runnable> threads=new ArrayList<Runnable>();
+		for(toAddIndex=0;toAddIndex<toAdd.size();toAddIndex++){//loops through toAddTriple
+			if(toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.WORD_BIGRAMS)){
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getWordBigrams(),toAdd.get(toAddIndex),wordsToAdd);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getWordBigrams(),toAdd.get(toAddIndex),wordsInDocToMod);
+				}
+			}
+			else if(toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.WORD_TRIGRAMS)){
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getWordTrigrams(),toAdd.get(toAddIndex),wordsToAdd);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getWordTrigrams(),toAdd.get(toAddIndex),wordsInDocToMod);
+				}
+			}
+			else if(toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.WORDS)){
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getWords(),toAdd.get(toAddIndex),wordsToAdd);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getWords(),toAdd.get(toAddIndex),wordsInDocToMod);
+				}
+			}
+			else if(toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.POS_BIGRAMS)){//thread
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					HashMap<String,Word> tempHashMap=new HashMap<String,Word>();
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getPOSBigrams(),toAdd.get(toAddIndex),tempHashMap);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getPOSBigrams(),toAdd.get(toAddIndex),wordsInDocToMod);
+					Runnable csHelper=new ConsolidationStationHelper(wordsToAdd, tempHashMap);
+					threads.add(csHelper);
+				}
+			}
+			else if (toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.POS_TRIGRAMS)){//thread
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					HashMap<String,Word> tempHashMap=new HashMap<String,Word>();
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getPOSTrigrams(),toAdd.get(toAddIndex),tempHashMap);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getPOSTrigrams(),toAdd.get(toAddIndex),wordsInDocToMod);
+					Runnable csHelper=new ConsolidationStationHelper(wordsToAdd, tempHashMap);
+					threads.add(csHelper);
+				}
+			}
+			else if(toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.POS_TAGS)){//thread
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+//					HashMap<String,Word> tempHashMap=new HashMap<String,Word>();
+//					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getPOS(),toAdd.get(toAddIndex),tempHashMap);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getPOS(),toAdd.get(toAddIndex),wordsInDocToMod);
+//					Runnable csHelper=new ConsolidationStationHelper(wordsToAdd, tempHashMap);
+//					threads.add(csHelper);
+				}
+			}
+			else if(toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.LETTERS)){//what is letterNGrams?
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					HashMap<String,Word> tempHashMap=new HashMap<String,Word>();
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getLetters(),toAdd.get(toAddIndex),tempHashMap);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getLetters(),toAdd.get(toAddIndex),wordsInDocToMod);
+					Runnable csHelper=new ConsolidationStationHelper(wordsToAdd, tempHashMap);
+					threads.add(csHelper);
+				}
+			}
+			else if(toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.TOP_LETTER_BIGRAMS)){
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					HashMap<String,Word> tempHashMap=new HashMap<String,Word>();
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getLetterBigrams(),toAdd.get(toAddIndex),tempHashMap);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getLetterBigrams(),toAdd.get(toAddIndex),wordsInDocToMod);
+					Runnable csHelper=new ConsolidationStationHelper(wordsToAdd, tempHashMap);
+					threads.add(csHelper);
+					
+				}
+			}
+			else if (toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.TOP_LETTER_TRIGRAMS)){
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					HashMap<String,Word> tempHashMap=new HashMap<String,Word>();
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getLetterTrigrams(),toAdd.get(toAddIndex),tempHashMap);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getLetterTrigrams(),toAdd.get(toAddIndex),wordsInDocToMod);
+					Runnable csHelper=new ConsolidationStationHelper(wordsToAdd, tempHashMap);
+					threads.add(csHelper);
+				}
+			}
+			else if (toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.FUNCTION_WORDS)){
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getFunctionWords(),toAdd.get(toAddIndex),wordsToAdd);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getFunctionWords(),toAdd.get(toAddIndex),wordsInDocToMod);
+				}
+			}
+			else if (toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.PUNCTUATION)){
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getPunctuation(),toAdd.get(toAddIndex),wordsToAdd);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getPunctuation(),toAdd.get(toAddIndex),wordsInDocToMod);
+				}
+			}
+			else if (toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.WORD_LENGTHS)){//thread
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					HashMap<Integer,Word> tempHashMap=new HashMap<Integer,Word>();
+					findAttributeLength(otherSampleTaggedDocs.get(taggedDocsIndex).getWordLengths(),toAdd.get(toAddIndex),tempHashMap);
+					Runnable csHelper=new ConsolidationStationHelper(wordsToAdd, tempHashMap,true);
+					threads.add(csHelper);
+				}
+			}
+			else if (toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.DIGITS)){
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getDigits(),toAdd.get(toAddIndex),wordsToAdd);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getDigits(),toAdd.get(toAddIndex),wordsInDocToMod);
+				}
+			}
+			else if (toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.MISSPELLED_WORDS)){
+				//findMisspelledWords();
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getMisspelledWords(),toAdd.get(toAddIndex),wordsToAdd);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getMisspelledWords(),toAdd.get(toAddIndex),wordsInDocToMod);
+				}
+			}
+			else if (toAdd.get(toAddIndex).getFeatureName().equals(FeatureList.SPECIAL_CHARACTERS)){
+				//findSpecialChars();
+				for(taggedDocsIndex=0;taggedDocsIndex<otherSampleTaggedDocs.size();taggedDocsIndex++){
+					findAttribute(otherSampleTaggedDocs.get(taggedDocsIndex).getSpecialChars(),toAdd.get(toAddIndex),wordsToAdd);
+					//findAttribute(toModifyTaggedDocs.get(taggedDocsIndex).getSpecialChars(),toAdd.get(toAddIndex),wordsInDocToMod);
+				}
+			}
+			
+		}
+		ArrayList<Thread>startedThreads=new ArrayList<Thread>();
+		for (int i=0;i<threads.size();i++){//starts threads
+			Thread t=new Thread(threads.get(i));
+			t.start();
+			startedThreads.add(t);
+		}
+		for (int i=0;i<startedThreads.size();i++){
+			try {
+				startedThreads.get(i).join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		//compareMaps(wordsToAdd,wordsInDocToMod);
+		Logger.logln("LOG OF CONSOLSTAT WORDSTOADD"+wordsToAdd.toString());
+	}
+	
 
+	private void findAttribute(HashMap<String,Integer> hashMap,Triple toAddTriple,HashMap<String,Word> listToAddTo) {
+		Iterator iter=hashMap.keySet().iterator();
+		while(iter.hasNext()){
+			Word newWord=new Word(hashMap.keySet().iterator().next());
+			//newWord.mergeWords(hashMap.get(newWord.word).intValue(), toAddTriple.getInfoGain());
+			addToHashMap(listToAddTo,newWord);
+		}
+	}
+	
+	private void findAttributeLength(HashMap<Integer,Integer> hashMap,Triple toAddTriple,HashMap<Integer,Word> listToAddTo) {
+		Iterator iter=hashMap.keySet().iterator();
+		while(iter.hasNext()){
+			Integer integer=(Integer) iter.next();
+			Word newWord=new Word(integer);
+			//newWord.adjustVals(hashMap.get(newWord.word).intValue(), toAddTriple.getInfoGain());
+			if (listToAddTo.containsKey(newWord.word)){
+				//listToAddTo.get(newWord.word).adjustVals(newWord.rank, newWord.infoGainSum);
+			}
+			else{
+				listToAddTo.put(integer, newWord);
+			}
+		}
+	}
+	
+	private HashMap<String,Word> compareMaps(HashMap<String,Word> hashmap1, HashMap<String,Word>hashmap2){
+		HashMap<String,Word> newHashMap=new HashMap<String,Word>();
+		while(hashmap1.keySet().iterator().hasNext()){
+			
+		}	
+		return newHashMap;
+	}
 
+	
+	
+	 * Checks to see if the wordToAdd exists in the map. If it doesn't then it adds it. Otherwise it updates the 
+	 * word at that location to have more weight
+	 * @param hashMap the hashmap to add the feature to.
+	 * @param wordToAdd the word that is added
+	 * 
+	 
+	
+	public void addToHashMap(HashMap <String,Word> hashMap, Word wordToAdd){
+		
+		if (hashMap.containsKey(wordToAdd.word)){
+			//hashMap.get(wordToAdd.word).adjustVals(wordToAdd.rank, wordToAdd.infoGainSum);
+		}
+		else{
+			hashMap.put(wordToAdd.word, wordToAdd);
+		}		
+	}
+	
+	//Note: removed a lot of old code.
+	
+	//public void findWordsToRemove(){
+		//TODO Should do the same as above, but ONLY with the toModifyTaggedDocs -- obviously in a separate hashmap.
+	//}	
+	*/
 	
 }

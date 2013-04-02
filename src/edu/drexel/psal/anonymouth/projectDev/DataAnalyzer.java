@@ -14,11 +14,10 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.Scanner;
 
-import edu.drexel.psal.anonymouth.gooie.ClusterPanel;
-import edu.drexel.psal.anonymouth.gooie.DriverClustersTab;
-import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
+import edu.drexel.psal.anonymouth.gooie.ClusterViewer;
+import edu.drexel.psal.anonymouth.gooie.EditorTabDriver;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
-import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
+import edu.drexel.psal.anonymouth.gooie.DocsTabDriver.ExtFilter;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapMaker;
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.jstylo.generics.*;
@@ -255,7 +254,7 @@ public class DataAnalyzer{
 		int j = 0;
 		String strippedAttrib;
 		FeatureList genName;
-		DriverDocumentsTab.attributesMappedByName = new HashMap<FeatureList,Integer>(numFeatures);
+		EditorTabDriver.attributesMappedByName = new HashMap<FeatureList,Integer>(numFeatures);
 		
 		for(i=0; i<numFeatures;i++){
 			String attrib = (theArffFile.attribute((int) allInfoGain[i][1]).toString());
@@ -310,7 +309,7 @@ public class DataAnalyzer{
 			topAttribs[j].setInfoGain(allInfoGain[j][0]);
 			topAttribs[j].setToModifyValue(toModifyInstancesArray[0][toModifyIndex]);
 			genName = topAttribs[j].getGenericName();
-			DriverDocumentsTab.attributesMappedByName.put(genName, j);
+			EditorTabDriver.attributesMappedByName.put(genName, j);
 			featuresForClusterAnalyzer.add(topAttribs[j].getConcatGenNameAndStrInBraces());
 			strippedAttributeNames[j] = strippedAttrib;	
 			Logger.logln(topAttribs[j].getFullName()+" info gain for this feature is: "+topAttribs[j].getInfoGain()+", calcHist is: "+topAttribs[j].getCalcHist()+" string in the braces (if applicable): "+topAttribs[j].getStringInBraces()+" toModify value is: "+topAttribs[j].getToModifyValue()); 
@@ -478,28 +477,28 @@ public class DataAnalyzer{
 	 */
 	public int runAllTopFeatures(){
 		Logger.logln("called runAllTopFeatures");
+		int sel = 0;
 		int numAttribs = topAttributes.length;
 		int numAuthors = DocumentMagician.numSampleAuthors;
 		int maxClusters = 0;
 		int tempMaxClusters;
-		for(int sel = 0; sel < numAttribs; sel++)
-		{
-			Cluster[] orderedClusters;
-			TargetExtractor extractor = new TargetExtractor(numAuthors, topAttributes[sel]);
-			//System.out.println("Clusters for "+importantAttribs[sel]+" :");
-			extractor.aMeansCluster();
-			orderedClusters = extractor.getPreferredOrdering();
-			topAttributes[sel].setOrderedClusters(orderedClusters);
-			//topAttributes[sel].setDeltaValue(extractor.getTargetValue()-topAttributes[sel].getToModifyValue()); // If NEGATIVE, reduce toModifyValue. If POSITIVE, increase toModifyValue
-			tempMaxClusters = orderedClusters.length;
-			if(tempMaxClusters > maxClusters)
-				maxClusters = tempMaxClusters;
-			FeatureList needsSuggestion = topAttributes[sel].getGenericName();
-			//System.out.print(needsSuggestion);
-			//System.out.print("=> target value: "+topAttributes[sel].getTargetValue());
-			//System.out.print(" => present value: "+topAttributes[sel].getToModifyValue());
-			//System.out.print(" => author's values: "+topAttributes[sel].getAuthorAvg()+" with a standard deviation of: "+topAttributes[sel].getAuthorStdDev());
-			//System.out.println();
+		for(sel=0;sel<numAttribs;sel++){
+				Cluster[] orderedClusters;
+				TargetExtractor extractor = new TargetExtractor(numAuthors, topAttributes[sel]);
+				//System.out.println("Clusters for "+importantAttribs[sel]+" :");
+				extractor.aMeansCluster();
+				orderedClusters = extractor.getPreferredOrdering();
+				topAttributes[sel].setOrderedClusters(orderedClusters);
+				//topAttributes[sel].setDeltaValue(extractor.getTargetValue()-topAttributes[sel].getToModifyValue()); // If NEGATIVE, reduce toModifyValue. If POSITIVE, increase toModifyValue
+				tempMaxClusters = orderedClusters.length;
+				if(tempMaxClusters > maxClusters)
+					maxClusters = tempMaxClusters;
+				FeatureList needsSuggestion = topAttributes[sel].getGenericName();
+				//System.out.print(needsSuggestion);
+				//System.out.print("=> target value: "+topAttributes[sel].getTargetValue());
+				//System.out.print(" => present value: "+topAttributes[sel].getToModifyValue());
+				//System.out.print(" => author's values: "+topAttributes[sel].getAuthorAvg()+" with a standard deviation of: "+topAttributes[sel].getAuthorStdDev());
+				//System.out.println();
 		}
 		Logger.logln("Max number of clusters (after clustering all features): "+maxClusters);
 		return maxClusters;
@@ -527,7 +526,7 @@ public class DataAnalyzer{
 		//long endTime = System.currentTimeMillis();
 		//System.out.println("Time elapsed while using ClusterAnalyzer: "+(endTime-startTime));
 		Logger.logln("calling makeViewer");
-		DriverClustersTab.makePanels(topAttributes);
+		ClusterViewer.makeViewer(topAttributes);
 		//ClusterViewerFrame.startClusterViewer();
 		Logger.logln("viewer made");
 	}
@@ -602,7 +601,7 @@ public class DataAnalyzer{
 		//int maxClusters = runAllTopFeatures();
 		//runClusterAnalysis(maxClusters);
 		Logger.logln("Calling makeViewer in ClusterViewer after re-running modified.");
-		DriverClustersTab.makePanels(topAttributes);
+		ClusterViewer.makeViewer(topAttributes);
 		Logger.logln("viewer made");
 	}
 	

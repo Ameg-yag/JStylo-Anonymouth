@@ -1,5 +1,6 @@
-package edu.drexel.psal.jstylo.GUI;
+package edu.drexel.psal.anonymouth.gooie;
 
+import java.awt.Point;
 import java.awt.event.*;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,9 +15,8 @@ import javax.swing.tree.TreePath;
 
 import com.jgaap.generics.Document;
 
-import edu.drexel.psal.jstylo.generics.Logger;
-import edu.drexel.psal.jstylo.generics.ProblemSet;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
+import edu.drexel.psal.jstylo.generics.*;
 
 public class DocsTabDriver {
 	
@@ -24,6 +24,7 @@ public class DocsTabDriver {
 	 * Documents tab listeners
 	 * =======================
 	 */
+	
 	
 	/**
 	 * Initialize all documents tab listeners.
@@ -73,7 +74,7 @@ public class DocsTabDriver {
 							JOptionPane.YES_NO_CANCEL_OPTION);
 				}
 				if (answer == 0) {
-					JFileChooser load = new JFileChooser(new File("."));
+					JFileChooser load = new JFileChooser();
 					load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
 					answer = load.showOpenDialog(main);
 					
@@ -106,7 +107,7 @@ public class DocsTabDriver {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln("'Save Problem Set' button clicked on the documents tab.");
 				
-				JFileChooser save = new JFileChooser(new File("."));
+				JFileChooser save = new JFileChooser();
 				save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
 				int answer = save.showSaveDialog(main);
 				
@@ -148,8 +149,17 @@ public class DocsTabDriver {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln("'Add Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
 
-				JFileChooser open = new JFileChooser(new File("."));
+				JFileChooser open = new JFileChooser();
 				open.setMultiSelectionEnabled(true);
+				File dir;
+				try {
+					dir = new File(new File(".").getCanonicalPath());
+					open.setCurrentDirectory(dir);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
 				int answer = open.showOpenDialog(main);
 
@@ -169,7 +179,7 @@ public class DocsTabDriver {
 						path = file.getAbsolutePath();
 						if (allTestDocPaths.contains(path))
 							continue;
-						main.ps.addTestDoc(new Document(path,"dummy",file.getName()));
+						main.ps.addTestDoc(new Document(path,ProblemSet.getDummyAuthor(),file.getName()));
 					}
 					
 					GUIUpdateInterface.updateTestDocTable(main);
@@ -249,6 +259,127 @@ public class DocsTabDriver {
 				}
 			}
 		});
+		
+		
+		/////////////////// userSampleDocuments
+		
+	main.adduserSampleDocJButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Logger.logln("'Add Document(s)...' button clicked under the 'User Sample Documents' section on the documents tab.");
+	
+					JFileChooser open = new JFileChooser();
+					File dir;
+					try {
+						dir = new File(new File(".").getCanonicalPath());
+						open.setCurrentDirectory(dir);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					open.setMultiSelectionEnabled(true);
+					open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
+					int answer = open.showOpenDialog(main);
+	
+					if (answer == JFileChooser.APPROVE_OPTION) {
+						File[] files = open.getSelectedFiles();
+						String msg = "Trying to load User Sample documents:\n";
+						for (File file: files)
+							msg += "\t\t> "+file.getAbsolutePath()+"\n";
+						Logger.log(msg);
+						
+						
+						String path;
+						ArrayList<String> allUserSampleDocPaths = new ArrayList<String>();
+						for (Document doc: main.ps.getTestDocs())
+							allUserSampleDocPaths.add(doc.getFilePath());
+						for (Document doc: main.ps.getAllTrainDocs())
+							allUserSampleDocPaths.add(doc.getFilePath());
+						for (File file: files) {
+							path = file.getAbsolutePath();
+							if (allUserSampleDocPaths.contains(path))
+								continue;
+							main.ps.addTrainDoc(ProblemSet.getDummyAuthor(),new Document(path,ProblemSet.getDummyAuthor(),file.getName()));
+						}
+						
+						GUIUpdateInterface.updateUserSampleDocTable(main);
+						GUIUpdateInterface.clearDocPreview(main);
+	
+					} else {
+						Logger.logln("Load user sample documents canceled");
+					}
+				}
+			});
+			
+			// remove userSample documents button
+			main.removeuserSampleDocJButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Logger.logln("'Remove Document(s)...' button clicked under the 'User Sample Documents' section on the documents tab.");
+					
+					if (main.userSampleDocsJTable.getSelectedRowCount() == 0) {
+						Logger.logln("Failed removing user sample documents - no documents are selected",LogOut.STDERR);
+						JOptionPane.showMessageDialog(null,
+								"You must select documents to remove.",
+								"Remove Documents Failure",
+								JOptionPane.WARNING_MESSAGE);
+					} else {
+						int answer = JOptionPane.showConfirmDialog(null,
+								"Are you sure you want to remove the selected documents?",
+								"Remove Documents Confirmation",
+								JOptionPane.YES_NO_OPTION);
+						
+						if (answer == 0) {
+							int[] rows = main.userSampleDocsJTable.getSelectedRows();
+							String msg = "Removed test documents:\n";
+							for (int i=rows.length-1; i>=0; i--) {
+								msg += "\t\t> "+main.ps.trainDocAt(ProblemSet.getDummyAuthor(),rows[i]).getTitle()+"\n";
+								main.ps.removeTrainDocAt(ProblemSet.getDummyAuthor(),rows[i]);
+							}
+							Logger.log(msg);
+							GUIUpdateInterface.updateUserSampleDocTable(main);
+							GUIUpdateInterface.clearDocPreview(main);
+						} else {
+							Logger.logln("Removing user sample documents canceled");
+						}
+					}
+				}
+			});
+			
+			// preview userSample document button
+			main.userSampleDocPreviewJButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Logger.logln("'Preview Document' button clicked under the 'User Sample Documents' section on the documents tab.");
+					
+					int row = main.userSampleDocsJTable.getSelectedRow();
+					if (row == -1) {
+						JOptionPane.showMessageDialog(null,
+								"You must select a document in order to show its preview.",
+								"Show Document Preview Error",
+								JOptionPane.ERROR_MESSAGE);
+						Logger.logln("No user sample document is selected for preview",LogOut.STDERR);
+					} else {
+						Document doc = main.ps.trainDocAt(ProblemSet.getDummyAuthor(),row);
+						try {
+							doc.load();
+							main.docPreviewNameJLabel.setText("- "+doc.getTitle());
+							main.docPreviewJTextPane.setText(doc.stringify());
+						} catch (Exception exc) {
+							JOptionPane.showMessageDialog(null,
+									"Failed opening document for preview:\n"+doc.getFilePath(),
+									"Show Document Preview Error",
+									JOptionPane.ERROR_MESSAGE);
+							Logger.logln("Failed opening user sample document for preview",LogOut.STDERR);
+							Logger.logln(exc.toString(),LogOut.STDERR);
+							GUIUpdateInterface.clearDocPreview(main);
+						}
+					}
+				}
+			});
 
 		// training documents
 		// ==================
@@ -298,48 +429,115 @@ public class DocsTabDriver {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln("'Add Document(s)...' button clicked under the 'Training Corpus' section on the documents tab.");
-				
-				if (main.trainCorpusJTree.getSelectionCount() == 0 ||
-						main.trainCorpusJTree.getSelectionPath().getPath().length != 2) {
-					JOptionPane.showMessageDialog(null,
-							"You must select an author.",
-							"Add Training Documents Error",
-							JOptionPane.ERROR_MESSAGE);
-					Logger.logln("tried to add training documents without selecting an author", LogOut.STDERR);
-				
-				} else {
-					String author = main.trainCorpusJTree.getSelectionPath().getPath()[1].toString();
-					JFileChooser open = new JFileChooser(new File("."));
+				if(main.ps.getTestDocs().size() == 0){
+					JOptionPane.showMessageDialog(null,"You must first select your document to anonymize and your sample documents.","Add Your Own First!", JOptionPane.INFORMATION_MESSAGE);
+				}
+				else{
+					boolean mustBeFolders = false;
+					if ( main.trainCorpusJTree.getSelectionCount() == 0 ||
+							main.trainCorpusJTree.getSelectionPath().getPath().length != 2) {
+						JOptionPane.showMessageDialog(null,
+								"You have not selected an author to add documents to. Because of this,\n" +
+										"you must select one or more folders containing training documents.\n" +
+										"The folder name will be taken as the author name.\n" +
+										"If you would rather choose an author and select documents for that author,\n" +
+										"first add an author, and then select documents (rather than folder(s)).",
+										"Add Training Documents Note",
+										JOptionPane.INFORMATION_MESSAGE);
+						Logger.logln("tried to add training documents without selecting an author", LogOut.STDERR);
+						mustBeFolders = true;
+
+					}
+					String author = "no author entered";
+					try{
+						author = main.trainCorpusJTree.getSelectionPath().getPath()[1].toString();
+					} catch(NullPointerException npe){
+						Logger.logln("no author entered prior to clicking 'Add Document(s)' button. Must select folder with documents - folder name will be set as author name.", LogOut.STDERR);
+					}
+					JFileChooser open = new JFileChooser();
 					open.setMultiSelectionEnabled(true);
+					File dir;
+					try {
+						dir = new File(new File(".").getCanonicalPath());
+						open.setCurrentDirectory(dir);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
+					open.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 					int answer = open.showOpenDialog(main);
 
 					if (answer == JFileChooser.APPROVE_OPTION) {
+
 						File[] files = open.getSelectedFiles();
 						String msg = "Trying to load training documents for author \""+author+"\":\n";
+						String seperator = System.getProperty("file.separator");
 						for (File file: files)
 							msg += "\t\t> "+file.getAbsolutePath()+"\n";
 						Logger.log(msg);
-						
-						String path;
+
+						String path = "";
 						String skipList = "";
 						ArrayList<String> allTrainDocPaths = new ArrayList<String>();
 						ArrayList<String> allTestDocPaths = new ArrayList<String>();
-						for (Document doc: main.ps.getTrainDocs(author))
-							allTrainDocPaths.add(doc.getFilePath());
+						try{
+							for (Document doc: main.ps.getTrainDocs(author))
+								allTrainDocPaths.add(doc.getFilePath());
+						} catch(NullPointerException npe){
+							Logger.logln("file '"+author+"' was not found. If name in single quotes is 'no author entered', this is not a problem.", LogOut.STDERR);
+						}
+
 						for (Document doc: main.ps.getTestDocs())
 							allTestDocPaths.add(doc.getFilePath());
+						for (Document doc: main.ps.getTrainDocs(ProblemSet.getDummyAuthor()))
+							allTestDocPaths.add(doc.getFilePath());
 						for (File file: files) {
-							path = file.getAbsolutePath();
-							if (allTrainDocPaths.contains(path)) {
-								skipList += "\n"+path+" - already contained for author "+author;
-								continue;
+							if(file.isDirectory()){
+								String[] theDocsInTheDir = file.list();
+								author = file.getName();
+								String pathFirstHalf = file.getAbsolutePath();
+								for (String otherFile: theDocsInTheDir){
+									File newFile = new File(otherFile);
+									//author = newFile.getName();
+									path = pathFirstHalf+File.separator+otherFile;
+									System.out.println(path);
+									if (allTrainDocPaths.contains(path)) {
+										skipList += "\n"+path+" - already contained for author "+author;
+										continue;
+									}
+									if (allTestDocPaths.contains(path)) {
+										skipList += "\n"+path+" - already contained as a test document";
+										continue;
+									}
+									if(path.contains(".svn") || path.contains("imitation") || path.contains("verification") || path.contains("obfuscation") || path.contains("demographics"))
+										continue;
+									main.ps.addTrainDocs(author, new ArrayList<Document>());
+									main.ps.addTrainDoc(author, new Document(path,author,newFile.getName()));
+								}
 							}
-							if (allTestDocPaths.contains(path)) {
-								skipList += "\n"+path+" - already contained as a test document";
-								continue;
+							else if (mustBeFolders == true){
+								JOptionPane.showMessageDialog(null,
+										"You did not select an author to add documents to,\n" +
+												"and did not select a folder full of documents\n" +
+												"Please either choose an author and then select documents,\n" +
+												"or select a folder containing training documents for a single author.\n",
+												"Add Training Documents Error",
+												JOptionPane.ERROR_MESSAGE);
+								Logger.logln("tried to add training documents without selecting an author", LogOut.STDERR);
 							}
-							main.ps.addTrainDoc(author, new Document(path,"dummy",file.getName()));
+							else{
+								path = file.getAbsolutePath();
+								if (allTrainDocPaths.contains(path)) {
+									skipList += "\n"+path+" - already contained for author "+author;
+									continue;
+								}
+								if (allTestDocPaths.contains(path)) {
+									skipList += "\n"+path+" - already contained as a test document";
+									continue;
+								}
+								main.ps.addTrainDoc(author, new Document(path,ProblemSet.getDummyAuthor(),file.getName()));
+							}
 						}
 
 						if (!skipList.equals("")) {
@@ -358,6 +556,7 @@ public class DocsTabDriver {
 					}
 				}
 			}
+			
 		});
 		
 		// edit corpus name button
@@ -528,7 +727,7 @@ public class DocsTabDriver {
 
 		// about button
 		// ============
-
+/*
 		main.docsAboutJButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -536,7 +735,7 @@ public class DocsTabDriver {
 				GUIUpdateInterface.showAbout(main);
 			}
 		});
-
+*/
 		// next button
 		main.docTabNextJButton.addActionListener(new ActionListener() {
 			
@@ -549,9 +748,10 @@ public class DocsTabDriver {
 							"You must set training corpus and test documents before continuing.",
 							"Error",
 							JOptionPane.ERROR_MESSAGE);
-				} else {
+				} 
+				
+				else
 					main.mainJTabbedPane.setSelectedIndex(1);
-				}
 			}
 		});
 	}

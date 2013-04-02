@@ -25,7 +25,7 @@ public class Logger {
 	 * @return
 	 * 		The current time.
 	 */
-	public static String time() {
+	private static String time() {
 		cal = Calendar.getInstance();
 		return tf.format(cal.getTime());
 	}
@@ -35,7 +35,7 @@ public class Logger {
 	 * @return
 	 * 		The current date.
 	 */
-	public static String date() {
+	private static String date() {
 		cal = Calendar.getInstance();
 		return df.format(cal.getTime());
 	}

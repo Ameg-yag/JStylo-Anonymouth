@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -109,34 +108,36 @@ public class BackendInterface {
 		
 	}
 	
-	protected static void updatePresentFeatureNow(GUIMain main,TheMirror theMirror){
+	protected static void updatePresentFeatureNow(GUIMain main,EditorInnerTabSpawner eits,TheMirror theMirror){
 	
-		new Thread(bei.new UpdatePresentFeatureNow(main, theMirror)).start();
+		new Thread(bei.new UpdatePresentFeatureNow(main,eits,theMirror)).start();
 		
 	}
 	
 	public class UpdatePresentFeatureNow extends GUIThread {
 		
 		TheMirror theMirror;
+		EditorInnerTabSpawner eits;
 		
-		public UpdatePresentFeatureNow(GUIMain main,TheMirror theMirror){
+		public UpdatePresentFeatureNow(GUIMain main, EditorInnerTabSpawner eits,TheMirror theMirror){
 			super(main);
 			this.theMirror = theMirror;
+			this.eits = eits;
 		}
 		
 		public void run(){
-			if((DriverDocumentsTab.hasCurrentAttrib == true) && (DriverDocumentsTab.isWorkingOnUpdating == false)){
-				DriverDocumentsTab.isWorkingOnUpdating = true;
+			if((EditorTabDriver.hasCurrentAttrib == true)&&(EditorTabDriver.isWorkingOnUpdating == false)){
+				EditorTabDriver.isWorkingOnUpdating = true;
 				//System.out.println("EditorTabDriver is working on updating: "+EditorTabDriver.isWorkingOnUpdating);
 				try {
 					double updatedPresentValue = 0;
 					
 					//System.out.println(EditorTabDriver.currentAttrib.getGenericName());
 					//System.out.println(EditorTabDriver.featuresInCfd.toString());
-					FeatureDriver theOneToUpdate = main.cfd.featureDriverAt(DriverDocumentsTab.featuresInCfd.indexOf(DriverDocumentsTab.currentAttrib.getGenericName().toString()));
+					FeatureDriver theOneToUpdate = main.cfd.featureDriverAt(EditorTabDriver.featuresInCfd.indexOf(EditorTabDriver.currentAttrib.getGenericName().toString()));
 					WekaInstancesBuilder wib = new WekaInstancesBuilder(false);
 					Document currDoc = new Document();
-					currDoc.setText(main.documentPane.getText().toCharArray());
+					currDoc.setText(eits.editorBox.getText().toCharArray());
 					
 					List<Canonicizer> canonList = theOneToUpdate.getCanonicizers();
 					try{
@@ -148,7 +149,7 @@ public class BackendInterface {
 					
 					Computer.setTheDocument(currDoc);
 					
-					updatedPresentValue = theMirror.updatePresentValue(DriverDocumentsTab.currentAttrib);
+					updatedPresentValue = theMirror.updatePresentValue(EditorTabDriver.currentAttrib);
 					//else
 					main.presentValueField.setText(Double.toString(updatedPresentValue));
 					//System.out.println("PRESENT VALUE UPDATED!: "+updatedPresentValue);
@@ -177,7 +178,7 @@ public class BackendInterface {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				DriverDocumentsTab.isWorkingOnUpdating = false;
+				EditorTabDriver.isWorkingOnUpdating = false;
 				
 			}
 		}
@@ -209,9 +210,9 @@ public class BackendInterface {
 		}
 	}
 */	
-	protected static void preTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
+	protected static void preTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician,ClassifyingProgressBar cpb){
 		//Logger
-		(new Thread(bei.new PreTargetSelectionProcessing(main,wizard,magician))).start();
+		(new Thread(bei.new PreTargetSelectionProcessing(main,wizard,magician,cpb))).start();
 		
 	}
 	
@@ -219,145 +220,171 @@ public class BackendInterface {
 		
 		private DataAnalyzer wizard;
 		private DocumentMagician magician;
-		private ProgressWindow pw;
-		//private EditorInnerTabSpawner eits;
+		private ClassifyingProgressBar cpb;
+		private EditorInnerTabSpawner eits;
 		private int selectedIndex;
 		
 		
-		public PreTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
+		public PreTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician,ClassifyingProgressBar cpb){
 			super(main);
 			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
 			this.wizard = wizard;
 			this.magician = magician;
-			this.pw = new ProgressWindow("Processing...", main);
-			//selectedIndex = main.editTP.getSelectedIndex();
-			//this.eits = EditorTabDriver.eitsList.get(selectedIndex);
+			this.cpb = cpb;
+			selectedIndex = main.editTP.getSelectedIndex();
+			this.eits = EditorTabDriver.eitsList.get(selectedIndex);
 		}
 		
-		public String getDocFromCurrentTab()
-		{
-			return main.documentPane.getText();
+		public String getDocFromCurrentTab(){
+			return eits.editorBox.getText();
 		}
 		
-		public void run()
-		{
-			try
-			{
-				main.documentPane.setEnabled(true);
+		public void run(){
+			try{
+				eits.editorBox.setEnabled(false);
 				DocumentMagician.numProcessRequests++;
-				TheOracle.resetColorIndex();
-				String tempDoc = "";
+			//System.out.println("Still in EditTabProcessButtonClicked...STARTING RUN METHOD.");
+			//main.featureNameLabel.setText("Feature Name: ");
+			//main.targetValueField.setText("null");
+			//main.presentValueField.setText("null");
+			//main.editorBox.getHighlighter().removeAllHighlights();
+			TheOracle.resetColorIndex();
+			//main.resultsTablePane.setEnabled(false);
+			String tempDoc = "";
+			if(EditorTabDriver.isFirstRun == true){
+				eits.sentenceEditPane.setEditable(false);
+				eits.sentenceEditPane.setEnabled(false);
+				ConsolidationStation.functionWords.run();
+				tempDoc = getDocFromCurrentTab();
+				//eits.editorBox.setText("ThisWorked!");
+				//Scanner in = new Scanner(System.in);
+				//in.next();
+				//EditorTabDriver.eitsList.get(selectedIndex).editorBox.setText("NO! THIS WORKED!");
+				//in.next();
+				//EditorTabDriver.eitsList.get(selectedIndex).editorBox = eits.editorBox;
+				//in.next();
 				
-				if(DriverDocumentsTab.isFirstRun == true)
-				{
-					ConsolidationStation.functionWords.run();
-					tempDoc = getDocFromCurrentTab();
-					Logger.logln("Process button pressed for first time (initial run) in editor tab");
+				Logger.logln("Process button pressed for first time (initial run) in editor tab");
+				
+				cpb.setText("Extracting and Clustering Features...");
+				try{
+					wizard.runInitial(magician,main.cfd, main.classifiers.get(0));
+					cpb.setText("Extracting and Clustering Features... Done");
+					cpb.setText("Initializing Tagger...");
 					
-					pw.setText("Extracting and Clustering Features...");
-					try
-					{
-						wizard.runInitial(magician,main.cfd, main.classifiers.get(0));
-						pw.setText("Extracting and Clustering Features... Done");
-						pw.setText("Initializing Tagger...");
-						
-						Tagger.initTagger();
-						
-						pw.setText("Initialize Cluster Viewer...");
-						DriverClustersTab.initializeClusterViewer(main,true);
-						pw.setText("Initialize Cluster Viewer... Done");
-						pw.setText("Classifying Documents...");
+					//ConsolidationStation.attribs=wizard.getAttributes();//not the best maybe??	
+					//ConsolidationStation.getStringsFromAttribs();
+					Tagger.initTagger();
+					
+					
+					//where is the COnsolidationStation intialized??
+					
+					//ConsolidationStation.toModifyTaggedDocs = ;
+					
+					cpb.setText("Initialize Cluster Viewer...");
+					ClusterViewerDriver.initializeClusterViewer(main,true);
+					cpb.setText("Initialize Cluster Viewer... Done");
+					cpb.setText("Classifying Documents...");
+					magician.runWeka();
+					cpb.setText("Classifying Documents... Done");
+					//ConsolidationStation.attribs=wizard.getAttributes();//not the best maybe??	
+					//ConsolidationStation.getStringsFromAttribs();//moving this...
+				}
+				catch(Exception e){
+					e.printStackTrace();
+					ErrorHandler.fatalError();
+				}
+				
+				Map<String,Map<String,Double>> wekaResults = magician.getWekaResultList();
+				Logger.logln(" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
+				Logger.logln(wekaResults.toString());
+				//main.getResultsTable().setDefaultRenderer(Object.class, new MyTableRenderer()); 
+				//addNewDocEditTab();
+				eits.resultsTable.setModel(makeResultsTable(wekaResults));
+				//main.getResultsTable().getColumnModel().getColumn(resultsMaxIndex).setCellRenderer(new MyTableRenderer());
+				
+			}
+			else{//This reprocesses
+				Logger.logln("Process button pressed to re-process document to modify.");
+				tempDoc = getDocFromCurrentTab();
+				if(tempDoc.equals("") == true){
+					JOptionPane.showMessageDialog(null,
+							"It is not possible to process an empty document.",
+							"Document processing error",
+							JOptionPane.ERROR_MESSAGE,
+							GUIMain.iconNO);
+				}
+				else{
+					magician.setModifiedDocument(tempDoc);
+					eits.editorBox.setEditable(false);
+					
+					cpb.setText("Extracting and Clustering Features...");
+					try {
+						wizard.reRunModified(magician);
+						cpb.setText("Extracting and Clustering Features... Done");
+						cpb.setText("Initialize Cluster Viewer...");
+						ClusterViewerDriver.initializeClusterViewer(main,false);
+						cpb.setText("Initialize Cluster Viewer... Done");
+						cpb.setText("Classifying Documents...");
 						magician.runWeka();
-						pw.setText("Classifying Documents... Done");
-						pw.closeWindow();
-					}
-					catch(Exception e){
+						cpb.setText("Classifying Documents... Done");
+					} catch (Exception e) {
 						e.printStackTrace();
 						ErrorHandler.fatalError();
 					}
-					
+					cpb.setText("Setting Results...");
 					Map<String,Map<String,Double>> wekaResults = magician.getWekaResultList();
 					Logger.logln(" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
 					Logger.logln(wekaResults.toString());
-					makeResultsTable(wekaResults, main);
-					ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
+					//main.getResultsTable().setDefaultRenderer(Object.class, new MyTableRenderer()); 
+					//addNewDocEditTab();
+					eits.resultsTable.setModel(makeResultsTable(wekaResults));
+					//main.getResultsTable().getColumnModel().getColumn(resultsMaxIndex).setCellRenderer(new MyTableRenderer());
+					//XXX STOP HERE
+					cpb.setText("Setting Results... Done");
+					
+					
+					//main.processButton.setText("Re-process");
+					//main.processButton.setToolTipText("Click this button once you have made all changes in order to see how they have affected the classification of your document.");
+					//main.processButton.setSize(main.processButton.getSize().width+3,main.processButton.getSize().height);
+					
 				}
-				else //This reprocesses
-				{
-					Logger.logln("Process button pressed to re-process document to modify.");
-					tempDoc = getDocFromCurrentTab();
-					if(tempDoc.equals("") == true)
-					{
-						JOptionPane.showMessageDialog(null,
-								"It is not possible to process an empty document.",
-								"Document processing error",
-								JOptionPane.ERROR_MESSAGE,
-								GUIMain.iconNO);
-					}
-					else
-					{
-						magician.setModifiedDocument(tempDoc);
-						main.documentPane.setEditable(false);
-						main.documentPane.setEnabled(true);
-						
-						pw.setText("Extracting and Clustering Features...");
-						try 
-						{
-							wizard.reRunModified(magician);
-							pw.setText("Extracting and Clustering Features... Done");
-							pw.setText("Initialize Cluster Viewer...");
-							DriverClustersTab.initializeClusterViewer(main,false);
-							pw.setText("Initialize Cluster Viewer... Done");
-							pw.setText("Classifying Documents...");
-							magician.runWeka();
-							pw.setText("Classifying Documents... Done");
-						} catch (Exception e) {
-							e.printStackTrace();
-							ErrorHandler.fatalError();
-						}
-						pw.setText("Setting Results...");
-						Map<String,Map<String,Double>> wekaResults = magician.getWekaResultList();
-						Logger.logln(" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
-						Logger.logln(wekaResults.toString());
-						makeResultsTable(wekaResults, main);
-						pw.setText("Setting Results... Done");
-					}
-				}
-				int selectedIndex = 1;
-				int trueIndex = selectedIndex - 1;
-				Logger.logln("Cluster Group number '"+trueIndex+"' selected: " + DriverClustersTab.getStringRep()[selectedIndex]);
-				Logger.logln("Cluster Group chosen by Anonymouth: "+DriverClustersTab.getStringRep()[1]);
-				DataAnalyzer.selectedTargets = DriverClustersTab.getIntRep()[trueIndex];
-				Logger.logln("INTREP: "+DriverClustersTab.getIntRep()[trueIndex]);//added this.
-				DriverDocumentsTab.wizard.setSelectedTargets();
-				DriverDocumentsTab.signalTargetsSelected(main, true);
-				//eits.documentPane.setText(tempDoc);	
-				//cpb.setText("Waiting for Target Selection...");
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					// Get current size of heap in bytes
-					long heapSize = Runtime.getRuntime().totalMemory();
-	
-					// Get maximum size of heap in bytes. The heap cannot grow beyond this size.
-					// Any attempt will result in an OutOfMemoryException.
-					long heapMaxSize = Runtime.getRuntime().maxMemory();
-	
-					// Get amount of free memory within the heap in bytes. This size will increase
-					// after garbage collection and decrease as new objects are created.
-					long heapFreeSize = Runtime.getRuntime().freeMemory();
-					Logger.logln("Something happend. Here are the total, max, and free heap sizes:");
-					Logger.logln("Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
-				}
+			}
+			//System.out.println("FINISHED in EditTabProcessButtonClicked - Program use may continue.");
+			String chosenOne = EditorTabDriver.chosenAuthor;
+			if(chosenOne.equals(ProblemSet.getDummyAuthor()))
+				eits.classificationLabel.setText("Unfortunately, your document seems to have been written by: "+EditorTabDriver.chosenAuthor);//TODO: change this nonsense
+			else if (chosenOne.equals("n/a"))
+				eits.classificationLabel.setText("Please process your document in order to recieve a classification result.");
+			else
+				eits.classificationLabel.setText("Your document appears as if '"+EditorTabDriver.chosenAuthor+"' wrote it!");
+			//eits.editorBox.setText(tempDoc);	
+			cpb.setText("Waiting for Target Selection...");
+			}
+			catch (Exception e){
+				e.printStackTrace();
+				// Get current size of heap in bytes
+				long heapSize = Runtime.getRuntime().totalMemory();
+
+				// Get maximum size of heap in bytes. The heap cannot grow beyond this size.
+				// Any attempt will result in an OutOfMemoryException.
+				long heapMaxSize = Runtime.getRuntime().maxMemory();
+
+				// Get amount of free memory within the heap in bytes. This size will increase
+				// after garbage collection and decrease as new objects are created.
+				long heapFreeSize = Runtime.getRuntime().freeMemory();
+				Logger.logln("Something happend. Here are the total, max, and free heap sizes:");
+				Logger.logln("Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
+			}
+			
 		}
 	}
 	
 	
 	
-	protected static void postTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
+	protected static void postTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician,ClassifyingProgressBar cpb){
 		//Logger
-		(new Thread(bei.new PostTargetSelectionProcessing(main,wizard,magician))).start();
+		(new Thread(bei.new PostTargetSelectionProcessing(main,wizard,magician,cpb))).start();
 		
 	}
 	
@@ -365,27 +392,29 @@ public class BackendInterface {
 
 		private DataAnalyzer wizard;
 		private DocumentMagician magician;
-		private ProgressWindow pw;
-		//private EditorInnerTabSpawner eits;
+		private ClassifyingProgressBar cpb;
+		private EditorInnerTabSpawner eits;
 		private int selectedIndex;
 
 
-		public PostTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
+		public PostTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician,ClassifyingProgressBar cpb){
 			super(main);
 			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
 			this.wizard = wizard;
 			this.magician = magician;
-			this.pw = new ProgressWindow("Processing...", main);
-			//selectedIndex = main.editTP.getSelectedIndex();
-			//this.eits = EditorTabDriver.eitsList.get(selectedIndex);
+			this.cpb = cpb;
+			selectedIndex = main.editTP.getSelectedIndex();
+			this.eits = EditorTabDriver.eitsList.get(selectedIndex);
 		}
 
 		public void run(){
-			pw.setText("Target Selected");
-//			TableCellRenderer renderer = new PredictionRenderer(main);
-//			main.resultsTable.setDefaultRenderer(Object.class, renderer);
-			DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
-			Logger.logln("The Features are: "+DriverDocumentsTab.theFeatures.toString());
+			cpb.setText("Target Selected");
+			TableCellRenderer renderer = new PredictionRenderer(eits);
+		    eits.resultsTable.setDefaultRenderer(Object.class, renderer);
+		    if(EditorTabDriver.isFirstRun == false)
+			    eits.resultsTableLabel.setText("Results of this Document's Classification (% probability of authorship per author)");
+			EditorTabDriver.theFeatures = wizard.getAllRelevantFeatures();
+			Logger.logln("The Features are: "+EditorTabDriver.theFeatures.toString());
 			//main.suggestionTable.setModel(makeSuggestionListTable(EditorTabDriver.theFeatures));
 			//TableColumn tCol = main.suggestionTable.getColumnModel().getColumn(0);
 			//tCol.setMaxWidth(30);
@@ -393,23 +422,41 @@ public class BackendInterface {
 			//tCol.setPreferredWidth(30);
 			// make highlight bar
 			//main.highlightSelectionBox.setModel(makeHighlightBarModel());
-			TheOracle.setTheDocument(main.documentPane.getText());
-//			main.nextSentenceButton.setEnabled(false);
-//			main.prevSentenceButton.setEnabled(false);
-//			main.transButton.setEnabled(false);
-//			main.appendSentenceButton.setEnabled(false);
-			pw.setText("Tagging all documents... Done");
+			TheOracle.setTheDocument(eits.editorBox.getText());
+			main.processButton.setText("Re-process");
+			main.processButton.setToolTipText("Click this button once you have made all changes in order to see how they have affected the classification of your document.");
+			main.processButton.setSize(main.processButton.getSize().width+3,main.processButton.getSize().height);
+			main.processButton.setSelected(false);
 			
-			//main.editorProgressBar.setIndeterminate(true);	
+			main.nextSentenceButton.setEnabled(false);
+			main.lastSentenceButton.setEnabled(false);
+			main.refreshButtonEditor.setEnabled(false);
+			main.addSentence.setEnabled(false);
+			// XXX for AFTER everything is done
+				
+			//main.highlightSelectionBox.setEnabled(true);
+			main.processButton.setSelected(false);
+			cpb.setText("Tagging all documents... Done");
 			
-			main.resultsTablePane.setOpaque(true);
-			DriverDocumentsTab.okayToSelectSuggestion = true;
-			if(DriverDocumentsTab.isFirstRun)
-				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), true);
+			cpb.stop();
+			
+			main.editorProgressBar.setIndeterminate(true);	
+			
+			eits.editBoxPanel.setEnabled(true);
+			eits.resultsTablePane.setEnabled(true);
+			eits.resultsTablePane.setOpaque(true);
+			EditorTabDriver.okayToSelectSuggestion = true;
+			if(EditorTabDriver.isFirstRun)
+				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(eits.editorBox.getText(), true);
 			else
-				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
-			main.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
-			DriverDocumentsTab.isFirstRun = false;	
+				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(eits.editorBox.getText(), false);
+			EditorTabDriver.isFirstRun = false;	
+			eits.getSentenceEditPane().setText(EditorTabDriver.getHelpMessege()+" ");//the space is to differentiate this from the messege in a new inner tab.
+			eits.sentenceEditPane.setEnabled(true);
+			eits.sentenceEditPane.setEditable(false);
+			main.nextSentenceButton.setEnabled(false);
+			main.lastSentenceButton.setEnabled(false);//changed this and ^ values.
+			main.refreshButtonEditor.setEnabled(false);
 			
 			boolean loadIfExists = false;
 			
@@ -429,13 +476,12 @@ public class BackendInterface {
 			}
 			
 			Logger.logln("Finished in BackendInterface - postTargetSelection");
-			//main.editorProgressBar.setIndeterminate(false);	
-			DriverDocumentsTab.setAllDocTabUseable(true, main);
-//			main.nextSentenceButton.doClick();
-			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
-			
-			pw.closeWindow();
-			//cpb.setText("User Editing... Waiting to\"Re-process\"");
+			main.editorProgressBar.setIndeterminate(false);	
+			main.nextSentenceButton.setEnabled(true);
+			main.lastSentenceButton.setEnabled(true);
+			main.refreshButtonEditor.setEnabled(true);
+			main.addSentence.setEnabled(true);
+			cpb.setText("User Editing... Waiting to\"Re-process\"");
 			
 		}
 		
@@ -443,9 +489,9 @@ public class BackendInterface {
 	}
 	
 	public static ComboBoxModel makeHighlightBarModel(){
-		Iterator<FeatureList> yesHistIter = DriverDocumentsTab.yesCalcHistFeatures.iterator();
-		Iterator<FeatureList> noHistIter = DriverDocumentsTab.noCalcHistFeatures.iterator();
-		ArrayList<HighlightMapList> highlightersToInclude = new ArrayList<HighlightMapList>(DriverDocumentsTab.sizeOfCfd);
+		Iterator<FeatureList> yesHistIter = EditorTabDriver.yesCalcHistFeatures.iterator();
+		Iterator<FeatureList> noHistIter = EditorTabDriver.noCalcHistFeatures.iterator();
+		ArrayList<HighlightMapList> highlightersToInclude = new ArrayList<HighlightMapList>(EditorTabDriver.sizeOfCfd);
 		FeatureList tempFeat;
 		List<HighlightMapList> tempList;
 		HighlightMapList tempHML;
@@ -478,18 +524,18 @@ public class BackendInterface {
 				}
 		}
 		int i = 0;
-		DriverDocumentsTab.highlightingOptions = new HighlightMapList[count+1];
-		DriverDocumentsTab.highlightingOptions[0] = HighlightMapList.None;
+		EditorTabDriver.highlightingOptions = new HighlightMapList[count+1];
+		EditorTabDriver.highlightingOptions[0] = HighlightMapList.None;
 		for(i=1;i<count+1;i++)
-			DriverDocumentsTab.highlightingOptions[i] = highlightersToInclude.get(i-1);
-		return (new DefaultComboBoxModel(DriverDocumentsTab.highlightingOptions));
+			EditorTabDriver.highlightingOptions[i] = highlightersToInclude.get(i-1);
+		return (new DefaultComboBoxModel(EditorTabDriver.highlightingOptions));
 	}
 	
 	
 	public static ComboBoxModel makeInstantUpdateBarModel(){
-		ArrayList<FeatureList> calculatorsToInclude = new ArrayList<FeatureList>(DriverDocumentsTab.sizeOfCfd);
-		calculatorsToInclude.addAll(DriverDocumentsTab.yesCalcHistFeatures);
-		calculatorsToInclude.addAll(DriverDocumentsTab.noCalcHistFeatures);
+		ArrayList<FeatureList> calculatorsToInclude = new ArrayList<FeatureList>(EditorTabDriver.sizeOfCfd);
+		calculatorsToInclude.addAll(EditorTabDriver.yesCalcHistFeatures);
+		calculatorsToInclude.addAll(EditorTabDriver.noCalcHistFeatures);
 		ComboBoxModel calculatingOptions = new DefaultComboBoxModel(calculatorsToInclude.toArray());
 		return calculatingOptions;
 	}
@@ -500,7 +546,7 @@ public class BackendInterface {
 		String[] skip = {"COMPLEXITY","FLESCH_READING_EASE_SCORE","GUNNING_FOG_READABILITY_INDEX","AVERAGE_SENTENCE_LENGTH"};
 		int i=0;
 		int numDesiredSuggestions = numSuggestions - skip.length;
-		DriverDocumentsTab.suggestionToAttributeMap = new HashMap<Integer,Integer>(numDesiredSuggestions);
+		EditorTabDriver.suggestionToAttributeMap = new HashMap<Integer,Integer>(numDesiredSuggestions);
 		String[][] theModel = new String[numDesiredSuggestions][2]; 
 		int j=0;
 		i = 0;
@@ -523,7 +569,7 @@ public class BackendInterface {
 			}
 			theModel[i][0] = Integer.toString((i+1));
 			theModel[i][1] = suggestions[j];
-			DriverDocumentsTab.suggestionToAttributeMap.put(i,j);
+			EditorTabDriver.suggestionToAttributeMap.put(i,j);
 			j++;
 			i++;
 		}
@@ -532,23 +578,20 @@ public class BackendInterface {
 	}
 	
 	
-	public static void makeResultsTable(Map<String,Map<String,Double>> resultMap, GUIMain main)
-	{
-		main.resultsTableModel.getDataVector().removeAllElements();
-		
+	public static TableModel makeResultsTable(Map<String,Map<String,Double>> resultMap){
 		Iterator<String> mapKeyIter = resultMap.keySet().iterator();
+		int numAuthors = DocumentMagician.numSampleAuthors+1;
+		Object[] authors;
+		Object[][] predictions = new Object[2][numAuthors];
 		Map<String,Double> tempMap = resultMap.get(mapKeyIter.next()); 
 		
-		int numAuthors = DocumentMagician.numSampleAuthors+1;
+		authors = (tempMap.keySet()).toArray(); 
 		
-		Object[] authors = (tempMap.keySet()).toArray();
-		Double[] predictions = new Double[authors.length];
-		Map<Double, Object> predMap = new HashMap<Double, Object>();
-		
+		int i = 0;
 		Object[] keyRing = tempMap.values().toArray();
-		int maxIndex = 0;
-		Double biggest = .01;
-		for(int i = 0; i < numAuthors; i++){
+		int maxIndex =0;
+		Double biggest =.01;
+		for(i=0;i<numAuthors;i++){
 			Double tempVal = ((Double)keyRing[i])*100;
 			// compare PRIOR to rounding.
 			if(biggest < tempVal){
@@ -557,46 +600,41 @@ public class BackendInterface {
 			}
 			int precision = 100;
 			tempVal = Math.floor(tempVal*precision+.5)/precision;	
-			predictions[i] = tempVal;
-			predMap.put(predictions[i], authors[i]);
+			predictions[0][i] = (Object)tempVal;
 		}
-		
-		Arrays.sort(predictions);
-		
-		for (int i = numAuthors-1; i >= 0; i--)
-		{
-			main.resultsTableModel.addRow(new Object[]{predMap.get(predictions[i]), predictions[i] + "%"});
-		}
-		
-		DriverDocumentsTab.resultsMaxIndex = maxIndex;
-		DriverDocumentsTab.chosenAuthor = (String)authors[maxIndex];
-		DriverDocumentsTab.maxValue = (Object)biggest;
+		predictions[1][0] =(Object) "Actual Author: ";
+		predictions[1][1] =(Object) DocumentMagician.authorToRemove;
+		TableModel modelTable = new DefaultTableModel(predictions,authors);
+		EditorTabDriver.resultsMaxIndex = maxIndex;
+		EditorTabDriver.chosenAuthor = (String)authors[maxIndex];
+		EditorTabDriver.maxValue = (Object)biggest;
+		return modelTable;
 	}
 	
 }
 
 class PredictionRenderer implements TableCellRenderer {
 	
-	private GUIMain main;
-	
-	public static final DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
-	
-	public PredictionRenderer(GUIMain main)
-	{
-		this.main = main;
-		this.main.chosenAuthor = DriverDocumentsTab.chosenAuthor;
-		this.main.resultsMaxIndex = DriverDocumentsTab.resultsMaxIndex;
-	}
+	private EditorInnerTabSpawner eits;
+
+	  public static final DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
+
+	  public PredictionRenderer(EditorInnerTabSpawner eits){
+		  this.eits = eits;
+		  this.eits.chosenAuthor = EditorTabDriver.chosenAuthor;
+		  this.eits.resultsMaxIndex = EditorTabDriver.resultsMaxIndex;
+	  }
 	  
 	  
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) 
-	{
-		Component renderer = DEFAULT_RENDERER.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+	  public Component getTableCellRendererComponent(JTable table, Object value,
+	      boolean isSelected, boolean hasFocus, int row, int column) {
+	    Component renderer = DEFAULT_RENDERER.getTableCellRendererComponent(
+	        table, value, isSelected, hasFocus, row, column);
 	    ((JLabel) renderer).setOpaque(true);
 	    Color foreground, background;
 	    
-	      if ((column  == main.resultsMaxIndex) && (row==0)) {
-		    	 if(main.chosenAuthor.equals(DocumentMagician.authorToRemove)){
+	      if ((column  == eits.resultsMaxIndex) && (row==0)) {
+		    	 if(eits.chosenAuthor.equals(DocumentMagician.authorToRemove)){
 		        foreground = Color.black;
 		        background = Color.red;
 		      } else {
@@ -612,5 +650,5 @@ class PredictionRenderer implements TableCellRenderer {
 	    renderer.setForeground(foreground);
 	    renderer.setBackground(background);
 	    return renderer;
+	  }
 	}
-}

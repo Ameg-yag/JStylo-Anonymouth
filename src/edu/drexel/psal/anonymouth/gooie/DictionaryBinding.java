@@ -190,7 +190,7 @@ public class DictionaryBinding {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln("Dictionary is being disposed of.. ");
 				dc.dispose();
-				DriverDocumentsTab.dictDead = true;
+				EditorTabDriver.dictDead = true;
 			}
 		});
 		
@@ -201,7 +201,7 @@ public class DictionaryBinding {
 			@Override
 			public void windowClosed(WindowEvent arg0) {
 				Logger.logln("Window close killed poor dictionary");
-				DriverDocumentsTab.dictDead = true;
+				EditorTabDriver.dictDead = true;
 			}
 			@Override
 			public void windowClosing(WindowEvent arg0) {

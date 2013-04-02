@@ -8,7 +8,7 @@ import java.util.HashMap;
 import com.jgaap.JGAAPConstants;
 import com.jgaap.generics.EventGenerationException;
 
-import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
+import edu.drexel.psal.anonymouth.gooie.EditorTabDriver;
 import edu.drexel.psal.anonymouth.projectDev.Attribute;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
@@ -85,8 +85,8 @@ abstract public class TheOracle implements Runnable {
 				"Helpful insights (and possibly highlighting) that will aid in accomplishing this task are (or will soon be) in the works.";
 		Logger.logln("Feature suggestor for "+featureName+" has been inititialized.");
 		Logger.logln("Target is greater than present (?): "+isTargetGreaterThanPresent);
-		if(DriverDocumentsTab.isUsingNineFeatures == true){
-			StringFormulator sf = new StringFormulator(DriverDocumentsTab.attribs);
+		if(EditorTabDriver.isUsingNineFeatures == true){
+			StringFormulator sf = new StringFormulator(EditorTabDriver.attribs);
 			sf.organizeFeatures();
 			sf.getGeneralNineFeatureAdvice();
 			//System.out.println(sf.charSpaceSuggestion);
