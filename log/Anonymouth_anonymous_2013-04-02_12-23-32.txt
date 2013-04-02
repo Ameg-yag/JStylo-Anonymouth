@@ -1,0 +1,22 @@
+Started log log/Anonymouth_anonymous_2013-04-02_12-23-32.txt
+===================================================
+12-23-32: Reading CumulativeFeatureDriver from /Volumes/Kangaroo/Users/lux/github/JStylo-Anonymouth/jsan_resources/feature_sets/9_features.xml
+12-23-32: Reading CumulativeFeatureDriver from /Volumes/Kangaroo/Users/lux/github/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_feature_set.xml
+12-23-32: Reading CumulativeFeatureDriver from /Volumes/Kangaroo/Users/lux/github/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_feature_set_limited.xml
+12-23-32: Reading CumulativeFeatureDriver from /Volumes/Kangaroo/Users/lux/github/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_german.xml
+12-23-32: Reading CumulativeFeatureDriver from /Volumes/Kangaroo/Users/lux/github/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_limited_norm.xml
+12-23-32: Reading CumulativeFeatureDriver from /Volumes/Kangaroo/Users/lux/github/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_russian.xml
+12-23-32: Populating event drivers...
+12-23-32: adding event drivers under Basic
+12-23-32: adding event drivers under Part-Of-Speech
+12-23-32: adding event drivers under Grams
+12-23-32: adding event drivers under Dictionary
+12-23-32: adding event drivers under Counters
+12-23-32: adding event drivers under Readability Metrics
+12-23-32: adding event drivers under Misc.
+12-23-32: done!
+12-23-32: Populating canonicizers...
+12-23-32: done!
+12-23-32: Populating event cullers...
+12-23-32: done!
+12-23-32: Creating Documents Tab...

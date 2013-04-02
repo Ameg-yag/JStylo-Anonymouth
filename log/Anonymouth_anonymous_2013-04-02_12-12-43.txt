@@ -1,0 +1,19 @@
+Started log log/Anonymouth_anonymous_2013-04-02_12-12-43.txt
+===================================================
+12-12-43: Reading CumulativeFeatureDriver from /Volumes/Kangaroo/Users/lux/github/JStylo-Anonymouth/jsan_resources/feature_sets/9_features.xml
+12-12-43: Reading CumulativeFeatureDriver from /Volumes/Kangaroo/Users/lux/github/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_feature_set.xml
+12-12-43: Reading CumulativeFeatureDriver from /Volumes/Kangaroo/Users/lux/github/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_feature_set_limited.xml
+12-12-44: Populating event drivers...
+12-12-44: adding event drivers under Basic
+12-12-44: adding event drivers under Part-Of-Speech
+12-12-44: adding event drivers under Grams
+12-12-44: adding event drivers under Dictionary
+12-12-44: adding event drivers under Counters
+12-12-44: adding event drivers under Readability Metrics
+12-12-44: adding event drivers under Misc.
+12-12-44: done!
+12-12-44: Populating canonicizers...
+12-12-44: done!
+12-12-44: Populating event cullers...
+12-12-44: done!
+12-12-44: EditorInnerTabSpawner spawning tab

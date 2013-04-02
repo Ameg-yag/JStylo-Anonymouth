@@ -1,0 +1,137 @@
+Started log log/Anonymouth_anonymous_2013-03-03_20-42-25.txt
+===================================================
+20-42-26: Reading CumulativeFeatureDriver from C:\Users\Jeff\workspace\PSAL\JStylo-Anonymouth\jsan_resources\feature_sets\9_features.xml
+20-42-26: Reading CumulativeFeatureDriver from C:\Users\Jeff\workspace\PSAL\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_feature_set.xml
+20-42-26: Reading CumulativeFeatureDriver from C:\Users\Jeff\workspace\PSAL\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_feature_set_limited.xml
+20-42-26: Reading CumulativeFeatureDriver from C:\Users\Jeff\workspace\PSAL\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_german.xml
+20-42-26: Reading CumulativeFeatureDriver from C:\Users\Jeff\workspace\PSAL\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_limited_norm.xml
+20-42-26: Reading CumulativeFeatureDriver from C:\Users\Jeff\workspace\PSAL\JStylo-Anonymouth\jsan_resources\feature_sets\writeprints_russian.xml
+20-42-26: Populating event drivers...
+20-42-26: adding event drivers under Basic
+20-42-26: adding event drivers under Part-Of-Speech
+20-42-26: adding event drivers under Grams
+20-42-26: adding event drivers under Dictionary
+20-42-26: adding event drivers under Counters
+20-42-26: adding event drivers under Readability Metrics
+20-42-26: adding event drivers under Misc.
+20-42-26: done!
+20-42-26: Populating canonicizers...
+20-42-26: done!
+20-42-26: Populating event cullers...
+20-42-26: done!
+20-42-26: Creating Documents Tab...
+20-43-41: Preset feature set selected in the features tab.
+20-43-41: loaded preset feature set: WritePrints (Limited)
+20-43-41: Preset feature set selected in the features tab.
+20-43-41: loaded preset feature set: WritePrints (Limited)
+20-43-43: Feature selected in the features tab: Top Letter bigrams
+20-43-43: Feature selected in the features tab: Top Letter trigrams
+20-43-43: Feature selected in the features tab: Digits Percentage
+20-43-44: Feature selected in the features tab: Letters Percentage
+20-43-44: Feature selected in the features tab: Uppercase Letters Percentage
+20-43-44: Feature selected in the features tab: Digits
+20-43-44: Feature selected in the features tab: Two Digit Numbers
+20-43-44: Feature selected in the features tab: Three Digit Numbers
+20-43-44: Feature selected in the features tab: Word Lengths
+20-43-44: Feature selected in the features tab: Special Characters
+20-43-44: Feature selected in the features tab: Function Words
+20-43-44: Feature selected in the features tab: Punctuation
+20-43-45: Feature selected in the features tab: POS Tags
+20-43-45: Feature selected in the features tab: POS Bigrams
+20-43-45: Feature selected in the features tab: POS Trigrams
+20-43-45: Feature selected in the features tab: Words
+20-43-45: Feature selected in the features tab: POS Trigrams
+20-43-45: Feature selected in the features tab: POS Bigrams
+20-43-45: Feature selected in the features tab: POS Tags
+20-43-45: Feature selected in the features tab: Punctuation
+20-43-46: Feature selected in the features tab: Function Words
+20-43-46: Feature selected in the features tab: Special Characters
+20-43-46: Feature selected in the features tab: Word Lengths
+20-43-46: Feature selected in the features tab: Three Digit Numbers
+20-43-47: Feature selected in the features tab: Special Characters
+20-43-47: Feature selected in the features tab: Word Lengths
+20-43-48: Feature selected in the features tab: POS Tags
+20-43-48: Feature selected in the features tab: POS Bigrams
+20-43-49: Feature selected in the features tab: Special Characters
+20-43-59: Feature selected in the features tab: Character count
+20-43-59: Feature selected in the features tab: Average characters per word
+20-43-59: Feature selected in the features tab: Letters
+20-43-59: Feature selected in the features tab: Top Letter bigrams
+20-43-59: Feature selected in the features tab: Top Letter trigrams
+20-44-00: Feature selected in the features tab: Digits Percentage
+20-44-00: Feature selected in the features tab: Letters Percentage
+20-44-00: Feature selected in the features tab: Uppercase Letters Percentage
+20-44-00: Feature selected in the features tab: Digits
+20-44-00: Feature selected in the features tab: Two Digit Numbers
+20-44-00: Feature selected in the features tab: Three Digit Numbers
+20-44-00: Feature selected in the features tab: Word Lengths
+20-44-00: Feature selected in the features tab: Special Characters
+20-44-00: Feature selected in the features tab: Function Words
+20-44-00: Feature selected in the features tab: Punctuation
+20-44-00: Feature selected in the features tab: POS Tags
+20-44-00: Feature selected in the features tab: POS Bigrams
+20-44-00: Feature selected in the features tab: POS Trigrams
+20-44-00: Feature selected in the features tab: Words
+20-44-00: Feature selected in the features tab: Word Bigrams
+20-44-00: Feature selected in the features tab: Word Trigrams
+20-44-00: Feature selected in the features tab: Misspelled Words
+20-44-02: Feature selected in the features tab: Word Trigrams
+20-44-02: Feature selected in the features tab: Word Bigrams
+20-44-02: Feature selected in the features tab: Words
+20-44-03: Feature selected in the features tab: POS Trigrams
+20-44-03: Feature selected in the features tab: POS Bigrams
+20-44-03: Feature selected in the features tab: POS Tags
+20-44-03: Feature selected in the features tab: Punctuation
+20-44-03: Feature selected in the features tab: Function Words
+20-44-03: Feature selected in the features tab: Special Characters
+20-44-03: Feature selected in the features tab: Word Lengths
+20-44-03: Feature selected in the features tab: Three Digit Numbers
+20-44-03: Feature selected in the features tab: Two Digit Numbers
+20-44-03: Feature selected in the features tab: Digits
+20-44-03: Feature selected in the features tab: Letters Percentage
+20-44-03: Feature selected in the features tab: Digits Percentage
+20-44-04: Feature selected in the features tab: Character count
+20-44-04: Feature selected in the features tab: Average characters per word
+20-44-04: Feature selected in the features tab: Letters
+20-44-04: Feature selected in the features tab: Top Letter bigrams
+20-44-04: Feature selected in the features tab: Top Letter trigrams
+20-44-04: Feature selected in the features tab: Digits Percentage
+20-44-04: Feature selected in the features tab: Letters Percentage
+20-44-04: Feature selected in the features tab: Uppercase Letters Percentage
+20-44-05: Feature selected in the features tab: Digits
+20-44-05: Feature selected in the features tab: Two Digit Numbers
+20-44-05: Feature selected in the features tab: Three Digit Numbers
+20-44-05: Feature selected in the features tab: Word Lengths
+20-44-05: Feature selected in the features tab: Special Characters
+20-44-05: Feature selected in the features tab: Function Words
+20-44-05: Feature selected in the features tab: Punctuation
+20-44-05: Feature selected in the features tab: POS Tags
+20-44-05: Feature selected in the features tab: POS Bigrams
+20-44-05: Feature selected in the features tab: POS Trigrams
+20-44-05: Feature selected in the features tab: Words
+20-44-05: Feature selected in the features tab: Word Bigrams
+20-44-05: Feature selected in the features tab: Word Trigrams
+20-44-05: Feature selected in the features tab: Misspelled Words
+20-44-06: Feature selected in the features tab: Word Trigrams
+20-44-06: Feature selected in the features tab: Word Bigrams
+20-44-06: Feature selected in the features tab: Words
+20-44-06: Feature selected in the features tab: POS Trigrams
+20-44-06: Feature selected in the features tab: POS Bigrams
+20-44-06: Feature selected in the features tab: POS Tags
+20-44-06: Feature selected in the features tab: Punctuation
+20-44-06: Feature selected in the features tab: Function Words
+20-44-06: Feature selected in the features tab: Special Characters
+20-44-06: Feature selected in the features tab: Word Lengths
+20-44-06: Feature selected in the features tab: Three Digit Numbers
+20-44-06: Feature selected in the features tab: Two Digit Numbers
+20-44-06: Feature selected in the features tab: Digits
+20-44-06: Feature selected in the features tab: Uppercase Letters Percentage
+20-44-07: Feature selected in the features tab: Letters Percentage
+20-44-07: Feature selected in the features tab: Digits Percentage
+20-44-07: Feature selected in the features tab: Top Letter trigrams
+20-44-07: Feature selected in the features tab: Top Letter bigrams
+20-44-07: Feature selected in the features tab: Letters
+20-44-07: Feature selected in the features tab: Average characters per word
+20-44-11: Feature selected in the features tab: Word Bigrams
+20-44-11: Feature selected in the features tab: Misspelled Words
+20-44-12: Feature selected in the features tab: Words
