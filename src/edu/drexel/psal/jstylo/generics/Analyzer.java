@@ -87,6 +87,26 @@ public abstract class Analyzer {
 	 */
 	public abstract Object runCrossValidation(Instances data, int folds, long randSeed);
 	
+	
+	/**
+	 * Runs a relaxed cross validation with given number of folds on the given Instances object.
+	 * A classification result will be considered correct if the true class is
+	 * one of the top <code>relaxFactor</code> results (where classes are ranked
+	 * by the classifier probability they are the class).
+	 * @param data
+	 * 		The data to run CV over.
+	 * @param folds
+	 * 		The number of folds to use.
+	 * @param randSeed
+	 * 		Random seed to be used for fold generation.
+	 * @param relaxFactor
+	 * 		The relax factor for the classification.
+	 * @return
+	 * 		Some object containing the cross validation results (e.g. Evaluation for Weka
+	 * 		classifiers CV results), or null if failed running.		
+	 */
+	public abstract Object runCrossValidation(Instances data, int folds, long randSeed, int relaxFactor);
+	
 	/* =======
 	 * getters
 	 * =======

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import edu.drexel.psal.anonymouth.gooie.DictionaryBinding;
-import edu.drexel.psal.anonymouth.gooie.EditorInnerTabSpawner;
+import edu.drexel.psal.anonymouth.gooie.GUIMain;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 public class SynonymReplaceTest {
@@ -13,8 +13,8 @@ public class SynonymReplaceTest {
 	/*
 	 * This function is for the study of replacing words with their highest ranked synonyms.
 	 */
-	public static void replaceWords(EditorInnerTabSpawner eits){
-		String currentSent=eits.getSentenceEditPane().getText();
+	public static void replaceWords(GUIMain main){
+//		String currentSent = main.sentenceEditPane.getText(); // ----------------------------------- NEEDED
 		String newSentence=" ";
 		TaggedSentence taggedSent=ConsolidationStation.toModifyTaggedDocs.get(0).taggedSentences.get(ConsolidationStation.toModifyTaggedDocs.get(0).getSentNumber());
 		ArrayList<Word> words=taggedSent.getWordsInSentence();
@@ -45,7 +45,7 @@ public class SynonymReplaceTest {
 			}
 		}
 		Logger.logln(newSentence,Logger.LogOut.STDERR);
-		eits.getSentenceEditPane().setText(newSentence);
+//		main.sentenceEditPane.setText(newSentence);// ----------------------------------- NEEDED
 		
 	}
 }

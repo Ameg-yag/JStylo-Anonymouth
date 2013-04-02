@@ -73,7 +73,7 @@ public class DocsTabDriver {
 							JOptionPane.YES_NO_CANCEL_OPTION);
 				}
 				if (answer == 0) {
-					JFileChooser load = new JFileChooser(new File("."));
+					JFileChooser load = new JFileChooser(new File(main.defaultLoadSaveDir));
 					load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
 					answer = load.showOpenDialog(main);
 					
@@ -82,6 +82,7 @@ public class DocsTabDriver {
 						Logger.logln("Trying to load problem set from "+path);
 						try {
 							main.ps = new ProblemSet(path);
+							main.defaultLoadSaveDir = (new File(path)).getParent();
 							GUIUpdateInterface.updateProblemSet(main);
 						} catch (Exception exc) {
 							Logger.logln("Failed loading "+path, LogOut.STDERR);
@@ -106,7 +107,7 @@ public class DocsTabDriver {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln("'Save Problem Set' button clicked on the documents tab.");
 				
-				JFileChooser save = new JFileChooser(new File("."));
+				JFileChooser save = new JFileChooser(new File(main.defaultLoadSaveDir));
 				save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
 				int answer = save.showSaveDialog(main);
 				
@@ -120,6 +121,7 @@ public class DocsTabDriver {
 						bw.write(main.ps.toXMLString());
 						bw.flush();
 						bw.close();
+						main.defaultLoadSaveDir = (new File(path)).getParent();
 						Logger.log("Saved problem set to "+path+":\n"+main.ps.toXMLString());
 					} catch (IOException exc) {
 						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
@@ -148,7 +150,7 @@ public class DocsTabDriver {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln("'Add Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
 
-				JFileChooser open = new JFileChooser(new File("."));
+				JFileChooser open = new JFileChooser(new File(main.defaultLoadSaveDir));
 				open.setMultiSelectionEnabled(true);
 				open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
 				int answer = open.showOpenDialog(main);
@@ -161,7 +163,7 @@ public class DocsTabDriver {
 					Logger.log(msg);
 					
 					
-					String path;
+					String path = null;
 					ArrayList<String> allTestDocPaths = new ArrayList<String>();
 					for (Document doc: main.ps.getTestDocs())
 						allTestDocPaths.add(doc.getFilePath());
@@ -171,6 +173,8 @@ public class DocsTabDriver {
 							continue;
 						main.ps.addTestDoc(new Document(path,"dummy",file.getName()));
 					}
+					if (path != null)
+						main.defaultLoadSaveDir = (new File(path)).getParent();
 					
 					GUIUpdateInterface.updateTestDocTable(main);
 					GUIUpdateInterface.clearDocPreview(main);
@@ -309,7 +313,7 @@ public class DocsTabDriver {
 				
 				} else {
 					String author = main.trainCorpusJTree.getSelectionPath().getPath()[1].toString();
-					JFileChooser open = new JFileChooser(new File("."));
+					JFileChooser open = new JFileChooser(new File(main.defaultLoadSaveDir));
 					open.setMultiSelectionEnabled(true);
 					open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
 					int answer = open.showOpenDialog(main);
@@ -321,7 +325,7 @@ public class DocsTabDriver {
 							msg += "\t\t> "+file.getAbsolutePath()+"\n";
 						Logger.log(msg);
 						
-						String path;
+						String path = null;
 						String skipList = "";
 						ArrayList<String> allTrainDocPaths = new ArrayList<String>();
 						ArrayList<String> allTestDocPaths = new ArrayList<String>();
@@ -341,6 +345,8 @@ public class DocsTabDriver {
 							}
 							main.ps.addTrainDoc(author, new Document(path,"dummy",file.getName()));
 						}
+						if (path != null)
+							main.defaultLoadSaveDir = (new File(path)).getParent();
 
 						if (!skipList.equals("")) {
 							JOptionPane.showMessageDialog(null,

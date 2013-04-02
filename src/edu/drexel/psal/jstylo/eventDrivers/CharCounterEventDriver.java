@@ -46,7 +46,6 @@ public class CharCounterEventDriver extends SingleNumericEventDriver {
 	}
 
 	public double getValue(Document doc) {
-		EventSet chars = charDriver.createEventSet(doc);
-		return chars.size();
+		return doc.stringify().length();
 	}
 }

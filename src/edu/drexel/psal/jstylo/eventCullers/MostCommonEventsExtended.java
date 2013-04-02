@@ -39,8 +39,10 @@ public class MostCommonEventsExtended extends FrequencyEventsExtended {
 		for (EventSet es: eventSets) {
 			for (int i=es.size()-1; i >= 0; i--) {
 				e = es.eventAt(i); 
-				if (!events.contains(e.toString()))
+				if (!events.contains(e.toString())){
+					//System.out.println(e.toString());
 					es.removeEvent(e);
+				}
 			}
 		}
 		

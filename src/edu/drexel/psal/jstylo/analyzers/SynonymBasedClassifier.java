@@ -23,4 +23,11 @@ public class SynonymBasedClassifier extends Analyzer {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public Object runCrossValidation(Instances data, int folds, long randSeed,
+			int relaxFactor) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

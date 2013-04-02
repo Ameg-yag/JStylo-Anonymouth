@@ -67,6 +67,7 @@ public class GUIMain extends javax.swing.JFrame {
 	protected String defaultTrainDocsTreeName = "Authors"; 
 	protected Font defaultLabelFont = new Font("Verdana",0,16);
 	protected static int cellPadding = 5;
+	protected String defaultLoadSaveDir = ".";
 
 	// tabs
 	protected JTabbedPane mainJTabbedPane;

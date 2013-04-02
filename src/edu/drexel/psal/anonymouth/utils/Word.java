@@ -17,14 +17,14 @@ public class Word implements Comparable<Word>{
 	
 	protected String word;
 	protected ArrayList<String>partOfSpeech;
-	protected SparseReferences featuresFound; 
+	protected SparseReferences wordLevelFeaturesFound; 
 	
 	/**
 	 * Constructor for Word
 	 * @param word the word to construct a Word for
 	 */
 	public Word(String word){
-		featuresFound = new SparseReferences(10);// probably won't find > 10 features in a word (wild guess)
+		wordLevelFeaturesFound = new SparseReferences(10);// probably won't find > 10 features in a word (wild guess)
 		partOfSpeech = new ArrayList<String>(); // is an array list because it is possible to have one word as more than one part of speech. It doesn't seem to make sense at this point to count them as different words.
 		this.word = word;
 	}
@@ -35,7 +35,7 @@ public class Word implements Comparable<Word>{
 	 */
 	public Word(Word word){
 		this.word = word.word;
-		featuresFound = new SparseReferences(word.featuresFound);
+		wordLevelFeaturesFound = new SparseReferences(word.wordLevelFeaturesFound);
 		partOfSpeech = word.partOfSpeech;
 		
 	}
@@ -46,7 +46,7 @@ public class Word implements Comparable<Word>{
 	 * @param POS the part of speech of the word
 	 */
 	public Word(String word, String POS){
-		featuresFound = new SparseReferences(10);// probably won't find > 10 features in a word (wild guess)
+		wordLevelFeaturesFound = new SparseReferences(10);// probably won't find > 10 features in a word (wild guess)
 		partOfSpeech = new ArrayList<String>(); // is an array list because it is possible to have one word as more than one part of speech. It doesn't seem to make sense at this point to count them as different words.
 		this.word = word;
 		partOfSpeech.add(POS);
@@ -64,9 +64,9 @@ public class Word implements Comparable<Word>{
 	 */
 	public double getAnonymityIndex(){
 		double anonymityIndex=0;
-		double numFeatures = featuresFound.length();
+		double numFeatures = wordLevelFeaturesFound.length();
 		for (int i=0;i<numFeatures;i++){
-			Reference tempFeature = featuresFound.references.get(i);
+			Reference tempFeature = wordLevelFeaturesFound.references.get(i);
 			double value=tempFeature.value;
 			anonymityIndex += (value/numFeatures)*(DataAnalyzer.topAttributes[tempFeature.index].getInfoGain())*(DataAnalyzer.topAttributes[tempFeature.index].getPercentChangeNeeded());
 		}
@@ -80,7 +80,7 @@ public class Word implements Comparable<Word>{
 	 * @return
 	 */
 	public boolean addFoundFeature(Reference ref){
-		return featuresFound.addNewReference(ref);
+		return wordLevelFeaturesFound.addNewReference(ref);
 	}
 	
 	/*
@@ -107,7 +107,7 @@ public class Word implements Comparable<Word>{
 	 */
 	public void mergeWords(Word newWord){
 		if(newWord.equals(this)){
-			this.featuresFound.merge(newWord.featuresFound);
+			this.wordLevelFeaturesFound.merge(newWord.wordLevelFeaturesFound);
 			this.partOfSpeech.addAll(newWord.partOfSpeech);
 		}
 		else
@@ -182,7 +182,7 @@ public class Word implements Comparable<Word>{
 	 * toString method
 	 */
 	public String toString(){
-		return "[ WORD: "+word+" ||| Anonymity Index: "+getAnonymityIndex()+" ||| featuresFound: "+featuresFound+"]";
+		return "[ WORD: "+word+" ||| Anonymity Index: "+getAnonymityIndex()+" ||| wordLevelFeaturesFound: "+wordLevelFeaturesFound+"]";
 	}
 
 	/**

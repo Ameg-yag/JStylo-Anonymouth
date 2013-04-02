@@ -33,6 +33,15 @@ public class MaxentPOSNGramsEventDriver extends EventDriver {
 	}
 
 	private static MaxentTagger tagger = null;
+	protected static String taggerPath = "";
+	
+	public static String getTaggerPath() {
+		return taggerPath;
+	}
+
+	public static void setTaggerPath(String taggerPath) {
+		MaxentPOSTagsEventDriver.taggerPath = taggerPath;
+	}
 	
 	@SuppressWarnings("static-access")
 	@Override
