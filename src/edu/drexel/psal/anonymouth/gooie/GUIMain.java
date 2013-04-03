@@ -545,7 +545,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			createClustersTab();
 			createResultsTab();
 			
-			setUpContentPane(false);
+			setUpContentPane();
 			
 			// final property settings
 			
@@ -574,7 +574,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	 * Adds everything to the content pane.
 	 * @throws Exception 
 	 */
-	protected void setUpContentPane(boolean initListeners) throws Exception
+	protected void setUpContentPane() throws Exception
 	{
 		getContentPane().removeAll();
 		
@@ -669,17 +669,6 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 		getContentPane().revalidate();
 		getContentPane().repaint();
-		
-//		if (initListeners == true)
-//		{
-//			DriverMenu.initListeners(this);
-//			DriverClustersTab.initListeners(this);
-//			DriverDocumentsTab.initListeners(this);
-//			DriverPreProcessTab.initListeners(this);
-//			DriverResultsTab.initListeners(this);
-//			DriverSuggestionsTab.initListeners(this);
-//			DriverTranslationsTab.initListeners(this);
-//		}
 	}
 	
 	/**
@@ -1280,7 +1269,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			MigLayout EBPLayout = new MigLayout(
 					"fill, wrap, ins 0, gap 0 0",
 					"[grow, fill]",
-					"[][grow, fill][]");
+					"[][][grow, fill]");
 			documentsPanel.setLayout(EBPLayout);
 			{
 //            	sentenceBoxLabel = new JLabel("Sentence:");
@@ -1438,6 +1427,7 @@ public class GUIMain extends javax.swing.JFrame  {
 //                documentsPanel.add(translationPane, "grow");
 //            	documentsPanel.add(translationOptionsPanel, "grow, gapleft 0");
                 documentsPanel.add(documentLabel, "grow, h " + titleHeight + "!");
+                //documentsPanel.add(processButton, "grow");
                 documentsPanel.add(documentScrollPane, "grow");
                 documentsPanel.add(processButton, "right");
             	//documentsPanel.add(documentOptionsPanel, "grow");
@@ -1530,7 +1520,7 @@ public class GUIMain extends javax.swing.JFrame  {
 						"grow, fill",
 						"[][grow, fill][][grow, fill]"));
 			{ // --------------------legend panel components
-				JLabel featuresLabel = new JLabel("Features:");
+				JLabel featuresLabel = new JLabel("Feature Search:");
 				featuresLabel.setHorizontalAlignment(SwingConstants.CENTER);
 				featuresLabel.setFont(titleFont);
 				featuresLabel.setOpaque(true);
@@ -1541,7 +1531,7 @@ public class GUIMain extends javax.swing.JFrame  {
 				featuresList = new JList(featuresListModel);
 				featuresListScrollPane = new JScrollPane(featuresList);
 				
-				JLabel subFeaturesLabel = new JLabel("Sub-Features:");
+				JLabel subFeaturesLabel = new JLabel("Sub-Feature Search:");
 				subFeaturesLabel.setHorizontalAlignment(SwingConstants.CENTER);
 				subFeaturesLabel.setFont(titleFont);
 				subFeaturesLabel.setOpaque(true);

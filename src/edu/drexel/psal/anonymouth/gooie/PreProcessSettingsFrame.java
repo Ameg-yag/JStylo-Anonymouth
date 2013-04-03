@@ -587,7 +587,8 @@ public class PreProcessSettingsFrame extends JDialog {
 			prepDocLabel = new JLabel("Documents:");
 			prepDocLabel.setFont(new Font("Ariel", Font.BOLD, 15));
 			prepDocLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			prepDocLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+			//prepDocLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+			prepDocLabel.setBorder(main.rlborder);
 			prepDocLabel.setOpaque(true);
 			if (main.documentsAreReady())
 				prepDocLabel.setBackground(main.ready);
@@ -626,6 +627,7 @@ public class PreProcessSettingsFrame extends JDialog {
 				mainLabel.setOpaque(true);
 				mainLabel.setBackground(main.tan);
 				mainLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				mainLabel.setBorder(main.rlborder);
 				
 				// sample label--------------------------------
 				JLabel sampleLabel = new JLabel("Sample:");
@@ -633,7 +635,8 @@ public class PreProcessSettingsFrame extends JDialog {
 				sampleLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				sampleLabel.setOpaque(true);
 				sampleLabel.setBackground(main.tan);
-				sampleLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				//sampleLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				sampleLabel.setBorder(main.rlborder);
 				
 				// train label----------------------------------
 				JLabel trainLabel = new JLabel("Other Authors:");
@@ -642,6 +645,7 @@ public class PreProcessSettingsFrame extends JDialog {
 				trainLabel.setOpaque(true);
 				trainLabel.setBackground(main.tan);
 				trainLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				trainLabel.setBorder(main.rlborder);
 				
 				
 				// main documents list---------------------------------------------
@@ -752,7 +756,7 @@ public class PreProcessSettingsFrame extends JDialog {
 		featPanel = new JPanel();
 		
 		MigLayout featLayout = new MigLayout(
-				"wrap",
+				"wrap, gap 0 0",
 				"[grow, fill]",
 				"[30][grow, fill]");
 		featPanel.setLayout(featLayout);
@@ -761,7 +765,8 @@ public class PreProcessSettingsFrame extends JDialog {
 			prepFeatLabel = new JLabel("Features:");
 			prepFeatLabel.setFont(new Font("Ariel", Font.BOLD, 15));
 			prepFeatLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			prepFeatLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+			//prepFeatLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+			prepFeatLabel.setBorder(main.rlborder);
 			prepFeatLabel.setOpaque(true);
 			if (main.featuresAreReady())
 				prepFeatLabel.setBackground(main.ready);
@@ -771,7 +776,7 @@ public class PreProcessSettingsFrame extends JDialog {
 			// Main Features area---------------------------------------------
 			featMainPanel = new JPanel();
 			featMainPanel.setLayout(new MigLayout(
-					"fill, wrap 4",
+					"fill, wrap 4, gap 0 0",
 					"[150!]20[left][150:40%:, fill][300:60%:, fill]",
 					"[][][20!][40!][20!][20!]20[33%, fill][33%, fill][33%, fill]"));
 			{
@@ -822,14 +827,16 @@ public class PreProcessSettingsFrame extends JDialog {
 				featuresListLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				featuresListLabel.setOpaque(true);
 				featuresListLabel.setBackground(main.tan);
-				featuresListLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				//featuresListLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				featuresListLabel.setBorder(main.rlborder);
 				
 				featuresInfoLabel = new JLabel("Feature Information:");
 				featuresInfoLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				featuresInfoLabel.setHorizontalAlignment(JLabel.CENTER);
 				featuresInfoLabel.setOpaque(true);
 				featuresInfoLabel.setBackground(main.tan);
-				featuresInfoLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				//featuresInfoLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				featuresInfoLabel.setBorder(main.rlborder);
 				
 				// features list--------------------------------------------------
 				featuresJListModel = new DefaultComboBoxModel();
@@ -1015,7 +1022,8 @@ public class PreProcessSettingsFrame extends JDialog {
 			prepClassLabel = new JLabel("Classifiers:");
 			prepClassLabel.setFont(new Font("Ariel", Font.BOLD, 15));
 			prepClassLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			prepClassLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+			//prepClassLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+			prepClassLabel.setBorder(main.rlborder);
 			prepClassLabel.setOpaque(true);
 			if (main.classifiersAreReady())
 				prepClassLabel.setBackground(main.ready);
@@ -1027,7 +1035,7 @@ public class PreProcessSettingsFrame extends JDialog {
 			classMainPanel.setLayout(new MigLayout(
 					"fill, wrap 2, ins 0 0",
 					"grow, fill",
-					"[20][60%, fill][20][20]20[20][40%, fill]"));
+					"[20]0[60%, fill][20][20]20[20]0[40%, fill]"));
 			{
 
 				classAvClassJLabel = new JLabel("Available WEKA Classifiers:");
@@ -1035,14 +1043,16 @@ public class PreProcessSettingsFrame extends JDialog {
 				classAvClassJLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				classAvClassJLabel.setOpaque(true);
 				classAvClassJLabel.setBackground(main.tan);
-				classAvClassJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				//classAvClassJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				classAvClassJLabel.setBorder(main.rlborder);
 				
 				classSelClassJLabel = new JLabel("Selected WEKA Classifiers:");
 				classSelClassJLabel.setHorizontalAlignment(JLabel.CENTER);
 				classSelClassJLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				classSelClassJLabel.setOpaque(true);
 				classSelClassJLabel.setBackground(main.tan);
-				classSelClassJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				//classSelClassJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				classSelClassJLabel.setBorder(main.rlborder);
 				
 				classJTree = new JTree();
 				classJTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -1071,7 +1081,8 @@ public class PreProcessSettingsFrame extends JDialog {
 				classDescJLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				classDescJLabel.setOpaque(true);
 				classDescJLabel.setBackground(main.tan);
-				classDescJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				//classDescJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
+				classDescJLabel.setBorder(main.rlborder);
 				
 				classDescJTextPane = new JTextPane();
 				classDescJTextPane.setEditable(false);

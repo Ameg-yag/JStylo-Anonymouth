@@ -43,26 +43,26 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 	protected ArrayList<Word> wordsInSentence;
 	protected ArrayList<String> translationNames = new ArrayList<String>();
 	protected ArrayList<TaggedSentence> translations = new ArrayList<TaggedSentence>();
-	
+
 	private int PROBABLE_MAX = 3;
-	
+
 	protected ArrayList<TENSE> tense = new ArrayList<TENSE>(PROBABLE_MAX);
 	protected ArrayList<POV> pointOfView = new ArrayList<POV>(PROBABLE_MAX);
 	protected ArrayList<CONJ> conj = new ArrayList<CONJ>(PROBABLE_MAX);
-	
+
 	private static final Pattern punctuationRegex=Pattern.compile("[.?!,\'\";:]{1}");
 	private static final Pattern specialCharsRegex=Pattern.compile("[~@#$%^&*-_=+><\\\\[\\\\]{}/\\|]+");
 	private static final Pattern digit=Pattern.compile("[\\d]{1,}");
-	
+
 	protected List<? extends HasWord> sentenceTokenized;
 	protected Tokenizer<? extends HasWord> toke;
 	protected TreebankLanguagePack tlp = new PennTreebankLanguagePack(); 
-	
+
 	private String[] thirdPersonPronouns={"he","she","him", "her","it","his","hers","its","them","they","their","theirs"};
 	private String[] firstPersonPronouns={"I","me","my","mine","we","us","our","ours"};
 	private String[] secondPersonPronouns={"you","your","yours"};
-	
-	
+
+
 	/**
 	 * Constructor -- accepts an untagged string.
 	 * @param untagged
@@ -72,7 +72,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 		wordsInSentence = new ArrayList<Word>(10);
 		this.untagged = untagged;
 	}
-	
+
 	/**
 	 * Constructor -- accepts a TaggedSentence object. (Don't use this. This may be bad.)
 	 * @param taggedSentence
@@ -80,30 +80,46 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 	public TaggedSentence(TaggedSentence taggedSentence) {//TODO make sure this doesnt need new objects.
 		this.untagged=taggedSentence.untagged;
 		this.wordsInSentence=taggedSentence.wordsInSentence;
-		
+
 	}
-	
-	public ArrayList<TaggedSentence> getTranslations()
-	{
+
+	/**
+	 * Gets the translations for this tagged sentence.
+	 * @return
+	 */
+	public ArrayList<TaggedSentence> getTranslations() {
 		return translations;
 	}
-	
-	public void setTranslations(ArrayList<TaggedSentence> set)
-	{
+
+	/**
+	 * Sets the translation for this tagged sentence to the given ArrayList.
+	 * @param set - ArrayList of translations
+	 */
+	public void setTranslations(ArrayList<TaggedSentence> set) {
 		translations = set;
 	}
-	
-	public ArrayList<String> getTranslationNames() 
-	{
+
+	/**
+	 * Gets the translation names for each corresponding translation for this tagged sentence.
+	 * @return
+	 */
+	public ArrayList<String> getTranslationNames() {
 		return translationNames;
 	}
-	
-	public void setTranslationNames(ArrayList<String> set)
-	{
+
+	/**
+	 * Sets the translation names for this tagged sentence to the given ArrayList.
+	 * (E.G. "French", "German", "Italian")
+	 * @param set - ArrayList of language names
+	 */
+	public void setTranslationNames(ArrayList<String> set) {
 		translationNames = set;
 	}
-	
-	public void sortTranslations(){
+
+	/**
+	 * Sorts the translations of this tagged sentence by Anonyimity Index.
+	 */
+	public void sortTranslations() {
 		int numTranslations = translations.size();
 		double[][]  toSort = new double[translations.size()][2]; // [Anonymity Index][index of specific translation] => will sort by col 1 (AI)
 		int i;
@@ -111,40 +127,43 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 			toSort[i][0] = translations.get(i).getSentenceAnonymityIndex();
 			toSort[i][1] = (double) i;
 		}
-		
+
 		Arrays.sort(toSort, new Comparator<double[]>(){
 			public int compare(final double[] first, final double[] second){
 				return ((-1)*((Double)first[0]).compareTo(((Double)second[0]))); // multiplying by -1 will sort from greatest to least, which saves work.
 			}
 		});
-		
+
 		ArrayList<TaggedSentence> sortedTrans = new ArrayList<TaggedSentence>(numTranslations);
 		ArrayList<String> sortedTranNames = new ArrayList<String>(numTranslations);
 		for(i = 0; i<numTranslations; i++){
 			sortedTrans.add(i,translations.get((int)toSort[i][1]));
 			sortedTranNames.add(i,translationNames.get((int)toSort[i][1]));
 		}
-		
+
 		translations = sortedTrans; // set translations to be the same list of translated sentences, but now in order of Anonymity Index
 		translationNames = sortedTranNames; // set translations to be the same list of translated sentences, but now in order of Anonymity Index
 	}
-	
-	public boolean hasTranslations()
-	{
+
+	/**
+	 * Returns true if the translations ArrayList for this tagged sentence has a size > 0, false if size == 0
+	 * @return
+	 */
+	public boolean hasTranslations() {
 		return (translations.size() > 0);
 	}
-	
+
 	/**
 	 * Tags the untagged sentence in this TaggedSentence, and finds the features present in it. 
 	 * For use when <i>not</i> storing TaggedSentence in a TaggedDocument
 	 */
-	public void tagAndGetFeatures(){
+	public void tagAndGetFeatures() {
 		toke = tlp.getTokenizerFactory().getTokenizer(new StringReader(untagged));
 		sentenceTokenized = toke.tokenize();
 		setTaggedSentence(Tagger.mt.tagSentence(sentenceTokenized));
 		ConsolidationStation.featurePacker(this);
 	}
-	
+
 
 	/**
 	 * Set's the TaggedSentence which is an ArrayList of Word objects
@@ -161,12 +180,12 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 			wordsInSentence.add(newWord);
 		}	
 		//setGrammarStats();
-		
+
 		//Logger.logln(NAME+"WordList"+wordList.toString());
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Retrieves all Reference objects associated with each word in the sentence, and merges them into a single instance of SparseReferences
 	 * @return
@@ -182,7 +201,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 		allRefs.merge(sentenceLevelFeaturesFound);
 		return allRefs;
 	}
-	
+
 	/**
 	 * returns the length of the sentence in Words
 	 * @return
@@ -193,7 +212,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 	public ArrayList<Word> getWordsInSentence(){
 		return wordsInSentence;
 	}
-	
+
 	/**
 	 * Allows comparing two TaggedSentence objects based upon anonymity index
 	 */
@@ -207,7 +226,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 		else
 			return 1;	
 	}
-	
+
 	/**
 	 * returns a SparseReference object containing the index of each attribute who's value needs to be updated, along with the amount
 	 * it must be changed by (if positive, the present value should increase, if negative, it should decrease. Therefore, you only need to 
@@ -223,8 +242,8 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 		SparseReferences oldRefs = oldOne.getReferences();
 		return this.getReferences().leftMinusRight(oldRefs); 	
 	}
-	
-	
+
+
 	/**
 	 * Computes the AnonymityIndex of this sentence: SUM ((#appearancesOfFeature[i]/numFeaturesFoundInWord)*(infoGainOfFeature[i])*(%changeNeededOfFeature[i])). 
 	 * 
@@ -250,7 +269,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 			sentenceAnonymityIndex += wordsInSentence.get(i).getAnonymityIndex();
 		return sentenceAnonymityIndex;
 	}
-	
+
 	public ArrayList<TENSE> getTense(){
 		return tense;
 	}
@@ -260,11 +279,11 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 	public ArrayList<CONJ> getConj(){
 		return conj;
 	}
-	
+
 	public void setWordList(){
-	
+
 	}
-	
+
 	/*
 	private void addTowordListMap(String str,Word word){
 		if(wordListMap.containsKey(str)){
@@ -276,7 +295,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 		}
 	}
 	*/
-	
+
 /*	
 	
 	 * sets the ArrayLists, Tense, Pow, and Conj.
@@ -354,7 +373,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 			
 	}
 	*/
-		
+
 	private void setHashMap(HashMap <String,Integer> hashMap, String key){
 		if(hashMap.containsKey(key)){
 			hashMap.put(key, (hashMap.get(key).intValue()+1));
@@ -363,8 +382,8 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 			hashMap.put(key, 1);
 		}
 	}
-	
-	
+
+
 	/**
 	 * returns the untagged version of the sentence
 	 * @return
@@ -372,12 +391,12 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 	public String getUntagged(){
 		return untagged;
 	}
-	
+
 	public String toString(){
 		return "[ untagged: "+untagged+" ||| tagged: "+wordsInSentence.toString()+" ||| SparseReferences Object: "+getReferences().toString()+" ]";
 		//||| tense: "+tense.toString()+" ||| point of view: "+pointOfView.toString()+" conjugation(s): "+conj.toString()+" ]";// ||| functionWords : "+functionWords.toString()+" ]";
 	}
-	
+
 	/* TODO: 'tagged' no longer holds tagged words.
 	public ArrayList<String> getWordsWithTag(TheTags tag){
 		wordsToReturn = new ArrayList<String>(tagged.size());// Can't return more words than were tagged
@@ -390,7 +409,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 		return wordsToReturn;
 	}
 	*/
-	
+
 }
 
 /*Stuff for tenses

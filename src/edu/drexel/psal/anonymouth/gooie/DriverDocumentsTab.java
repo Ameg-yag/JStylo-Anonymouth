@@ -126,7 +126,7 @@ public class DriverDocumentsTab {
 	protected static Translation translator = new Translation();
 	
 	protected static TaggedDocument taggedDoc;
-	protected static int currentSentNum;
+	protected static int currentSentNum = 1;
 	
 	private static int numberTimesFixTabs;
 	
@@ -510,7 +510,7 @@ public class DriverDocumentsTab {
 						{
 							currentSentNum = i+1;
 							highlightSentence(sentence, main);
-							DriverTranslationsTab.showTranslations(sentence.getUntagged().trim());
+							DriverTranslationsTab.showTranslations(sentence);
 							break;
 						}
 					}
