@@ -35,6 +35,7 @@ import edu.drexel.psal.jstylo.generics.Logger;
  */
 public class SentenceTools  {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	private int currentStart = 0;
 	private int currentStop = 0;
 	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]){1}");
@@ -154,7 +155,7 @@ public class SentenceTools  {
 			sents.add(safeString);
 			//System.out.println("start minus one: "+(currentStart-1)+" stop: "+currentStop);
 			if(currentStart < 0 || currentStop < 0){
-				Logger.logln("Something went really wrong making sentence tokens.");
+				Logger.logln(NAME+"Something went really wrong making sentence tokens.");
 				System.exit(0);
 			}
 			//System.out.println("The rest of the text: "+text.substring(currentStart));
@@ -203,7 +204,7 @@ public class SentenceTools  {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Logger.logln("ERROR! Could not load document: "+dirtyDoc.getTitle()+" (SentenceTools.removeUnicodeControlChars)");
+			Logger.logln("(SentenceTools) - ERROR! Could not load document: "+dirtyDoc.getTitle()+" (SentenceTools.removeUnicodeControlChars)");
 			return dirtyDoc;
 		}
 	}

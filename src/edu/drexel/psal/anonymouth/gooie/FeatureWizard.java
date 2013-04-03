@@ -27,6 +27,9 @@ import com.jgaap.generics.*;
 @SuppressWarnings("serial")
 public class FeatureWizard extends javax.swing.JFrame {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
+	
 	protected Font defaultLabelFont = new Font("Verdana",0,14); 
 	protected static int cellPadding = 5;
 	protected static Border defaultBorder = BorderFactory.createLineBorder(Color.BLACK);

@@ -11,6 +11,8 @@ import edu.drexel.psal.jstylo.generics.Logger;
  */
 public class POS implements Serializable {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	/**
 	 * Enumeration of the POS tags used by the Standford MaxentTagger /Penn Treebank. These are used as input to the method
 	 * 'tagToDescription'
@@ -68,7 +70,7 @@ public class POS implements Serializable {
 	}
 	
 	public static String tagToString(String tag){
-		Logger.logln("Tag: "+tag);
+		Logger.logln("(POS) - Tag: "+tag);
 		String pos="";
 		if(tag.startsWith("NN")){
 			return "noun";

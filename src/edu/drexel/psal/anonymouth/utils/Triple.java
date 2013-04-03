@@ -10,7 +10,8 @@ import edu.drexel.psal.anonymouth.engine.FeatureList;
  */
 public class Triple {
 	
-	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	protected String stringInBraces;
 	protected double percentChangeNeeded;
 	protected FeatureList featureName;

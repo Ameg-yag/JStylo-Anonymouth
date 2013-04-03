@@ -27,8 +27,10 @@ import edu.drexel.psal.jstylo.canonicizers.*;
 import com.jgaap.canonicizers.*;
 import com.jgaap.generics.*;
 
-public class DriverSuggestionsTab
-{
+public class DriverSuggestionsTab {
+	
+	private final static String NAME = "( DriverSuggestionsTab ) - ";
+
 	protected static void initListeners(final GUIMain main)
 	{
 		

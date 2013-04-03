@@ -19,6 +19,8 @@ import edu.drexel.psal.jstylo.generics.Logger;
  */
 public class TargetExtractor {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	private static ArrayList<Integer> previousInitialization;
 	private int numMeans;
 	private int numAuthors;
@@ -53,7 +55,7 @@ public class TargetExtractor {
 	 */
 	public TargetExtractor(int numAuthors, Attribute attrib){//, boolean usePreviousInitialization){
 		this.featName = attrib.getConcatGenNameAndStrInBraces();
-		Logger.logln("In TargetExtractor extracting targets for "+featName);
+		Logger.logln(NAME+"In TargetExtractor extracting targets for "+featName);
 		this.trainTitlesList = DocumentMagician.getTrainTitlesList();
 		this.numAuthors = numAuthors;
 		this.numMeans = numAuthors;
@@ -153,7 +155,7 @@ public class TargetExtractor {
 				}
 				if(notFound == true){	
 					if(skipSet.size() > 10000){
-						Logger.logln("kPlusPlusPrep reached 10k tries.");
+						Logger.logln(NAME+"kPlusPlusPrep reached 10k tries.");
 						tooManyTries = true;
 						break;
 					}
@@ -183,7 +185,7 @@ public class TargetExtractor {
 			if(maxCentroidsFound==true)
 				break;
 			if(tooManyTries == true){
-				Logger.logln("Calling kPlusPlusPrep again from within itself.");
+				Logger.logln(NAME+"Calling kPlusPlusPrep again from within itself.");
 				kPlusPlusPrep();
 				break;
 			}
@@ -199,9 +201,9 @@ public class TargetExtractor {
 	 * and assigns features to partitions based upon Euclidean distance from centroids (single dimension)
 	 */
 	public void initialize(){
-		Logger.logln("Intitializing Clustering, will call kPlusPlusPrep.");
+		Logger.logln(NAME+"Intitializing Clustering, will call kPlusPlusPrep.");
 		kPlusPlusPrep();
-		Logger.logln("kPlusPlusPrep seems to have done its job. Moving on.");
+		Logger.logln(NAME+"kPlusPlusPrep seems to have done its job. Moving on.");
 		//System.out.println("Initialized with k-means++....");
 		int i;
 		int j;
@@ -246,7 +248,7 @@ public class TargetExtractor {
 			partitionToGoTo = (int)temp[0];
 			thisFeaturesClusters.get(partitionToGoTo).addElement(thePairs[i]);
 		}
-		Logger.logln("Initial positions for elements found. Updating Centroids.");
+		Logger.logln(NAME+"Initial positions for elements found. Updating Centroids.");
 		updateCentroids();
 		
 	}
@@ -256,7 +258,7 @@ public class TargetExtractor {
 	 * Updates the centroids to be the average of the values contained within their respective partitions. 
 	 */
 	public void updateCentroids(){
-		Logger.logln("Begin updating centroids.");
+		Logger.logln(NAME+"Begin updating centroids.");
 		// update centroids to be the averages of their respective element lists
 		int i=0;
 		int j = 0;
@@ -294,7 +296,7 @@ public class TargetExtractor {
 			//}
 		}
 		// Once all centroids have been updated, re-organize
-		Logger.logln("Updating centroids complete, will reOrganize");
+		Logger.logln(NAME+"Updating centroids complete, will reOrganize");
 		reOrganize();
 	}
 	
@@ -312,7 +314,7 @@ public class TargetExtractor {
 	 * Moves the features to their new nearest centroids
 	 */
 	public void reOrganize(){
-		Logger.logln("Starting reOrganize");
+		Logger.logln(NAME+"Starting reOrganize");
 		// need to go through all elements, extract data, and check distance agains new centroids
 		// create list of all centroids
 		int i;
@@ -354,7 +356,7 @@ public class TargetExtractor {
 		//Scanner in = new Scanner(System.in);
 		boolean noProblems = true;
 		if(movedElement == false ){
-			Logger.logln("Elements stopped moving - algorithm converged.");
+			Logger.logln(NAME+"Elements stopped moving - algorithm converged.");
 			int numClusters = thisFeaturesClusters.size();
 			if(numClusters < 2 && maxCentroidsFound == false){
 				additionalPartitions++;
@@ -362,7 +364,7 @@ public class TargetExtractor {
 				//Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
 				//while(clusterIter.hasNext())
 					//System.out.println(clusterIter.next().getElements().toString());
-				Logger.logln("Less than two Clusters. Will restart with '"+numMeans+"' means. Enter a character.");
+				Logger.logln(NAME+"Less than two Clusters. Will restart with '"+numMeans+"' means. Enter a character.");
 				noProblems = false;
 				
 			}
@@ -376,14 +378,14 @@ public class TargetExtractor {
 						//Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
 						//while(clusterIter.hasNext())
 						//	System.out.println(clusterIter.next().getElements().toString());
-						Logger.logln("Cluster '"+i+"' has less than 3 elements. Will restart with '"+numMeans+"' means. Enter a character.");
+						Logger.logln(NAME+"Cluster '"+i+"' has less than 3 elements. Will restart with '"+numMeans+"' means. Enter a character.");
 						noProblems = false;
 						break;
 					}
 				}
 			}
 			if(noProblems == true){
-				Logger.logln("All is well, clustering complete.");
+				Logger.logln(NAME+"All is well, clustering complete.");
 				isFinished=true;
 			}
 			else{
@@ -394,7 +396,7 @@ public class TargetExtractor {
 			}
 		}
 		else{
-			Logger.logln("Updating Centroids... something moved");
+			Logger.logln(NAME+"Updating Centroids... something moved");
 			updateCentroids();
 		}
 		
@@ -580,7 +582,7 @@ public class TargetExtractor {
 	 * Method that runs the modified k-means clustering algorithm, initialized via the k-means++ algorithm
 	 */
 	public void aMeansCluster(){ // a-means-cluster vs k-means-cluster
-		Logger.logln("Entered aMeansCluster");
+		Logger.logln(NAME+"Entered aMeansCluster");
 		thisFeaturesClusters = new ArrayList<Cluster>(numPartitions);
 		//System.out.println("Starting Clustering...");
 		initialize();	
@@ -592,22 +594,22 @@ public class TargetExtractor {
 		if(isFinished == true){
 			Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
 			int clusterNumber = 0;
-			Logger.logln(featName+" has: "+thisFeaturesClusters.size()+" clusters.");
+			Logger.logln(NAME+featName+" has: "+thisFeaturesClusters.size()+" clusters.");
 			while(clusterIter.hasNext()){
 				Cluster thisOne = clusterIter.next();
 				holderForLogger.clear();
-				Logger.logln("Cluster "+clusterNumber+" has its centroid at"+thisOne.getCentroid()+" and has "+thisOne.getElements().length+" elements. They are: ");
+				Logger.logln(NAME+"Cluster "+clusterNumber+" has its centroid at"+thisOne.getCentroid()+" and has "+thisOne.getElements().length+" elements. They are: ");
 				Pair[] somePairs = thisOne.getElements();
 				int numSomePairs = somePairs.length;
 				int i = 0;
 				for(i=0;i<numSomePairs;i++){
 					holderForLogger.add(somePairs[i].pairToString()+" , ");
 				}
-				Logger.logln(holderForLogger.toString());
+				Logger.logln(NAME+holderForLogger.toString());
 				clusterNumber+=1;
 			}
 		}
-		Logger.logln("leaving aMeansCluster");
+		Logger.logln(NAME+"leaving aMeansCluster");
 	}	
 	
 	/**
@@ -618,7 +620,7 @@ public class TargetExtractor {
 	 * @return
 	 */
 	public Cluster[] getPreferredOrdering(){
-		Logger.logln("Getting preferred ordering for clusters");
+		Logger.logln(NAME+"Getting preferred ordering for clusters");
 		int i=0;
 		int sizeSum =0;
 		double sizeAvg = 0;
@@ -676,7 +678,7 @@ public class TargetExtractor {
 				targets[i]= thisFeaturesClusters.get(preferences[i][0].intValue());
 				//System.out.println(targets[i]);
 			}	
-		Logger.logln("finished ordering clusters");
+		Logger.logln(NAME+"finished ordering clusters");
 		return targets;
 	}
 		

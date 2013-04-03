@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 
 public class LegendPanel extends JPanel {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	private int spacing = 10;
 	private int dim = 12;
 	private Color transPurple =new Color(0.75f,0.1f,0.9f,0.55f);

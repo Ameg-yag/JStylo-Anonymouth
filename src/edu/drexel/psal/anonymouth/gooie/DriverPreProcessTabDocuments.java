@@ -23,6 +23,9 @@ import edu.drexel.psal.jstylo.generics.*;
 
 public class DriverPreProcessTabDocuments {
 	
+	private final static String NAME = "( DriverPreProcessTabDocuments ) - ";
+
+	
 	protected static MouseListener documentLabelClickAL;
 	protected static ActionListener clearProblemSetAL;
 	protected static ActionListener loadProblemSetAL;
@@ -108,7 +111,7 @@ public class DriverPreProcessTabDocuments {
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Logger.logln("'Clear Problem Set' button clicked on the documents tab");
+				Logger.logln(NAME+"'Clear Problem Set' button clicked on the documents tab");
 				
 				int answer = -1;
 				// ask if current problem set is not empty
@@ -139,7 +142,7 @@ public class DriverPreProcessTabDocuments {
 			{
 				try
 				{
-					Logger.logln("'Load Problem Set' button clicked on the documents tab");
+					Logger.logln(NAME+"'Load Problem Set' button clicked on the documents tab");
 					
 					int answer = 0;
 					// ask if current problem set is not empty
@@ -170,14 +173,14 @@ public class DriverPreProcessTabDocuments {
 							
 							PropUtil.setRecentProbSet(filename);
 							
-							Logger.logln("Trying to load problem set " + filename);
+							Logger.logln(NAME+"Trying to load problem set " + filename);
 							try {
 								main.ps = new ProblemSet(path);
 								ProblemSet temp = main.ps;
 								GUIUpdateInterface.updateProblemSet(main);
 							} catch (Exception exc) {
-								Logger.logln("Failed loading "+path, LogOut.STDERR);
-								Logger.logln(exc.toString(),LogOut.STDERR);
+								Logger.logln(NAME+"Failed loading "+path, LogOut.STDERR);
+								Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 								JOptionPane.showMessageDialog(null,
 										"Failed loading problem set from:\n"+path,
 										"Load Problem Set Failure",
@@ -185,7 +188,7 @@ public class DriverPreProcessTabDocuments {
 							}
 				            
 				        } else {
-				            Logger.logln("Load problem set canceled");
+				            Logger.logln(NAME+"Load problem set canceled");
 				        }
 					}
 				} catch (NullPointerException arg)
@@ -201,7 +204,7 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Save Problem Set' button clicked on the documents tab.");
+				Logger.logln(NAME+"'Save Problem Set' button clicked on the documents tab.");
 				
 				PropUtil.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
 				if (PropUtil.prop.getProperty("recentProbSet") != null)
@@ -224,15 +227,15 @@ public class DriverPreProcessTabDocuments {
 						bw.close();
 						Logger.log("Saved problem set to "+path+":\n"+main.ps.toXMLString());
 					} catch (IOException exc) {
-						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
-						Logger.logln(exc.toString(),LogOut.STDERR);
+						Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
+						Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 						JOptionPane.showMessageDialog(null,
 								"Failed saving problem set into:\n"+path,
 								"Save Problem Set Failure",
 								JOptionPane.ERROR_MESSAGE);
 					}
 				} else {
-		            Logger.logln("Save problem set canceled");
+		            Logger.logln(NAME+"Save problem set canceled");
 		        }
 			}
 		};
@@ -251,7 +254,7 @@ public class DriverPreProcessTabDocuments {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				Logger.logln("'Add Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
+				Logger.logln(NAME+"'Add Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
 
 				JFileChooser open = new JFileChooser();
 				open.setMultiSelectionEnabled(true);
@@ -289,7 +292,7 @@ public class DriverPreProcessTabDocuments {
 					GUIUpdateInterface.updateTestDocTable(main);
 
 				} else {
-					Logger.logln("Load test documents canceled");
+					Logger.logln(NAME+"Load test documents canceled");
 				}
 			}
 		};
@@ -301,11 +304,11 @@ public class DriverPreProcessTabDocuments {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				Logger.logln("'Remove Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
+				Logger.logln(NAME+"'Remove Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
 				
 				if (main.prepMainDocList.isSelectionEmpty()) 
 				{
-					Logger.logln("Failed removing test documents - no documents are selected",LogOut.STDERR);
+					Logger.logln(NAME+"Failed removing test documents - no documents are selected",LogOut.STDERR);
 					JOptionPane.showMessageDialog(null,
 							"You must select test documents to remove.",
 							"Remove Test Documents Failure",
@@ -334,7 +337,7 @@ public class DriverPreProcessTabDocuments {
 					} 
 					else 
 					{
-						Logger.logln("Removing test documents canceled");
+						Logger.logln(NAME+"Removing test documents canceled");
 					}
 				}
 			}
@@ -348,7 +351,7 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Add Document(s)...' button clicked under the 'User Sample Documents' section on the documents tab.");
+				Logger.logln(NAME+"'Add Document(s)...' button clicked under the 'User Sample Documents' section on the documents tab.");
 				
 				JFileChooser open = new JFileChooser();
 				File dir;
@@ -386,7 +389,7 @@ public class DriverPreProcessTabDocuments {
 					
 					GUIUpdateInterface.updateUserSampleDocTable(main);
 				} else {
-					Logger.logln("Load user sample documents canceled");
+					Logger.logln(NAME+"Load user sample documents canceled");
 				}
 			}
 		};
@@ -397,10 +400,10 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Remove Document(s)...' button clicked under the 'User Sample Documents' section on the documents tab.");
+				Logger.logln(NAME+"'Remove Document(s)...' button clicked under the 'User Sample Documents' section on the documents tab.");
 				
 				if (main.prepSampleDocsList.isSelectionEmpty()) {
-					Logger.logln("Failed removing user sample documents - no documents are selected",LogOut.STDERR);
+					Logger.logln(NAME+"Failed removing user sample documents - no documents are selected",LogOut.STDERR);
 					JOptionPane.showMessageDialog(null,
 							"You must select documents to remove.",
 							"Remove Documents Failure",
@@ -423,7 +426,7 @@ public class DriverPreProcessTabDocuments {
 						
 						GUIUpdateInterface.updateUserSampleDocTable(main);
 					} else {
-						Logger.logln("Removing user sample documents canceled");
+						Logger.logln(NAME+"Removing user sample documents canceled");
 					}
 				}
 			}
@@ -435,7 +438,7 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Add Document(s)...' button clicked under the 'Training Corpus' section on the documents tab.");
+				Logger.logln(NAME+"'Add Document(s)...' button clicked under the 'Training Corpus' section on the documents tab.");
 				if(main.ps.getTestDocs().size() == 0){
 					JOptionPane.showMessageDialog(null,"You must first select your document to anonymize and your sample documents.","Add Your Own First!", JOptionPane.INFORMATION_MESSAGE);
 				}
@@ -451,7 +454,7 @@ public class DriverPreProcessTabDocuments {
 										"first add an author, and then select documents (rather than folder(s)).",
 										"Add Training Documents Note",
 										JOptionPane.INFORMATION_MESSAGE);
-						Logger.logln("tried to add training documents without selecting an author", LogOut.STDERR);
+						Logger.logln(NAME+"tried to add training documents without selecting an author", LogOut.STDERR);
 						mustBeFolders = true;
 
 					}
@@ -459,7 +462,7 @@ public class DriverPreProcessTabDocuments {
 					try{
 						author = main.trainCorpusJTree.getSelectionPath().getPath()[1].toString();
 					} catch(NullPointerException npe){
-						Logger.logln("no author entered prior to clicking 'Add Document(s)' button. Must select folder with documents - folder name will be set as author name.", LogOut.STDERR);
+						Logger.logln(NAME+"no author entered prior to clicking 'Add Document(s)' button. Must select folder with documents - folder name will be set as author name.", LogOut.STDERR);
 					}
 					JFileChooser open = new JFileChooser();
 					open.setMultiSelectionEnabled(true);
@@ -492,10 +495,10 @@ public class DriverPreProcessTabDocuments {
 							for (Document doc: main.ps.getTrainDocs(author))
 							{
 								allTrainDocPaths.add(doc.getFilePath());
-								Logger.logln("Added to Train Docs: " + doc.getFilePath());
+								Logger.logln(NAME+"Added to Train Docs: " + doc.getFilePath());
 							}
 						} catch(NullPointerException npe){
-							Logger.logln("file '"+author+"' was not found. If name in single quotes is 'no author entered', this is not a problem.", LogOut.STDERR);
+							Logger.logln(NAME+"file '"+author+"' was not found. If name in single quotes is 'no author entered', this is not a problem.", LogOut.STDERR);
 						}
 
 						for (Document doc: main.ps.getTestDocs())
@@ -534,7 +537,7 @@ public class DriverPreProcessTabDocuments {
 												"or select a folder containing training documents for a single author.\n",
 												"Add Training Documents Error",
 												JOptionPane.ERROR_MESSAGE);
-								Logger.logln("tried to add training documents without selecting an author", LogOut.STDERR);
+								Logger.logln(NAME+"tried to add training documents without selecting an author", LogOut.STDERR);
 							}
 							else{
 								path = file.getAbsolutePath();
@@ -555,14 +558,14 @@ public class DriverPreProcessTabDocuments {
 									"Skipped the following documents:"+skipList,
 									"Add Training Documents",
 									JOptionPane.WARNING_MESSAGE);
-							Logger.logln("skipped the following training documents:"+skipList);
+							Logger.logln(NAME+"skipped the following training documents:"+skipList);
 						}
 
 						GUIUpdateInterface.updateTrainDocTree(main);
 						GUIUpdateInterface.clearDocPreview(main);
 
 					} else {
-						Logger.logln("Load training documents canceled");
+						Logger.logln(NAME+"Load training documents canceled");
 					}
 				}
 			}
@@ -576,7 +579,7 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Remove Document(s)' button clicked under the 'Training Corpus' section on the documents tab.");
+				Logger.logln(NAME+"'Remove Document(s)' button clicked under the 'Training Corpus' section on the documents tab.");
 				
 				TreePath[] paths = main.trainCorpusJTree.getSelectionPaths();
 				List<DefaultMutableTreeNode> selectedDocs = new ArrayList<DefaultMutableTreeNode>();
@@ -586,7 +589,7 @@ public class DriverPreProcessTabDocuments {
 							selectedDocs.add((DefaultMutableTreeNode)path.getPath()[2]);
 
 				if (selectedDocs.isEmpty()) {
-					Logger.logln("Failed removing training documents - no documents are selected",LogOut.STDERR);
+					Logger.logln(NAME+"Failed removing training documents - no documents are selected",LogOut.STDERR);
 					JOptionPane.showMessageDialog(null,
 							"You must select training documents to remove.",
 							"Remove Training Documents Failure",
@@ -609,7 +612,7 @@ public class DriverPreProcessTabDocuments {
 						GUIUpdateInterface.updateTrainDocTree(main);
 						//GUIUpdateInterface.clearDocPreview(main);
 					} else {
-						Logger.logln("Removing training documents canceled");
+						Logger.logln(NAME+"Removing training documents canceled");
 					}
 				}
 			}
@@ -634,7 +637,7 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Clear Problem Set' button clicked on the documents tab");
+				Logger.logln(NAME+"'Clear Problem Set' button clicked on the documents tab");
 				
 				int answer = 0;
 				// ask if current problem set is not empty
@@ -659,7 +662,7 @@ public class DriverPreProcessTabDocuments {
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Load Problem Set' button clicked on the documents tab");
+				Logger.logln(NAME+"'Load Problem Set' button clicked on the documents tab");
 				
 				int answer = 0;
 				// ask if current problem set is not empty
@@ -688,14 +691,14 @@ public class DriverPreProcessTabDocuments {
 						
 						PropUtil.setRecentProbSet(filename);
 						
-						Logger.logln("Trying to load problem set from "+path);
+						Logger.logln(NAME+"Trying to load problem set from "+path);
 						try {
 							main.ps = new ProblemSet(path);
 							ProblemSet temp = main.ps;
 							GUIUpdateInterface.updateProblemSet(main);
 						} catch (Exception exc) {
-							Logger.logln("Failed loading "+path, LogOut.STDERR);
-							Logger.logln(exc.toString(),LogOut.STDERR);
+							Logger.logln(NAME+"Failed loading "+path, LogOut.STDERR);
+							Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 							JOptionPane.showMessageDialog(null,
 									"Failed loading problem set from:\n"+path,
 									"Load Problem Set Failure",
@@ -703,7 +706,7 @@ public class DriverPreProcessTabDocuments {
 						}
 			            
 			        } else {
-			            Logger.logln("Load problem set canceled");
+			            Logger.logln(NAME+"Load problem set canceled");
 			        }
 				}
 			}
@@ -715,7 +718,7 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Save Problem Set' button clicked on the documents tab.");
+				Logger.logln(NAME+"'Save Problem Set' button clicked on the documents tab.");
 				
 				PropUtil.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
 				if (PropUtil.prop.getProperty("recentProbSet") != null)
@@ -738,15 +741,15 @@ public class DriverPreProcessTabDocuments {
 						bw.close();
 						Logger.log("Saved problem set to "+path+":\n"+main.ps.toXMLString());
 					} catch (IOException exc) {
-						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
-						Logger.logln(exc.toString(),LogOut.STDERR);
+						Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
+						Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 						JOptionPane.showMessageDialog(null,
 								"Failed saving problem set into:\n"+path,
 								"Save Problem Set Failure",
 								JOptionPane.ERROR_MESSAGE);
 					}
 				} else {
-		            Logger.logln("Save problem set canceled");
+		            Logger.logln(NAME+"Save problem set canceled");
 		        }
 			}
 		};
@@ -765,7 +768,7 @@ public class DriverPreProcessTabDocuments {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				Logger.logln("'Add Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
+				Logger.logln(NAME+"'Add Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
 
 				JFileChooser open = new JFileChooser();
 				open.setMultiSelectionEnabled(true);
@@ -803,7 +806,7 @@ public class DriverPreProcessTabDocuments {
 					GUIUpdateInterface.updateTestDocTable(main);
 
 				} else {
-					Logger.logln("Load test documents canceled");
+					Logger.logln(NAME+"Load test documents canceled");
 				}
 			}
 		};
@@ -815,11 +818,11 @@ public class DriverPreProcessTabDocuments {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				Logger.logln("'Remove Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
+				Logger.logln(NAME+"'Remove Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
 				
 				if (main.PPSP.prepMainDocList.isSelectionEmpty()) 
 				{
-					Logger.logln("Failed removing test documents - no documents are selected",LogOut.STDERR);
+					Logger.logln(NAME+"Failed removing test documents - no documents are selected",LogOut.STDERR);
 					JOptionPane.showMessageDialog(null,
 							"You must select test documents to remove.",
 							"Remove Test Documents Failure",
@@ -848,7 +851,7 @@ public class DriverPreProcessTabDocuments {
 					} 
 					else 
 					{
-						Logger.logln("Removing test documents canceled");
+						Logger.logln(NAME+"Removing test documents canceled");
 					}
 				}
 			}
@@ -860,7 +863,7 @@ public class DriverPreProcessTabDocuments {
 //					
 //					@Override
 //					public void actionPerformed(ActionEvent e) {
-//						Logger.logln("'Preview Document' button clicked under the 'Test Documents' section on the documents tab.");
+//						Logger.logln(NAME+"'Preview Document' button clicked under the 'Test Documents' section on the documents tab.");
 //						
 //						int row = main.testDocsJTable.getSelectedRow();
 //						if (row == -1) {
@@ -868,7 +871,7 @@ public class DriverPreProcessTabDocuments {
 //									"You must select a test document in order to show its preview.",
 //									"Show Test Document Preview Error",
 //									JOptionPane.ERROR_MESSAGE);
-//							Logger.logln("No test document is selected for preview",LogOut.STDERR);
+//							Logger.logln(NAME+"No test document is selected for preview",LogOut.STDERR);
 //						} else {
 //							Document doc = main.ps.testDocAt(row);
 //							try {
@@ -880,8 +883,8 @@ public class DriverPreProcessTabDocuments {
 //										"Failed opening test document for preview:\n"+doc.getFilePath(),
 //										"Show Test Document Preview Error",
 //										JOptionPane.ERROR_MESSAGE);
-//								Logger.logln("Failed opening test document for preview",LogOut.STDERR);
-//								Logger.logln(exc.toString(),LogOut.STDERR);
+//								Logger.logln(NAME+"Failed opening test document for preview",LogOut.STDERR);
+//								Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 //								GUIUpdateInterface.clearDocPreview(main);
 //							}
 //						}
@@ -895,7 +898,7 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Add Document(s)...' button clicked under the 'User Sample Documents' section on the documents tab.");
+				Logger.logln(NAME+"'Add Document(s)...' button clicked under the 'User Sample Documents' section on the documents tab.");
 				
 				JFileChooser open = new JFileChooser();
 				File dir;
@@ -933,7 +936,7 @@ public class DriverPreProcessTabDocuments {
 					
 					GUIUpdateInterface.updateUserSampleDocTable(main);
 				} else {
-					Logger.logln("Load user sample documents canceled");
+					Logger.logln(NAME+"Load user sample documents canceled");
 				}
 			}
 		};
@@ -944,10 +947,10 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Remove Document(s)...' button clicked under the 'User Sample Documents' section on the documents tab.");
+				Logger.logln(NAME+"'Remove Document(s)...' button clicked under the 'User Sample Documents' section on the documents tab.");
 				
 				if (main.PPSP.prepSampleDocsList.isSelectionEmpty()) {
-					Logger.logln("Failed removing user sample documents - no documents are selected",LogOut.STDERR);
+					Logger.logln(NAME+"Failed removing user sample documents - no documents are selected",LogOut.STDERR);
 					JOptionPane.showMessageDialog(null,
 							"You must select documents to remove.",
 							"Remove Documents Failure",
@@ -970,7 +973,7 @@ public class DriverPreProcessTabDocuments {
 						
 						GUIUpdateInterface.updateUserSampleDocTable(main);
 					} else {
-						Logger.logln("Removing user sample documents canceled");
+						Logger.logln(NAME+"Removing user sample documents canceled");
 					}
 				}
 			}
@@ -982,7 +985,7 @@ public class DriverPreProcessTabDocuments {
 //						
 //						@Override
 //						public void actionPerformed(ActionEvent e) {
-//							Logger.logln("'Preview Document' button clicked under the 'User Sample Documents' section on the documents tab.");
+//							Logger.logln(NAME+"'Preview Document' button clicked under the 'User Sample Documents' section on the documents tab.");
 //							
 //							int row = main.userSampleDocsJTable.getSelectedRow();
 //							if (row == -1) {
@@ -990,7 +993,7 @@ public class DriverPreProcessTabDocuments {
 //										"You must select a document in order to show its preview.",
 //										"Show Document Preview Error",
 //										JOptionPane.ERROR_MESSAGE);
-//								Logger.logln("No user sample document is selected for preview",LogOut.STDERR);
+//								Logger.logln(NAME+"No user sample document is selected for preview",LogOut.STDERR);
 //							} else {
 //								Document doc = main.ps.trainDocAt(ProblemSet.getDummyAuthor(),row);
 //								try {
@@ -1002,8 +1005,8 @@ public class DriverPreProcessTabDocuments {
 //											"Failed opening document for preview:\n"+doc.getFilePath(),
 //											"Show Document Preview Error",
 //											JOptionPane.ERROR_MESSAGE);
-//									Logger.logln("Failed opening user sample document for preview",LogOut.STDERR);
-//									Logger.logln(exc.toString(),LogOut.STDERR);
+//									Logger.logln(NAME+"Failed opening user sample document for preview",LogOut.STDERR);
+//									Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 //									GUIUpdateInterface.clearDocPreview(main);
 //								}
 //							}
@@ -1022,7 +1025,7 @@ public class DriverPreProcessTabDocuments {
 //					@Override
 //					public void actionPerformed(ActionEvent e) 
 //					{
-//						Logger.logln("'Add Author...' button clicked under the 'Training Corpus' section on the documents tab.");
+//						Logger.logln(NAME+"'Add Author...' button clicked under the 'Training Corpus' section on the documents tab.");
 //
 //						String answer = JOptionPane.showInputDialog(null,
 //								"Enter new author name:",
@@ -1030,7 +1033,7 @@ public class DriverPreProcessTabDocuments {
 //								JOptionPane.OK_CANCEL_OPTION);
 //						if (answer == null) 
 //						{
-//							Logger.logln("Aborted adding new author");
+//							Logger.logln(NAME+"Aborted adding new author");
 //						}
 //						else if (answer.isEmpty()) 
 //						{
@@ -1038,7 +1041,7 @@ public class DriverPreProcessTabDocuments {
 //									"New author name must be a non-empty string.",
 //									"Add New Author Error",
 //									JOptionPane.ERROR_MESSAGE);
-//							Logger.logln("tried to add new author with an empty string", LogOut.STDERR);
+//							Logger.logln(NAME+"tried to add new author with an empty string", LogOut.STDERR);
 //						} 
 //						else 
 //						{
@@ -1048,13 +1051,13 @@ public class DriverPreProcessTabDocuments {
 //										"Author \""+answer+"\" already exists.",
 //										"Add New Author Error",
 //										JOptionPane.ERROR_MESSAGE);
-//								Logger.logln("tried to add author that already exists: "+answer, LogOut.STDERR);
+//								Logger.logln(NAME+"tried to add author that already exists: "+answer, LogOut.STDERR);
 //							} 
 //							else 
 //							{
 //								main.ps.addTrainDocs(answer, new ArrayList<Document>());
 //								GUIUpdateInterface.updateTrainDocTree(main);
-//								Logger.logln("Added new author: "+answer);
+//								Logger.logln(NAME+"Added new author: "+answer);
 //							}
 //						}
 //					}
@@ -1065,7 +1068,7 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Add Document(s)...' button clicked under the 'Training Corpus' section on the documents tab.");
+				Logger.logln(NAME+"'Add Document(s)...' button clicked under the 'Training Corpus' section on the documents tab.");
 				if(main.ps.getTestDocs().size() == 0){
 					JOptionPane.showMessageDialog(null,"You must first select your document to anonymize and your sample documents.","Add Your Own First!", JOptionPane.INFORMATION_MESSAGE);
 				}
@@ -1081,7 +1084,7 @@ public class DriverPreProcessTabDocuments {
 										"first add an author, and then select documents (rather than folder(s)).",
 										"Add Training Documents Note",
 										JOptionPane.INFORMATION_MESSAGE);
-						Logger.logln("tried to add training documents without selecting an author", LogOut.STDERR);
+						Logger.logln(NAME+"tried to add training documents without selecting an author", LogOut.STDERR);
 						mustBeFolders = true;
 
 					}
@@ -1089,7 +1092,7 @@ public class DriverPreProcessTabDocuments {
 					try{
 						author = main.trainCorpusJTree.getSelectionPath().getPath()[1].toString();
 					} catch(NullPointerException npe){
-						Logger.logln("no author entered prior to clicking 'Add Document(s)' button. Must select folder with documents - folder name will be set as author name.", LogOut.STDERR);
+						Logger.logln(NAME+"no author entered prior to clicking 'Add Document(s)' button. Must select folder with documents - folder name will be set as author name.", LogOut.STDERR);
 					}
 					JFileChooser open = new JFileChooser();
 					open.setMultiSelectionEnabled(true);
@@ -1122,10 +1125,10 @@ public class DriverPreProcessTabDocuments {
 							for (Document doc: main.ps.getTrainDocs(author))
 							{
 								allTrainDocPaths.add(doc.getFilePath());
-								Logger.logln("Added to Train Docs: " + doc.getFilePath());
+								Logger.logln(NAME+"Added to Train Docs: " + doc.getFilePath());
 							}
 						} catch(NullPointerException npe){
-							Logger.logln("file '"+author+"' was not found. If name in single quotes is 'no author entered', this is not a problem.", LogOut.STDERR);
+							Logger.logln(NAME+"file '"+author+"' was not found. If name in single quotes is 'no author entered', this is not a problem.", LogOut.STDERR);
 						}
 
 						for (Document doc: main.ps.getTestDocs())
@@ -1164,7 +1167,7 @@ public class DriverPreProcessTabDocuments {
 												"or select a folder containing training documents for a single author.\n",
 												"Add Training Documents Error",
 												JOptionPane.ERROR_MESSAGE);
-								Logger.logln("tried to add training documents without selecting an author", LogOut.STDERR);
+								Logger.logln(NAME+"tried to add training documents without selecting an author", LogOut.STDERR);
 							}
 							else{
 								path = file.getAbsolutePath();
@@ -1185,14 +1188,14 @@ public class DriverPreProcessTabDocuments {
 									"Skipped the following documents:"+skipList,
 									"Add Training Documents",
 									JOptionPane.WARNING_MESSAGE);
-							Logger.logln("skipped the following training documents:"+skipList);
+							Logger.logln(NAME+"skipped the following training documents:"+skipList);
 						}
 
 						GUIUpdateInterface.updateTrainDocTree(main);
 						GUIUpdateInterface.clearDocPreview(main);
 
 					} else {
-						Logger.logln("Load training documents canceled");
+						Logger.logln(NAME+"Load training documents canceled");
 					}
 				}
 			}
@@ -1205,19 +1208,19 @@ public class DriverPreProcessTabDocuments {
 //					
 //					@Override
 //					public void actionPerformed(ActionEvent e) {
-//						Logger.logln("'Edit Name...' button clicked under the 'Training Corpus' section on the documents tab.");
+//						Logger.logln(NAME+"'Edit Name...' button clicked under the 'Training Corpus' section on the documents tab.");
 //						
 //						String answer = JOptionPane.showInputDialog(null,
 //								"Edit corpus name:",
 //								main.ps.getTrainCorpusName());
 //						if (answer == null) {
-//							Logger.logln("Aborted editing corpus name");
+//							Logger.logln(NAME+"Aborted editing corpus name");
 //						} else if (answer.isEmpty()) {
 //							JOptionPane.showMessageDialog(null,
 //									"Training corpus name must be a non-empty string.",
 //									"Edit Training Corpus Name Error",
 //									JOptionPane.ERROR_MESSAGE);
-//							Logger.logln("tried to change training corpus name to an empty string", LogOut.STDERR);
+//							Logger.logln(NAME+"tried to change training corpus name to an empty string", LogOut.STDERR);
 //						} else {
 //							main.ps.setTrainCorpusName(answer);
 //							GUIUpdateInterface.updateTrainDocTree(main);
@@ -1231,7 +1234,7 @@ public class DriverPreProcessTabDocuments {
 //					
 //					@Override
 //					public void actionPerformed(ActionEvent e) {
-//						Logger.logln("'Remove Author(s)' button clicked under the 'Training Corpus' section on the documents tab.");
+//						Logger.logln(NAME+"'Remove Author(s)' button clicked under the 'Training Corpus' section on the documents tab.");
 //						
 //						TreePath[] paths = main.trainCorpusJTree.getSelectionPaths();
 //						List<DefaultMutableTreeNode> selectedAuthors = new ArrayList<DefaultMutableTreeNode>();
@@ -1241,7 +1244,7 @@ public class DriverPreProcessTabDocuments {
 //									selectedAuthors.add((DefaultMutableTreeNode)path.getPath()[1]);
 //
 //						if (selectedAuthors.isEmpty()) {
-//							Logger.logln("Failed removing authors - no authors are selected",LogOut.STDERR);
+//							Logger.logln(NAME+"Failed removing authors - no authors are selected",LogOut.STDERR);
 //							JOptionPane.showMessageDialog(null,
 //									"You must select authors to remove.",
 //									"Remove Authors Failure",
@@ -1262,7 +1265,7 @@ public class DriverPreProcessTabDocuments {
 //								GUIUpdateInterface.updateTrainDocTree(main);
 //								GUIUpdateInterface.clearDocPreview(main);
 //							} else {
-//								Logger.logln("Removing authors canceled");
+//								Logger.logln(NAME+"Removing authors canceled");
 //							}
 //						}
 //					}
@@ -1274,7 +1277,7 @@ public class DriverPreProcessTabDocuments {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'Remove Document(s)' button clicked under the 'Training Corpus' section on the documents tab.");
+				Logger.logln(NAME+"'Remove Document(s)' button clicked under the 'Training Corpus' section on the documents tab.");
 				
 				TreePath[] paths = main.PPSP.trainCorpusJTree.getSelectionPaths();
 				List<DefaultMutableTreeNode> selectedDocs = new ArrayList<DefaultMutableTreeNode>();
@@ -1284,7 +1287,7 @@ public class DriverPreProcessTabDocuments {
 							selectedDocs.add((DefaultMutableTreeNode)path.getPath()[2]);
 
 				if (selectedDocs.isEmpty()) {
-					Logger.logln("Failed removing training documents - no documents are selected",LogOut.STDERR);
+					Logger.logln(NAME+"Failed removing training documents - no documents are selected",LogOut.STDERR);
 					JOptionPane.showMessageDialog(null,
 							"You must select training documents to remove.",
 							"Remove Training Documents Failure",
@@ -1307,7 +1310,7 @@ public class DriverPreProcessTabDocuments {
 						GUIUpdateInterface.updateTrainDocTree(main);
 						//GUIUpdateInterface.clearDocPreview(main);
 					} else {
-						Logger.logln("Removing training documents canceled");
+						Logger.logln(NAME+"Removing training documents canceled");
 					}
 				}
 			}
@@ -1320,7 +1323,7 @@ public class DriverPreProcessTabDocuments {
 //					
 //					@Override
 //					public void actionPerformed(ActionEvent e) {
-//						Logger.logln("'Preview Document' button clicked under the 'Training Corpus' section on the documents tab.");
+//						Logger.logln(NAME+"'Preview Document' button clicked under the 'Training Corpus' section on the documents tab.");
 //						
 //						TreePath path = main.trainCorpusJTree.getSelectionPath();
 //						if (path == null || path.getPathCount() != 3) {
@@ -1328,7 +1331,7 @@ public class DriverPreProcessTabDocuments {
 //									"You must select a training document in order to show its preview.",
 //									"Show Training Document Preview Error",
 //									JOptionPane.ERROR_MESSAGE);
-//							Logger.logln("No training document is selected for preview",LogOut.STDERR);
+//							Logger.logln(NAME+"No training document is selected for preview",LogOut.STDERR);
 //						} else {
 //							String docTitle = path.getPath()[2].toString();
 //							Document doc = main.ps.trainDocAt(path.getPath()[1].toString(),docTitle);
@@ -1341,8 +1344,8 @@ public class DriverPreProcessTabDocuments {
 //										"Failed opening training document for preview:\n"+doc.getFilePath(),
 //										"Show Training Document Preview Error",
 //										JOptionPane.ERROR_MESSAGE);
-//								Logger.logln("Failed opening training document for preview",LogOut.STDERR);
-//								Logger.logln(exc.toString(),LogOut.STDERR);
+//								Logger.logln(NAME+"Failed opening training document for preview",LogOut.STDERR);
+//								Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 //								GUIUpdateInterface.clearDocPreview(main);
 //							}
 //						}
@@ -1358,7 +1361,7 @@ public class DriverPreProcessTabDocuments {
 //					
 //					@Override
 //					public void actionPerformed(ActionEvent e) {
-//						Logger.logln("'Clear Preview' button clicked on the documents tab.");
+//						Logger.logln(NAME+"'Clear Preview' button clicked on the documents tab.");
 //						
 //						GUIUpdateInterface.clearDocPreview(main);
 //					}
@@ -1383,7 +1386,7 @@ public class DriverPreProcessTabDocuments {
 //					
 //					@Override
 //					public void actionPerformed(ActionEvent e) {
-//						Logger.logln("'Next' button clicked on the documents tab.");
+//						Logger.logln(NAME+"'Next' button clicked on the documents tab.");
 		//
 //						if (main.ps == null || !main.ps.hasAuthors() || !main.ps.hasTestDocs()) {
 //							JOptionPane.showMessageDialog(null,

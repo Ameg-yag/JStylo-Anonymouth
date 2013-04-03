@@ -41,8 +41,10 @@ import edu.drexel.psal.jstylo.canonicizers.*;
 import com.jgaap.canonicizers.*;
 import com.jgaap.generics.*;
 
-public class DriverTranslationsTab
-{
+public class DriverTranslationsTab {
+	
+	private final static String NAME = "( DriverTranslationsTab ) - ";
+
 	private static GUIMain main;
 	private static ListSelectionListener selListener;
 	protected static JPanel[] finalPanels;

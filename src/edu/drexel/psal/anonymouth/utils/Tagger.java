@@ -8,6 +8,7 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 public class Tagger {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	public static MaxentTagger mt = null;
 	
 	public Tagger(){

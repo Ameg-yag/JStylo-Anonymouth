@@ -9,6 +9,8 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
  *
  */
 public class SmartIntegerArray{
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	private int[] numbers;
 	private int len;
 	
@@ -42,7 +44,7 @@ public class SmartIntegerArray{
 			numbers[index] = value;
 			return true;
 		}
-		Logger.logln("Cannot 'put' value into SmartIntegerArray because 'index' out of range",LogOut.STDERR);
+		Logger.logln(NAME+"Cannot 'put' value into SmartIntegerArray because 'index' out of range",LogOut.STDERR);
 		return false;
 	}
 	
@@ -64,7 +66,7 @@ public class SmartIntegerArray{
 	 */
 	public SmartIntegerArray leftMinusRight(SmartIntegerArray sia){
 		if(this.len != sia.len){
-			Logger.logln("Cannot subtract SmartIntegerArrays of different length!",LogOut.STDERR);
+			Logger.logln(NAME+"Cannot subtract SmartIntegerArrays of different length!",LogOut.STDERR);
 			return null;
 		}
 		int i = 0;

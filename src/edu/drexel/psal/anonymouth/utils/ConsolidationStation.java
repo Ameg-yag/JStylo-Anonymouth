@@ -30,6 +30,8 @@ import edu.stanford.nlp.ling.TaggedWord;
  */
 public class ConsolidationStation {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	static HashMap<String,ArrayList<TreeData>> parsed;
 	static ArrayList<Triple> toAdd=new ArrayList<Triple>(400);
 	static ArrayList<Triple> toRemove=new ArrayList<Triple>(400);
@@ -94,7 +96,7 @@ public class ConsolidationStation {
 			String stringInBrace=DataAnalyzer.topAttributes[i].getStringInBraces();
 			int toAddLength=stringInBrace.length();
 			if(toAddLength==0){
-				//Logger.logln("THIS IS BAD",Logger.LogOut.STDERR);
+				//Logger.logln(NAME+"THIS IS BAD",Logger.LogOut.STDERR);
 			}
 			else if(toAddLength<=strSize){//checks for a possible match
 				tempNumber=0;
@@ -105,10 +107,10 @@ public class ConsolidationStation {
 				}
 				if(tempNumber>0){
 					//add the feature to the word and have it appearing tempNumber times.
-					//Logger.logln("AddNewReference from ConsolStation.featurePacker");
-					//Logger.logln("Value i: "+i+" Value indexOf Attrib: "+DataAnalyzer.topAttributes[i].getIndexNumber()+" Attribute: "+DataAnalyzer.topAttributes[i].getFullName()+" the word: "+wordString);
+					//Logger.logln(NAME+"AddNewReference from ConsolStation.featurePacker");
+					//Logger.logln(NAME+"Value i: "+i+" Value indexOf Attrib: "+DataAnalyzer.topAttributes[i].getIndexNumber()+" Attribute: "+DataAnalyzer.topAttributes[i].getFullName()+" the word: "+wordString);
 					word.wordLevelFeaturesFound.addNewReference(i, tempNumber);
-					//Logger.logln("Added a feature: "+word.wordLevelFeaturesFound.toString());
+					//Logger.logln(NAME+"Added a feature: "+word.wordLevelFeaturesFound.toString());
 				}
 			}
 		}
@@ -156,10 +158,10 @@ public class ConsolidationStation {
 			
 				if(numFound > 0){
 					//add a reference to the feature and the number of times it appeared to the sentence 
-					//Logger.logln("AddNewReference from ConsolStation.featurePacker");
-					//Logger.logln("Value i: "+i+" Value indexOf Attrib: "+DataAnalyzer.topAttributes[i].getIndexNumber()+" Attribute: "+DataAnalyzer.topAttributes[i].getFullName()+" the word: "+wordString);
+					//Logger.logln(NAME+"AddNewReference from ConsolStation.featurePacker");
+					//Logger.logln(NAME+"Value i: "+i+" Value indexOf Attrib: "+DataAnalyzer.topAttributes[i].getIndexNumber()+" Attribute: "+DataAnalyzer.topAttributes[i].getFullName()+" the word: "+wordString);
 					sent.sentenceLevelFeaturesFound.addNewReference(i, numFound);
-					//Logger.logln("Added a feature: "+word.wordLevelFeaturesFound.toString());
+					//Logger.logln(NAME+"Added a feature: "+word.wordLevelFeaturesFound.toString());
 				}
 			}
 		}
@@ -350,7 +352,7 @@ public class ConsolidationStation {
 		
 		int mergedNumWords = words.size();
 		if (mergedNumWords <= numToReturn){
-			Logger.logln("The number of priority words to return is greater than the number of words available. Only returning what is available");
+			Logger.logln("(ConsolidationStation) - The number of priority words to return is greater than the number of words available. Only returning what is available");
 			numToReturn = mergedNumWords;
 		}
 		Word tempWord;
@@ -391,11 +393,11 @@ public class ConsolidationStation {
 				if(w.equals(mergingMap.get(w.word))){
 					//check is sparse ref the same
 					if(!w.wordLevelFeaturesFound.equals(mergingMap.get(w.word).wordLevelFeaturesFound)){
-						Logger.logln("The wordLevelFeaturesFound in the words are not equal.",Logger.LogOut.STDERR);
+						Logger.logln("(ConsolidationStation) - The wordLevelFeaturesFound in the words are not equal.",Logger.LogOut.STDERR);
 					}
 				}
 				else{
-					Logger.logln("Problem in mergeWords--Words objects not equal",Logger.LogOut.STDERR);
+					Logger.logln("(ConsolidationStation) - Problem in mergeWords--Words objects not equal",Logger.LogOut.STDERR);
 				}
 				
 			}
@@ -415,7 +417,7 @@ public class ConsolidationStation {
 	public static Word getWordFromString(String str){
 		Word newWord=new Word(str);
 		for (int i=0;i<toAdd.size();i++){//toaddList loop
-			Logger.logln("TOADD: "+toAdd.get(i).getStringInBraces());
+			Logger.logln("(ConsolidationStation) - TOADD: "+toAdd.get(i).getStringInBraces());
 			int toAddLength=toAdd.get(i).getStringInBraces().length();
 			if(toAddLength<=str.length()){//checks if it can be a possible match
 				int tempNumber=0;
@@ -430,7 +432,7 @@ public class ConsolidationStation {
 			}
 		}
 		for (int i=0;i<toRemove.size();i++){//toaddList loop
-			Logger.logln("TOREMOVE: "+toRemove.get(i).getStringInBraces());
+			Logger.logln("(ConsolidationStation) - TOREMOVE: "+toRemove.get(i).getStringInBraces());
 			int toAddLength=toRemove.get(i).getStringInBraces().length();
 			if(toAddLength<=str.length()){//checks if it can be a possible match
 				int tempNumber=0;
@@ -444,7 +446,7 @@ public class ConsolidationStation {
 				//newWord.adjustVals(tempNumber, featureInfoGain, featurePercentChange);//respresents a word to remove, so it should be negative
 			}
 		}
-	//	Logger.logln("NEW WORD"+newWord.toString());
+	//	Logger.logln(NAME+"NEW WORD"+newWord.toString());
 		return newWord;
 	}
 	

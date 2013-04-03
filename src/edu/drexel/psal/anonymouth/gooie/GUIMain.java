@@ -80,8 +80,10 @@ import edu.stanford.nlp.util.PropertiesUtils;
  * @author Andrew W.E. McDonald
  */
 //This is a comment from Joe Muoio to see if he can commit changes.
-public class GUIMain extends javax.swing.JFrame 
-{
+public class GUIMain extends javax.swing.JFrame  {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	{
 		//Set Look & Feel
 		try {
@@ -1269,7 +1271,7 @@ public class GUIMain extends javax.swing.JFrame
 	
 	private JPanel createDocumentTab()
 	{
-		Logger.logln("Creating Documents Tab...");
+		Logger.logln(NAME+"Creating Documents Tab...");
 		if(tabMade == false)
 		{
 			Font normalFont = new Font("Ariel", Font.PLAIN, 11);

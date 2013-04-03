@@ -22,6 +22,8 @@ import java.util.*;
 
 public class GUIUpdateInterface {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	
 	
 
@@ -73,7 +75,7 @@ public class GUIUpdateInterface {
 	 * Updates the documents tab view with the current problem set.
 	 */
 	protected static void updateProblemSet(GUIMain main) {
-		Logger.logln("GUI Update: update documents tab with current problem set started");
+		Logger.logln("(GUIUpdateInterface) - GUI Update: update documents tab with current problem set started");
 		
 		// update test documents table
 		updateTestDocTable(main);

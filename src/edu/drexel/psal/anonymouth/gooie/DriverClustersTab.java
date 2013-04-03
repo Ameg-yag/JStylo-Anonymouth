@@ -19,6 +19,9 @@ import edu.drexel.psal.jstylo.generics.Logger;
 
 public class DriverClustersTab {
 	
+	private final static String NAME = "( DriverClustersTab ) - ";
+
+	
 	private static GUIMain main;
 	
 	private static int lenJPanels;

@@ -13,7 +13,7 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
  */
 public class Reference {
 
-	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected int index;
 	protected double value;
 	
@@ -48,7 +48,7 @@ public class Reference {
 			return mergedRef;
 		}
 		else{
-			Logger.logln("Cannot merge two References with different index values",LogOut.STDERR);
+			Logger.logln(NAME+"Cannot merge two References with different index values",LogOut.STDERR);
 			return null;
 		}
 		
@@ -58,7 +58,7 @@ public class Reference {
 	 * Equals method to set two References equal to eachother if they hold the same 'index' (i.e. if they 'point' to the same attribute)
 	 */
 	public boolean equals(Object o){
-		//Logger.logln("Using the Reference equals.");
+		//Logger.logln(NAME+"Using the Reference equals.");
 		if(index == ((Reference)o).index)
 			return true;
 		else
@@ -73,7 +73,7 @@ public class Reference {
 	 * 	hashcode
 	 */
 	public int hashCode(){
-		Logger.logln("This is the hashcode being called",LogOut.STDERR);
+		Logger.logln(NAME+"This is the hashcode being called",LogOut.STDERR);
 		final int thePrime = 31;
 		final int arbitraryLargePrime = 987643211;
 		long longHash = 7;

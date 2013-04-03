@@ -26,6 +26,7 @@ import com.apple.eawt.Application;
 public class ThePresident {
 
 	//protected static ImageIcon buffImg;
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	public static ImageIcon LOGO;
 	public static String sessionName;
 	public static final String DOC_MAGICIAN_WRITE_DIR = "./.edited_documents/";
@@ -59,11 +60,11 @@ public class ThePresident {
 	public static void main(String[] args){
 		String OS = System.getProperty("os.name").toLowerCase();
 		if(OS.contains("mac")){
-			Logger.logln("We're on a Mac!");
+			ThePresident leader = new ThePresident();
+			Logger.logln(leader.NAME+"We're on a Mac!");
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name","Anonymouth");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			Application app = Application.getApplication();
-			ThePresident leader = new ThePresident();
 			String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png";
 			try{
 				leader.getLogo(logoName);

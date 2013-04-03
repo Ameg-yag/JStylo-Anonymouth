@@ -9,7 +9,8 @@ import edu.drexel.psal.jstylo.generics.Logger;
 
 public class SynonymReplaceTest {
 
-	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	/*
 	 * This function is for the study of replacing words with their highest ranked synonyms.
 	 */
@@ -34,7 +35,7 @@ public class SynonymReplaceTest {
 				ConsolidationStation.setWordFeatures(currentSynonym);
 				if(topSynonym.getAnonymityIndex()<currentSynonym.getAnonymityIndex()){
 					topSynonym=currentSynonym;
-					Logger.logln("Replaced the TopSynonym!"+topSynonym.getUntagged());
+					Logger.logln("(SynonymReplaceTest) - Replaced the TopSynonym!"+topSynonym.getUntagged());
 				}
 			}
 			if(topSynonym.getUntagged()!=""){//Then replace the word with this
@@ -44,7 +45,7 @@ public class SynonymReplaceTest {
 				newSentence+=currentWord+" ";
 			}
 		}
-		Logger.logln(newSentence,Logger.LogOut.STDERR);
+		Logger.logln("(SynonymReplaceTest) - "+newSentence,Logger.LogOut.STDERR);
 //		main.sentenceEditPane.setText(newSentence);// ----------------------------------- NEEDED
 		
 	}

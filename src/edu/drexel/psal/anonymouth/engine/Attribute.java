@@ -13,6 +13,8 @@ import edu.drexel.psal.jstylo.generics.Logger;
  */
 public class Attribute {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	private int indexNumber;
 	
 	private FeatureList genericName;
@@ -82,7 +84,7 @@ public class Attribute {
 		this.fullName = fullName;
 		this.stringInBraces = stringInBraces;
 		this.calcHist = calcHist;
-		Logger.logln("Attribute created for feature: "+fullName);
+		Logger.logln(NAME+"Attribute created for feature: "+fullName);
 		setGenericName();
 	}
 	
@@ -104,7 +106,7 @@ public class Attribute {
 		}
 		
 		
-		Logger.logln("Generic name: "+tempFeatName.replace("-","_").toUpperCase());
+		Logger.logln(NAME+"Generic name: "+tempFeatName.replace("-","_").toUpperCase());
 		genericName = FeatureList.valueOf(tempFeatName.replace("-","_").toUpperCase());
 		
 	}

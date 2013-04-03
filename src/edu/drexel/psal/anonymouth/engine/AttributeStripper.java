@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
  */
 public class AttributeStripper {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	private static Pattern bracketPat = Pattern.compile("\\{[^-{1}]+\\}");
 	private static Pattern someString = Pattern.compile("\\{.*\\}"); // use this pattern, and if an exception is thrown, 
 	

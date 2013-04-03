@@ -12,6 +12,7 @@ package edu.drexel.psal.anonymouth.utils;
  */
 public class Trie{
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	TrieNode trie=new TrieNode();
 	private final char lastChar='{';
 	private final int OFFSET = 96;

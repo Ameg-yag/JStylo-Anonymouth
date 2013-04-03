@@ -6,6 +6,9 @@ package edu.drexel.psal.anonymouth.engine;
  *
  */
 public class SmartIntegerArray{
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	private int[] numbers;
 	private int len;
 	

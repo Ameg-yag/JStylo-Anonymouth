@@ -22,6 +22,7 @@ import edu.drexel.psal.jstylo.generics.Logger;
  */
 public class ObjectIO {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	
 	/**
 	 * Generic object writer

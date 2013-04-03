@@ -16,6 +16,8 @@ import edu.drexel.psal.jstylo.generics.Logger;
  *
  */
 public class ClusterAnalyzer {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 
 	private HashMap<SmartIntegerArray,Integer> commonClusterSetMap;
 	ArrayList<String> theFeatures;
@@ -31,7 +33,7 @@ public class ClusterAnalyzer {
 	 */
 	public ClusterAnalyzer(ArrayList<String> featuresToUse,int maxClusters){
 		
-		Logger.logln("Start construction of ClusterAnanlyzer");
+		Logger.logln(NAME+"Start construction of ClusterAnanlyzer");
 		theDocs = DocumentMagician.getTrainTitlesList();
 		theFeatures = featuresToUse;
 		numDocs = theDocs.size();
@@ -73,7 +75,7 @@ public class ClusterAnalyzer {
 	}
 	
 	public void analyzeNow(){ 
-		Logger.logln("Begin analysis of clusters in analyzeNow in ClusterAnalyzer");
+		Logger.logln(NAME+"Begin analysis of clusters in analyzeNow in ClusterAnalyzer");
 		//System.out.println(Arrays.deepToString(clustersByDoc).replace("], [","]\n[")); 
 		int i,j,k;
 		commonClusterSetMap = new HashMap<SmartIntegerArray,Integer>(theDocs.size()); // worst case, no two documents fall in same set of clusters
@@ -123,7 +125,7 @@ public class ClusterAnalyzer {
 		//for(i=0;i<someClusters.length;i++){
 		//	System.out.println(someClusters[i]);
 		//}
-		Logger.logln("ClusterAnalyzer analysis complete");
+		Logger.logln(NAME+"ClusterAnalyzer analysis complete");
 	}
 	
 	public static ClusterGroup[] getClusterGroupArray(){

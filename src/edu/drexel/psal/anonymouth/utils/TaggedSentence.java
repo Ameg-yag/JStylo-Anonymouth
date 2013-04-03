@@ -36,6 +36,7 @@ import edu.stanford.nlp.trees.TreebankLanguagePack;
 
 public class TaggedSentence implements Comparable<TaggedSentence>{
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected SparseReferences sentenceLevelFeaturesFound;
 
 	protected String untagged;
@@ -161,7 +162,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 		}	
 		//setGrammarStats();
 		
-		//Logger.logln("WordList"+wordList.toString());
+		//Logger.logln(NAME+"WordList"+wordList.toString());
 		
 		return true;
 	}

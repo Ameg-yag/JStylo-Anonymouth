@@ -47,6 +47,7 @@ import weka.core.Instances;
  */
 public class DataAnalyzer{
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	
 	private int numFeaturesToReturn;
 	
@@ -99,7 +100,7 @@ public class DataAnalyzer{
 	 * @param numFeaturesToReturn integer number corresponding to the top 'numFeaturesToReturn' features
 	 */
 	public DataAnalyzer(ProblemSet pSet, String sessionAlias){
-		Logger.logln("Created DataAnalyzer");
+		Logger.logln(NAME+"Created DataAnalyzer");
 		this.sessionAlias = sessionAlias;
 		this.pSet = pSet;
 	}
@@ -117,7 +118,7 @@ public class DataAnalyzer{
 	 * @param numFeaturesToReturn
 	 */
 	public void setNumFeaturesToReturn(int numFeaturesToReturn){
-		Logger.logln("Numer of features to return: "+numFeaturesToReturn);
+		Logger.logln(NAME+"Numer of features to return: "+numFeaturesToReturn);
 		this.numFeaturesToReturn = numFeaturesToReturn;
 	}
 	
@@ -125,7 +126,7 @@ public class DataAnalyzer{
 	 * takes average of each feature across all instances specified by "instancesArray" 
 	 */
 	public void authorAverageFinder(){
-		Logger.logln("called authorAverageFinder");
+		Logger.logln(NAME+"called authorAverageFinder");
 		int i;
 		int j;
 		int numInstances = topAttributes[0].getAuthorVals().length;
@@ -142,14 +143,14 @@ public class DataAnalyzer{
 			//System.out.println("user sample average for "+topAttributes[i].getFullName()+" is: "+average);
 			topAttributes[i].setAuthorAvg(average);
 		}
-		Logger.logln("found author averages");
+		Logger.logln(NAME+"found author averages");
 	}
 	
 	/**
 	 * finds the minimum and maximum values of each feature across all instances given
 	 */
 	public void minsAndMaxes(){
-		Logger.logln("called minsAndMaxes - finding min and max for each feature");
+		Logger.logln(NAME+"called minsAndMaxes - finding min and max for each feature");
 		int numFeatures = topAttributes[0].getTrainVals().length;
 		int j=0;
 		int i=0;
@@ -175,14 +176,14 @@ public class DataAnalyzer{
 		//for(i=0;i<numFeatures;i++){
 		//	System.out.println("Min for feature "+i+" is: "+theMinsAndMaxes[i][0]+ " and the Max is: "+theMinsAndMaxes[i][1]);
 		//}
-		Logger.logln("finished finding mins and maxes");
+		Logger.logln(NAME+"finished finding mins and maxes");
 	}
 	
 	/**
 	 * Finds standard deviation of author's values
 	 */
 	public void authorStdDevFinder(){
-		Logger.logln("called authorStdDevFinder");
+		Logger.logln(NAME+"called authorStdDevFinder");
 		int i;
 		int j;
 		int numInstances = topAttributes[0].getAuthorVals().length; 
@@ -202,7 +203,7 @@ public class DataAnalyzer{
 			topAttributes[i].setAuthorStdDev(stdDev);
 			topAttributes[i].setAuthorConfidence(1.96*stdDev);
 		}
-		Logger.logln("finished finding author standard deviations");
+		Logger.logln(NAME+"finished finding author standard deviations");
 	}
 	
 	/**
@@ -214,7 +215,7 @@ public class DataAnalyzer{
 	 * @throws Exception
 	 */
 	public Attribute[] findMostInfluentialEvents(Instances theArffFile, int numFeatures) throws Exception{
-		Logger.logln("called findMostInfluentialEvents... for "+numFeatures+" features");
+		Logger.logln(NAME+"called findMostInfluentialEvents... for "+numFeatures+" features");
 		int i=0;
 		int numAttributes= theArffFile.numAttributes();
 		//if(numFeatures > numAttributes)
@@ -270,7 +271,7 @@ public class DataAnalyzer{
 			/*
 			if (toModifyIndex != -1){
 				if((toModifyInstancesArray[0][toModifyIndex] == 0.0)){//&& EditorTabDriver.userRequestedNoZeros == true){
-					Logger.logln("CONTINUING attribute: "+attrib+" toModifyValue: "+toModifyInstancesArray[0][toModifyIndex]+" info gain: "+allInfoGain[j][0]);
+					Logger.logln(NAME+"CONTINUING attribute: "+attrib+" toModifyValue: "+toModifyInstancesArray[0][toModifyIndex]+" info gain: "+allInfoGain[j][0]);
 					numFeatures++;
 					continue;
 				}
@@ -313,11 +314,11 @@ public class DataAnalyzer{
 			DriverDocumentsTab.attributesMappedByName.put(genName, j);
 			featuresForClusterAnalyzer.add(topAttribs[j].getConcatGenNameAndStrInBraces());
 			strippedAttributeNames[j] = strippedAttrib;	
-			Logger.logln(topAttribs[j].getFullName()+" info gain for this feature is: "+topAttribs[j].getInfoGain()+", calcHist is: "+topAttribs[j].getCalcHist()+" string in the braces (if applicable): "+topAttribs[j].getStringInBraces()+" toModify value is: "+topAttribs[j].getToModifyValue()); 
+			Logger.logln(NAME+topAttribs[j].getFullName()+" info gain for this feature is: "+topAttribs[j].getInfoGain()+", calcHist is: "+topAttribs[j].getCalcHist()+" string in the braces (if applicable): "+topAttribs[j].getStringInBraces()+" toModify value is: "+topAttribs[j].getToModifyValue()); 
 			j++;
 			
 		}
-		Logger.logln("found all top attributes");
+		Logger.logln(NAME+"found all top attributes");
 		
 		return topAttribs;	
 	}
@@ -331,7 +332,7 @@ public class DataAnalyzer{
 	 * @throws Exception 
 	 */
 	public Attribute[] computeInfoGain(Instances presentSet) throws Exception{
-		Logger.logln("called computerInfoGain");
+		Logger.logln(NAME+"called computerInfoGain");
 		//TODO: compute info gain, and then 'try' to find the location of the train value and author value for the top features. 
 		// if it doesn't exist, set as '0'. if the value for one of the top features is '0' in toModify, skip that feature, and get the next one.
 		// 
@@ -416,8 +417,8 @@ public class DataAnalyzer{
 			//System.out.println();
 		}
 		
-		Logger.logln("****** Current list of Present values for: "+ThePresident.sessionName+" process request number: "+DocumentMagician.numProcessRequests+" ******");
-		Logger.logln(holderForLogger.entrySet().toString());
+		Logger.logln(NAME+"****** Current list of Present values for: "+ThePresident.sessionName+" process request number: "+DocumentMagician.numProcessRequests+" ******");
+		Logger.logln(NAME+holderForLogger.entrySet().toString());
 		return topAttribs;
 		
 		//List<Document> authorsDocs = jamBaselineSet.removeAuthor(authorOfDocToModify);
@@ -464,7 +465,7 @@ public class DataAnalyzer{
 			//System.out.println("The value of this feature in 'FeatureList' is: "+needsSuggestion);
 			//System.out.println();
 			//}
-			//Logger.logln(needsSuggestion+":present value:"+topAttributes[sel].getToModifyValue()+":target value:"+targetValue);
+			//Logger.logln(NAME+needsSuggestion+":present value:"+topAttributes[sel].getToModifyValue()+":target value:"+targetValue);
 		}
 			return topAttributes[sel];
 		
@@ -477,7 +478,7 @@ public class DataAnalyzer{
 	 * 	number of maximum clusters found, to be used with @ClusterAnalyzer
 	 */
 	public int runAllTopFeatures(){
-		Logger.logln("called runAllTopFeatures");
+		Logger.logln(NAME+"called runAllTopFeatures");
 		int numAttribs = topAttributes.length;
 		int numAuthors = DocumentMagician.numSampleAuthors;
 		int maxClusters = 0;
@@ -501,7 +502,7 @@ public class DataAnalyzer{
 			//System.out.print(" => author's values: "+topAttributes[sel].getAuthorAvg()+" with a standard deviation of: "+topAttributes[sel].getAuthorStdDev());
 			//System.out.println();
 		}
-		Logger.logln("Max number of clusters (after clustering all features): "+maxClusters);
+		Logger.logln(NAME+"Max number of clusters (after clustering all features): "+maxClusters);
 		return maxClusters;
 		
 	}
@@ -513,7 +514,7 @@ public class DataAnalyzer{
 	 * @param maxClusters the maximum number of clusters out of all of the features
 	 */
 	public void runClusterAnalysis(int maxClusters){
-		Logger.logln("called runClusterAnalysis");
+		Logger.logln(NAME+"called runClusterAnalysis");
 		//long startTime = System.currentTimeMillis();
 		int lenTopAttribs = topAttributes.length;
 		ClusterAnalyzer numberCruncher = new ClusterAnalyzer(featuresForClusterAnalyzer,maxClusters);
@@ -526,10 +527,10 @@ public class DataAnalyzer{
 		numberCruncher.analyzeNow();
 		//long endTime = System.currentTimeMillis();
 		//System.out.println("Time elapsed while using ClusterAnalyzer: "+(endTime-startTime));
-		Logger.logln("calling makeViewer");
+		Logger.logln(NAME+"calling makeViewer");
 		DriverClustersTab.makePanels(topAttributes);
 		//ClusterViewerFrame.startClusterViewer();
-		Logger.logln("viewer made");
+		Logger.logln(NAME+"viewer made");
 	}
 	
 	
@@ -541,7 +542,7 @@ public class DataAnalyzer{
 	 * @throws Exception
 	 */
 	public void runInitial(DocumentMagician magician, CumulativeFeatureDriver cfd, Classifier classifier) throws Exception{
-		Logger.logln("called runIntitial in DataAnalyzer");
+		Logger.logln(NAME+"called runIntitial in DataAnalyzer");
 		//String authorToRemove = magician.loadExampleSet();
 		List<Document> tempTrainDocs = pSet.getAllTrainDocs();
 	/*
@@ -560,7 +561,7 @@ public class DataAnalyzer{
 		runGeneric(magician);
 		int maxClusters =runAllTopFeatures();
 		runClusterAnalysis(maxClusters);
-		Logger.logln("Initial has been run.");
+		Logger.logln(NAME+"Initial has been run.");
 		
 	}
 	
@@ -570,7 +571,7 @@ public class DataAnalyzer{
 	 * @throws Exception
 	 */
 	public void runGeneric(DocumentMagician magician) throws Exception{
-		Logger.logln("Calling runGeneric");
+		Logger.logln(NAME+"Calling runGeneric");
 		HashMap<String,Double[][]> attribsAndInstances = magician.getPackagedInstanceData();
 		HashMap<String,Instances> simplyInstances = magician.getPackagedFullInstances();
 		trainingInstancesArray = attribsAndInstances.get("training");
@@ -587,7 +588,7 @@ public class DataAnalyzer{
 		authorStdDevFinder();
 	
 		minsAndMaxes();
-		Logger.logln("Generic run.");
+		Logger.logln(NAME+"Generic run.");
 	}
 	
 	/**
@@ -601,9 +602,9 @@ public class DataAnalyzer{
 		//runGeneric(magician);
 		//int maxClusters = runAllTopFeatures();
 		//runClusterAnalysis(maxClusters);
-		Logger.logln("Calling makeViewer in ClusterViewer after re-running modified.");
+		Logger.logln(NAME+"Calling makeViewer in ClusterViewer after re-running modified.");
 		DriverClustersTab.makePanels(topAttributes);
-		Logger.logln("viewer made");
+		Logger.logln(NAME+"viewer made");
 	}
 	
 	/**
@@ -616,7 +617,7 @@ public class DataAnalyzer{
 	
 	
 	public void setSelectedTargets(){
-		Logger.logln("called setSelectedTargets after cluster group selection.");
+		Logger.logln(NAME+"called setSelectedTargets after cluster group selection.");
 		int i=0;
 		int clusterNumberPlusOne;
 		int clusterNumber;
@@ -645,17 +646,17 @@ public class DataAnalyzer{
 			while(targetsSaved != 1){
 				targetsSaved = saveTargets(targetSaver);
 				if(targetsSaved == -1){
-					Logger.logln("Something went wrong with saving targets to file. System exiting with code: 456");
+					Logger.logln(NAME+"Something went wrong with saving targets to file. System exiting with code: 456");
 					System.exit(456);
 				}
 			}
-			Logger.logln("Targets saved to file.");
+			Logger.logln(NAME+"Targets saved to file.");
 		}
-		Logger.logln("Targets set.");
+		Logger.logln(NAME+"Targets set.");
 	}
 	
 	public int saveTargets(String theTargets){
-		Logger.logln("About to save target string...");
+		Logger.logln(NAME+"About to save target string...");
 		JFileChooser save = new JFileChooser();
 		save.addChoosableFileFilter(new ExtFilter("txt files (*.txt)", "txt"));
 		int answer = save.showSaveDialog(null);
@@ -672,8 +673,8 @@ public class DataAnalyzer{
 				bw.close();
 				Logger.log("Saved contents of current tab to "+path);
 			} catch (IOException exc) {
-				Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
-				Logger.logln(exc.toString(),LogOut.STDERR);
+				Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
+				Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 				JOptionPane.showMessageDialog(null,
 						"Failed saving contents of current tab into:\n"+path,
 						"Save Problem Set Failure",
@@ -682,7 +683,7 @@ public class DataAnalyzer{
 			}
 			return 1;
 		} else {
-            Logger.logln("Save contents of current tab canceled");
+            Logger.logln(NAME+"Save contents of current tab canceled");
             return 0;
         }
 	}	

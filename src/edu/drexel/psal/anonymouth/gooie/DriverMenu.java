@@ -28,8 +28,10 @@ import edu.drexel.psal.jstylo.canonicizers.*;
 import com.jgaap.canonicizers.*;
 import com.jgaap.generics.*;
 
-public class DriverMenu
-{
+public class DriverMenu {
+	
+	private final static String NAME = "( DriverMenu ) - ";
+
 	protected static ActionListener generalListener;
 	
 	protected static void initListeners(final GUIMain main)

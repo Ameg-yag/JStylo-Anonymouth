@@ -91,6 +91,7 @@ public class Translator implements Runnable
 			}
 			main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
 			
+			
 			for (Language lang: DriverDocumentsTab.translator.getUsedLangs())
 			{
 				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);

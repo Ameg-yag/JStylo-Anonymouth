@@ -15,6 +15,8 @@ import edu.drexel.psal.jstylo.generics.Logger;
  */
 public class GramMatcher {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 /*	
 	public static void main(String args[]){
 		GramMatcher gm = new GramMatcher();

@@ -55,6 +55,7 @@ import com.jgaap.generics.Document;
  */
 public class DriverDocumentsTab {
 	
+	private final static String NAME = "( DriverDocumentsTab ) - ";
 	
 	protected static SentenceTools sentenceTools;
 	

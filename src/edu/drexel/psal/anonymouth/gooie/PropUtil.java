@@ -20,8 +20,10 @@ import com.jgaap.generics.Document;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.jstylo.generics.*;
 
-public class PropUtil
-{
+public class PropUtil {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	protected static String propFileName = "jsan_resources/anonymouth_prop.prop";
 	protected static File propFile = new File(propFileName);
 	protected static Properties prop = new Properties();

@@ -60,8 +60,10 @@ import weka.classifiers.*;
 
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 
-public class PreProcessSettingsFrame extends JDialog
-{
+public class PreProcessSettingsFrame extends JDialog {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	
 	
 //	// main instance

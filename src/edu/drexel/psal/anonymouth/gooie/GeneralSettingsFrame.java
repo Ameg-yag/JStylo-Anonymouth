@@ -60,8 +60,10 @@ import weka.classifiers.*;
 
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 
-public class GeneralSettingsFrame extends JDialog
-{	
+public class GeneralSettingsFrame extends JDialog {	
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	protected GUIMain main;
 	public boolean panelsAreMade = false;
 	

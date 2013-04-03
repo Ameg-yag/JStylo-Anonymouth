@@ -24,8 +24,10 @@ import javax.swing.*;
  * @author Andrew W.E. McDonald, modified from RJHM van den Bergh's 'simple Java Console'
  *
  */
-public class Console extends WindowAdapter implements WindowListener, ActionListener, Runnable
-{
+public class Console extends WindowAdapter implements WindowListener, ActionListener, Runnable {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	private JFrame frame;
 	private Thread reader;
 	private Thread reader2;
@@ -111,15 +113,15 @@ public class Console extends WindowAdapter implements WindowListener, ActionList
 						bw.close();
 						Logger.log("Saved contents of console to "+path);
 					} catch (IOException exc) {
-						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
-						Logger.logln(exc.toString(),LogOut.STDERR);
+						Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
+						Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 						JOptionPane.showMessageDialog(null,
 								"Failed saving contents of console into:\n"+path,
 								"Save Problem Set Failure",
 								JOptionPane.ERROR_MESSAGE);
 					}
 				} else {
-		            Logger.logln("Save contents of console canceled");
+		            Logger.logln(NAME+"Save contents of console canceled");
 		        }
 			}
 		

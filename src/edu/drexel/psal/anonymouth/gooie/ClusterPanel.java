@@ -15,6 +15,8 @@ import edu.drexel.psal.anonymouth.utils.Pair;
 
 public class ClusterPanel extends JPanel {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	//double[] features = {3.3, 3.5, 2.1, 7.8, 9.5, 5.5, 6.1,14.9, 18.0,19.6};
 	
 	double xoffset = 20;

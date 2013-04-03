@@ -9,6 +9,8 @@ import edu.drexel.psal.anonymouth.utils.SmartIntegerArray;
  */
 public class ClusterGroup implements Comparable<ClusterGroup>{
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	private SmartIntegerArray groupKey; 
 	private double preferenceValue;
 	private double[] centroids;
