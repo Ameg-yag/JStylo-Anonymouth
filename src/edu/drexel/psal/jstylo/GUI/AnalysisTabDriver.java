@@ -393,6 +393,32 @@ public class AnalysisTabDriver {
 			}
 		});
 		
+		//TODO
+		//		I thought this button would be useful. Doesn't seem to cause any problems.
+		//		--TD
+		
+		// remove results button
+		// =====================
+		main.analysisRemoveResultTabJButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+			
+				Logger.logln("'Remove Result Tab' button clicked on the analysis tab.");
+				int i = main.analysisResultsJTabbedPane.getSelectedIndex();
+				if (i != -1){
+					main.analysisResultsJTabbedPane.remove(i);
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"There are no tabs which can be removed.",
+							"Remove Result Tab Failure",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			
+		});
+		
+		
 		// about button
 		// ============
 		

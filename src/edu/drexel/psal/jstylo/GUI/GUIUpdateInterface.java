@@ -156,7 +156,6 @@ public class GUIUpdateInterface {
 	protected static void updateFeatureView(GUIMain main, int selected) {
 		// clear all
 		clearFeatureView(main);
-		
 		// unselected
 		if (selected == -1)
 			return;

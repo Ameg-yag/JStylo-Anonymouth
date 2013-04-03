@@ -28,7 +28,7 @@ public class ClassTabDriver {
 	/* =========================
 	 * Classifiers tab listeners
 	 * =========================
-	 */
+	 */ 
 	
 	protected static Classifier tmpClassifier;
 	
@@ -78,10 +78,33 @@ public class ClassTabDriver {
 					}
 					
 					// show options and description
-					main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
-					main.classDescJTextPane.setText(getDesc(tmpClassifier));
+					/*TODO The IBk args aren't being accepted due to:
+								java.lang.Exception: Illegal options: -A "weka.core.EuclideanDistance -R first-last"
+					
+							While removing the problematic args does allow it to be accepted, it still gets added with this arg to the right hand side
+							Additionally, what's in the arg field seems to not matter as long as it is valid. If nothing at all is put, the default string
+							will be added to the right, and if the problematic clause is stripped first, it will be readded.
+							
+							Not removing the above, but removing the " -A weka.core.neighboursearch.LinearNNSearch" results in
+								java.lang.Exception: Quote parse error.
+					
+							After looking through the Weka documentation, I saw that both -K num and -W num were acceptable args, but -A String was not mentioned.
+							This code below will supply the default args without the two -A options. These args can be modified and added to the right side successfully.
+							The -A args are appended to the right regardless of what happens if they are absent. 
+					
+							--TD
+					*/		
+					
+					if (!className.equalsIgnoreCase("weka.classifiers.lazy.IBk")){
+						main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
+						main.classDescJTextPane.setText(getDesc(tmpClassifier));
+					} else {
+						main.classAvClassArgsJTextField.setText("-K 1 -W 0");
+						main.classDescJTextPane.setText(getDesc(tmpClassifier));
+					}
+
 				}
-				// otherwise
+					// otherwise
 				else {
 					resetAvClassSelection(main);
 				}
@@ -158,6 +181,7 @@ public class ClassTabDriver {
 				// show options and description
 				main.classSelClassArgsJTextField.setText(getOptionsStr(main.classifiers.get(selected).getOptions()));
 				main.classDescJTextPane.setText(getDesc(main.classifiers.get(selected)));
+				
 			}
 		});
 		
