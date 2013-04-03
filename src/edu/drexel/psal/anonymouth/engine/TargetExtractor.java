@@ -19,7 +19,7 @@ import edu.drexel.psal.jstylo.generics.Logger;
  */
 public class TargetExtractor {
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 	
 	private static ArrayList<Integer> previousInitialization;
 	private int numMeans;

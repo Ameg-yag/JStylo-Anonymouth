@@ -82,7 +82,7 @@ import edu.stanford.nlp.util.PropertiesUtils;
 //This is a comment from Joe Muoio to see if he can commit changes.
 public class GUIMain extends javax.swing.JFrame  {
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 
 	{
 		//Set Look & Feel

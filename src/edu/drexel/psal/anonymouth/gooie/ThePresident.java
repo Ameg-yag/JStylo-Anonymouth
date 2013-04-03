@@ -26,10 +26,11 @@ import com.apple.eawt.Application;
 public class ThePresident {
 
 	//protected static ImageIcon buffImg;
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 	public static ImageIcon LOGO;
 	public static String sessionName;
 	public static final String DOC_MAGICIAN_WRITE_DIR = "./.edited_documents/";
+	public static final String LOG_DIR = "log";
 	public static String TEMP_DIR =  "temp/"; // TODO: put in "options"
 	public static String GRAMMAR_DIR = "grammar_data/";//TODO: put in "options"
 	//public static boolean SHOULD_KEEP_TEMP_CLEAN_DOCS = false; // TODO : put in "options" XXX not used!!
@@ -111,6 +112,11 @@ public class ThePresident {
 //		if(tempName != null)
 //			sessionName = tempName;
 		//System.out.println(tempName+" "+sessionName);
+		File log_dir = new File(LOG_DIR); // create log directory if it doesn't exist.
+		if (!log_dir.exists()){
+			System.out.println("Creating directory for DocumentMagician to write to...");
+			log_dir.mkdir();
+		}
 		Logger.setFilePrefix("Anonymouth_"+sessionName);
 		Logger.logFile = true;	
 		Logger.initLogFile();
@@ -119,6 +125,7 @@ public class ThePresident {
 			Logger.logln("Creating directory for DocumentMagician to write to...");
 			dm_write_dir.mkdir();
 		}
+		
 		Logger.logln("Gooie starting...");
 		GUIMain.startGooie();
 	}

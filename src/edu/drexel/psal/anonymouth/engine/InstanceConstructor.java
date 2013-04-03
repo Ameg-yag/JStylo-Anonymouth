@@ -22,7 +22,7 @@ import weka.core.Instances;
  */
 public class InstanceConstructor {
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 
 	/**
 	 * private variable to hold the attributes of the training documents.

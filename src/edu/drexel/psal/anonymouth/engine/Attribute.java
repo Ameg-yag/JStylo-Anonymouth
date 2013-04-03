@@ -13,7 +13,7 @@ import edu.drexel.psal.jstylo.generics.Logger;
  */
 public class Attribute {
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 	
 	private int indexNumber;
 	

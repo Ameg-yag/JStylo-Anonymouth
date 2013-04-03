@@ -47,7 +47,7 @@ import weka.core.Instances;
  */
 public class DataAnalyzer{
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 	
 	private int numFeaturesToReturn;
 	

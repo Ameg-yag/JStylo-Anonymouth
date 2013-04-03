@@ -33,7 +33,7 @@ import com.jgaap.generics.Document;
  */
 public class DocumentMagician {
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 	
 	private String writeDirectory = ThePresident.DOC_MAGICIAN_WRITE_DIR;
 	
