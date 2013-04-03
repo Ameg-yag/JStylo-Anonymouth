@@ -1427,9 +1427,9 @@ public class GUIMain extends javax.swing.JFrame  {
 //                documentsPanel.add(translationPane, "grow");
 //            	documentsPanel.add(translationOptionsPanel, "grow, gapleft 0");
                 documentsPanel.add(documentLabel, "grow, h " + titleHeight + "!");
-                //documentsPanel.add(processButton, "grow");
+                documentsPanel.add(processButton, "grow");
                 documentsPanel.add(documentScrollPane, "grow");
-                documentsPanel.add(processButton, "right");
+                //documentsPanel.add(processButton, "right");
             	//documentsPanel.add(documentOptionsPanel, "grow");
 			}
             tabMade = true;
