@@ -198,7 +198,7 @@ public class GUIMain extends javax.swing.JFrame {
 	protected JRadioButton analysisClassTestDocsJRadioButton;
 	protected JLabel analysisResultsJLabel;
 	protected JButton analysisAboutJButton;
-	protected JButton analysisRemoveResultTabJButton;
+	protected JButton analysisRemoveResultTabJButton; //TD analysisRemoveTabJButton
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -1221,7 +1221,7 @@ public class GUIMain extends javax.swing.JFrame {
 							JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
 							resultsBottom.add(p);
 							analysisSaveResultsJButton = new JButton("Save Results...");
-							analysisRemoveResultTabJButton = new JButton("Remove Selected Tab");
+							analysisRemoveResultTabJButton = new JButton("Remove Selected Tab");	//TD analysisRemoveTabJButton
 							p.add(analysisSaveResultsJButton);
 							p.add(analysisRemoveResultTabJButton);
 						}

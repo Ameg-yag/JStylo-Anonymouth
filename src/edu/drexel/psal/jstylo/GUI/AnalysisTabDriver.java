@@ -393,10 +393,7 @@ public class AnalysisTabDriver {
 			}
 		});
 		
-		//TODO
-		//		I thought this button would be useful. Doesn't seem to cause any problems.
-		//		--TD
-		
+		//TD analysisRemoveTabJButton
 		// remove results button
 		// =====================
 		main.analysisRemoveResultTabJButton.addActionListener(new ActionListener(){
