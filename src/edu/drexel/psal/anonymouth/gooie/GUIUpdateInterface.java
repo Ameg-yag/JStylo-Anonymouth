@@ -153,14 +153,14 @@ public class GUIUpdateInterface {
 		for (String author: trainDocsMap.keySet()) {
 			if(author.equals(ProblemSet.getDummyAuthor()))
 					continue;
-			authorNode = new DefaultMutableTreeNode(author);
+			authorNode = new DefaultMutableTreeNode(author, true);
 			root.add(authorNode);
 			for (Document doc: trainDocsMap.get(author)){
-				docNode = new DefaultMutableTreeNode(doc.getTitle());
+				docNode = new DefaultMutableTreeNode(doc.getTitle(), false);
 				authorNode.add(docNode);
 			}
 		}
-		DefaultTreeModel trainTreeModel = new DefaultTreeModel(root);
+		DefaultTreeModel trainTreeModel = new DefaultTreeModel(root, true);
 		main.trainCorpusJTree.setModel(trainTreeModel);
 		main.PPSP.trainCorpusJTree.setModel(trainTreeModel);
 		

@@ -52,8 +52,6 @@ import com.jgaap.generics.Document;
  * @author Andrew W.E. McDonald
  * @author Joe Muoio
  * 
- * TEST!
- *
  */
 public class DriverDocumentsTab {
 	

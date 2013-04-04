@@ -940,8 +940,8 @@ public class GUIMain extends javax.swing.JFrame  {
 			trainLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			
 			// train tree
-			DefaultMutableTreeNode top = new DefaultMutableTreeNode(ps.getTrainCorpusName());
-			trainCorpusJTree = new JTree(top);
+			DefaultMutableTreeNode top = new DefaultMutableTreeNode(ps.getTrainCorpusName(), true);
+			trainCorpusJTree = new JTree(top, true);
 			trainCorpusJTreeScrollPane = new JScrollPane(trainCorpusJTree);
 			
 			// train add button
