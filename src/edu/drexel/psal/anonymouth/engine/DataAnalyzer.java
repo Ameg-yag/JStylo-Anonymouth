@@ -141,6 +141,7 @@ public class DataAnalyzer{
 			average = (sum/numInstances);
 			//System.out.println("user sample average for "+topAttributes[i].getFullName()+" is: "+average);
 			topAttributes[i].setAuthorAvg(average);
+			
 		}
 		Logger.logln("found author averages");
 	}
@@ -169,6 +170,7 @@ public class DataAnalyzer{
 			}
 			topAttributes[i].setTrainMin(theMin);
 			topAttributes[i].setTrainMax(theMax);
+			
 			//System.out.println(topAttributes[i].getGenericName()+" MINIMUM VALUE: "+topAttributes[i].getTrainMin()+" MAX: "+topAttributes[i].getTrainMax());
 		}
 		// test:
@@ -201,6 +203,7 @@ public class DataAnalyzer{
 			//System.out.println("user sample std. dev for "+topAttributes[i].getFullName()+" is: "+stdDev); 
 			topAttributes[i].setAuthorStdDev(stdDev);
 			topAttributes[i].setAuthorConfidence(1.96*stdDev);
+			
 		}
 		Logger.logln("finished finding author standard deviations");
 	}
@@ -257,7 +260,16 @@ public class DataAnalyzer{
 		FeatureList genName;
 		DriverDocumentsTab.attributesMappedByName = new HashMap<FeatureList,Integer>(numFeatures);
 		
-		for(i=0; i<numFeatures;i++){
+		//TODO bugfix caused ArrayIndexOutOfBounds exception
+		//			I added a check to see if numAttributes or numFeatures was smaller and to use the smaller one as the loop goal.
+		//
+		//Original loop
+		//for(i=0; i<numFeatures;i++){
+		int valToUse=0;
+		if (numFeatures<numAttributes) valToUse=numFeatures;
+		else valToUse=numAttributes;
+		
+		for(i=0; i<valToUse;i++){
 			String attrib = (theArffFile.attribute((int) allInfoGain[i][1]).toString());
 			//System.out.println("ATTRIBUTE: "+attrib);
 			strippedAttrib = AttributeStripper.strip(attrib);	
@@ -342,6 +354,7 @@ public class DataAnalyzer{
 		topAttribs = findMostInfluentialEvents(presentSet,numFeaturesToReturn);
 		int numAttribs = topAttribs.length;
 		
+		
 			
 		//for(i=0;i<numAttribs;i++){
 		//	FeatureList topIds = (topAttribs[i].getGenericName());	
@@ -400,8 +413,27 @@ public class DataAnalyzer{
 			}
 			//System.out.println("Iteration finished.");
 		}
+		
+		//TODO bugfix this should fix the multitude of nullpointer problems I documented today by getting rid of the source and changing the
+		//			array to one without null values.
+		//			--TD
+		int a=0; //number of non-null attributes
+		for (int k=0; k<topAttribs.length;k++){
+			if (topAttribs[k]==null) break;
+			else a++;
+		}
+		if (a<topAttribs.length){
+			Attribute[] tempAttribs = new Attribute[a];
+			for (int n =0; n<a;n++){
+				tempAttribs[n]=topAttribs[n];
+			}
+			topAttribs=tempAttribs;
+		}
+		
+		
 		String theSpacer = "";
-		for(i=0;i<numAttribs;i++){
+		for(i=0;i<topAttribs.length;i++){
+	
 			if(topAttribs[i].getStringInBraces().equals(""))
 				theSpacer = "";
 			else
@@ -414,7 +446,11 @@ public class DataAnalyzer{
 			holderForLogger.put(topAttribs[i].getConcatGenNameAndStrInBraces(), thisVal);
 			//System.out.print(thisVal+", ");
 			//System.out.println();
+
 		}
+		
+
+		
 		
 		Logger.logln("****** Current list of Present values for: "+ThePresident.sessionName+" process request number: "+DocumentMagician.numProcessRequests+" ******");
 		Logger.logln(holderForLogger.entrySet().toString());
