@@ -413,7 +413,6 @@ public class PreProcessSettingsFrame extends JDialog {
 	protected DefaultTableModel featuresCullJTableModel;
 	protected DefaultTableModel featuresCullConfigJTableModel;
 	
-	
 	protected JPanel classPanel;
 	protected JPanel classMainPanel;
 	
@@ -464,8 +463,8 @@ public class PreProcessSettingsFrame extends JDialog {
 			bottomPanel = new JPanel();
 			bottomPanel.setLayout(new MigLayout(
 					"right",
-					"right",
-					"bottom"));
+					"[left]0[center]0[right]-6[fill]0[]",
+					"rel[]-2"));
 			bottomPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
 			{
 				okButton = new JButton("Ok");
@@ -492,7 +491,7 @@ public class PreProcessSettingsFrame extends JDialog {
 			}
 			getContentPane().add(treePanel, "split 2, growy, shrinkx 0");
 			getContentPane().add(mainPanel, "grow");
-			getContentPane().add(bottomPanel, "h 40!, span 2, shrinky 0");
+			getContentPane().add(bottomPanel);
 		}
 		
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
