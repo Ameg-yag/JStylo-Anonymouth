@@ -155,6 +155,7 @@ public class TaggedDocument {
 	public void consolidateFeatures(TaggedSentence ts){
 		ConsolidationStation.featurePacker(ts);
 	}
+
 		
 	
 	/**
@@ -363,6 +364,16 @@ public class TaggedDocument {
 		return toReturn;
 	}
 	
+	
+	/**
+	 * Returns an integer array with the lengths of each sentence (TaggedSentence) in this TaggedDocument. 
+	 * Array indices are such that index '0' holds the length of the first sentence, index '1' holds the length of the second sentence, ect..
+	 * @return
+	 */
+	public int[] getSentenceLengths(){
+		
+		
+	}
 	
 	public int getSentNumber(){
 		return sentNumber;

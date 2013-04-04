@@ -475,6 +475,10 @@ public class DriverDocumentsTab {
 				//String 
 				if (taggedDoc != null)
 				{
+					/*
+					 * We want to get a number of  
+					 * 
+					 */
 					ArrayList<TaggedSentence> sentences = taggedDoc.getTaggedSentences();
 					int start = caret;
 					int end = caret;
