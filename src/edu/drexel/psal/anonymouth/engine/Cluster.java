@@ -11,6 +11,8 @@ import edu.drexel.psal.anonymouth.utils.Pair;
  */
 public class Cluster {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	private double centroid;
 	private ArrayList<Pair> elements;
 	

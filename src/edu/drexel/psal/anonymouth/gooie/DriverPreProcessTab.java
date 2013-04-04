@@ -27,8 +27,10 @@ import edu.drexel.psal.jstylo.canonicizers.*;
 import com.jgaap.canonicizers.*;
 import com.jgaap.generics.*;
 
-public class DriverPreProcessTab 
-{
+public class DriverPreProcessTab {
+	
+	private final static String NAME = "( DriverPreProcessTab ) - ";
+
 	protected static void initListeners(final GUIMain main) 
 	{
 		main.prepAdvButton.addActionListener(new ActionListener() 

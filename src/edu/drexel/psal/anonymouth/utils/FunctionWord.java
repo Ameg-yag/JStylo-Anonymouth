@@ -19,6 +19,9 @@ import edu.drexel.psal.anonymouth.utils.Trie;
  */
 
 public class FunctionWord implements Runnable {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	private final int fWordArrSize=486;//make this larger if more words are added
 	protected String[] functionWordArray=new String[fWordArrSize];
 	private ArrayList<String> functionWordList;
@@ -36,8 +39,8 @@ public class FunctionWord implements Runnable {
 		}
 		node = new Trie();
 		node.addWords(functionWordArray);
-		Logger.logln("FINISHED INITIALIZING FUNCTION WORDS",Logger.LogOut.STDERR);
-		System.out.println("TEST CASE: "+this.searchListFor("The"));
+		Logger.logln(NAME+"FINISHED INITIALIZING FUNCTION WORDS",Logger.LogOut.STDERR);
+		//System.out.println("TEST CASE: "+this.searchListFor("The"));
 			
 		//System.exit(0);
 	}
@@ -68,7 +71,7 @@ public class FunctionWord implements Runnable {
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			Logger.logln("Error opening reader: "+e.getMessage());
+			Logger.logln("(FunctionWord) - Error opening reader: "+e.getMessage());
 		}
 		
 		return functionWords;

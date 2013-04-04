@@ -12,6 +12,8 @@ import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
 
 public class Mapper {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	public static final Map<FeatureList,List<HighlightMapList>> fhmMap;
 	static{
 		Map<FeatureList,List<HighlightMapList>> fhm = new HashMap<FeatureList,List<HighlightMapList>>();

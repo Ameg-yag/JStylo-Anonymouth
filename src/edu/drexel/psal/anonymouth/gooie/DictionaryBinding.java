@@ -43,6 +43,8 @@ import com.wintertree.wthes.ThesaurusSession;
  *
  */
 public class DictionaryBinding {
+	
+	private final static String NAME = "( DictionaryBinding ) - ";
 
 	protected static boolean wordSynSetUpdated = false;
 	protected static String wordSynSetResult = "";
@@ -64,7 +66,7 @@ public class DictionaryBinding {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Logger.logln("Dictionary's 'not found' button clicked");
+				Logger.logln(NAME+"Dictionary's 'not found' button clicked");
 				JOptionPane.showMessageDialog(null,
 						"If you entered a phrase, try an altered version if possible.\n" +
 						"If your word wasn't found, try using an on-line thesaurus,\n" +
@@ -86,7 +88,7 @@ public class DictionaryBinding {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				currentWord = dc.wordField.getText();
-				Logger.logln("preparing to search for user string: '"+currentWord+"' in dictionary.");
+				Logger.logln(NAME+"preparing to search for user string: '"+currentWord+"' in dictionary.");
 				if(currentWord.trim().equals("") == false){
 					wordSynSetResult = "";
 					WordNetDatabase wnd = WordNetDatabase.getFileInstance();
@@ -136,7 +138,7 @@ public class DictionaryBinding {
 			}
 			@Override
 			public void keyTyped(KeyEvent arg0) {
-				Logger.logln("User typing in word field");
+				Logger.logln(NAME+"User typing in word field");
 				dc.wordSearchButton.setSelected(true);
 				dc.gramSearchButton.setSelected(false);
 			}
@@ -151,7 +153,7 @@ public class DictionaryBinding {
 			}
 			@Override
 			public void keyTyped(KeyEvent e) {
-				Logger.logln("User typing in gram field.");
+				Logger.logln(NAME+"User typing in gram field.");
 				dc.gramSearchButton.setSelected(true);
 				dc.wordSearchButton.setSelected(false);
 			}
@@ -161,7 +163,7 @@ public class DictionaryBinding {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("Preparing to search for character grams");
+				Logger.logln(NAME+"Preparing to search for character grams");
 				String theGram = dc.gramField.getText();
 				if(theGram.trim().equals("") == false){
 				if(isFirstGramSearch == true){
@@ -188,7 +190,7 @@ public class DictionaryBinding {
 		dc.closeButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("Dictionary is being disposed of.. ");
+				Logger.logln(NAME+"Dictionary is being disposed of.. ");
 				dc.dispose();
 				DriverDocumentsTab.dictDead = true;
 			}
@@ -200,7 +202,7 @@ public class DictionaryBinding {
 			}
 			@Override
 			public void windowClosed(WindowEvent arg0) {
-				Logger.logln("Window close killed poor dictionary");
+				Logger.logln(NAME+"Window close killed poor dictionary");
 				DriverDocumentsTab.dictDead = true;
 			}
 			@Override
@@ -223,7 +225,7 @@ public class DictionaryBinding {
 	}
 	
 	public static boolean readInAndScan(String nGram) throws IOException{
-		Logger.logln("reading in comprehensive word list");
+		Logger.logln(NAME+"reading in comprehensive word list");
 		FileReader fr = new FileReader(new File("./allWords.txt"));
 		BufferedReader buff = new BufferedReader(fr);
 		String temp;
@@ -242,7 +244,7 @@ public class DictionaryBinding {
 	}
 	
 	public static boolean scanAllWords(String nGram){
-		Logger.logln("Scanning all words for occurances of '"+nGram+"'");
+		Logger.logln(NAME+"Scanning all words for occurances of '"+nGram+"'");
 		int i = 0;
 		int max = allWords.size();
 		gramFindings = "";
@@ -273,13 +275,13 @@ public class DictionaryBinding {
 					//wordSynSetResult = wordSynSetResult+"Synonym number ("+(j+1)+"): "+wfs[j]+"  => usage (if specified): "+use[j]+"\n";
 					if(!wordToFind.contains(wfs[j].toLowerCase())){
 						wordSynSetResult = wordSynSetResult+"("+synNumber+"): "+wfs[j]+"\n";
-						//Logger.logln("Results for: "+wordToFind+"\n"+wordSynSetResult);
+						//Logger.logln(NAME+"Results for: "+wordToFind+"\n"+wordSynSetResult);
 						synNumber++;
 					}
 				}
 				catch(ArrayIndexOutOfBoundsException e){
 					e.printStackTrace();
-					Logger.logln("Caught an exception...");					
+					Logger.logln(NAME+"Caught an exception...");					
 				}
 			}
 			//wordSynSetResult = wordSynSetResult+"\n";

@@ -7,6 +7,7 @@ package edu.drexel.psal.anonymouth.gooie;
  */
 public class HighlightMapper implements Comparable<HighlightMapper>{
 
+		private final String NAME = "( "+this.getClass().getName()+" ) - ";
 		
 		private int start;
 		private int end;

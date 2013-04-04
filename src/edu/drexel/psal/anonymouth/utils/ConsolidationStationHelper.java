@@ -11,6 +11,8 @@ import java.util.Iterator;
 
 public class ConsolidationStationHelper implements Runnable {
 
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	private HashMap<String,Word> finalHashMap;
 	private HashMap<String,Word> substrHashMap;
 	private HashMap<Integer,Word> intHashMap;

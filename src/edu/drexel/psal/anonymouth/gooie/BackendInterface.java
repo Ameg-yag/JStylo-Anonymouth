@@ -43,6 +43,9 @@ import edu.drexel.psal.jstylo.generics.ProblemSet;
 import edu.drexel.psal.jstylo.generics.WekaInstancesBuilder;
 
 public class BackendInterface {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 
 	protected static BackendInterface bei = new BackendInterface(); 
 	
@@ -70,7 +73,7 @@ public class BackendInterface {
 	 * documents tab >> create new problem set
 	 */
 	protected static void docTabCreateNewProblemSet(GUIMain main) {
-		Logger.logln("Backend: create new problem set");
+		Logger.logln("( BackendInterface ) - create new problem set");
 		(new Thread(bei.new DocTabNewProblemSetButtonClick(main))).start();
 	}
 	
@@ -81,14 +84,14 @@ public class BackendInterface {
 		}
 
 		public void run() {
-			Logger.logln("Backend: create new problem set thread started.");
+			Logger.logln(NAME+"Backend: create new problem set thread started.");
 			
 			// initialize probelm set
 			main.ps = new ProblemSet();
 			main.ps.setTrainCorpusName(main.defaultTrainDocsTreeName);
 			GUIUpdateInterface.updateProblemSet(main);
 			
-			Logger.logln("Backend: create new problem set thread finished.");
+			Logger.logln(NAME+"Backend: create new problem set thread finished.");
 		}
 	}
 	
@@ -252,7 +255,7 @@ public class BackendInterface {
 				{
 					ConsolidationStation.functionWords.run();
 					tempDoc = getDocFromCurrentTab();
-					Logger.logln("Process button pressed for first time (initial run) in editor tab");
+					Logger.logln(NAME+"Process button pressed for first time (initial run) in editor tab");
 					
 					pw.setText("Extracting and Clustering Features...");
 					try
@@ -277,14 +280,14 @@ public class BackendInterface {
 					}
 					
 					Map<String,Map<String,Double>> wekaResults = magician.getWekaResultList();
-					Logger.logln(" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
-					Logger.logln(wekaResults.toString());
+					Logger.logln(NAME+" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
+					Logger.logln(NAME+wekaResults.toString());
 					makeResultsTable(wekaResults, main);
 					ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
 				}
 				else //This reprocesses
 				{
-					Logger.logln("Process button pressed to re-process document to modify.");
+					Logger.logln(NAME+"Process button pressed to re-process document to modify.");
 					tempDoc = getDocFromCurrentTab();
 					if(tempDoc.equals("") == true)
 					{
@@ -317,18 +320,18 @@ public class BackendInterface {
 						}
 						pw.setText("Setting Results...");
 						Map<String,Map<String,Double>> wekaResults = magician.getWekaResultList();
-						Logger.logln(" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
-						Logger.logln(wekaResults.toString());
+						Logger.logln(NAME+" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
+						Logger.logln(NAME+wekaResults.toString());
 						makeResultsTable(wekaResults, main);
 						pw.setText("Setting Results... Done");
 					}
 				}
 				int selectedIndex = 1;
 				int trueIndex = selectedIndex - 1;
-				Logger.logln("Cluster Group number '"+trueIndex+"' selected: " + DriverClustersTab.getStringRep()[selectedIndex]);
-				Logger.logln("Cluster Group chosen by Anonymouth: "+DriverClustersTab.getStringRep()[1]);
+				Logger.logln(NAME+"Cluster Group number '"+trueIndex+"' selected: " + DriverClustersTab.getStringRep()[selectedIndex]);
+				Logger.logln(NAME+"Cluster Group chosen by Anonymouth: "+DriverClustersTab.getStringRep()[1]);
 				DataAnalyzer.selectedTargets = DriverClustersTab.getIntRep()[trueIndex];
-				Logger.logln("INTREP: "+DriverClustersTab.getIntRep()[trueIndex]);//added this.
+				Logger.logln(NAME+"INTREP: "+DriverClustersTab.getIntRep()[trueIndex]);//added this.
 				DriverDocumentsTab.wizard.setSelectedTargets();
 				DriverDocumentsTab.signalTargetsSelected(main, true);
 				//eits.documentPane.setText(tempDoc);	
@@ -347,8 +350,8 @@ public class BackendInterface {
 					// Get amount of free memory within the heap in bytes. This size will increase
 					// after garbage collection and decrease as new objects are created.
 					long heapFreeSize = Runtime.getRuntime().freeMemory();
-					Logger.logln("Something happend. Here are the total, max, and free heap sizes:");
-					Logger.logln("Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
+					Logger.logln(NAME+"Something happend. Here are the total, max, and free heap sizes:");
+					Logger.logln(NAME+"Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
 				}
 		}
 	}
@@ -385,7 +388,7 @@ public class BackendInterface {
 //			TableCellRenderer renderer = new PredictionRenderer(main);
 //			main.resultsTable.setDefaultRenderer(Object.class, renderer);
 			DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
-			Logger.logln("The Features are: "+DriverDocumentsTab.theFeatures.toString());
+			Logger.logln(NAME+"The Features are: "+DriverDocumentsTab.theFeatures.toString());
 			//main.suggestionTable.setModel(makeSuggestionListTable(EditorTabDriver.theFeatures));
 			//TableColumn tCol = main.suggestionTable.getColumnModel().getColumn(0);
 			//tCol.setMaxWidth(30);
@@ -424,11 +427,11 @@ public class BackendInterface {
 				
 			}
 			catch(Exception e){
-				Logger.logln("Oops something bad happened with the tagging of documents...");
+				Logger.logln(NAME+"Oops something bad happened with the tagging of documents...");
 				e.printStackTrace();
 			}
 			
-			Logger.logln("Finished in BackendInterface - postTargetSelection");
+			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
 			//main.editorProgressBar.setIndeterminate(false);	
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 //			main.nextSentenceButton.doClick();

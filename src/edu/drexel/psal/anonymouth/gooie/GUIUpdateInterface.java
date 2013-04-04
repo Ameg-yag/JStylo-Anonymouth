@@ -22,6 +22,8 @@ import java.util.*;
 
 public class GUIUpdateInterface {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	
 	
 
@@ -73,7 +75,7 @@ public class GUIUpdateInterface {
 	 * Updates the documents tab view with the current problem set.
 	 */
 	protected static void updateProblemSet(GUIMain main) {
-		Logger.logln("GUI Update: update documents tab with current problem set started");
+		Logger.logln("(GUIUpdateInterface) - GUI Update: update documents tab with current problem set started");
 		
 		// update test documents table
 		updateTestDocTable(main);
@@ -151,14 +153,14 @@ public class GUIUpdateInterface {
 		for (String author: trainDocsMap.keySet()) {
 			if(author.equals(ProblemSet.getDummyAuthor()))
 					continue;
-			authorNode = new DefaultMutableTreeNode(author);
+			authorNode = new DefaultMutableTreeNode(author, true);
 			root.add(authorNode);
 			for (Document doc: trainDocsMap.get(author)){
-				docNode = new DefaultMutableTreeNode(doc.getTitle());
+				docNode = new DefaultMutableTreeNode(doc.getTitle(), false);
 				authorNode.add(docNode);
 			}
 		}
-		DefaultTreeModel trainTreeModel = new DefaultTreeModel(root);
+		DefaultTreeModel trainTreeModel = new DefaultTreeModel(root, true);
 		main.trainCorpusJTree.setModel(trainTreeModel);
 		main.PPSP.trainCorpusJTree.setModel(trainTreeModel);
 		

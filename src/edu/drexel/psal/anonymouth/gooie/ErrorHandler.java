@@ -7,6 +7,9 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
 public class ErrorHandler {
 	
+	private final static String NAME = "( ErrorHandler ) - ";
+
+	
 	private static final int FATAL_ERROR = 666;
 	
 	public static void fatalError(){
@@ -15,7 +18,7 @@ public class ErrorHandler {
 				"If you would like to save your work/problem set prior to closing Anonymouth,\n" +
 				"click \"no\" below. Otherwise, click \"yes\" (this will close Anonymouth)","Fatal error encountered. Terminate?",JOptionPane.YES_NO_OPTION);
 		if(ans == 0){
-			Logger.logln("Fatal error encountered, termination requested.",LogOut.STDERR);
+			Logger.logln(NAME+"Fatal error encountered, termination requested.",LogOut.STDERR);
 			System.exit(FATAL_ERROR);
 		}
 	}

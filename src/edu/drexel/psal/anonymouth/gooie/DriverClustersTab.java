@@ -19,8 +19,11 @@ import edu.drexel.psal.jstylo.generics.Logger;
 
 public class DriverClustersTab {
 	
+	private final static String NAME = "( DriverClustersTab ) - ";
+
+
 	private static GUIMain main;
-	
+
 	private static int lenJPanels;
 	public static boolean clusterGroupReady = false;
 	private static ClusterGroup[] clusterGroupRay;
@@ -28,16 +31,18 @@ public class DriverClustersTab {
 	private static int[][] intRepresentation;
 	private static String[] stringRepresentation;
 	protected static JPanel[] finalPanels;
-	protected static JPanel[] namePanels;
+	protected static JLabel[] nameLabels;
 	protected static JPanel[] clusterPanels;
 	protected static int numFeatures;
 	protected static int[] selectedClustersByFeature;
-	
-	public static class alignListRenderer implements ListCellRenderer 
-	{
+
+	public static class alignListRenderer implements ListCellRenderer {
+		
+
+		
 		int alignValue;
 		protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
-		
+
 		public alignListRenderer(int value)
 		{
 			super();
@@ -50,23 +55,23 @@ public class DriverClustersTab {
 
 		    JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
 		        isSelected, cellHasFocus);
-		    
+
 		    renderer.setHorizontalAlignment(alignValue);
-		    
+
 		    return renderer;
 	    }
 	}
-	
+
 	public static int[][] getIntRep()
 	{
 		return intRepresentation;
 	}
-	
+
 	public static String[] getStringRep()
 	{
 		return stringRepresentation;
 	}
-	
+
 	public static boolean setClusterGroup()
 	{
 		Logger.logln("Cluster group array retrieved from ClusterAnalyzer and brought to ClusterViewerDriver");
@@ -79,11 +84,11 @@ public class DriverClustersTab {
 		else
 			return false;
 	}
-	
+
 	public static void makePanels(Attribute[] theOnesYouWantToSee)
 	{
 		main = GUIMain.inst;
-		
+
 		//System.out.println("length of theOnesYouWantToSee: "+theOnesYouWantToSee.length);
 		int numFeatures = theOnesYouWantToSee.length;
 		double[] minimums = new double[numFeatures]; 
@@ -92,7 +97,7 @@ public class DriverClustersTab {
 		double[] authorMax = new double[numFeatures];
 		double[] presentValues = new double[numFeatures];
 		String[] names = new String[numFeatures];
-		
+
 		int i = 0;
 		ArrayList<Cluster[]> everySingleCluster = new ArrayList<Cluster[]>(numFeatures);
 		double tempMinMax;
@@ -110,20 +115,20 @@ public class DriverClustersTab {
 			presentValues[i] = theOnesYouWantToSee[i].getToModifyValue();
 			tempMinMax = theOnesYouWantToSee[i].getTrainMax();
 			tempAuthorMinMax = authorMax[i];
-			
+
 			if(tempAuthorMinMax < presentValues[i])
 				tempAuthorMinMax = presentValues[i];
-			
+
 			if(tempAuthorMinMax > tempMinMax)
 				maximums[i] = tempAuthorMinMax;
 			else
 				maximums[i] = tempMinMax; 
 			tempMinMax = theOnesYouWantToSee[i].getTrainMin();
 			tempAuthorMinMax = authorMin[i];
-			
+
 			if(tempAuthorMinMax > presentValues[i])
 				tempAuthorMinMax = presentValues[i];
-			
+
 			if(tempAuthorMinMax < tempMinMax)
 				minimums[i] = tempAuthorMinMax;
 			else
@@ -136,36 +141,33 @@ public class DriverClustersTab {
 				dashes = "--";
 			names[i] = theOnesYouWantToSee[i].getGenericName()+dashes+tempString;
 		}
-		
+
 		Iterator<Cluster[]> outerLevel = everySingleCluster.iterator();
 		clusterPanels = new JPanel[numFeatures];// everySingleCluster.size()
-		namePanels = new JPanel[numFeatures];
+		nameLabels = new JLabel[numFeatures];
 		finalPanels = new JPanel[numFeatures];
 		i=0;
 		int[] initialLayoverVals = new int[numFeatures];
 		String[] usedNames = new String[numFeatures];
 		while(outerLevel.hasNext())
 		{
-			JPanel namePanel = new JPanel();
-			JLabel label = new JLabel(names[i]); // for if you want to edit the label in any way
-			namePanel.add(label);
-			namePanels[i] = namePanel;
+			nameLabels[i] = new JLabel(names[i]); // for if you want to edit the label in any way
 			usedNames[i] = names[i];
-			
+
 			JPanel clusterPanel = new ClusterPanel(outerLevel.next(),i,minimums[i],maximums[i], authorMin[i],authorMax[i],presentValues[i]);
 			clusterPanels[i] = clusterPanel;
-			
+
 			MigLayout layout = new MigLayout(
 					"fill, wrap, ins 0",
 					"fill, grow",
 					"[20]0[grow, fill]");
 			finalPanels[i] = new JPanel(layout);
-			finalPanels[i].add(namePanels[i], "grow");
+			finalPanels[i].add(nameLabels[i], "grow");
 			finalPanels[i].add(clusterPanels[i], "grow");
-			
+
 			initialLayoverVals[i] = 1;
 			i++;
-			
+
 		}
 		GUIMain.inst.addClusterFeatures(usedNames); //--- fills the features and subfeatures list for searching
 		/*
@@ -178,7 +180,7 @@ public class DriverClustersTab {
 			});
 			*/
 	}
-	
+
 	public static void initializeClusterViewer(GUIMain main, boolean showMessage)
 	{
 		Logger.logln("Initializing ClusterViewer");
@@ -187,23 +189,25 @@ public class DriverClustersTab {
 		{
 			if (i == 0 || i % 2 == 0)
 			{
-				namePanels[i].setBackground(Color.WHITE);
+				nameLabels[i].setBackground(Color.WHITE);
 				clusterPanels[i].setBackground(Color.WHITE);
-//				finalPanels[i].setBorder(BorderFactory.createLoweredBevelBorder());
+				finalPanels[i].setBorder(main.rlborder);
 			}
 			else
 			{
-				namePanels[i].setBackground(main.tan);
+				nameLabels[i].setBackground(main.tan);
 				clusterPanels[i].setBackground(main.tan);
 				finalPanels[i].setBorder(main.rlborder);
 			}
+			nameLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
+			nameLabels[i].setOpaque(true);
 			clusterPanels[i].setPreferredSize(new Dimension(800,40));
 			finalPanels[i].setPreferredSize(new Dimension(800,60));
 			main.clusterHolderPanel.add(finalPanels[i]);
 		}
-		
+
 		boolean cgIsSet = setClusterGroup();
-		
+
 		intRepresentation = new int[lenCGR][clusterGroupRay[0].getGroupKey().length()];
 		stringRepresentation = new String[1+lenCGR];
 		stringRepresentation[0] = "Select Targets";
@@ -212,7 +216,7 @@ public class DriverClustersTab {
 			intRepresentation[i] = clusterGroupRay[i].getGroupKey().toIntArray();
 			stringRepresentation[i+1] = clusterGroupRay[i].getGroupKey().toString();
 		}
-		
+
 		//ComboBoxModel clusterGroupChoices = new DefaultComboBoxModel(stringRepresentation);
 		//main.clusterConfigurationBox.setModel(clusterGroupChoices);
 		//main.mainJTabbedPane.setSelectedIndex(4);
@@ -224,34 +228,34 @@ public class DriverClustersTab {
 			clusterPanels[i].revalidate();
 			clusterPanels[i].repaint();
 		}
-			
+
 		/*if(showMessage == true)
 			JOptionPane.showMessageDialog(main, "The red dot is where each of your features are now.\nThe center of the " +
 					"green oval is where they will be after you are done editing.\nAccept these targets if they all look reasonably " +
 					"far away from the purple ovals. If not, get new green ovals.","Target Selection",JOptionPane.INFORMATION_MESSAGE,GUIMain.icon);
 		*/
 	}
-	
+
 	public static void findCluster(GUIMain main, String name)
 	{
-		for (int i = 0; i < main.clusterHolderPanel.getComponentCount(); i = i + 2)
-		{
-			JPanel panel = (JPanel)main.clusterHolderPanel.getComponent(i);
-			JLabel label = (JLabel)((JPanel)panel.getComponent(0)).getComponent(0);
-			String labelName = label.getText();
-			if (name.equals(labelName))
-			{
-				main.clusterScrollPane.getVerticalScrollBar().setValue((i/2)*74); // 70 + 4 extra pixels for the borders
-				break;
-			}
-		}
+//		for (int i = 0; i < main.clusterHolderPanel.getComponentCount(); i = i + 2)
+//		{
+//			JPanel panel = (JPanel)main.clusterHolderPanel.getComponent(i);
+//			JLabel label = (JLabel)((JPanel)panel.getComponent(0)).getComponent(0);
+//			String labelName = label.getText();
+//			if (name.equals(labelName))
+//			{
+//				main.clusterScrollPane.getVerticalScrollBar().setValue((i/2)*74); // 70 + 4 extra pixels for the borders
+//				break;
+//			}
+//		}
 	}
-	
+
 	public static void initListeners(final GUIMain main) 
 	{	
 		main.featuresList.setCellRenderer(new alignListRenderer(SwingConstants.CENTER));
 		main.subFeaturesList.setCellRenderer(new alignListRenderer(SwingConstants.CENTER));
-		
+
 		main.featuresList.addListSelectionListener(new ListSelectionListener()
 		{
 			@Override
@@ -272,7 +276,7 @@ public class DriverClustersTab {
 					main.subFeaturesList.setEnabled(true);
 			}
 		});
-		
+
 		main.subFeaturesList.addListSelectionListener(new ListSelectionListener()
 		{
 			@Override
@@ -282,7 +286,7 @@ public class DriverClustersTab {
 			}
 		});
 	}
-		
+
 
 
 	/*
@@ -330,7 +334,7 @@ public class DriverClustersTab {
 //		}
 //		
 //	});
-	
+
 //	main.refreshButton.addActionListener(new ActionListener(){
 //		public void actionPerformed(ActionEvent e){
 //			for(int i=0;i<lenJPanels;i++)
@@ -339,7 +343,7 @@ public class DriverClustersTab {
 //		}
 //		
 //	});
-	
+
 //	main.reClusterAllButton.addActionListener(new ActionListener(){
 //		
 //		public void actionPerformed(ActionEvent e){

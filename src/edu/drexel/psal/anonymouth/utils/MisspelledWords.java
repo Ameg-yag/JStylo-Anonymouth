@@ -11,6 +11,7 @@ import edu.drexel.psal.jstylo.generics.Logger;
 
 public class MisspelledWords {
 
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected String[] misspelledWordArray=new String[5513];//make this larger if more words are added
 	private ArrayList<String> misspelledWordList;
 	private static String filePath="src/edu/drexel/psal/resources/writeprints_misspellings.txt";
@@ -58,7 +59,7 @@ public class MisspelledWords {
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			Logger.logln("Error opening reader: "+e.getMessage());
+			Logger.logln("(MisspelledWords) - Error opening reader: "+e.getMessage());
 		}
 		
 		return misspelledWords;

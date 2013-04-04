@@ -32,6 +32,9 @@ import com.jgaap.generics.*;
 
 public class DriverPreProcessTabFeatures {
 	
+	private final static String NAME = "( DriverPreProcessTabFeatures ) - ";
+
+	
 	/* ======================
 	 * Features tab listeners
 	 * ======================
@@ -106,7 +109,7 @@ public class DriverPreProcessTabFeatures {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Logger.logln("Preset feature set selected in the features tab.");
+				Logger.logln(NAME+"Preset feature set selected in the features tab.");
 				
 				int answer = JOptionPane.YES_OPTION;
 				/*
@@ -124,7 +127,7 @@ public class DriverPreProcessTabFeatures {
 						main.cfd = new CumulativeFeatureDriver();
 					} else {
 						main.cfd = main.presetCFDs.get(selected);
-						Logger.logln("loaded preset feature set: "+main.cfd.getName());
+						Logger.logln(NAME+"loaded preset feature set: "+main.cfd.getName());
 					}
 					main.featuresSetJComboBox.setSelectedIndex(selected+1);
 					main.PPSP.featuresSetJComboBox.setSelectedIndex(selected+1);
@@ -132,7 +135,7 @@ public class DriverPreProcessTabFeatures {
 					GUIUpdateInterface.updateFeatureSetView(main);
 					GUIUpdateInterface.updateFeatPrepColor(main);
 				} else {
-					Logger.logln("Loading preset feature set canceled.");
+					Logger.logln(NAME+"Loading preset feature set canceled.");
 				}
 			}
 		});
@@ -150,7 +153,7 @@ public class DriverPreProcessTabFeatures {
 			@Override
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				Logger.logln("Preset feature set selected in the features tab.");
+				Logger.logln(NAME+"Preset feature set selected in the features tab.");
 				
 				int answer = JOptionPane.YES_OPTION;
 				/*
@@ -168,7 +171,7 @@ public class DriverPreProcessTabFeatures {
 						main.cfd = new CumulativeFeatureDriver();
 					} else {
 						main.cfd = main.presetCFDs.get(selected);
-						Logger.logln("loaded preset feature set: "+main.cfd.getName());
+						Logger.logln(NAME+"loaded preset feature set: "+main.cfd.getName());
 					}
 					main.featuresSetJComboBox.setSelectedIndex(selected+1);
 					main.PPSP.featuresSetJComboBox.setSelectedIndex(selected+1);
@@ -176,7 +179,7 @@ public class DriverPreProcessTabFeatures {
 					GUIUpdateInterface.updateFeatureSetView(main);
 					GUIUpdateInterface.updateFeatPrepColor(main);
 				} else {
-					Logger.logln("Loading preset feature set canceled.");
+					Logger.logln(NAME+"Loading preset feature set canceled.");
 				}
 			}
 		});
@@ -187,7 +190,7 @@ public class DriverPreProcessTabFeatures {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("'New Feature Set' button clicked in the features tab.");
+				Logger.logln(NAME+"'New Feature Set' button clicked in the features tab.");
 
 				// check if the current CFD is not empty
 				int answer;
@@ -214,7 +217,7 @@ public class DriverPreProcessTabFeatures {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Logger.logln("'Add Feature Set' button clicked in the features tab.");
+				Logger.logln(NAME+"'Add Feature Set' button clicked in the features tab.");
 				
 				// check name
 				if (main.cfd.getName() == null || main.cfd.getName().matches("\\s*")) {
@@ -249,7 +252,7 @@ public class DriverPreProcessTabFeatures {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Logger.logln("'Import from XML' button clicked in the features tab.");
+				Logger.logln(NAME+"'Import from XML' button clicked in the features tab.");
 				
 				// check if the current CFD is not empty
 				int answer = JOptionPane.YES_OPTION;
@@ -269,7 +272,7 @@ public class DriverPreProcessTabFeatures {
 					
 					if (answer == JFileChooser.APPROVE_OPTION) {
 						String path = load.getSelectedFile().getAbsolutePath();
-						Logger.logln("Trying to load cumulative feature driver from "+path);
+						Logger.logln(NAME+"Trying to load cumulative feature driver from "+path);
 						try {
 							// read CFD and update
 							CumulativeFeatureDriver cfd = new CumulativeFeatureDriver(path);
@@ -291,8 +294,8 @@ public class DriverPreProcessTabFeatures {
 							GUIUpdateInterface.updateFeatureSetView(main);
 							
 						} catch (Exception exc) {
-							Logger.logln("Failed loading "+path, LogOut.STDERR);
-							Logger.logln(exc.toString(),LogOut.STDERR);
+							Logger.logln(NAME+"Failed loading "+path, LogOut.STDERR);
+							Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 							JOptionPane.showMessageDialog(null,
 									"Failed loading feature set from:\n"+path,
 									"Load Feature Set Failure",
@@ -300,7 +303,7 @@ public class DriverPreProcessTabFeatures {
 						}
 			            
 			        } else {
-			            Logger.logln("Load cumulative feature driver canceled");
+			            Logger.logln(NAME+"Load cumulative feature driver canceled");
 			        }
 				}
 			}
@@ -312,7 +315,7 @@ public class DriverPreProcessTabFeatures {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Logger.logln("'Save Feature Set...' button clicked in the features tab.");
+				Logger.logln(NAME+"'Save Feature Set...' button clicked in the features tab.");
 
 				JFileChooser save = new JFileChooser(new File("."));
 				save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
@@ -330,15 +333,15 @@ public class DriverPreProcessTabFeatures {
 						bw.close();
 						Logger.log("Saved cumulative feature driver to "+path+":\n"+main.cfd.toXMLString());
 					} catch (IOException exc) {
-						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
-						Logger.logln(exc.toString(),LogOut.STDERR);
+						Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
+						Logger.logln(NAME+exc.toString(),LogOut.STDERR);
 						JOptionPane.showMessageDialog(null,
 								"Failed saving feature set set into:\n"+path,
 								"Save Feature Set Failure",
 								JOptionPane.ERROR_MESSAGE);
 					}
 				} else {
-					Logger.logln("Save cumulative feature driver canceled");
+					Logger.logln(NAME+"Save cumulative feature driver canceled");
 				}
 			}
 		});
@@ -352,7 +355,7 @@ public class DriverPreProcessTabFeatures {
 //					
 //					@Override
 //					public void focusLost(FocusEvent arg0) {
-//						Logger.logln("Feature set name edited in the features tab.");
+//						Logger.logln(NAME+"Feature set name edited in the features tab.");
 //						main.cfd.setName(main.PPSP.featuresSetNameJTextField.getText());
 //					}
 //					
@@ -366,7 +369,7 @@ public class DriverPreProcessTabFeatures {
 			
 			@Override
 			public void focusLost(FocusEvent arg0) {
-				Logger.logln("Feature set description edited in the features tab.");
+				Logger.logln(NAME+"Feature set description edited in the features tab.");
 				main.cfd.setDescription(main.PPSP.featuresSetDescJTextPane.getText());
 			}
 			
@@ -388,7 +391,7 @@ public class DriverPreProcessTabFeatures {
 				// skip if already processed
 				if (selected == lastSelected)
 					return;
-				Logger.logln("Feature selected in the features tab: "+main.PPSP.featuresJList.getSelectedValue());
+				Logger.logln(NAME+"Feature selected in the features tab: "+main.PPSP.featuresJList.getSelectedValue());
 				GUIUpdateInterface.updateFeatureView(main, selected);
 				lastSelected = selected;
 			}
@@ -399,7 +402,7 @@ public class DriverPreProcessTabFeatures {
 //					
 //					@Override
 //					public void actionPerformed(ActionEvent arg0) {
-//						Logger.logln("'Add' feature button clicked in the features tab.");
+//						Logger.logln(NAME+"'Add' feature button clicked in the features tab.");
 //						FeatureWizard fw = new FeatureWizard(main);
 //						fw.setVisible(true);
 //					}
@@ -410,7 +413,7 @@ public class DriverPreProcessTabFeatures {
 //					
 //					@Override
 //					public void actionPerformed(ActionEvent e) {
-//						Logger.logln("'Edit' feature button clicked in the features tab.");
+//						Logger.logln(NAME+"'Edit' feature button clicked in the features tab.");
 //						if (main.PPSP.featuresJList.getSelectedIndex() == -1) {
 //							JOptionPane.showMessageDialog(main,
 //									"You must select a feature to edit.",
@@ -429,7 +432,7 @@ public class DriverPreProcessTabFeatures {
 //					
 //					@Override
 //					public void actionPerformed(ActionEvent e) {
-//						Logger.logln("'Remove' feature button clicked in the features tab.");
+//						Logger.logln(NAME+"'Remove' feature button clicked in the features tab.");
 //						int selected = main.PPSP.featuresJList.getSelectedIndex();
 //						
 //						if (selected == -1) {
@@ -447,7 +450,7 @@ public class DriverPreProcessTabFeatures {
 //						if (answer == JOptionPane.YES_OPTION) {
 //							FeatureDriver fd = main.cfd.removeFeatureDriverAt(selected);
 //							GUIUpdateInterface.updateFeatureSetView(main);
-//							Logger.logln("Removed feature "+fd.getName());
+//							Logger.logln(NAME+"Removed feature "+fd.getName());
 //						}
 //					}
 //				});
@@ -466,14 +469,14 @@ public class DriverPreProcessTabFeatures {
 				
 				// unselected
 				else if (selected == -1) {
-					Logger.logln("Canonicizer unselected in features tab.");
+					Logger.logln(NAME+"Canonicizer unselected in features tab.");
 					main.PPSP.featuresCanonConfigJTableModel.getDataVector().removeAllElements();
 				}
 				
 				//selected
 				else {
 					Canonicizer c = main.cfd.featureDriverAt(main.PPSP.featuresJList.getSelectedIndex()).canonicizerAt(selected);
-					Logger.logln("Canonicizer '"+c.displayName()+"' selected in features tab.");
+					Logger.logln(NAME+"Canonicizer '"+c.displayName()+"' selected in features tab.");
 					GUIUpdateInterface.populateTableWithParams(c, main.PPSP.featuresCanonConfigJTableModel);
 				}
 				
@@ -495,14 +498,14 @@ public class DriverPreProcessTabFeatures {
 				
 				// unselected
 				else if (selected == -1) {
-					Logger.logln("Culler unselected in features tab.");
+					Logger.logln(NAME+"Culler unselected in features tab.");
 					main.PPSP.featuresCullConfigJTableModel.getDataVector().removeAllElements();
 				}
 				
 				//selected
 				else {
 					EventCuller ec = main.cfd.featureDriverAt(main.PPSP.featuresJList.getSelectedIndex()).cullerAt(selected);
-					Logger.logln("Culler '"+ec.displayName()+"' selected in features tab.");
+					Logger.logln(NAME+"Culler '"+ec.displayName()+"' selected in features tab.");
 					GUIUpdateInterface.populateTableWithParams(ec, main.PPSP.featuresCullConfigJTableModel);
 				}
 				
@@ -548,7 +551,7 @@ public class DriverPreProcessTabFeatures {
 				main.presetCFDs.add(new CumulativeFeatureDriver(path));
 			}
 		} catch (Exception e) {
-			Logger.logln("Failed to read feature set files.",LogOut.STDERR);
+			Logger.logln(NAME+"Failed to read feature set files.",LogOut.STDERR);
 			e.printStackTrace();
 		}
 		

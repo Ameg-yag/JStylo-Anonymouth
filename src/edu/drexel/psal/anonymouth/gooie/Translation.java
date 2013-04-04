@@ -15,6 +15,8 @@ import com.memetix.mst.translate.Translate;
  */
 public class Translation {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
 			Language.CHINESE_SIMPLIFIED, Language.CHINESE_TRADITIONAL,Language.CZECH,
 			Language.DANISH,Language.DUTCH,Language.ESTONIAN,Language.FINNISH,

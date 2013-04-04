@@ -28,6 +28,9 @@ import weka.classifiers.rules.ZeroR;
 import weka.classifiers.trees.*;
 
 public class DriverPreProcessTabClassifiers {
+	
+	private final static String NAME = "( DriverPrePRocessTabClassifiers ) - ";
+
 
 	/* =========================
 	 * Classifiers tab listeners
@@ -106,7 +109,7 @@ public class DriverPreProcessTabClassifiers {
 			public void valueChanged(TreeSelectionEvent arg0) {
 				// if unselected
 				if (main.classJTree.getSelectionCount() == 0) {
-					Logger.logln("Classifier tree unselected in the classifiers tab.");
+					Logger.logln(NAME+"Classifier tree unselected in the classifiers tab.");
 					//resetAvClassSelection(main);
 					tmpClassifier = null;
 					return;
@@ -120,7 +123,7 @@ public class DriverPreProcessTabClassifiers {
 				
 				// if selected a classifier
 				if (selectedNode.isLeaf()) {
-					Logger.logln("Classifier selected in the available classifiers tree in the classifiers tab: "+selectedNode.toString());
+					Logger.logln(NAME+"Classifier selected in the available classifiers tree in the classifiers tab: "+selectedNode.toString());
 					
 					// get classifier
 					String className = getClassNameFromPath(path);
@@ -128,7 +131,7 @@ public class DriverPreProcessTabClassifiers {
 					try {
 						tmpClassifier = Classifier.forName(className, null);						
 					} catch (Exception e) {
-						Logger.logln("Could not create classifier out of class: "+className);
+						Logger.logln(NAME+"Could not create classifier out of class: "+className);
 						JOptionPane.showMessageDialog(main,
 								"Could not generate classifier for selected class:\n"+className,
 								"Classifier Selection Error",
@@ -162,7 +165,7 @@ public class DriverPreProcessTabClassifiers {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Logger.logln("'Add' button clicked in the analysis tab.");
+				Logger.logln(NAME+"'Add' button clicked in the analysis tab.");
 
 				// check if classifier is selected
 				if (tmpClassifier == null) {
@@ -185,7 +188,7 @@ public class DriverPreProcessTabClassifiers {
 						//tmpClassifier.setOptions(main.classAvClassArgsJTextField.getText().split(" "));
 						tmpClassifier.setOptions(getOptionsStr(tmpClassifier.getOptions()).split(" "));
 					} catch (Exception e) {
-						Logger.logln("Invalid options given for classifier.",LogOut.STDERR);
+						Logger.logln(NAME+"Invalid options given for classifier.",LogOut.STDERR);
 						JOptionPane.showMessageDialog(main,
 								"The classifier arguments entered are invalid.\n"+
 										"Restoring original options.",
@@ -221,7 +224,7 @@ public class DriverPreProcessTabClassifiers {
 				
 				// if unselected
 				if (selected == -1) {
-					Logger.logln("Classifier list unselected in the classifiers tab.");
+					Logger.logln(NAME+"Classifier list unselected in the classifiers tab.");
 					//resetSelClassSelection(main);
 					tmpClassifier = null;
 					return;
@@ -231,7 +234,7 @@ public class DriverPreProcessTabClassifiers {
 				main.classJTree.clearSelection();
 
 				String className = main.classJList.getSelectedValue().toString();
-				Logger.logln("Classifier selected in the selected classifiers list in the classifiers tab: "+className);
+				Logger.logln(NAME+"Classifier selected in the selected classifiers list in the classifiers tab: "+className);
 
 				// show options and description
 				//main.classSelClassArgsJTextField.setText(getOptionsStr(main.classifiers.get(selected).getOptions()));
@@ -283,7 +286,7 @@ public class DriverPreProcessTabClassifiers {
 //			
 //			@Override
 //			public void actionPerformed(ActionEvent e) {
-//				Logger.logln("'Back' button clicked in the classifiers tab");
+//				Logger.logln(NAME+"'Back' button clicked in the classifiers tab");
 //				main.mainJTabbedPane.setSelectedIndex(1);
 //			}
 //		});
@@ -295,7 +298,7 @@ public class DriverPreProcessTabClassifiers {
 //			
 //			@Override
 //			public void actionPerformed(ActionEvent e) {
-//				Logger.logln("'Next' button clicked in the classifiers tab");
+//				Logger.logln(NAME+"'Next' button clicked in the classifiers tab");
 //				
 //				if (main.classifiers.isEmpty()) 
 //				{
@@ -360,7 +363,7 @@ public class DriverPreProcessTabClassifiers {
 			public void valueChanged(TreeSelectionEvent arg0) {
 				// if unselected
 				if (main.PPSP.classJTree.getSelectionCount() == 0) {
-					Logger.logln("Classifier tree unselected in the classifiers tab.");
+					Logger.logln(NAME+"Classifier tree unselected in the classifiers tab.");
 					//resetAvClassSelection(main);
 					tmpClassifier = null;
 					return;
@@ -374,7 +377,7 @@ public class DriverPreProcessTabClassifiers {
 				
 				// if selected a classifier
 				if (selectedNode.isLeaf()) {
-					Logger.logln("Classifier selected in the available classifiers tree in the classifiers tab: "+selectedNode.toString());
+					Logger.logln(NAME+"Classifier selected in the available classifiers tree in the classifiers tab: "+selectedNode.toString());
 					
 					// get classifier
 					String className = getClassNameFromPath(path);
@@ -382,7 +385,7 @@ public class DriverPreProcessTabClassifiers {
 					try {
 						tmpClassifier = Classifier.forName(className, null);						
 					} catch (Exception e) {
-						Logger.logln("Could not create classifier out of class: "+className);
+						Logger.logln(NAME+"Could not create classifier out of class: "+className);
 						JOptionPane.showMessageDialog(main,
 								"Could not generate classifier for selected class:\n"+className,
 								"Classifier Selection Error",
@@ -416,7 +419,7 @@ public class DriverPreProcessTabClassifiers {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Logger.logln("'Add' button clicked in the analysis tab.");
+				Logger.logln(NAME+"'Add' button clicked in the analysis tab.");
 
 				// check if classifier is selected
 				if (tmpClassifier == null) {
@@ -439,7 +442,7 @@ public class DriverPreProcessTabClassifiers {
 						//tmpClassifier.setOptions(main.classAvClassArgsJTextField.getText().split(" "));
 						tmpClassifier.setOptions(getOptionsStr(tmpClassifier.getOptions()).split(" "));
 					} catch (Exception e) {
-						Logger.logln("Invalid options given for classifier.",LogOut.STDERR);
+						Logger.logln(NAME+"Invalid options given for classifier.",LogOut.STDERR);
 						JOptionPane.showMessageDialog(main,
 								"The classifier arguments entered are invalid.\n"+
 										"Restoring original options.",
@@ -475,7 +478,7 @@ public class DriverPreProcessTabClassifiers {
 				
 				// if unselected
 				if (selected == -1) {
-					Logger.logln("Classifier list unselected in the classifiers tab.");
+					Logger.logln(NAME+"Classifier list unselected in the classifiers tab.");
 					//resetSelClassSelection(main);
 					tmpClassifier = null;
 					return;
@@ -485,7 +488,7 @@ public class DriverPreProcessTabClassifiers {
 				main.PPSP.classJTree.clearSelection();
 
 				String className = main.PPSP.classJList.getSelectedValue().toString();
-				Logger.logln("Classifier selected in the selected classifiers list in the classifiers tab: "+className);
+				Logger.logln(NAME+"Classifier selected in the selected classifiers list in the classifiers tab: "+className);
 
 				// show options and description
 				main.PPSP.classSelClassArgsJTextField.setText(getOptionsStr(main.classifiers.get(selected).getOptions()));

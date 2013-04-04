@@ -31,6 +31,7 @@ public class TranslatedSentenceReader {
  * This should either be done for only the current author of interest, or, this should be done one time, and the results serialized. 
  */
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	String translated_location = "anonymouth_translations/translated/";
 	String[] authors = {"a","b","c","cm","d","e","f","g","h","k","m","p","s"};
 	int numAuths = authors.length;

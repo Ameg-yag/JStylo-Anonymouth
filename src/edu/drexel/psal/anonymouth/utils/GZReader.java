@@ -25,6 +25,7 @@ import edu.drexel.psal.jstylo.generics.Logger;
 
 public class GZReader {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	BufferedReader buff;
 
 	public GZReader(){

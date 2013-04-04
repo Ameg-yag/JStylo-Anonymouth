@@ -26,6 +26,7 @@ import edu.stanford.nlp.trees.Tree;
  */
 public class TreeProcessor {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected HashMap<String,TreeData> processedTrees = new HashMap<String,TreeData>();
 	protected static HashMap<String,TreeData> singleDocMap  = new HashMap<String,TreeData>(); // must be cleared after each document (NOT after each call to ProcessTree,
 	 // each call to processTree takes care of one sentence in a document.)

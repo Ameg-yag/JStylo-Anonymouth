@@ -17,8 +17,10 @@ import javax.swing.*;
 import edu.drexel.psal.anonymouth.gooie.Translation;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
-public class ProgressWindow extends JDialog
-{
+public class ProgressWindow extends JDialog {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	private JProgressBar progressBar;
 	private JLabel progressLabel;
 	private GUIMain main;

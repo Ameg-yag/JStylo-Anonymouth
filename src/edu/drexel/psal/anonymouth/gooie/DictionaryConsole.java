@@ -30,6 +30,9 @@ import edu.drexel.psal.jstylo.generics.Logger;
 * @author Andrew W.E. McDonald
 */
 public class DictionaryConsole extends javax.swing.JFrame {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	
 	protected JTabbedPane viewerTP;
 	protected JLabel componentNameLabel;
 	protected JScrollPane jScrollPane1;
@@ -74,7 +77,7 @@ public class DictionaryConsole extends javax.swing.JFrame {
 	
 	private void initGUI() {
 		try {
-			Logger.logln("Dictionary GUI intializing");
+			Logger.logln(NAME+"Dictionary GUI intializing");
 			GroupLayout thisLayout = new GroupLayout((JComponent)getContentPane());
 			getContentPane().setLayout(thisLayout);
 			setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);

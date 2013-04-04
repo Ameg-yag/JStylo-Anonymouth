@@ -22,6 +22,8 @@ import weka.core.Instances;
  */
 public class InstanceConstructor {
 	
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
+
 	/**
 	 * private variable to hold the attributes of the training documents.
 	 */
@@ -84,7 +86,7 @@ public class InstanceConstructor {
 		wid = new WekaInstancesBuilder(isSparse);
 		theseFeaturesCfd = cfd;
 		this.printStuff =printStuff;
-		Logger.logln("InstanceConstuctor constructed");
+		Logger.logln(NAME+"InstanceConstuctor constructed");
 	}
 	
 	
@@ -97,7 +99,7 @@ public class InstanceConstructor {
 	 * 	true if no errors
 	 */
 	public boolean runInstanceBuilder(List<Document> trainDocs,List<Document> testDocs){
-		Logger.logln("Runnng JStylo WekaInstancesBuilder from runInstanceBuilder in InstanceConstructor");
+		Logger.logln(NAME+"Runnng JStylo WekaInstancesBuilder from runInstanceBuilder in InstanceConstructor");
 			int eye = 0;
 		if(printStuff == true){
 			char[] cRay = testDocs.get(0).getProcessedText();
@@ -117,7 +119,7 @@ public class InstanceConstructor {
 		wid.prepareTestSet(testDocs);
 		}
 		catch(Exception e){
-			Logger.logln("Could not prepare either test or training set.");
+			Logger.logln(NAME+"Could not prepare either test or training set.");
 			e.printStackTrace();
 			return false;
 		}
@@ -143,12 +145,12 @@ public class InstanceConstructor {
 	}
 	
 	public boolean onlyBuildTrain(List<Document> trainDocs){
-		Logger.logln("Only building train set");
+		Logger.logln(NAME+"Only building train set");
 		try{
 			wid.prepareTrainingSet(trainDocs, theseFeaturesCfd);
 		}
 		catch(Exception e){
-			Logger.logln("Could not prepare training set");
+			Logger.logln(NAME+"Could not prepare training set");
 			e.printStackTrace();
 		}
 		trainingDat=wid.getTrainingSet();

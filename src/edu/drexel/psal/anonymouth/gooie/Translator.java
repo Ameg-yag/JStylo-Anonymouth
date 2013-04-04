@@ -15,7 +15,7 @@ public class Translator implements Runnable
 	private GUIMain main;
 	private int currentSentNum = 1;
 	private int currentLangNum = 1;
-	
+
 	/**
 	 * Class that handles the 2-way translation of a given sentence. It starts a new thread so the main thread
 	 * doesn't freeze up. This allows it to update the user about the progress of the translations.
@@ -26,7 +26,7 @@ public class Translator implements Runnable
 	{
 		this.main = main;
 	}
-	
+
 	/**
 	 * Compact method that sets everything's enabled property while the thread is translating.
 	 * The components listed are listed because they can possibly interrupt or overlap the translating.
@@ -40,31 +40,34 @@ public class Translator implements Runnable
 //		main.translationsComboBox.setEnabled(b);
 		main.processButton.setEnabled(b);
 	}
-	
+
 	/**
-	 * Loads sentences into the queue. Newly added sentences take priority. If translations arent running, it starts running.
+	 * Loads sentences into the translation queue. Newly added sentences take priority. If translations arent running, it starts running.
 	 * If translations are already running, adds new sentences into the front of the queue.
 	 */
 	public void load(ArrayList<TaggedSentence> loaded) 
 	{
-//		for (int i = 0; i < sentences.size(); i++)
-//			this.pendingSentences.add(sentences.get(i));
-		
+		// if there are no sentences currently being translated
 		if (sentences.size() == 0)
 		{
+			// add the given sentences to the queue
 			for (int i = 0; i < loaded.size(); i++)
 				sentences.add(loaded.get(i));
+
+			// start a new thread to begin translation
 			Thread transThread = new Thread(this);
-			transThread.start();
+			transThread.start(); // calls run below
 		}
+		// if there are sentences in the queue already
 		else
 		{
+			//
 			for (int i = 0; i < loaded.size(); i++)
 			{
 				if (currentSentNum + i == sentences.size()) // the + i makes the statement account for the loaded sentences that have been added.
 					sentences.add(loaded.get(i));
 				else
-					sentences.add(currentSentNum, loaded.get(i));
+					sentences.add(currentSentNum, loaded.get(i)); // adds it directly after the sentence currently being processed
 			}
 		}
 	}
@@ -72,40 +75,45 @@ public class Translator implements Runnable
 	@Override
 	public void run() 
 	{
-		setAllEnabled(false); // disable everything to start so there are no interruptions
-		
+		// disable everything to start so there are no interruptions
+		setAllEnabled(false); 
+
 		// set up the progress bar
 		main.translationsProgressBar.setIndeterminate(true);
-		
+
 		// finish set up for translation
 		main.translationsProgressLabel.setText("Sentence: 1/" + sentences.size() + " Languages: 1/"  + DriverDocumentsTab.translator.getUsedLangs().length);
-		
-		// translate all languages and add them and their anonIndex to the ArrayLists
-		
+
+		// translate all languages for each sentence, sorting the list based on anon index after each translation
 		while (!sentences.isEmpty() && currentSentNum <= sentences.size())
 		{
+			// if the sentence that is about to be translated already has translations, get rid of them
 			if (sentences.get(currentSentNum-1).hasTranslations())
 			{
 				sentences.get(currentSentNum-1).setTranslations(new ArrayList<TaggedSentence>(Translation.getUsedLangs().length));
 				sentences.get(currentSentNum-1).setTranslationNames(new ArrayList<String>(Translation.getUsedLangs().length));
 			}
 			main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
-			
+
+			// Translate the sentence for each language
 			for (Language lang: DriverDocumentsTab.translator.getUsedLangs())
 			{
+				// update the progress label
 				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
-				
+
+
 				String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged().trim(), lang);
 				TaggedSentence taggedTrans = new TaggedSentence(translation);
 				taggedTrans.tagAndGetFeatures();
 				sentences.get(currentSentNum-1).getTranslations().add(taggedTrans);
 				sentences.get(currentSentNum-1).getTranslationNames().add(Translation.getName(lang));
 				sentences.get(currentSentNum-1).sortTranslations();
-				if (DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(DriverDocumentsTab.currentSentNum).equals(sentences.get(currentSentNum-1).getUntagged()))
-					DriverTranslationsTab.showTranslations(sentences.get(currentSentNum-1).getUntagged());
+				String one = DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(DriverDocumentsTab.currentSentNum-1).trim();
+				String two = sentences.get(currentSentNum-1).getUntagged().trim();
+				if (one.equals(two))
+					DriverTranslationsTab.showTranslations(sentences.get(currentSentNum-1));
 				currentLangNum++;
 			}
-			sentences.get(currentSentNum-1).sortTranslations();
 			currentLangNum = 1;
 			currentSentNum++;
 		}

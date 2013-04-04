@@ -14,6 +14,7 @@ import java.util.Iterator;
  */
 public class TreeData{
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected int numberOfOccurrences = 0;
 	protected ArrayList<Sentence> sentences = new ArrayList<Sentence>(20);
 	protected String treeStructure;

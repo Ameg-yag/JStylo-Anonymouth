@@ -23,6 +23,8 @@ import java.util.HashMap;
  *
  */
 public class TheMirror {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 
 	private String suggestorPackage = "edu.drexel.psal.anonymouth.suggestors";
 	private String calculatorsPackage = "edu.drexel.psal.anonymouth.calculators";
@@ -31,7 +33,7 @@ public class TheMirror {
 	Method method;
 	
 	public void highlightRequestedNotSpecific(String methodName) throws SecurityException, NoSuchMethodException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
-		Logger.logln("called non-specific highlighter for: "+methodName);
+		Logger.logln(NAME+"called non-specific highlighter for: "+methodName);
 		//Class<?> klass = Class.forName(suggestorPackage+"."+"HighlightMapMaker");
 		HighlightMapMaker.highlightMap = new HashMap<Color,ArrayList<int[]>>();
 		HighlightMapMaker hmm = new HighlightMapMaker();
@@ -39,18 +41,18 @@ public class TheMirror {
 		method.invoke(hmm,(Object[])null);//{new String(pac.getName()), temp[0],temp[1]});
 		
 		DriverDocumentsTab.dispHighlights();
-		Logger.logln("Highlighting complete.");
+		Logger.logln(NAME+"Highlighting complete.");
 	}
 	
 	public void highlightRequestedSpecific(String methodName, String specifier) throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException{
-		Logger.logln("called specific highlighter for : "+methodName+" with specifier: "+specifier);
+		Logger.logln(NAME+"called specific highlighter for : "+methodName+" with specifier: "+specifier);
 		HighlightMapMaker.highlightMap = new HashMap<Color,ArrayList<int[]>>();
 		HighlightMapMaker hmm = new HighlightMapMaker();
 		method = hmm.getClass().getDeclaredMethod(methodName, String.class);
 		method.invoke(hmm,specifier);//{new String(pac.getName()), temp[0],temp[1]});
 		
 		DriverDocumentsTab.dispHighlights();	
-		Logger.logln("Highlighting complete.");
+		Logger.logln(NAME+"Highlighting complete.");
 		
 	}
 		
@@ -70,7 +72,7 @@ public class TheMirror {
 	 */
 	public Prophecy callRelevantSuggestor(Attribute attrib) throws SecurityException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException,
 		IllegalArgumentException, InvocationTargetException{
-		Logger.logln("called callRelevantSuggestor for : "+attrib.getConcatGenNameAndStrInBraces());
+		Logger.logln(NAME+"called callRelevantSuggestor for : "+attrib.getConcatGenNameAndStrInBraces());
 		Prophecy utterance;
 		Object someObject;
 		Method[] theThreeMethods = new Method[3];
@@ -78,7 +80,7 @@ public class TheMirror {
 		try{
 		updatePresentValue(attrib);
 		} catch (Exception e){
-			Logger.logln("Update present value failed. This is probably because a calculator hasn't been built for the specific attribute yet.");
+			Logger.logln(NAME+"Update present value failed. This is probably because a calculator hasn't been built for the specific attribute yet.");
 		}
 		if(attrib.getTargetValue() <0)
 			attrib.setTargetValue(attrib.getToModifyValue());
@@ -95,7 +97,7 @@ public class TheMirror {
 		theThreeMethods[0].invoke(someObject,new Object[] {attrib});//{new String(pac.getName()), temp[0],temp[1]});
 		theThreeMethods[1].invoke(someObject,(Object[])null);
 		utterance = (Prophecy) theThreeMethods[2].invoke(someObject,(Object[])null);
-		Logger.logln("Suggestor called, utterance saved.");
+		Logger.logln(NAME+"Suggestor called, utterance saved.");
 		return utterance;
 	}
 	

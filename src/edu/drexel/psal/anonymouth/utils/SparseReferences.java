@@ -14,7 +14,9 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
  */
 public class SparseReferences {
 
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected ArrayList<Reference> references;
+	
 	
 	/**
 	 * constructor. 
@@ -46,13 +48,13 @@ public class SparseReferences {
 		if(index >= 0){
 			Reference r = new Reference(index, value);
 			if(references.contains(r)){
-				Logger.logln("Cannot add duplicate references, addNewReference failed.",LogOut.STDERR);
+				Logger.logln(NAME+"Cannot add duplicate references, addNewReference failed.",LogOut.STDERR);
 				return false;
 			}
 			references.add(r);
 			return true;
 		}
-		Logger.logln("Cannot add Reference with 'index' less than zero",LogOut.STDERR);
+		Logger.logln(NAME+"Cannot add Reference with 'index' less than zero",LogOut.STDERR);
 		return false;
 	}
 	
@@ -65,13 +67,13 @@ public class SparseReferences {
 	public boolean addNewReference(Reference reference){
 		if(reference.index >= 0){
 			if(references.contains(reference)){
-				Logger.logln("Cannot add duplicate references, addNewReference failed.",LogOut.STDERR);
+				Logger.logln(NAME+"Cannot add duplicate references, addNewReference failed.",LogOut.STDERR);
 				return false;
 			}
 			references.add(new Reference(reference.index,reference.value));
 			return true;
 		}
-		Logger.logln("Cannot add Reference with 'index' less than zero",LogOut.STDERR);
+		Logger.logln(NAME+"Cannot add Reference with 'index' less than zero",LogOut.STDERR);
 		return false;
 	}
 	
@@ -114,7 +116,7 @@ public class SparseReferences {
 		SparseReferences adjustmentReferences = new SparseReferences((sia.references.size()+this.references.size())); // absolute max size
 		Reference newRef;
 		ArrayList<Reference> cloneOfThis = (ArrayList<Reference>) this.references.clone();
-		Logger.logln("compare these: "+this+" to "+cloneOfThis);
+		Logger.logln(NAME+"compare these: "+this+" to "+cloneOfThis);
 		for(Reference r: sia.references){
 			if(cloneOfThis.contains(r)){
 				indexOfRef = cloneOfThis.indexOf(r);
@@ -122,19 +124,19 @@ public class SparseReferences {
 				tempIndex = r.index;
 				newRef = new Reference(tempIndex,tempValue);
 				cloneOfThis.remove(indexOfRef);
-				//Logger.logln("");
+				//Logger.logln(NAME+"");
 			}
 			else{// There are zero appearances of the feature in the new SparseReferences, so just multiply the number found in the old SparseReferences by -1 (all were removed)
 				newRef = new Reference(r.index,(-r.value));
-				Logger.logln("Reference not in both lists");
+				Logger.logln(NAME+"Reference not in both lists");
 			}
-			//Logger.logln("Left Minus Right addNewRef");
+			//Logger.logln(NAME+"Left Minus Right addNewRef");
 			adjustmentReferences.addNewReference(newRef);
 		}
 		if(cloneOfThis.isEmpty() == false){ //there are still values in the clone which means new attributes / features were added. These all went from a count of zero to whatever their value is now. So, positive change
 			for(Reference r:cloneOfThis){
 				newRef = new Reference(r.index,r.value);
-				//Logger.logln("Left Minus Right addNewRef new features added");
+				//Logger.logln(NAME+"Left Minus Right addNewRef new features added");
 				adjustmentReferences.addNewReference(newRef);
 			}
 		}

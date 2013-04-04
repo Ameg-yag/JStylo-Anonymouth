@@ -15,6 +15,8 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
  */
 public class Word implements Comparable<Word>{
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	protected String word;
 	protected ArrayList<String>partOfSpeech;
 	protected SparseReferences wordLevelFeaturesFound; 
@@ -111,7 +113,7 @@ public class Word implements Comparable<Word>{
 			this.partOfSpeech.addAll(newWord.partOfSpeech);
 		}
 		else
-			Logger.logln("Cannot merge inequivalent  Words!",LogOut.STDERR);
+			Logger.logln(NAME+"Cannot merge inequivalent  Words!",LogOut.STDERR);
 	}
 	
 	

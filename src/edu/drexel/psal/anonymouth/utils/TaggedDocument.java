@@ -42,7 +42,7 @@ enum CONJ {SIMPLE,PROGRESSIVE,PERFECT,PERFECT_PROGRESSIVE};
  */
 public class TaggedDocument {
 	
-	
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 	protected TaggedSentence currentLiveTaggedSentences;
 	protected ArrayList<TaggedSentence> taggedSentences;
 	//protected ArrayList<String> untaggedSentences;
@@ -100,7 +100,7 @@ public class TaggedDocument {
 		this.documentTitle = docTitle;
 		this.documentAuthor = author;
 		this.ID = documentTitle+"_"+documentAuthor;
-		//Logger.logln("TaggedDocument ID: "+ID);
+		//Logger.logln(NAME+"TaggedDocument ID: "+ID);
 	//	currentLiveTaggedSentences = new ArrayList<TaggedSentence>(5); 
 		jigsaw = new SentenceTools();
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
@@ -108,7 +108,7 @@ public class TaggedDocument {
 		//consolidateFeatures(taggedSentences);
 		//setHashMaps();
 		//setWordsToAddRemove();
-		//Logger.logln("Top 100 wordsToRemove: "+wordsToRemove.toString());
+		//Logger.logln(NAME+"Top 100 wordsToRemove: "+wordsToRemove.toString());
 	}
 	
 	/**
@@ -254,7 +254,7 @@ public class TaggedDocument {
 		}
 		else
 		{
-			Logger.logln("Returned first sentence");
+			Logger.logln(NAME+"Returned first sentence");
 			sentNumber=0;
 			return taggedSentences.get(0);
 		}
@@ -279,7 +279,7 @@ public class TaggedDocument {
 			while(position<boxText.length()){
 				Matcher sent = EOS_chars.matcher(boxText);
 				if(!sent.find(position)){//checks to see if there is a lack of an end of sentence character.
-					Logger.logln("User tried submitting an incomplete sentence.");//THIS DOES NOT KEEP TAGS. 
+					Logger.logln(NAME+"User tried submitting an incomplete sentence.");//THIS DOES NOT KEEP TAGS. 
 					//--------------------This is because you cannot pass in incomplete sent to parser
 					TaggedSentence tagSentNext=removeTaggedSentence(sentNumber+1);
 					removeTaggedSentence(sentNumber);
@@ -288,7 +288,7 @@ public class TaggedDocument {
 					//ErrorHandler.incompleteSentence();
 					//for(int i=0;i<currentLiveTaggedSentences.size();i++)
 					
-					Logger.logln(currentLiveTaggedSentences.untagged);
+					Logger.logln(NAME+currentLiveTaggedSentences.untagged);
 					updateReferences(currentLiveTaggedSentences,newSent);
 					
 					return newSent.getUntagged();
@@ -305,7 +305,7 @@ public class TaggedDocument {
 			updateReferences(currentLiveTaggedSentences,newSent);
 			
 			//for(int i=0;i<currentLiveTaggedSentences.size();i++)
-			Logger.logln(currentLiveTaggedSentences.untagged);
+			Logger.logln(NAME+currentLiveTaggedSentences.untagged);
 			return newSent.getUntagged();
 		}
 		if(sentNumber<0){
@@ -313,7 +313,7 @@ public class TaggedDocument {
 		}
 		//currentLiveTaggedSentences=taggedSentences.get(sentNumber);
 		//for(int i=0;i<currentLiveTaggedSentences.size();i++)
-		Logger.logln(currentLiveTaggedSentences.untagged);
+		Logger.logln(NAME+currentLiveTaggedSentences.untagged);
 		return taggedSentences.get(sentNumber).getUntagged();
 		
 	}
@@ -323,25 +323,25 @@ public class TaggedDocument {
 	 * @param newSentence The post-editing version of the sentence(s)
 	 */
 	private void updateReferences(TaggedSentence oldSentence, TaggedSentence newSentence){
-		Logger.logln("Old Sentence: "+oldSentence.toString()+"\nNew Sentence: "+newSentence.toString());
+		Logger.logln(NAME+"Old Sentence: "+oldSentence.toString()+"\nNew Sentence: "+newSentence.toString());
 		SparseReferences updatedValues = newSentence.getOldToNewDeltas(oldSentence);
-		Logger.logln(updatedValues.toString());
+		Logger.logln(NAME+updatedValues.toString());
 		for(Reference ref:updatedValues.references){
-			//Logger.logln("Attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName()+" pre-update value: "+DataAnalyzer.topAttributes[ref.index].getToModifyValue());
+			//Logger.logln(NAME+"Attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName()+" pre-update value: "+DataAnalyzer.topAttributes[ref.index].getToModifyValue());
 			if(DataAnalyzer.topAttributes[ref.index].getFullName().contains("Percentage")){
 				//then it is a percentage.
-				Logger.logln("Attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName()+"Is a percentage! ERROR!",Logger.LogOut.STDERR);
+				Logger.logln(NAME+"Attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName()+"Is a percentage! ERROR!",Logger.LogOut.STDERR);
 			}
 			else if(DataAnalyzer.topAttributes[ref.index].getFullName().contains("Percentage")){
 				//then it is an average
-				Logger.logln("Attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName()+"Is an average!ERROR!",Logger.LogOut.STDERR);
+				Logger.logln(NAME+"Attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName()+"Is an average!ERROR!",Logger.LogOut.STDERR);
 			}
 			else{
 				DataAnalyzer.topAttributes[ref.index].setToModifyValue((DataAnalyzer.topAttributes[ref.index].getToModifyValue() + ref.value));
-				//Logger.logln("Updated attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName());
+				//Logger.logln(NAME+"Updated attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName());
 			}
 				
-			//Logger.logln("Attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName()+" post-update value: "+DataAnalyzer.topAttributes[ref.index].getToModifyValue());
+			//Logger.logln(NAME+"Attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName()+" post-update value: "+DataAnalyzer.topAttributes[ref.index].getToModifyValue());
 		}
 	}
 	
@@ -401,7 +401,7 @@ public class TaggedDocument {
 			currentLiveTaggedSentences=taggedSentences.get(sentNumber);
 			//CALL COMPARE
 			removeTaggedSentence(sentNumber);
-			Logger.logln("User deleted a sentence.");
+			Logger.logln(NAME+"User deleted a sentence.");
 			updateReferences(currentLiveTaggedSentences,new TaggedSentence(""));//all features must be deleted
 			totalSentences--;
 			sentNumber--;
@@ -411,7 +411,7 @@ public class TaggedDocument {
 		while(position<sentsToAdd.length()){
 			Matcher sent = EOS_chars.matcher(sentsToAdd);
 			if(!sent.find(position)){//checks to see if there is a lack of an end of sentence character.
-				Logger.logln("User tried submitting an incomplete sentence.");
+				Logger.logln(NAME+"User tried submitting an incomplete sentence.");
 				currentLiveTaggedSentences=taggedSentences.get(sentNumber);
 				TaggedSentence newSent= new TaggedSentence(sentsToAdd);
 				removeTaggedSentence(sentNumber);

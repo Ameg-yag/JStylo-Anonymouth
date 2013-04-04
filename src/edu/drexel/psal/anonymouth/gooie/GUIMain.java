@@ -80,8 +80,10 @@ import edu.stanford.nlp.util.PropertiesUtils;
  * @author Andrew W.E. McDonald
  */
 //This is a comment from Joe Muoio to see if he can commit changes.
-public class GUIMain extends javax.swing.JFrame 
-{
+public class GUIMain extends javax.swing.JFrame  {
+	
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
+
 	{
 		//Set Look & Feel
 		try {
@@ -543,7 +545,7 @@ public class GUIMain extends javax.swing.JFrame
 			createClustersTab();
 			createResultsTab();
 			
-			setUpContentPane(false);
+			setUpContentPane();
 			
 			// final property settings
 			
@@ -572,7 +574,7 @@ public class GUIMain extends javax.swing.JFrame
 	 * Adds everything to the content pane.
 	 * @throws Exception 
 	 */
-	protected void setUpContentPane(boolean initListeners) throws Exception
+	protected void setUpContentPane() throws Exception
 	{
 		getContentPane().removeAll();
 		
@@ -659,25 +661,14 @@ public class GUIMain extends javax.swing.JFrame
 		if (panelLocations.contains(PropUtil.Location.LEFT))
 			getContentPane().add(leftTabPane, "width 250!, spany");
 		if (panelLocations.contains(PropUtil.Location.TOP))
-			getContentPane().add(topTabPane, "width 60:100%:, grow");
+			getContentPane().add(topTabPane, "width 600:100%:, grow");
 		if (panelLocations.contains(PropUtil.Location.RIGHT))
-			getContentPane().add(rightTabPane, "width 353!, spany"); // MUST be at LEAST 353 for Mac OS X. 
+			getContentPane().add(rightTabPane, "width ::353, spany"); // MUST be at LEAST 353 for Mac OS X. 
 		if (panelLocations.contains(PropUtil.Location.BOTTOM))
-			getContentPane().add(bottomTabPane, "width 60:100%:, height 150:25%:");
+			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:");
 		
 		getContentPane().revalidate();
 		getContentPane().repaint();
-		
-//		if (initListeners == true)
-//		{
-//			DriverMenu.initListeners(this);
-//			DriverClustersTab.initListeners(this);
-//			DriverDocumentsTab.initListeners(this);
-//			DriverPreProcessTab.initListeners(this);
-//			DriverResultsTab.initListeners(this);
-//			DriverSuggestionsTab.initListeners(this);
-//			DriverTranslationsTab.initListeners(this);
-//		}
 	}
 	
 	/**
@@ -949,8 +940,8 @@ public class GUIMain extends javax.swing.JFrame
 			trainLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			
 			// train tree
-			DefaultMutableTreeNode top = new DefaultMutableTreeNode(ps.getTrainCorpusName());
-			trainCorpusJTree = new JTree(top);
+			DefaultMutableTreeNode top = new DefaultMutableTreeNode(ps.getTrainCorpusName(), true);
+			trainCorpusJTree = new JTree(top, true);
 			trainCorpusJTreeScrollPane = new JScrollPane(trainCorpusJTree);
 			
 			// train add button
@@ -1269,7 +1260,7 @@ public class GUIMain extends javax.swing.JFrame
 	
 	private JPanel createDocumentTab()
 	{
-		Logger.logln("Creating Documents Tab...");
+		Logger.logln(NAME+"Creating Documents Tab...");
 		if(tabMade == false)
 		{
 			Font normalFont = new Font("Ariel", Font.PLAIN, 11);
@@ -1436,6 +1427,7 @@ public class GUIMain extends javax.swing.JFrame
 //                documentsPanel.add(translationPane, "grow");
 //            	documentsPanel.add(translationOptionsPanel, "grow, gapleft 0");
                 documentsPanel.add(documentLabel, "grow, h " + titleHeight + "!");
+                //documentsPanel.add(processButton, "grow");
                 documentsPanel.add(documentScrollPane, "grow");
                 documentsPanel.add(processButton, "right");
             	//documentsPanel.add(documentOptionsPanel, "grow");
@@ -1528,7 +1520,7 @@ public class GUIMain extends javax.swing.JFrame
 						"grow, fill",
 						"[][grow, fill][][grow, fill]"));
 			{ // --------------------legend panel components
-				JLabel featuresLabel = new JLabel("Features:");
+				JLabel featuresLabel = new JLabel("Feature Search:");
 				featuresLabel.setHorizontalAlignment(SwingConstants.CENTER);
 				featuresLabel.setFont(titleFont);
 				featuresLabel.setOpaque(true);
@@ -1539,7 +1531,7 @@ public class GUIMain extends javax.swing.JFrame
 				featuresList = new JList(featuresListModel);
 				featuresListScrollPane = new JScrollPane(featuresList);
 				
-				JLabel subFeaturesLabel = new JLabel("Sub-Features:");
+				JLabel subFeaturesLabel = new JLabel("Sub-Feature Search:");
 				subFeaturesLabel.setHorizontalAlignment(SwingConstants.CENTER);
 				subFeaturesLabel.setFont(titleFont);
 				subFeaturesLabel.setOpaque(true);
