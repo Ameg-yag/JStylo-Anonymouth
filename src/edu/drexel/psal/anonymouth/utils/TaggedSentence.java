@@ -77,13 +77,12 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 	 * Constructor -- accepts a TaggedSentence object. (Don't use this. This may be bad.)
 	 * @param taggedSentence
 	 */
-	/*
 	public TaggedSentence(TaggedSentence taggedSentence) {//TODO make sure this doesnt need new objects.
 		this.untagged=taggedSentence.untagged;
 		this.wordsInSentence=taggedSentence.wordsInSentence;
 
 	}
-	*/
+	
 
 	/**
 	 * Gets the translations for this tagged sentence.
@@ -212,8 +211,11 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 		return wordsInSentence.size();
 	}
 	
+	
 	public int getLength(){
+		
 		this.getUntagged();
+		return 0;
 	}
 	
 	public ArrayList<Word> getWordsInSentence(){

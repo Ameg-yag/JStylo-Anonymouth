@@ -372,7 +372,7 @@ public class TaggedDocument {
 	 */
 	public int[] getSentenceLengths(){
 		
-		
+		return null;
 	}
 	
 	public int getSentNumber(){
