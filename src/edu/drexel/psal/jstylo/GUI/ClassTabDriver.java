@@ -78,7 +78,7 @@ public class ClassTabDriver {
 					}
 					
 					// show options and description
-					/*TODO The IBk args aren't being accepted due to:
+					/*TODO bugfix	The IBk args aren't being accepted due to:
 								java.lang.Exception: Illegal options: -A "weka.core.EuclideanDistance -R first-last"
 					
 							While removing the problematic args does allow it to be accepted, it still gets added with this arg to the right hand side
