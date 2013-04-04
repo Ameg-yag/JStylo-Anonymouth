@@ -660,8 +660,8 @@ public class PreProcessSettingsFrame extends JDialog {
 				prepSampleDocsScrollPane = new JScrollPane(prepSampleDocsList);
 				
 				// train tree---------------------------------------------------
-				DefaultMutableTreeNode top = new DefaultMutableTreeNode(main.ps.getTrainCorpusName());
-				trainCorpusJTree = new JTree(top);
+				DefaultMutableTreeNode top = new DefaultMutableTreeNode(main.ps.getTrainCorpusName(), true);
+				trainCorpusJTree = new JTree(top, true);
 				trainCorpusJTreeScrollPane = new JScrollPane(trainCorpusJTree);
 				
 				// main add button----------------------------------------------
