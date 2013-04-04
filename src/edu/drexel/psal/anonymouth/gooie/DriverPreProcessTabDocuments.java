@@ -585,10 +585,13 @@ public class DriverPreProcessTabDocuments {
 							String author;
 							for (DefaultMutableTreeNode doc: selectedDocs) {
 								author = doc.getParent().toString();
+								System.out.printf("doc.getChildCount() = %s", doc.getChildCount());
 								main.ps.removeTrainDocAt(author, doc.toString());
 								msg += "\t\t> "+doc.toString()+"\n";
 							}
 						}
+						
+						//Check if there are files still in Author folder
 						Logger.log(msg);
 						GUIUpdateInterface.updateTrainDocTree(main);
 						//GUIUpdateInterface.clearDocPreview(main);
