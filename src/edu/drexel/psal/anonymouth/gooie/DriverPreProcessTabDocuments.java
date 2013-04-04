@@ -425,108 +425,104 @@ public class DriverPreProcessTabDocuments {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln(NAME+"'Add Document(s)...' button clicked under the 'Training Corpus' section on the documents tab.");
+
+				String author = "no author entered";
+				JFileChooser open = new JFileChooser();
+				open.setMultiSelectionEnabled(true);
+				File dir;
 				
-				if (main.ps.getTestDocs().size() == 0) {
-					JOptionPane.showMessageDialog(null,"You must first select your document to anonymize and your sample documents.","Add Your Own First!", JOptionPane.INFORMATION_MESSAGE);
-				} else {
-					String author = "no author entered";
-					JFileChooser open = new JFileChooser();
-					open.setMultiSelectionEnabled(true);
-					File dir;
+				try {
+					dir = new File(new File(".").getCanonicalPath());
+					open.setCurrentDirectory(dir);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
+				open.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				int answer = open.showOpenDialog(main);
+
+				if (answer == JFileChooser.APPROVE_OPTION) {
+
+					File[] files = open.getSelectedFiles();
+					String msg = "Trying to load training documents for author \""+author+"\":\n";
+					
+					for (File file: files)
+						msg += "\t\t> "+file.getAbsolutePath()+"\n";
+					
+					Logger.log(msg);
+
+					String path = "";
+					String skipList = "";
+					ArrayList<String> allTrainDocPaths = new ArrayList<String>();
+					ArrayList<String> allTestDocPaths = new ArrayList<String>();
 					
 					try {
-						dir = new File(new File(".").getCanonicalPath());
-						open.setCurrentDirectory(dir);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-					open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
-					open.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-					int answer = open.showOpenDialog(main);
-
-					if (answer == JFileChooser.APPROVE_OPTION) {
-
-						File[] files = open.getSelectedFiles();
-						String msg = "Trying to load training documents for author \""+author+"\":\n";
-						
-						for (File file: files)
-							msg += "\t\t> "+file.getAbsolutePath()+"\n";
-						
-						Logger.log(msg);
-
-						String path = "";
-						String skipList = "";
-						ArrayList<String> allTrainDocPaths = new ArrayList<String>();
-						ArrayList<String> allTestDocPaths = new ArrayList<String>();
-						
-						try {
-							for (Document doc: main.ps.getTrainDocs(author)) {
-								allTrainDocPaths.add(doc.getFilePath());
-								Logger.logln(NAME+"Added to Train Docs: " + doc.getFilePath());
-							}
-						} catch(NullPointerException npe) {
-							Logger.logln(NAME+"file '"+author+"' was not found. If name in single quotes is 'no author entered', this is not a problem.", LogOut.STDERR);
+						for (Document doc: main.ps.getTrainDocs(author)) {
+							allTrainDocPaths.add(doc.getFilePath());
+							Logger.logln(NAME+"Added to Train Docs: " + doc.getFilePath());
 						}
+					} catch(NullPointerException npe) {
+						Logger.logln(NAME+"file '"+author+"' was not found. If name in single quotes is 'no author entered', this is not a problem.", LogOut.STDERR);
+					}
 
-						for (Document doc: main.ps.getTestDocs())
-							allTestDocPaths.add(doc.getFilePath());
-						for (Document doc: main.ps.getTrainDocs(ProblemSet.getDummyAuthor()))
-							allTestDocPaths.add(doc.getFilePath());
-						for (File file: files) {
-							if (file.isDirectory()) {
-								String[] theDocsInTheDir = file.list();
-								author = file.getName();
-								String pathFirstHalf = file.getAbsolutePath();
+					for (Document doc: main.ps.getTestDocs())
+						allTestDocPaths.add(doc.getFilePath());
+					for (Document doc: main.ps.getTrainDocs(ProblemSet.getDummyAuthor()))
+						allTestDocPaths.add(doc.getFilePath());
+					for (File file: files) {
+						if (file.isDirectory()) {
+							String[] theDocsInTheDir = file.list();
+							author = file.getName();
+							String pathFirstHalf = file.getAbsolutePath();
+							
+							for (String otherFile: theDocsInTheDir) {
+								File newFile = new File(otherFile);
+								path = pathFirstHalf+File.separator+otherFile;
+								System.out.println(path);
 								
-								for (String otherFile: theDocsInTheDir) {
-									File newFile = new File(otherFile);
-									path = pathFirstHalf+File.separator+otherFile;
-									System.out.println(path);
-									
-									if (allTrainDocPaths.contains(path)) {
-										skipList += "\n"+path+" - already contained for author "+author;
-										continue;
-									}
-									
-									if (allTestDocPaths.contains(path)) {
-										skipList += "\n"+path+" - already contained as a test document";
-										continue;
-									}
-									
-									if(path.contains(".svn") || path.contains("imitation") || path.contains("verification") || path.contains("obfuscation") || path.contains("demographics"))
-										continue;
-									
-									main.ps.addTrainDocs(author, new ArrayList<Document>());
-									main.ps.addTrainDoc(author, new Document(path,author,newFile.getName()));
-								}
-							} else {
-								path = file.getAbsolutePath();
 								if (allTrainDocPaths.contains(path)) {
 									skipList += "\n"+path+" - already contained for author "+author;
 									continue;
 								}
+								
 								if (allTestDocPaths.contains(path)) {
 									skipList += "\n"+path+" - already contained as a test document";
 									continue;
 								}
-								main.ps.addTrainDoc(author, new Document(path,ProblemSet.getDummyAuthor(),file.getName()));
+								
+								if(path.contains(".svn") || path.contains("imitation") || path.contains("verification") || path.contains("obfuscation") || path.contains("demographics"))
+									continue;
+								
+								main.ps.addTrainDocs(author, new ArrayList<Document>());
+								main.ps.addTrainDoc(author, new Document(path,author,newFile.getName()));
 							}
+						} else {
+							path = file.getAbsolutePath();
+							if (allTrainDocPaths.contains(path)) {
+								skipList += "\n"+path+" - already contained for author "+author;
+								continue;
+							}
+							if (allTestDocPaths.contains(path)) {
+								skipList += "\n"+path+" - already contained as a test document";
+								continue;
+							}
+							main.ps.addTrainDoc(author, new Document(path,ProblemSet.getDummyAuthor(),file.getName()));
 						}
+					}
 
-						if (!skipList.equals("")) {
-							JOptionPane.showMessageDialog(null,
-									"Skipped the following documents:"+skipList,
-									"Add Training Documents",
-									JOptionPane.WARNING_MESSAGE);
-							Logger.logln(NAME+"skipped the following training documents:"+skipList);
-						}
+					if (!skipList.equals("")) {
+						JOptionPane.showMessageDialog(null,
+								"Skipped the following documents:"+skipList,
+								"Add Training Documents",
+								JOptionPane.WARNING_MESSAGE);
+						Logger.logln(NAME+"skipped the following training documents:"+skipList);
+					}
 
-						GUIUpdateInterface.updateTrainDocTree(main);
+					GUIUpdateInterface.updateTrainDocTree(main);
 //						GUIUpdateInterface.clearDocPreview(main);
 
-					} else {
-						Logger.logln(NAME+"Load training documents canceled");
-					}
+				} else {
+					Logger.logln(NAME+"Load training documents canceled");
 				}
 			}
 			
@@ -1050,107 +1046,103 @@ public class DriverPreProcessTabDocuments {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln(NAME+"'Add Document(s)...' button clicked under the 'Training Corpus' section on the documents tab.");
 				
-				if (main.ps.getTestDocs().size() == 0) {
-					JOptionPane.showMessageDialog(null,"You must first select your document to anonymize and your sample documents.","Add Your Own First!", JOptionPane.INFORMATION_MESSAGE);
-				} else {
-					String author = "no author entered";
-					JFileChooser open = new JFileChooser();
-					open.setMultiSelectionEnabled(true);
-					File dir;
+				String author = "no author entered";
+				JFileChooser open = new JFileChooser();
+				open.setMultiSelectionEnabled(true);
+				File dir;
+				
+				try {
+					dir = new File(new File(".").getCanonicalPath());
+					open.setCurrentDirectory(dir);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
+				open.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				int answer = open.showOpenDialog(main);
+
+				if (answer == JFileChooser.APPROVE_OPTION) {
+
+					File[] files = open.getSelectedFiles();
+					String msg = "Trying to load training documents for author \""+author+"\":\n";
+					
+					for (File file: files)
+						msg += "\t\t> "+file.getAbsolutePath()+"\n";
+					
+					Logger.log(msg);
+
+					String path = "";
+					String skipList = "";
+					ArrayList<String> allTrainDocPaths = new ArrayList<String>();
+					ArrayList<String> allTestDocPaths = new ArrayList<String>();
 					
 					try {
-						dir = new File(new File(".").getCanonicalPath());
-						open.setCurrentDirectory(dir);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-					open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
-					open.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-					int answer = open.showOpenDialog(main);
-
-					if (answer == JFileChooser.APPROVE_OPTION) {
-
-						File[] files = open.getSelectedFiles();
-						String msg = "Trying to load training documents for author \""+author+"\":\n";
-						
-						for (File file: files)
-							msg += "\t\t> "+file.getAbsolutePath()+"\n";
-						
-						Logger.log(msg);
-
-						String path = "";
-						String skipList = "";
-						ArrayList<String> allTrainDocPaths = new ArrayList<String>();
-						ArrayList<String> allTestDocPaths = new ArrayList<String>();
-						
-						try {
-							for (Document doc: main.ps.getTrainDocs(author)) {
-								allTrainDocPaths.add(doc.getFilePath());
-								Logger.logln(NAME+"Added to Train Docs: " + doc.getFilePath());
-							}
-						} catch(NullPointerException npe) {
-							Logger.logln(NAME+"file '"+author+"' was not found. If name in single quotes is 'no author entered', this is not a problem.", LogOut.STDERR);
+						for (Document doc: main.ps.getTrainDocs(author)) {
+							allTrainDocPaths.add(doc.getFilePath());
+							Logger.logln(NAME+"Added to Train Docs: " + doc.getFilePath());
 						}
+					} catch(NullPointerException npe) {
+						Logger.logln(NAME+"file '"+author+"' was not found. If name in single quotes is 'no author entered', this is not a problem.", LogOut.STDERR);
+					}
 
-						for (Document doc: main.ps.getTestDocs())
-							allTestDocPaths.add(doc.getFilePath());
-						for (Document doc: main.ps.getTrainDocs(ProblemSet.getDummyAuthor()))
-							allTestDocPaths.add(doc.getFilePath());
-						for (File file: files) {
-							if (file.isDirectory()) {
-								String[] theDocsInTheDir = file.list();
-								author = file.getName();
-								String pathFirstHalf = file.getAbsolutePath();
+					for (Document doc: main.ps.getTestDocs())
+						allTestDocPaths.add(doc.getFilePath());
+					for (Document doc: main.ps.getTrainDocs(ProblemSet.getDummyAuthor()))
+						allTestDocPaths.add(doc.getFilePath());
+					for (File file: files) {
+						if (file.isDirectory()) {
+							String[] theDocsInTheDir = file.list();
+							author = file.getName();
+							String pathFirstHalf = file.getAbsolutePath();
+							
+							for (String otherFile: theDocsInTheDir) {
+								File newFile = new File(otherFile);
+								path = pathFirstHalf+File.separator+otherFile;
+								System.out.println(path);
 								
-								for (String otherFile: theDocsInTheDir) {
-									File newFile = new File(otherFile);
-									path = pathFirstHalf+File.separator+otherFile;
-									System.out.println(path);
-									
-									if (allTrainDocPaths.contains(path)) {
-										skipList += "\n"+path+" - already contained for author "+author;
-										continue;
-									}
-									
-									if (allTestDocPaths.contains(path)) {
-										skipList += "\n"+path+" - already contained as a test document";
-										continue;
-									}
-									
-									if(path.contains(".svn") || path.contains("imitation") || path.contains("verification") || path.contains("obfuscation") || path.contains("demographics"))
-										continue;
-									
-									main.ps.addTrainDocs(author, new ArrayList<Document>());
-									main.ps.addTrainDoc(author, new Document(path,author,newFile.getName()));
-								}
-							} else {
-								path = file.getAbsolutePath();
 								if (allTrainDocPaths.contains(path)) {
 									skipList += "\n"+path+" - already contained for author "+author;
 									continue;
 								}
+								
 								if (allTestDocPaths.contains(path)) {
 									skipList += "\n"+path+" - already contained as a test document";
 									continue;
 								}
-								main.ps.addTrainDoc(author, new Document(path,ProblemSet.getDummyAuthor(),file.getName()));
+								
+								if(path.contains(".svn") || path.contains("imitation") || path.contains("verification") || path.contains("obfuscation") || path.contains("demographics"))
+									continue;
+								
+								main.ps.addTrainDocs(author, new ArrayList<Document>());
+								main.ps.addTrainDoc(author, new Document(path,author,newFile.getName()));
 							}
+						} else {
+							path = file.getAbsolutePath();
+							if (allTrainDocPaths.contains(path)) {
+								skipList += "\n"+path+" - already contained for author "+author;
+								continue;
+							}
+							if (allTestDocPaths.contains(path)) {
+								skipList += "\n"+path+" - already contained as a test document";
+								continue;
+							}
+							main.ps.addTrainDoc(author, new Document(path,ProblemSet.getDummyAuthor(),file.getName()));
 						}
-
-						if (!skipList.equals("")) {
-							JOptionPane.showMessageDialog(null,
-									"Skipped the following documents:"+skipList,
-									"Add Training Documents",
-									JOptionPane.WARNING_MESSAGE);
-							Logger.logln(NAME+"skipped the following training documents:"+skipList);
-						}
-
-						GUIUpdateInterface.updateTrainDocTree(main);
-						GUIUpdateInterface.clearDocPreview(main);
-
-					} else {
-						Logger.logln(NAME+"Load training documents canceled");
 					}
+
+					if (!skipList.equals("")) {
+						JOptionPane.showMessageDialog(null,
+								"Skipped the following documents:"+skipList,
+								"Add Training Documents",
+								JOptionPane.WARNING_MESSAGE);
+						Logger.logln(NAME+"skipped the following training documents:"+skipList);
+					}
+
+					GUIUpdateInterface.updateTrainDocTree(main);
+					GUIUpdateInterface.clearDocPreview(main);
+
+				} else {
+					Logger.logln(NAME+"Load training documents canceled");
 				}
 			}
 			
