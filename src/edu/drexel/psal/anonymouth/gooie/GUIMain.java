@@ -661,11 +661,11 @@ public class GUIMain extends javax.swing.JFrame  {
 		if (panelLocations.contains(PropUtil.Location.LEFT))
 			getContentPane().add(leftTabPane, "width 250!, spany");
 		if (panelLocations.contains(PropUtil.Location.TOP))
-			getContentPane().add(topTabPane, "width 60:100%:, grow");
+			getContentPane().add(topTabPane, "width 600:100%:, grow");
 		if (panelLocations.contains(PropUtil.Location.RIGHT))
-			getContentPane().add(rightTabPane, "width 353!, spany"); // MUST be at LEAST 353 for Mac OS X. 
+			getContentPane().add(rightTabPane, "width ::353, spany"); // MUST be at LEAST 353 for Mac OS X. 
 		if (panelLocations.contains(PropUtil.Location.BOTTOM))
-			getContentPane().add(bottomTabPane, "width 60:100%:, height 150:25%:");
+			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:");
 		
 		getContentPane().revalidate();
 		getContentPane().repaint();
@@ -1269,7 +1269,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			MigLayout EBPLayout = new MigLayout(
 					"fill, wrap, ins 0, gap 0 0",
 					"[grow, fill]",
-					"[][][grow, fill]");
+					"[][grow, fill][]");
 			documentsPanel.setLayout(EBPLayout);
 			{
 //            	sentenceBoxLabel = new JLabel("Sentence:");
@@ -1427,9 +1427,9 @@ public class GUIMain extends javax.swing.JFrame  {
 //                documentsPanel.add(translationPane, "grow");
 //            	documentsPanel.add(translationOptionsPanel, "grow, gapleft 0");
                 documentsPanel.add(documentLabel, "grow, h " + titleHeight + "!");
-                documentsPanel.add(processButton, "grow");
+                //documentsPanel.add(processButton, "grow");
                 documentsPanel.add(documentScrollPane, "grow");
-                //documentsPanel.add(processButton, "right");
+                documentsPanel.add(processButton, "right");
             	//documentsPanel.add(documentOptionsPanel, "grow");
 			}
             tabMade = true;

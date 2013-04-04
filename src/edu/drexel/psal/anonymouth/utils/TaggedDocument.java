@@ -42,7 +42,7 @@ enum CONJ {SIMPLE,PROGRESSIVE,PERFECT,PERFECT_PROGRESSIVE};
  */
 public class TaggedDocument {
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 	protected TaggedSentence currentLiveTaggedSentences;
 	protected ArrayList<TaggedSentence> taggedSentences;
 	//protected ArrayList<String> untaggedSentences;

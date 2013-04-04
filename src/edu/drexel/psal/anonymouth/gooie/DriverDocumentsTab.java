@@ -112,7 +112,7 @@ public class DriverDocumentsTab {
 	protected static ArrayList<String> topToRemove;
 	protected static ArrayList<String> topToAdd;
 	
-	private static final Color HILIT_COLOR = new Color(50, 161,227);// Color.blue;
+	private static final Color HILIT_COLOR = Color.yellow; //new Color(50, 161,227);// Color.blue;
 	protected static DefaultHighlighter.DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
 	
 	protected static Highlighter editTracker;

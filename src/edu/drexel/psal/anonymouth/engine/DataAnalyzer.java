@@ -570,8 +570,6 @@ public class DataAnalyzer{
 				mapMakerTargetSetter(topAttributes[i].getGenericName(),target);
 		}
 		System.out.println(targetSaver);
-		Scanner s = new Scanner(System.in);
-		String scanned = s.nextLine();
 		boolean mustSaveTargets = false;
 		if(mustSaveTargets == true){
 			while(targetsSaved != 1){
