@@ -258,7 +258,11 @@ public class DataAnalyzer{
 			if (toModifyIndex != -1){
 				if((toModifyInstancesArray[0][toModifyIndex] == 0.0)){//&& EditorTabDriver.userRequestedNoZeros == true){
 					Logger.logln(NAME+"CONTINUING attribute: "+attrib+" toModifyValue: "+toModifyInstancesArray[0][toModifyIndex]+" info gain: "+allInfoGain[j][0]);
+<<<<<<< HEAD
 					numFeatures++;
+=======
+					numFeatures++;
+>>>>>>> refs/remotes/origin/anonymouth_master
 					continue;
 				}
 			}

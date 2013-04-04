@@ -15,7 +15,29 @@ import com.memetix.mst.translate.Translate;
  */
 public class Translation {
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final static String NAME = "( Translation ) - ";
+	
+	/*
+	 * ALTERNATE CLIENT ID/SECRET COMBOS (NEW / UNUSED) 
+	 * 
+	 * private final static String CLIENT_SECRET = "sheetal57";
+	 * private final static String CLIENT_SECRET = "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=";
+	 * 
+	 * private final static String CLIENT_SECRET = ""drexel2";
+	 * private final static String CLIENT_SECRET = "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=";
+	 * 
+	 * 
+	 * NO GOOD FOR 04/2013 (BUT GOOD AFTER):
+	 * 
+	 * private final static String CLIENT_SECRET = "drexel1";
+	 * private final static String CLIENT_SECRET = "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=";
+	 * 
+	 */
+	
+	// Current GOOD CLIENT ID / SECRET COMBO:
+	private final static String CLIENT_ID = "drexel4";
+	private final static String CLIENT_SECRET = "F5Hw32MSQoTygwLu6YMpHYx9zV3TQVQxqsIIybVCI1Y=";
+	
 	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
 			Language.CHINESE_SIMPLIFIED, Language.CHINESE_TRADITIONAL,Language.CZECH,
@@ -79,8 +101,8 @@ public class Translation {
 
 	public static String getTranslation(String original, Language other)
 	{
-		Translate.setClientId("drexel1"/* Enter your Windows Azure Client Id here */);
-	    Translate.setClientSecret("+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE="/* Enter your Windows Azure Client Secret here */);
+		Translate.setClientId(CLIENT_ID/* Enter your Windows Azure Client Id here */);
+	    Translate.setClientSecret(CLIENT_SECRET/* Enter your Windows Azure Client Secret here */);
 
 	    try {
 			String translatedText = Translate.execute(original, Language.ENGLISH,other);
@@ -104,8 +126,8 @@ public class Translation {
 	 */
 	public ArrayList<String> getAllTranslations(String original)
 	{
-		Translate.setClientId("drexel1"/* Enter your Windows Azure Client Id here */);
-	    Translate.setClientSecret("+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE="/* Enter your Windows Azure Client Secret here */);
+		Translate.setClientId(CLIENT_ID/* Enter your Windows Azure Client Id here */);
+	    Translate.setClientSecret(CLIENT_SECRET/* Enter your Windows Azure Client Secret here */);
 	    
 	    ArrayList<String> translations = new ArrayList<String>();
     	try {

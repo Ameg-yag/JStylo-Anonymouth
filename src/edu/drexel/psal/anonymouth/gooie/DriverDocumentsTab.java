@@ -543,13 +543,13 @@ public class DriverDocumentsTab {
 					errorMessage += "Classifier not chosen.\n";
 				
 				// ----- display error message if there are errors
-				if (errorMessage != "")
-				{
+				if (errorMessage != "") {
 					JOptionPane.showMessageDialog(main, errorMessage, "Settings Error!",
 						    JOptionPane.ERROR_MESSAGE);
 				}
 				else
 				{
+					main.leftTabPane.setSelectedIndex(1);
 					// ----- confirm they want to process
 					if (true) // ---- can be a confirm dialog to make sure they want to process.
 					{

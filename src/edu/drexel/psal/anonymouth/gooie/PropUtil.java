@@ -29,6 +29,7 @@ public class PropUtil {
 	protected static Properties prop = new Properties();
 	protected static JFileChooser load = new JFileChooser();
 	protected static JFileChooser save = new JFileChooser();
+	private static String[] DEFAULT_LOCATIONS = new String[]{"top","left","right","bottom"};
 	
 	public static enum Location // just so you cant mess up the input to methods by spelling stuff wrong
 	{
@@ -121,11 +122,11 @@ public class PropUtil {
 			location = prop.getProperty("documentsTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("documentsTabLocation", "top");
+				prop.setProperty("documentsTabLocation", DEFAULT_LOCATIONS[0]); // top
 				location = prop.getProperty("documentsTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("documentsTabLocation", "top");
+			prop.setProperty("documentsTabLocation", DEFAULT_LOCATIONS[0]);
 			location = prop.getProperty("documentsTabLocation");
 		}
 		return stringToLocation(location);
@@ -158,11 +159,11 @@ public class PropUtil {
 			location = prop.getProperty("resultsTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("resultsTabLocation", "bottom");
+				prop.setProperty("resultsTabLocation", DEFAULT_LOCATIONS[1]);
 				location = prop.getProperty("resultsTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("resultsTabLocation", "bottom");
+			prop.setProperty("resultsTabLocation", DEFAULT_LOCATIONS[1]);
 			location = prop.getProperty("resultsTabLocation");
 		}
 		return stringToLocation(location);
@@ -195,11 +196,11 @@ public class PropUtil {
 			location = prop.getProperty("clustersTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("clustersTabLocation", "top");
+				prop.setProperty("clustersTabLocation", DEFAULT_LOCATIONS[1]); // left
 				location = prop.getProperty("clustersTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("clustersTabLocation", "top");
+			prop.setProperty("clustersTabLocation", DEFAULT_LOCATIONS[1]);
 			location = prop.getProperty("clustersTabLocation");
 		}
 		return stringToLocation(location);
@@ -232,11 +233,11 @@ public class PropUtil {
 			location = prop.getProperty("preProcessTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("preProcessTabLocation", "left");
+				prop.setProperty("preProcessTabLocation", DEFAULT_LOCATIONS[2]); // right
 				location = prop.getProperty("preProcessTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("preProcessTabLocation", "left");
+			prop.setProperty("preProcessTabLocation", DEFAULT_LOCATIONS[2]);
 			location = prop.getProperty("preProcessTabLocation");
 		}
 		return stringToLocation(location);
@@ -269,11 +270,11 @@ public class PropUtil {
 			location = prop.getProperty("suggestionsTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("suggestionsTabLocation", "left");
+				prop.setProperty("suggestionsTabLocation", DEFAULT_LOCATIONS[2]); // right
 				location = prop.getProperty("suggestionsTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("suggestionsTabLocation", "left");
+			prop.setProperty("suggestionsTabLocation", DEFAULT_LOCATIONS[2]);
 			location = prop.getProperty("preProcessTabLocation");
 		}
 		return stringToLocation(location);
@@ -306,11 +307,11 @@ public class PropUtil {
 			location = prop.getProperty("translationsTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("translationsTabLocation", "left");
+				prop.setProperty("translationsTabLocation", DEFAULT_LOCATIONS[2]); // right
 				location = prop.getProperty("translationsTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("translationsTabLocation", "left");
+			prop.setProperty("translationsTabLocation", DEFAULT_LOCATIONS[2]);
 			location = prop.getProperty("translationsTabLocation");
 		}
 		return stringToLocation(location);
