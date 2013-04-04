@@ -48,51 +48,28 @@ import weka.core.Instances;
 public class DataAnalyzer{
 	
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
-	
 	private int numFeaturesToReturn;
-	
 	public static Attribute[] topAttributes;
-	
 	public static int lengthTopAttributes;
-	
 	private String[] importantAttribs;
-	
 	private ArrayList<String> allAttribs;
-	
 	private ArrayList<String> trainAttribs;
-	
 	private ArrayList<String> authorAttribs;
-	
 	private String[] strippedAttributeNames;
-	
 	private ProblemSet pSet;
-	
 	private String sessionAlias = ""; 
-	
 	private Double[][] trainingInstancesArray;	
-	
 	private Double[][] authorInstancesArray;
-	
 	private Double[][] toModifyInstancesArray;
-	
 	double[] authorAverages;
-	
 	double[] authorStdDevs;
-	
 	double[][] minsAndMaxes;
-	
 	private ArrayList<Cluster[]> allOrderedClusters;
-	
 	private ArrayList<String> featuresForClusterAnalyzer;
-	
 	public static int[] selectedTargets;
-	
 	private boolean mapMakerSentenceTargetSet = false;
-	
 	private boolean mapMakerCharTargetSet = false;
-	
 	private HashMap<String,Double> holderForLogger = new HashMap<String,Double>();
-	
 	
 	
 	/**
@@ -332,7 +309,7 @@ public class DataAnalyzer{
 	 * @throws Exception 
 	 */
 	public Attribute[] computeInfoGain(Instances presentSet) throws Exception{
-		Logger.logln(NAME+"called computerInfoGain");
+		Logger.logln(NAME+"called computeInfoGain");
 		//TODO: compute info gain, and then 'try' to find the location of the train value and author value for the top features. 
 		// if it doesn't exist, set as '0'. if the value for one of the top features is '0' in toModify, skip that feature, and get the next one.
 		// 
@@ -424,53 +401,6 @@ public class DataAnalyzer{
 		//List<Document> authorsDocs = jamBaselineSet.removeAuthor(authorOfDocToModify);
 	}
 		
-	
-	/**
-	 * 
-	 * @deprecated
-	 * runSelectedFeature extracts the target for the selected feature if 'shouldExtract' is true, and simply returns the attribute if false.
-	 * @param sel - the selected feature number
-	 */
-	public Attribute runSelectedFeature(int sel,boolean shouldExtract){
-		//TODO: this should be passed an object!!! containing the relevant stuff (one feature, with the corresponding events/instances for all documents, and other calculated data)
-		
-		if(shouldExtract == true){
-			int i;
-			int j;
-			int numAuthors = DocumentMagician.numSampleAuthors;
-			double targetValue;
-			double avgAbsDev;
-			
-			
-			TargetExtractor extractor = new TargetExtractor(numAuthors, topAttributes[sel]);
-			System.out.println("Clusters for "+importantAttribs[sel]+" :");
-			extractor.aMeansCluster();
-			targetValue= extractor.getTargetValue();
-			topAttributes[sel].setTargetValue(targetValue);
-				
-			//}
-			// print cluster info
-			//int numFeaturesToHold = allAvgAbsDevs.length;
-			//pac = new PostAnalysisContainer[numFeaturesToHold];
-			//allRelevantFeatures = new FeatureList[numFeaturesToHold];
-			
-			//for(i=0;i<allAvgAbsDevs.length;i++){
-			FeatureList needsSuggestion = topAttributes[sel].getGenericName();
-			//System.out.println(needsSuggestion);
-			//System.out.println("target value: "+targetValue);
-			//System.out.println("author's values: "+topAttributes[sel].getAuthorAvg()+" with a standard deviation of: "+topAttributes[sel].getAuthorStdDev());
-			//System.out.println("present value: "+topAttributes[sel].getToModifyValue());
-			//pac = new PostAnalysisContainer(needsSuggestion,toModifyInstancesArray[0][sel],targetValue,authorAverages[sel],authorStdDevs[sel]);
-			topAttributes[sel].setTargetValue(targetValue);
-			//System.out.println("The value of this feature in 'FeatureList' is: "+needsSuggestion);
-			//System.out.println();
-			//}
-			//Logger.logln(NAME+needsSuggestion+":present value:"+topAttributes[sel].getToModifyValue()+":target value:"+targetValue);
-		}
-			return topAttributes[sel];
-		
-	}
-	
 	
 	/**
 	 * runs clustering algorithm on all features, and saves information in each feature's 'Attribute' object.
@@ -640,7 +570,8 @@ public class DataAnalyzer{
 				mapMakerTargetSetter(topAttributes[i].getGenericName(),target);
 		}
 		System.out.println(targetSaver);
-		
+		Scanner s = new Scanner(System.in);
+		String scanned = s.nextLine();
 		boolean mustSaveTargets = false;
 		if(mustSaveTargets == true){
 			while(targetsSaved != 1){

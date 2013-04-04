@@ -902,7 +902,7 @@ public class DriverDocumentsTab {
 			 
 			
 		});*/
-		/*//uncommented from here and it broke everything so I am not touching this code.
+		/*
 		main.getHighlightSelectionBox().addActionListener(new ActionListener(){
 			
 			public void actionPerformed(ActionEvent act){
