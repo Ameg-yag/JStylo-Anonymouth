@@ -409,7 +409,7 @@ public class DataAnalyzer{
 		}
 		
 		String theSpacer = "";
-		for(i=0;i<numAttribs;i++){
+		for(i=0;i<topAttribs.length;i++){
 			if(topAttribs[i].getStringInBraces().equals(""))
 				theSpacer = "";
 			else
