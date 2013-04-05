@@ -14,6 +14,8 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -45,7 +47,6 @@ import edu.drexel.psal.jstylo.generics.WekaInstancesBuilder;
 public class BackendInterface {
 	
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
-
 
 	protected static BackendInterface bei = new BackendInterface(); 
 	
@@ -232,7 +233,10 @@ public class BackendInterface {
 			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
 			this.wizard = wizard;
 			this.magician = magician;
-			this.pw = new ProgressWindow("Processing...", main);
+			
+			pw = new ProgressWindow("Processing...", main);
+			pw.run();
+			
 			//selectedIndex = main.editTP.getSelectedIndex();
 			//this.eits = EditorTabDriver.eitsList.get(selectedIndex);
 		}
@@ -263,7 +267,7 @@ public class BackendInterface {
 						wizard.runInitial(magician,main.cfd, main.classifiers.get(0));
 						pw.setText("Extracting and Clustering Features... Done");
 						pw.setText("Initializing Tagger...");
-						
+
 						Tagger.initTagger();
 						
 						pw.setText("Initialize Cluster Viewer...");
@@ -272,7 +276,7 @@ public class BackendInterface {
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
 						pw.setText("Classifying Documents... Done");
-						pw.closeWindow();
+						pw.stop();
 					}
 					catch(Exception e){
 						e.printStackTrace();
@@ -324,6 +328,7 @@ public class BackendInterface {
 						Logger.logln(NAME+wekaResults.toString());
 						makeResultsTable(wekaResults, main);
 						pw.setText("Setting Results... Done");
+						pw.stop();
 					}
 				}
 				int selectedIndex = 1;
@@ -378,13 +383,16 @@ public class BackendInterface {
 			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
 			this.wizard = wizard;
 			this.magician = magician;
-			this.pw = new ProgressWindow("Processing...", main);
+//			this.pw = new ProgressWindow("Processing...", main);
 			//selectedIndex = main.editTP.getSelectedIndex();
 			//this.eits = EditorTabDriver.eitsList.get(selectedIndex);
 		}
 
 		public void run(){
-			pw.setText("Target Selected");
+			System.out.println("This needs to be fixed now");
+//			Thread progressThread = new Thread(new ProgressWindow("Processing...", main));
+//			progressThread.start();
+//			pw.setText("Target Selected");
 //			TableCellRenderer renderer = new PredictionRenderer(main);
 //			main.resultsTable.setDefaultRenderer(Object.class, renderer);
 			DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
@@ -401,7 +409,7 @@ public class BackendInterface {
 //			main.prevSentenceButton.setEnabled(false);
 //			main.transButton.setEnabled(false);
 //			main.appendSentenceButton.setEnabled(false);
-			pw.setText("Tagging all documents... Done");
+//			pw.setText("Tagging all documents... Done");
 			
 			//main.editorProgressBar.setIndeterminate(true);	
 			
@@ -437,7 +445,7 @@ public class BackendInterface {
 //			main.nextSentenceButton.doClick();
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			
-			pw.closeWindow();
+//			progressThread.stop(); //use something analgous to this in ProgressWindow
 			//cpb.setText("User Editing... Waiting to\"Re-process\"");
 			
 		}
