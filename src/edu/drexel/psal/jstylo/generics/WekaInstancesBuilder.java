@@ -232,22 +232,24 @@ public class WekaInstancesBuilder {
 		// create event sets for known documents
 		known = new ArrayList<List<EventSet>>(knownDocs.size());
 		int knownDocsSize = knownDocs.size();
-		int div = knownDocsSize / numCalcThreads;
-		CalcThread[] calcThreads = new CalcThread[numCalcThreads];
-		for (int thread = 0; thread < numCalcThreads; thread++)
+		int numCalcThreadsToUse = numCalcThreads > knownDocsSize ?
+				1 : numCalcThreads;
+		int div = knownDocsSize / numCalcThreadsToUse;
+		CalcThread[] calcThreads = new CalcThread[numCalcThreadsToUse];
+		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
 			calcThreads[thread] = new CalcThread(
 					div,
 					thread,
 					knownDocsSize,
 					knownDocs,
 					new CumulativeFeatureDriver(cfd));
-		for (int thread = 0; thread < numCalcThreads; thread++)
+		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
 			calcThreads[thread].start();
-		for (int thread = 0; thread < numCalcThreads; thread++)
+		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
 			calcThreads[thread].join();
-		for (int thread = 0; thread < numCalcThreads; thread++)
+		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
 			known.addAll(calcThreads[thread].list);
-		for (int thread = 0; thread < numCalcThreads; thread++)
+		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
 			calcThreads[thread] = null;
 		calcThreads = null;
 		
