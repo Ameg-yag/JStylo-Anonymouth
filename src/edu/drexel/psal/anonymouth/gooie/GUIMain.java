@@ -635,7 +635,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 		// ------ set the content pane layout based on the tab locations
 		getContentPane().setLayout(new MigLayout(
-				"wrap " + columnNumber + ", gap 10 10", // layout constraints
+				"wrap " + columnNumber + ", gap 0 0, ins 0", // layout constraints
 				columnString, // column constraints
 				rowString)); // row constraints)
 		
@@ -659,15 +659,15 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 		// ------ add all tab panes, if they need to be added
 		if (panelLocations.contains(PropUtil.Location.LEFT))
-			getContentPane().add(leftTabPane, "width 250!, spany");
+			getContentPane().add(leftTabPane, "width 20%!, grow, spany");
 		if (panelLocations.contains(PropUtil.Location.TOP))
-			getContentPane().add(topTabPane, "width 600:100%:, grow");
+			getContentPane().add(topTabPane, "grow");
 		if (panelLocations.contains(PropUtil.Location.RIGHT))
-			getContentPane().add(rightTabPane, "width ::353, spany"); // MUST be at LEAST 353 for Mac OS X. 
+			getContentPane().add(rightTabPane, "width 20%!, grow, spany"); // MUST be at LEAST 353 for Mac OS X. 
 		if (panelLocations.contains(PropUtil.Location.BOTTOM))
 			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:");
 		
-		getContentPane().revalidate();
+		((JComponent) getContentPane()).revalidate();
 		getContentPane().repaint();
 	}
 	

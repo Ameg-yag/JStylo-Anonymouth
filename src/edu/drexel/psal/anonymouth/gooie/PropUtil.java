@@ -43,20 +43,33 @@ public class PropUtil {
 	
 	protected static Location stringToLocation(String loc)
 	{
-		switch (loc)
-		{
-		case "left":
+//		switch (loc)
+//		{
+//		case "left":
+//			return Location.LEFT;
+//		case "top":
+//			return Location.TOP;
+//		case "right":
+//			return Location.RIGHT;
+//		case "bottom":
+//			return Location.BOTTOM;
+//		case "none":
+//			return Location.NONE;
+//		}
+//		return null;
+		
+		if (loc.equals("left"))
 			return Location.LEFT;
-		case "top":
+		else if (loc.equals("top"))
 			return Location.TOP;
-		case "right":
+		else if (loc.equals("right"))
 			return Location.RIGHT;
-		case "bottom":
+		else if (loc.equals("bottom"))
 			return Location.BOTTOM;
-		case "none":
+		else if (loc.equals("none"))
 			return Location.NONE;
-		}
-		return null;
+		else
+			return null;
 	}
 	
 	protected static String locationToString(Location loc)
@@ -158,11 +171,11 @@ public class PropUtil {
 			location = prop.getProperty("resultsTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("resultsTabLocation", "bottom");
+				prop.setProperty("resultsTabLocation", "left");
 				location = prop.getProperty("resultsTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("resultsTabLocation", "bottom");
+			prop.setProperty("resultsTabLocation", "left");
 			location = prop.getProperty("resultsTabLocation");
 		}
 		return stringToLocation(location);
@@ -195,11 +208,11 @@ public class PropUtil {
 			location = prop.getProperty("clustersTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("clustersTabLocation", "top");
+				prop.setProperty("clustersTabLocation", "left");
 				location = prop.getProperty("clustersTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("clustersTabLocation", "top");
+			prop.setProperty("clustersTabLocation", "left");
 			location = prop.getProperty("clustersTabLocation");
 		}
 		return stringToLocation(location);
@@ -232,11 +245,11 @@ public class PropUtil {
 			location = prop.getProperty("preProcessTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("preProcessTabLocation", "left");
+				prop.setProperty("preProcessTabLocation", "right");
 				location = prop.getProperty("preProcessTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("preProcessTabLocation", "left");
+			prop.setProperty("preProcessTabLocation", "right");
 			location = prop.getProperty("preProcessTabLocation");
 		}
 		return stringToLocation(location);
@@ -269,11 +282,11 @@ public class PropUtil {
 			location = prop.getProperty("suggestionsTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("suggestionsTabLocation", "left");
+				prop.setProperty("suggestionsTabLocation", "right");
 				location = prop.getProperty("suggestionsTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("suggestionsTabLocation", "left");
+			prop.setProperty("suggestionsTabLocation", "right");
 			location = prop.getProperty("preProcessTabLocation");
 		}
 		return stringToLocation(location);
@@ -306,11 +319,11 @@ public class PropUtil {
 			location = prop.getProperty("translationsTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("translationsTabLocation", "left");
+				prop.setProperty("translationsTabLocation", "right");
 				location = prop.getProperty("translationsTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("translationsTabLocation", "left");
+			prop.setProperty("translationsTabLocation", "right");
 			location = prop.getProperty("translationsTabLocation");
 		}
 		return stringToLocation(location);
