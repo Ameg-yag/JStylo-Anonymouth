@@ -1,5 +1,7 @@
 package edu.drexel.psal.anonymouth.utils;
 
+import java.io.Serializable;
+
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
@@ -11,8 +13,12 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
  * @author Andrew W.E. McDonald
  *
  */
-public class Reference {
+public class Reference implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5842100664246784998L;
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected int index;
 	protected double value;

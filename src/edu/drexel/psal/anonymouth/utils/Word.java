@@ -1,5 +1,6 @@
 package edu.drexel.psal.anonymouth.utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
@@ -13,8 +14,13 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
  * @author Andrew W.E. McDonald
  *
  */
-public class Word implements Comparable<Word>{
+public class Word implements Comparable<Word>, Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2134159624348701323L;
+
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 
 	protected String word;

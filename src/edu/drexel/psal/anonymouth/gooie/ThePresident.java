@@ -32,6 +32,7 @@ public class ThePresident {
 	public static final String DOC_MAGICIAN_WRITE_DIR = "./.edited_documents/";
 	public static final String LOG_DIR = "log";
 	public static String TEMP_DIR =  "temp/"; // TODO: put in "options"
+	public static String SER_DIR = "./.serialized_objects/";
 	public static String GRAMMAR_DIR = "grammar_data/";//TODO: put in "options"
 	//public static boolean SHOULD_KEEP_TEMP_CLEAN_DOCS = false; // TODO : put in "options" XXX not used!!
 	public static boolean SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = true; // TODO: put in "options"
@@ -60,8 +61,8 @@ public class ThePresident {
 
 	public static void main(String[] args){
 		String OS = System.getProperty("os.name").toLowerCase();
+		ThePresident leader = new ThePresident();
 		if(OS.contains("mac")){
-			ThePresident leader = new ThePresident();
 			Logger.logln(leader.NAME+"We're on a Mac!");
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name","Anonymouth");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -114,7 +115,7 @@ public class ThePresident {
 		//System.out.println(tempName+" "+sessionName);
 		File log_dir = new File(LOG_DIR); // create log directory if it doesn't exist.
 		if (!log_dir.exists()){
-			System.out.println("Creating directory for DocumentMagician to write to...");
+			System.out.println(leader.NAME+"Creating directory for DocumentMagician to write to...");
 			log_dir.mkdir();
 		}
 		Logger.setFilePrefix("Anonymouth_"+sessionName);
@@ -122,8 +123,13 @@ public class ThePresident {
 		Logger.initLogFile();
 		File dm_write_dir = new File(DOC_MAGICIAN_WRITE_DIR);
 		if (!dm_write_dir.exists()){
-			Logger.logln("Creating directory for DocumentMagician to write to...");
+			Logger.logln(leader.NAME+"Creating directory for DocumentMagician to write to...");
 			dm_write_dir.mkdir();
+		}
+		File ser_dir = new File(SER_DIR);
+		if (!ser_dir.exists()){
+			Logger.logln(leader.NAME+"Creating directory to save serialized objects to...");
+			ser_dir.mkdir();
 		}
 		
 		Logger.logln("Gooie starting...");

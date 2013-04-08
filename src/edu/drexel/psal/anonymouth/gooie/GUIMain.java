@@ -1628,8 +1628,8 @@ public class GUIMain extends javax.swing.JFrame  {
 				"grow, fill"));
 		
 		String[][] row = new String[1][1];
-		row[0] = new String[] {"N/A", "N/A"};
-    	String[] header = {"Author:", "% Chance Document Belongs To Author"};
+		row[0] = new String[] {"Waiting", "..."};
+    	String[] header = {"Author:", "Ownership Probability"};
 		
 		// feature description pane--------------------------------------------------
 		resultsTableModel = new DefaultTableModel(row, header){

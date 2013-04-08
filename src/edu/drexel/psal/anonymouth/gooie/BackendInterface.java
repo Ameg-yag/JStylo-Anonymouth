@@ -30,11 +30,11 @@ import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
 import edu.drexel.psal.anonymouth.engine.Mapper;
-import edu.drexel.psal.anonymouth.engine.TheMirror;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
 import edu.drexel.psal.anonymouth.suggestors.TheOracle;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.DocumentTagger;
+import edu.drexel.psal.anonymouth.utils.ObjectIO;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 import edu.drexel.psal.anonymouth.utils.Tagger;
 import edu.drexel.psal.jstylo.generics.FeatureDriver;
@@ -112,79 +112,6 @@ public class BackendInterface {
 		
 	}
 	
-	protected static void updatePresentFeatureNow(GUIMain main,TheMirror theMirror){
-	
-		new Thread(bei.new UpdatePresentFeatureNow(main, theMirror)).start();
-		
-	}
-	
-	public class UpdatePresentFeatureNow extends GUIThread {
-		
-		TheMirror theMirror;
-		
-		public UpdatePresentFeatureNow(GUIMain main,TheMirror theMirror){
-			super(main);
-			this.theMirror = theMirror;
-		}
-		
-		public void run(){
-			if((DriverDocumentsTab.hasCurrentAttrib == true) && (DriverDocumentsTab.isWorkingOnUpdating == false)){
-				DriverDocumentsTab.isWorkingOnUpdating = true;
-				//System.out.println("EditorTabDriver is working on updating: "+EditorTabDriver.isWorkingOnUpdating);
-				try {
-					double updatedPresentValue = 0;
-					
-					//System.out.println(EditorTabDriver.currentAttrib.getGenericName());
-					//System.out.println(EditorTabDriver.featuresInCfd.toString());
-					FeatureDriver theOneToUpdate = main.cfd.featureDriverAt(DriverDocumentsTab.featuresInCfd.indexOf(DriverDocumentsTab.currentAttrib.getGenericName().toString()));
-					WekaInstancesBuilder wib = new WekaInstancesBuilder(false);
-					Document currDoc = new Document();
-					currDoc.setText(main.documentPane.getText().toCharArray());
-					
-					List<Canonicizer> canonList = theOneToUpdate.getCanonicizers();
-					try{
-					Iterator<Canonicizer> canonIter = canonList.iterator();
-					while(canonIter.hasNext())
-						currDoc.addCanonicizer(canonIter.next());
-					} catch(NullPointerException npe){
-					}
-					
-					Computer.setTheDocument(currDoc);
-					
-					updatedPresentValue = theMirror.updatePresentValue(DriverDocumentsTab.currentAttrib);
-					//else
-					main.presentValueField.setText(Double.toString(updatedPresentValue));
-					//System.out.println("PRESENT VALUE UPDATED!: "+updatedPresentValue);
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				DriverDocumentsTab.isWorkingOnUpdating = false;
-				
-			}
-		}
-	}
 	
 	/*
 	protected static void tagDocs(GUIMain main, DocumentMagician magician){
@@ -411,7 +338,7 @@ public class BackendInterface {
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), true);
 			else
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
-			main.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			//main.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;
@@ -440,6 +367,9 @@ public class BackendInterface {
 			pw.closeWindow();
 			//cpb.setText("User Editing... Waiting to\"Re-process\"");
 			
+			//Logger.logln(NAME+"Writing TaggedDocument...");
+			//ObjectIO.writeObject(ConsolidationStation.toModifyTaggedDocs.get(0), "toModifyDoc", ThePresident.SER_DIR);
+			//Logger.logln(NAME+"TaggedDocument written...");
 		}
 		
 	

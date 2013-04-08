@@ -34,8 +34,12 @@ import edu.stanford.nlp.trees.TreebankLanguagePack;
  * @author Andrew W.E. McDonald
  */
 
-public class TaggedSentence implements Comparable<TaggedSentence>{
+public class TaggedSentence implements Comparable<TaggedSentence>, Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8793730374516462574L;
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected SparseReferences sentenceLevelFeaturesFound;
 
@@ -54,9 +58,9 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 	private static final Pattern specialCharsRegex=Pattern.compile("[~@#$%^&*-_=+><\\\\[\\\\]{}/\\|]+");
 	private static final Pattern digit=Pattern.compile("[\\d]{1,}");
 
-	protected List<? extends HasWord> sentenceTokenized;
-	protected Tokenizer<? extends HasWord> toke;
-	protected TreebankLanguagePack tlp = new PennTreebankLanguagePack(); 
+	protected transient List<? extends HasWord> sentenceTokenized;
+	protected transient Tokenizer<? extends HasWord> toke;
+	protected transient TreebankLanguagePack tlp = new PennTreebankLanguagePack(); 
 
 	private String[] thirdPersonPronouns={"he","she","him", "her","it","his","hers","its","them","they","their","theirs"};
 	private String[] firstPersonPronouns={"I","me","my","mine","we","us","our","ours"};
@@ -211,11 +215,12 @@ public class TaggedSentence implements Comparable<TaggedSentence>{
 		return wordsInSentence.size();
 	}
 	
-	
+	/**
+	 * Returns the length of the sentence (number of characters).
+	 * @return
+	 */
 	public int getLength(){
-		
-		this.getUntagged();
-		return 0;
+		return untagged.length();
 	}
 	
 	public ArrayList<Word> getWordsInSentence(){
