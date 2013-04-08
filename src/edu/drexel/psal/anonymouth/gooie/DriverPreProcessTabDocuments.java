@@ -250,43 +250,53 @@ public class DriverPreProcessTabDocuments {
 			public void actionPerformed(ActionEvent e) 
 			{
 				Logger.logln(NAME+"'Add Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
-
-				JFileChooser open = new JFileChooser();
-				open.setMultiSelectionEnabled(true);
-				File dir;
-				try {
-					dir = new File(new File(".").getCanonicalPath());
-					open.setCurrentDirectory(dir);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
 				
-				open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
-				int answer = open.showOpenDialog(main);
-
-				if (answer == JFileChooser.APPROVE_OPTION) {
-					File[] files = open.getSelectedFiles();
-					String msg = "Trying to load test documents:\n";
-					for (File file: files)
-						msg += "\t\t> "+file.getAbsolutePath()+"\n";
-					Logger.log(msg);
-					
-					
-					String path;
-					ArrayList<String> allTestDocPaths = new ArrayList<String>();
-					for (Document doc: main.ps.getTestDocs())
-						allTestDocPaths.add(doc.getFilePath());
-					for (File file: files) {
-						path = file.getAbsolutePath();
-						if (allTestDocPaths.contains(path))
-							continue;
-						main.ps.addTestDoc(new Document(path,ProblemSet.getDummyAuthor(),file.getName()));
+				DefaultListModel dlm = (DefaultListModel)main.prepMainDocList.getModel();
+				DefaultListModel dlm2 = (DefaultListModel)main.PPSP.prepMainDocList.getModel();
+				if (dlm.getSize() == 0 && dlm2.getSize() == 0) {
+					JFileChooser open = new JFileChooser();
+					open.setMultiSelectionEnabled(true); //false since we will only allow one test doc to be entered at a time
+					File dir;
+					try {
+						dir = new File(new File(".").getCanonicalPath());
+						open.setCurrentDirectory(dir);
+					} catch (IOException e1) {
+						e1.printStackTrace();
 					}
 					
-					GUIUpdateInterface.updateTestDocTable(main);
+					open.addChoosableFileFilter(new ExtFilter("Text files (*.txt)", "txt"));
+					int answer = open.showOpenDialog(main);
 
+					if (answer == JFileChooser.APPROVE_OPTION) {
+						File[] files = open.getSelectedFiles();
+						String msg = "Trying to load test documents:\n";
+						for (File file: files)
+							msg += "\t\t> "+file.getAbsolutePath()+"\n";
+						Logger.log(msg);
+						
+						
+						String path;
+						ArrayList<String> allTestDocPaths = new ArrayList<String>();
+						for (Document doc: main.ps.getTestDocs())
+							allTestDocPaths.add(doc.getFilePath());
+						for (File file: files) {
+							path = file.getAbsolutePath();
+							if (allTestDocPaths.contains(path))
+								continue;
+							main.ps.addTestDoc(new Document(path,ProblemSet.getDummyAuthor(),file.getName()));
+						}
+						
+						GUIUpdateInterface.updateTestDocTable(main);
+
+					} else {
+						Logger.logln(NAME+"Load test documents canceled");
+					}
 				} else {
-					Logger.logln(NAME+"Load test documents canceled");
+					Logger.logln(NAME+"Attemted to add more than one test document - only one is allowed",LogOut.STDERR);
+					JOptionPane.showMessageDialog(null,
+							"You may only have one test document.",
+							"If you wish to change it you must first remove the current one.",
+							JOptionPane.WARNING_MESSAGE);
 				}
 			}
 		};
@@ -322,6 +332,7 @@ public class DriverPreProcessTabDocuments {
 						Logger.log(msg);
 						
 						GUIUpdateInterface.updateTestDocTable(main);
+						GUIUpdateInterface.clearDocPreview(main);
 					} 
 					else 
 					{
@@ -467,8 +478,10 @@ public class DriverPreProcessTabDocuments {
 
 					for (Document doc: main.ps.getTestDocs())
 						allTestDocPaths.add(doc.getFilePath());
-					for (Document doc: main.ps.getTrainDocs(ProblemSet.getDummyAuthor()))
-						allTestDocPaths.add(doc.getFilePath());
+					if (main.ps.getTrainDocs(ProblemSet.getDummyAuthor()) != null) {
+						for (Document doc: main.ps.getTrainDocs(ProblemSet.getDummyAuthor()))
+							allTestDocPaths.add(doc.getFilePath());
+					}
 					for (File file: files) {
 						if (file.isDirectory()) {
 							String[] theDocsInTheDir = file.list();
@@ -537,10 +550,11 @@ public class DriverPreProcessTabDocuments {
 				Logger.logln(NAME+"'Remove Document(s)/Author(s)' button clicked under the 'Training Corpus' section on the documents tab.");
 				
 				boolean removingAuthor = false;
+				int docCounter = 0;
 				TreePath[] paths = main.trainCorpusJTree.getSelectionPaths();
 				List<DefaultMutableTreeNode> selectedDocs = new ArrayList<DefaultMutableTreeNode>();
 				
-				if (paths != null)
+				if (paths != null) {
 					if (paths[0].getPath().length == 2) {
 						removingAuthor = true;
 						for (TreePath path: paths)
@@ -548,9 +562,12 @@ public class DriverPreProcessTabDocuments {
 								selectedDocs.add((DefaultMutableTreeNode)path.getPath()[1]);
 					} else {
 						for (TreePath path: paths)
-							if (path.getPath().length == 3)
+							if (path.getPath().length == 3) {
 								selectedDocs.add((DefaultMutableTreeNode)path.getPath()[2]);
+								docCounter++;
+							}
 					}
+				}
 
 				if (selectedDocs.isEmpty()) {
 					Logger.logln(NAME+"Failed removing training documents/authors - no documents/authors are selected",LogOut.STDERR);
@@ -559,18 +576,19 @@ public class DriverPreProcessTabDocuments {
 							"Remove Training Documents Failure",
 							JOptionPane.WARNING_MESSAGE);
 				} else {
-					int answer;
+					int answer = 0;
 					if (removingAuthor) {
 						answer = JOptionPane.showConfirmDialog(null,
 								"Are you sure you want to remove the selected author and all their documents?",
 								"Remove Training Document's Author Confirmation",
 								JOptionPane.YES_NO_OPTION);
-					} else {
-						answer = JOptionPane.showConfirmDialog(null,
-								"Are you sure you want to remove the selected training documents?",
-								"Remove Training Documents Confirmation",
-								JOptionPane.YES_NO_OPTION);
 					}
+//					} else {
+//						answer = JOptionPane.showConfirmDialog(null,
+//								"Are you sure you want to remove the selected training documents?",
+//								"Remove Training Documents Confirmation",
+//								JOptionPane.YES_NO_OPTION);
+//					}
 
 					String msg;
 					if (answer == 0) {
@@ -585,7 +603,22 @@ public class DriverPreProcessTabDocuments {
 							String author;
 							for (DefaultMutableTreeNode doc: selectedDocs) {
 								author = doc.getParent().toString();
-								System.out.printf("doc.getChildCount() = %s", doc.getChildCount());
+								
+								if (doc.getParent().getChildCount() == docCounter) {
+									answer = JOptionPane.showConfirmDialog(null,
+											"Are you sure you want to remove all of the selected author's documents?\n" +
+											"All authors must have at least one document.",
+											"Remove Training Documents Confirmation",
+											JOptionPane.YES_NO_OPTION);
+
+									if (answer == 1) {
+//										main.ps.removeAuthor(doc.getParent().toString());
+										break;
+									}
+									
+									docCounter = -1;
+								}
+								
 								main.ps.removeTrainDocAt(author, doc.toString());
 								msg += "\t\t> "+doc.toString()+"\n";
 							}
@@ -829,6 +862,7 @@ public class DriverPreProcessTabDocuments {
 						Logger.log(msg);
 						
 						GUIUpdateInterface.updateTestDocTable(main);
+						GUIUpdateInterface.clearDocPreview(main);
 					} 
 					else 
 					{
@@ -1090,8 +1124,10 @@ public class DriverPreProcessTabDocuments {
 
 					for (Document doc: main.ps.getTestDocs())
 						allTestDocPaths.add(doc.getFilePath());
-					for (Document doc: main.ps.getTrainDocs(ProblemSet.getDummyAuthor()))
-						allTestDocPaths.add(doc.getFilePath());
+					if (main.ps.getTrainDocs(ProblemSet.getDummyAuthor()) != null) {
+						for (Document doc: main.ps.getTrainDocs(ProblemSet.getDummyAuthor()))
+							allTestDocPaths.add(doc.getFilePath());
+					}
 					for (File file: files) {
 						if (file.isDirectory()) {
 							String[] theDocsInTheDir = file.list();
@@ -1142,7 +1178,7 @@ public class DriverPreProcessTabDocuments {
 					}
 
 					GUIUpdateInterface.updateTrainDocTree(main);
-					GUIUpdateInterface.clearDocPreview(main);
+//					GUIUpdateInterface.clearDocPreview(main);
 
 				} else {
 					Logger.logln(NAME+"Load training documents canceled");
@@ -1229,10 +1265,11 @@ public class DriverPreProcessTabDocuments {
 						Logger.logln(NAME+"'Remove Document(s)/Author(s)' button clicked under the 'Training Corpus' section on the documents tab.");
 						
 						boolean removingAuthor = false;
-						TreePath[] paths = main.trainCorpusJTree.getSelectionPaths();
+						int docCounter = 0;
+						TreePath[] paths = main.PPSP.trainCorpusJTree.getSelectionPaths();
 						List<DefaultMutableTreeNode> selectedDocs = new ArrayList<DefaultMutableTreeNode>();
 						
-						if (paths != null)
+						if (paths != null) {
 							if (paths[0].getPath().length == 2) {
 								removingAuthor = true;
 								for (TreePath path: paths)
@@ -1240,9 +1277,12 @@ public class DriverPreProcessTabDocuments {
 										selectedDocs.add((DefaultMutableTreeNode)path.getPath()[1]);
 							} else {
 								for (TreePath path: paths)
-									if (path.getPath().length == 3)
+									if (path.getPath().length == 3) {
 										selectedDocs.add((DefaultMutableTreeNode)path.getPath()[2]);
+										docCounter++;
+									}
 							}
+						}
 
 						if (selectedDocs.isEmpty()) {
 							Logger.logln(NAME+"Failed removing training documents/authors - no documents/authors are selected",LogOut.STDERR);
@@ -1252,17 +1292,17 @@ public class DriverPreProcessTabDocuments {
 									JOptionPane.WARNING_MESSAGE);
 						} else {
 							System.out.println("Progressing forward");
-							int answer;
+							int answer = 0;
 							if (removingAuthor)
 								answer = JOptionPane.showConfirmDialog(null,
 										"Are you sure you want to remove the selected author and all their documents?",
 										"Remove Training Document's Author Confirmation",
 										JOptionPane.YES_NO_OPTION);
-							else
-								answer = JOptionPane.showConfirmDialog(null,
-										"Are you sure you want to remove the selected training documents?",
-										"Remove Training Documents Confirmation",
-										JOptionPane.YES_NO_OPTION);
+//							else
+//								answer = JOptionPane.showConfirmDialog(null,
+//										"Are you sure you want to remove the selected training documents?",
+//										"Remove Training Documents Confirmation",
+//										JOptionPane.YES_NO_OPTION);
 
 							String msg;
 							if (answer == 0) {
@@ -1277,13 +1317,29 @@ public class DriverPreProcessTabDocuments {
 									String author;
 									for (DefaultMutableTreeNode doc: selectedDocs) {
 										author = doc.getParent().toString();
+										
+										if (doc.getParent().getChildCount() == docCounter) {
+											answer = JOptionPane.showConfirmDialog(null,
+													"Are you sure you want to remove all of the selected author's documents?\n" +
+													"All authors must have at least one document.",
+													"Remove Training Documents Confirmation",
+													JOptionPane.YES_NO_OPTION);
+
+											if (answer == 1) {
+//												main.ps.removeAuthor(doc.getParent().toString());
+												break;
+											}
+											
+											docCounter = -1;
+										}
+										
 										main.ps.removeTrainDocAt(author, doc.toString());
 										msg += "\t\t> "+doc.toString()+"\n";
 									}
 								}
 								Logger.log(msg);
 								GUIUpdateInterface.updateTrainDocTree(main);
-								//GUIUpdateInterface.clearDocPreview(main);
+								GUIUpdateInterface.clearDocPreview(main);
 							} else {
 								Logger.logln(NAME+"Removing training documents/authors canceled");
 							}

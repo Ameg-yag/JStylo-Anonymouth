@@ -171,8 +171,8 @@ public class GUIUpdateInterface {
 	 * Clears the text from the document preview text box.
 	 */
 	protected static void clearDocPreview(GUIMain main) {
-		main.docPreviewJTextPane.setText("");
-		main.docPreviewNameJLabel.setText("");
+		main.documentPane.setText("This is where the latest version of your document will be.");
+		main.documentLabel.setText("Document:");
 	}
 	
 	

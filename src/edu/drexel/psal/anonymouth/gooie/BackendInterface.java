@@ -14,15 +14,11 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
-
 
 import com.jgaap.generics.Canonicizer;
 import com.jgaap.generics.Document;
@@ -37,12 +33,10 @@ import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
 import edu.drexel.psal.anonymouth.suggestors.TheOracle;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.DocumentTagger;
-import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 import edu.drexel.psal.anonymouth.utils.Tagger;
 import edu.drexel.psal.jstylo.generics.FeatureDriver;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.ProblemSet;
-import edu.drexel.psal.jstylo.generics.WekaInstancesBuilder;
 
 public class BackendInterface {
 	
@@ -138,7 +132,7 @@ public class BackendInterface {
 					//System.out.println(EditorTabDriver.currentAttrib.getGenericName());
 					//System.out.println(EditorTabDriver.featuresInCfd.toString());
 					FeatureDriver theOneToUpdate = main.cfd.featureDriverAt(DriverDocumentsTab.featuresInCfd.indexOf(DriverDocumentsTab.currentAttrib.getGenericName().toString()));
-					WekaInstancesBuilder wib = new WekaInstancesBuilder(false);
+					//WekaInstancesBuilder wib = new WekaInstancesBuilder(false);
 					Document currDoc = new Document();
 					currDoc.setText(main.documentPane.getText().toCharArray());
 					
@@ -157,28 +151,20 @@ public class BackendInterface {
 					main.presentValueField.setText(Double.toString(updatedPresentValue));
 					//System.out.println("PRESENT VALUE UPDATED!: "+updatedPresentValue);
 				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (NoSuchMethodException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				DriverDocumentsTab.isWorkingOnUpdating = false;
@@ -225,7 +211,6 @@ public class BackendInterface {
 		private DocumentMagician magician;
 		private ProgressWindow pw;
 		//private EditorInnerTabSpawner eits;
-		private int selectedIndex;
 		
 		
 		public PreTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
@@ -374,25 +359,20 @@ public class BackendInterface {
 		private DataAnalyzer wizard;
 		private DocumentMagician magician;
 		private ProgressWindow pw;
-		//private EditorInnerTabSpawner eits;
-		private int selectedIndex;
-
 
 		public PostTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
 			super(main);
 			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
 			this.wizard = wizard;
 			this.magician = magician;
-//			this.pw = new ProgressWindow("Processing...", main);
+			pw = new ProgressWindow("Processing...", main);
+			pw.run();
 			//selectedIndex = main.editTP.getSelectedIndex();
 			//this.eits = EditorTabDriver.eitsList.get(selectedIndex);
 		}
 
 		public void run(){
-			System.out.println("This needs to be fixed now");
-//			Thread progressThread = new Thread(new ProgressWindow("Processing...", main));
-//			progressThread.start();
-//			pw.setText("Target Selected");
+			pw.setText("Target Selected");
 //			TableCellRenderer renderer = new PredictionRenderer(main);
 //			main.resultsTable.setDefaultRenderer(Object.class, renderer);
 			DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
@@ -409,7 +389,7 @@ public class BackendInterface {
 //			main.prevSentenceButton.setEnabled(false);
 //			main.transButton.setEnabled(false);
 //			main.appendSentenceButton.setEnabled(false);
-//			pw.setText("Tagging all documents... Done");
+			pw.setText("Tagging all documents... Done");
 			
 			//main.editorProgressBar.setIndeterminate(true);	
 			
@@ -419,7 +399,9 @@ public class BackendInterface {
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), true);
 			else
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
-			main.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			//Backup of old version (In case I broke something)
+//			main.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;
@@ -445,7 +427,7 @@ public class BackendInterface {
 //			main.nextSentenceButton.doClick();
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			
-//			progressThread.stop(); //use something analgous to this in ProgressWindow
+			pw.stop();
 			//cpb.setText("User Editing... Waiting to\"Re-process\"");
 			
 		}
