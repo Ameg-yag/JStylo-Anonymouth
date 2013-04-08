@@ -496,7 +496,7 @@ public class WekaInstancesBuilder {
 			if (N >= trainingSet.numAttributes() - 1) {
 				res += "The number of attributes to reduce to is not less than the current number of documents. Skipping...\n";
 				
-			} else if (N > 0) {
+			} else if (N > 0) { //TODO this is where N < numAttributes. Problem should be in here or related somehow?
 				// get attributes to remove
 				int[] attrsToRemove = new int[infoArr.length-N];
 				for (int i=0; i<infoArr.length-N; i++) {

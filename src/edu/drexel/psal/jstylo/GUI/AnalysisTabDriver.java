@@ -726,10 +726,10 @@ public class AnalysisTabDriver {
 					
 					main.wad = new WekaAnalyzer(c);
 					content += getTimestamp()+" Starting classification...\n";
-					Logger.log("Starting classification...");
+					Logger.log("Starting classification...\n");
 					updateResultsView();
 					
-					// classify
+					// classify FIXME somewhere in here is where the nullpointer is being thrown if N for infoGain is < number of Features in the set
 					results = main.wad.classify(
 							main.wib.getTrainingSet(),
 							main.wib.getTestSet(),
