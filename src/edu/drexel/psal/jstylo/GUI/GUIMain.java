@@ -876,7 +876,7 @@ public class GUIMain extends javax.swing.JFrame {
 								classAvClassJLabel = new JLabel();
 								classAvClassJLabel.setFont(defaultLabelFont);
 								av.add(classAvClassJLabel,BorderLayout.NORTH);
-								classAvClassJLabel.setText("Available WEKA Classifiers");
+								classAvClassJLabel.setText("Available Classifiers");
 							}
 							{
 								classTreeScrollPane = new JScrollPane();
@@ -916,7 +916,7 @@ public class GUIMain extends javax.swing.JFrame {
 							{
 								classSelClassJLabel = new JLabel();
 								sel.add(classSelClassJLabel,BorderLayout.NORTH);
-								classSelClassJLabel.setText("Selected WEKA Classifiers");
+								classSelClassJLabel.setText("Selected Classifiers");
 								classSelClassJLabel.setFont(defaultLabelFont);
 							}
 							{
@@ -1085,17 +1085,17 @@ public class GUIMain extends javax.swing.JFrame {
 						analysisTypePanel.add(options,BorderLayout.CENTER);
 						analysisTypeButtonGroup = new ButtonGroup();
 						{
-							analysisClassTestDocsJRadioButton = new JRadioButton();
-							analysisClassTestDocsJRadioButton.setSelected(true);
-							options.add(analysisClassTestDocsJRadioButton,BorderLayout.CENTER);
-							analysisTypeButtonGroup.add(analysisClassTestDocsJRadioButton);
-							analysisClassTestDocsJRadioButton.setText("Train on training corpus and classify test documents");
-						}
-						{
 							analysisTrainCVJRadioButton = new JRadioButton();
+							analysisTrainCVJRadioButton.setSelected(true);
 							options.add(analysisTrainCVJRadioButton,BorderLayout.CENTER);
 							analysisTypeButtonGroup.add(analysisTrainCVJRadioButton);
 							analysisTrainCVJRadioButton.setText("Run 10-folds cross validation on training corpus");
+						}
+						{
+							analysisClassTestDocsJRadioButton = new JRadioButton();
+							options.add(analysisClassTestDocsJRadioButton,BorderLayout.CENTER);
+							analysisTypeButtonGroup.add(analysisClassTestDocsJRadioButton);
+							analysisClassTestDocsJRadioButton.setText("Train on training corpus and classify test documents");
 						}
 					}
 					

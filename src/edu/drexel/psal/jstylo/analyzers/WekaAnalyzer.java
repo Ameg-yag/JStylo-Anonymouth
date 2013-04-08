@@ -66,7 +66,7 @@ public class WekaAnalyzer extends Analyzer {
 	 * 		classification probability.
 	 */
 	@Override
-	public Map<String, Map<String, Double>> classify(Instances trainingSet,				//TODO look around in here to try to find the problem
+	public Map<String, Map<String, Double>> classify(Instances trainingSet,	
 			Instances testSet, List<Document> unknownDocs) {
 		this.trainingSet = trainingSet;					
 		this.testSet = testSet;
@@ -98,11 +98,7 @@ public class WekaAnalyzer extends Analyzer {
 		for (int i=0; i<testSet.numInstances(); i++) {
 			Instance test = testSet.instance(i);
 
-				Logger.logln("examining Instance test: "+test.toString());	//test exists here
-
-			test.setDataset(trainingSet);//FIXME for some reason, after setting the Dataset, test no longer exists. I think this is the problem.
-
-				Logger.logln("reexamining Instance test: "+test.toString()); //test no longer exists here
+			test.setDataset(trainingSet);
 
 			map = res.get(unknownDocs.get(i).getTitle());
 			try {
