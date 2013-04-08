@@ -17,7 +17,7 @@ public class ProgressWindow extends JDialog implements PropertyChangeListener, R
 	protected Thread t;
 	private Task task;
 	private String text;
-	private Boolean continueLoop;
+//	private Boolean continueLoop;
 	private JProgressBar editorProgressBar;
 	private JLabel editingProgressBarLabel;
 	private JPanel processPanel;
@@ -25,9 +25,10 @@ public class ProgressWindow extends JDialog implements PropertyChangeListener, R
 	public ProgressWindow(String title, GUIMain main) {
 		super(main, title, Dialog.ModalityType.MODELESS); // MODELESS lets it stay on top, but not block any processes
 		this.main = main;
+		main.setEnabled(false);
 		
 		text = "";
-		continueLoop = true;
+//		continueLoop = true;
 		
 		editingProgressBarLabel = new JLabel();
 		editingProgressBarLabel.setText("Editing Progress:");
@@ -53,7 +54,7 @@ public class ProgressWindow extends JDialog implements PropertyChangeListener, R
 			editingProgressBarLabel.setText(text);
 			editorProgressBar.setEnabled(true);
 			int i = 0;
-			while (continueLoop) {
+			while (true) {
 				for (i = 0; i < 101; i++) {
 					editingProgressBarLabel.setText(text);
 					editorProgressBar.setValue(i);
@@ -63,11 +64,10 @@ public class ProgressWindow extends JDialog implements PropertyChangeListener, R
 						e.printStackTrace();
 					}
 					
-					if (!continueLoop)
-						break;
+//					if (!continueLoop)
+//						break;
 				}
 			}
-			return null;
 		}
 
 		@Override
@@ -103,7 +103,7 @@ public class ProgressWindow extends JDialog implements PropertyChangeListener, R
 	public void stop() {
 		Logger.logln("Stopping ProgressBar");
 		main.setEnabled(true); // to ensure its enabled, even if we didn't disable it to begin with
-		continueLoop = false;
+//		continueLoop = false;
 		WindowEvent wev = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
 		Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
 	}

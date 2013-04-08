@@ -79,7 +79,8 @@ public class Translator implements Runnable
 		setAllEnabled(false); 
 
 		// set up the progress bar
-		main.translationsProgressBar.setIndeterminate(true);
+		main.translationsProgressBar.setIndeterminate(false);
+		main.translationsProgressBar.setMaximum(sentences.size() * DriverDocumentsTab.translator.getUsedLangs().length);
 
 		// finish set up for translation
 		main.translationsProgressLabel.setText("Sentence: 1/" + sentences.size() + " Languages: 1/"  + DriverDocumentsTab.translator.getUsedLangs().length);
@@ -101,7 +102,6 @@ public class Translator implements Runnable
 				// update the progress label
 				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
 
-
 				String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged().trim(), lang);
 				TaggedSentence taggedTrans = new TaggedSentence(translation);
 				taggedTrans.tagAndGetFeatures();
@@ -113,12 +113,16 @@ public class Translator implements Runnable
 				if (one.equals(two))
 					DriverTranslationsTab.showTranslations(sentences.get(currentSentNum-1));
 				currentLangNum++;
+				
+				if (main.translationsProgressBar.getValue() + 1 <= main.translationsProgressBar.getMaximum())
+					main.translationsProgressBar.setValue(main.translationsProgressBar.getValue() + 1);
 			}
 			currentLangNum = 1;
 			currentSentNum++;
 		}
 		sentences.removeAll(sentences);
 		main.translationsProgressBar.setIndeterminate(false);
+		main.translationsProgressBar.setValue(0);
 		main.translationsProgressLabel.setText("No Translations Pending.");
 		currentSentNum = 1;
 		setAllEnabled(true);

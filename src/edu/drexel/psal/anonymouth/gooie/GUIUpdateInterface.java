@@ -71,6 +71,10 @@ public class GUIUpdateInterface {
 		}	
 	}
 	
+	public static void updateDocLabel(GUIMain main, String title) {
+		main.documentLabel.setText("Document: " + title);
+	}
+	
 	/**
 	 * Updates the documents tab view with the current problem set.
 	 */
@@ -105,7 +109,6 @@ public class GUIUpdateInterface {
 			{
 				dlm.addElement(testDocs.get(i).getTitle());
 				dlm2.addElement(testDocs.get(i).getTitle());
-//				main.docNameLabel.setText(testDocs.get(i).getTitle());
 				main.mainDocPreview = main.ps.testDocAt(0);
 				try {
 					main.mainDocPreview.load();
@@ -118,8 +121,8 @@ public class GUIUpdateInterface {
 					e.printStackTrace();
 				}
 			}
+			updateDocLabel(main, testDocs.get(0).getTitle());
 		}
-		
 		updateDocPrepColor(main);
 	}
 	

@@ -169,7 +169,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JButton removeuserSampleDocJButton;
 	protected JButton userSampleDocPreviewJButton;
 
-	// Calssifiers tab
+	// Classifiers tab
 	protected JTextField classAvClassArgsJTextField;
 	protected JLabel classAvClassArgsJLabel;
 	protected JComboBox classClassJComboBox;
