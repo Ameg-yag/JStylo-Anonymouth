@@ -32,6 +32,7 @@ public class GUIUpdateInterface {
 				"<h3>JStylo</h3><br>" +
 				"Version "+version+"<br>" +
 				"Author: Ariel Stolerman<br>" +
+				"        Travis Dutko<br>"+ //TODO learn/add title
 				"Privacy, Security and Automation Lab (PSAL)<br>" +
 				"Drexel University<br>" +
 				"<br>" +

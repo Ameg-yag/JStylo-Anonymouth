@@ -393,7 +393,7 @@ public class AnalysisTabDriver {
 			}
 		});
 		
-		//TD analysisRemoveTabJButton
+		
 		// remove results button
 		// =====================
 		main.analysisRemoveResultTabJButton.addActionListener(new ActionListener(){
