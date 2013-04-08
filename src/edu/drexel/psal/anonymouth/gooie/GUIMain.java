@@ -143,10 +143,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JButton trainDocPreviewJButton;
 	protected JButton testDocPreviewJButton;
 	protected JButton trainNameJButton;
-	protected JLabel docPreviewJLabel;
 	protected JButton newProblemSetJButton;
-	protected JTextPane docPreviewJTextPane;
-	protected JScrollPane docPreviewJScrollPane;
 	protected JButton loadProblemSetJButton;
 	protected JButton saveProblemSetJButton;
 	protected JButton docTabNextJButton;
@@ -172,7 +169,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JButton removeuserSampleDocJButton;
 	protected JButton userSampleDocPreviewJButton;
 
-	// Calssifiers tab
+	// Classifiers tab
 	protected JTextField classAvClassArgsJTextField;
 	protected JLabel classAvClassArgsJLabel;
 	protected JComboBox classClassJComboBox;
@@ -776,15 +773,31 @@ public class GUIMain extends javax.swing.JFrame  {
 		{
 			boolean result = true;
 			ProblemSet ps = inst.ps;
-			for (int i = 0; i < ps.getAuthors().size(); i++)
-			{
-				String author = (String)inst.ps.getAuthors().toArray()[i];
-				if (!author.equals(ProblemSet.getDummyAuthor()))
+			if (ps.getAuthors().size() == 0)
+				result = false;
+			else {
+				for (int i = 0; i < ps.getAuthors().size(); i++)
 				{
-					if (ps.numTrainDocs(author) < 1)
+					String author = (String)inst.ps.getAuthors().toArray()[i];
+					Set<String> authors = inst.ps.getAuthors();
+					for (String curAuthor : authors) {
+						if (inst.ps.getTrainDocs(curAuthor).isEmpty()) {
+							result = false;
+							break;
+						}
+					}
+					if (!author.equals(ProblemSet.getDummyAuthor())) {
+						if (ps.numTrainDocs(author) < 1) {
+							result = false;
+							break;
+						}
+					} else if (ps.getAuthors().size() == 1) {
 						result = false;
+						break;
+					}
 				}
 			}
+			
 			return result;
 		} catch (Exception e) {
 			return false;
@@ -958,6 +971,8 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepDocumentsPanel.add(sampleLabel, "span 2");
 			prepDocumentsPanel.add(prepMainDocScrollPane, "span 2, growy, h 60::180");
 			prepDocumentsPanel.add(prepSampleDocsScrollPane, "span 2, growy, h 60::180");
+//			prepDocumentsPanel.add(prepMainDocList, "span 2, top, growy, h 60::20, w 0::160");
+//			prepDocumentsPanel.add(prepSampleDocsScrollPane, "span 2, growy, h 60::180, w 0::160");
 			prepDocumentsPanel.add(addTestDocJButton);
 			prepDocumentsPanel.add(removeTestDocJButton);
 			prepDocumentsPanel.add(adduserSampleDocJButton);

@@ -18,10 +18,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
-
-
 import com.jgaap.generics.Canonicizer;
 import com.jgaap.generics.Document;
 
@@ -35,17 +32,14 @@ import edu.drexel.psal.anonymouth.suggestors.TheOracle;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.DocumentTagger;
 import edu.drexel.psal.anonymouth.utils.ObjectIO;
-import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 import edu.drexel.psal.anonymouth.utils.Tagger;
 import edu.drexel.psal.jstylo.generics.FeatureDriver;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.ProblemSet;
-import edu.drexel.psal.jstylo.generics.WekaInstancesBuilder;
 
 public class BackendInterface {
 	
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
-
 
 	protected static BackendInterface bei = new BackendInterface(); 
 	
@@ -151,7 +145,6 @@ public class BackendInterface {
 		private DocumentMagician magician;
 		private ProgressWindow pw;
 		//private EditorInnerTabSpawner eits;
-		private int selectedIndex;
 		
 		
 		public PreTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
@@ -159,7 +152,10 @@ public class BackendInterface {
 			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
 			this.wizard = wizard;
 			this.magician = magician;
-			this.pw = new ProgressWindow("Processing...", main);
+			
+			pw = new ProgressWindow("Processing...", main);
+			pw.run();
+			
 			//selectedIndex = main.editTP.getSelectedIndex();
 			//this.eits = EditorTabDriver.eitsList.get(selectedIndex);
 		}
@@ -190,7 +186,7 @@ public class BackendInterface {
 						wizard.runInitial(magician,main.cfd, main.classifiers.get(0));
 						pw.setText("Extracting and Clustering Features... Done");
 						pw.setText("Initializing Tagger...");
-						
+
 						Tagger.initTagger();
 						
 						pw.setText("Initialize Cluster Viewer...");
@@ -199,7 +195,7 @@ public class BackendInterface {
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
 						pw.setText("Classifying Documents... Done");
-						pw.closeWindow();
+						pw.stop();
 					}
 					catch(Exception e){
 						e.printStackTrace();
@@ -251,6 +247,7 @@ public class BackendInterface {
 						Logger.logln(NAME+wekaResults.toString());
 						makeResultsTable(wekaResults, main);
 						pw.setText("Setting Results... Done");
+						pw.stop();
 					}
 				}
 				int selectedIndex = 1;
@@ -296,16 +293,14 @@ public class BackendInterface {
 		private DataAnalyzer wizard;
 		private DocumentMagician magician;
 		private ProgressWindow pw;
-		//private EditorInnerTabSpawner eits;
-		private int selectedIndex;
-
 
 		public PostTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
 			super(main);
 			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
 			this.wizard = wizard;
 			this.magician = magician;
-			this.pw = new ProgressWindow("Processing...", main);
+			pw = new ProgressWindow("Processing...", main);
+			pw.run();
 			//selectedIndex = main.editTP.getSelectedIndex();
 			//this.eits = EditorTabDriver.eitsList.get(selectedIndex);
 		}
@@ -338,7 +333,9 @@ public class BackendInterface {
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), true);
 			else
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
-			//main.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			//Backup of old version (In case I broke something)
+//			main.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;
@@ -364,7 +361,7 @@ public class BackendInterface {
 //			main.nextSentenceButton.doClick();
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			
-			pw.closeWindow();
+			pw.stop();
 			//cpb.setText("User Editing... Waiting to\"Re-process\"");
 			
 			//Logger.logln(NAME+"Writing TaggedDocument...");

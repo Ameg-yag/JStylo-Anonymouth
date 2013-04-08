@@ -333,7 +333,6 @@ public class DataAnalyzer{
 		topAttribs = findMostInfluentialEvents(presentSet,numFeaturesToReturn);
 		int numAttribs = topAttribs.length;
 		
-			
 		//for(i=0;i<numAttribs;i++){
 		//	FeatureList topIds = (topAttribs[i].getGenericName());	
 		//	System.out.println(topIds);
