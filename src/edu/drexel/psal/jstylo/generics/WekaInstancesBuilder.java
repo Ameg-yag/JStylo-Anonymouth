@@ -496,18 +496,40 @@ public class WekaInstancesBuilder {
 			if (N >= trainingSet.numAttributes() - 1) {
 				res += "The number of attributes to reduce to is not less than the current number of documents. Skipping...\n";
 				
-			} else if (N > 0) { //TODO this is where N < numAttributes. Problem should be in here or related somehow?
-				// get attributes to remove
-				int[] attrsToRemove = new int[infoArr.length-N];
-				for (int i=0; i<infoArr.length-N; i++) {
-					attrsToRemove[i] = (int)infoArr[i][1];
-				}
-				Arrays.sort(attrsToRemove);
+			} else if (N > 0) { //TD bugfix InfoGain
+								//the problem was twofold: 1) the Attributes were only being removed from the trainingSet
+															//this meant that testSet didn't line up properly, and caused errors down the line
+								//2) the incorrect features were being cut out. I've inclluded a fix--basically this entire chunk was rewritten.
+									//should work with any feature set and any N
 
-				// remove attributes
-				for (int i=attrsToRemove.length-1; i >= 0; i--)
-					trainingSet.deleteAttributeAt(attrsToRemove[i]);
+				//create an array with the value of infoArr's [i][1] this array will be shrunk and modified as needed
+				double[] tempArr = new double[infoArr.length];
+				for (int i=0; i<infoArr.length;i++){
+					tempArr[i]=infoArr[i][1];
+				}
 				
+				//for all the values we need to delete
+				for (int i=0; i < infoArr.length-N; i++){
+					//remove them from BOTH the trainingSet and testSet
+					trainingSet.deleteAttributeAt((int)tempArr[tempArr.length-1]);
+					testSet.deleteAttributeAt((int)tempArr[tempArr.length-1]);
+					
+					//Then shrink the array
+					double temp[] = new double[tempArr.length-1];
+					for (int k=0; k<temp.length;k++){
+						temp[k]=tempArr[k];
+					}			
+					//AND change the values 
+					for (int k=0; k<temp.length;k++){
+						if (temp[k]>tempArr[tempArr.length-1]){
+							temp[k]=temp[k]-1;
+						}
+					}						
+					//update array
+					tempArr=temp;
+				
+				}
+					
 				res += "Attributes reduced to top "+N+". The new list of attributes is:\n";
 				for (int i=0; i<N; i++) {
 					res += trainingSet.attribute(i)+"\n";
