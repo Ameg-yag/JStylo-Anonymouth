@@ -283,8 +283,8 @@ public class GUIMain extends javax.swing.JFrame {
 					centerPanel.add(topPanel);
 					JPanel testDocsPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
 					JPanel trainDocsPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
-					topPanel.add(testDocsPanel);
 					topPanel.add(trainDocsPanel);
+					topPanel.add(testDocsPanel);
 					JPanel bottomPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
 					centerPanel.add(bottomPanel);
 
@@ -1037,7 +1037,7 @@ public class GUIMain extends javax.swing.JFrame {
 						analysisConfPanel.add(options,BorderLayout.CENTER);
 						{
 							analysisOutputFeatureVectorJCheckBox = new JCheckBox();
-							analysisOutputFeatureVectorJCheckBox.setSelected(true);
+							analysisOutputFeatureVectorJCheckBox.setSelected(false);
 							options.add(analysisOutputFeatureVectorJCheckBox);
 							analysisOutputFeatureVectorJCheckBox.setText("Output feature vectors (ARFF format)");
 						}
@@ -1188,7 +1188,7 @@ public class GUIMain extends javax.swing.JFrame {
 						mainHeader.add(buttons,BorderLayout.NORTH);
 						{
 							analysisRunJButton = new JButton();
-							analysisRunJButton.setPreferredSize(new Dimension(100,50));
+							analysisRunJButton.setPreferredSize(new Dimension(175,50));
 							buttons.add(analysisRunJButton);
 							analysisRunJButton.setText("Run Analysis");
 						}
