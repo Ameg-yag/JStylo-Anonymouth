@@ -198,7 +198,7 @@ public class GUIMain extends javax.swing.JFrame {
 	protected JRadioButton analysisClassTestDocsJRadioButton;
 	protected JLabel analysisResultsJLabel;
 	protected JButton analysisAboutJButton;
-	protected JButton analysisRemoveResultTabJButton;
+	protected JButton analysisRemoveResultTabJButton; //TD analysisRemoveTabJButton
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -283,9 +283,8 @@ public class GUIMain extends javax.swing.JFrame {
 					centerPanel.add(topPanel);
 					JPanel testDocsPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
 					JPanel trainDocsPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
-					topPanel.add(trainDocsPanel);
 					topPanel.add(testDocsPanel);
-					
+					topPanel.add(trainDocsPanel);
 					JPanel bottomPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
 					centerPanel.add(bottomPanel);
 
@@ -366,7 +365,7 @@ public class GUIMain extends javax.swing.JFrame {
 						{
 							trainNameJButton = new JButton();
 							buttons.add(trainNameJButton);
-							trainNameJButton.setText("Edit Corpus Name...");
+							trainNameJButton.setText("Edit Name...");
 						}
 						{
 							removeAuthorJButton = new JButton();
@@ -1038,7 +1037,7 @@ public class GUIMain extends javax.swing.JFrame {
 						analysisConfPanel.add(options,BorderLayout.CENTER);
 						{
 							analysisOutputFeatureVectorJCheckBox = new JCheckBox();
-							analysisOutputFeatureVectorJCheckBox.setSelected(false);
+							analysisOutputFeatureVectorJCheckBox.setSelected(true);
 							options.add(analysisOutputFeatureVectorJCheckBox);
 							analysisOutputFeatureVectorJCheckBox.setText("Output feature vectors (ARFF format)");
 						}
@@ -1189,13 +1188,13 @@ public class GUIMain extends javax.swing.JFrame {
 						mainHeader.add(buttons,BorderLayout.NORTH);
 						{
 							analysisRunJButton = new JButton();
-							analysisRunJButton.setPreferredSize(new Dimension(175,50));
+							analysisRunJButton.setPreferredSize(new Dimension(100,50));
 							buttons.add(analysisRunJButton);
 							analysisRunJButton.setText("Run Analysis");
 						}
 						{
 							analysisStopJButton = new JButton();
-							analysisStopJButton.setPreferredSize(new Dimension(75,50));
+							analysisStopJButton.setPreferredSize(new Dimension(100,50));
 							buttons.add(analysisStopJButton);
 							analysisStopJButton.setText("Stop");
 							analysisStopJButton.setEnabled(false);
@@ -1222,7 +1221,7 @@ public class GUIMain extends javax.swing.JFrame {
 							JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
 							resultsBottom.add(p);
 							analysisSaveResultsJButton = new JButton("Save Results...");
-							analysisRemoveResultTabJButton = new JButton("Remove Selected Tab");	
+							analysisRemoveResultTabJButton = new JButton("Remove Selected Tab");	//TD analysisRemoveTabJButton
 							p.add(analysisSaveResultsJButton);
 							p.add(analysisRemoveResultTabJButton);
 						}

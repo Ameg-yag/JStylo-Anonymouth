@@ -32,7 +32,6 @@ public class GUIUpdateInterface {
 				"<h3>JStylo</h3><br>" +
 				"Version "+version+"<br>" +
 				"Author: Ariel Stolerman<br>" +
-				"        Travis Dutko<br>"+ //TODO learn/add title
 				"Privacy, Security and Automation Lab (PSAL)<br>" +
 				"Drexel University<br>" +
 				"<br>" +
@@ -210,15 +209,27 @@ public class GUIUpdateInterface {
 	/**
 	 * Creates a panel with parameters and their values for the given event driver / canonicizer / culler.
 	 */
-	protected static JPanel getParamPanel(Parameterizable p) {
+	protected static JPanel getParamPanel(Parameterizable p) {	//FIXME this is a rather hacky solution for the layout of the featureExtractor config scrollpane.
+																	//TableLayout was being frustrating and other problems were more important, so I threw this
+																	//together as a slight improvement. Will come back to this once I get more important stuff out of the way
 		List<Pair<String,ParamTag>> params = FeatureDriver.getClassParams(p.getClass().getName());
 		
-		JPanel panel = new JPanel(new GridLayout(params.size(),2,5,5));
+		JPanel panel = new JPanel(new GridLayout(params.size(),2,1,1));
 		for (Pair<String,ParamTag> param: params) {
+			String temp;
 			JLabel name = new JLabel(param.getFirst()+": ");
 			name.setVerticalAlignment(JLabel.TOP);
 			panel.add(name);
-			JLabel value = new JLabel(p.getParameter(param.getFirst()));
+			temp = p.getParameter(param.getFirst());
+			if (temp.length()>40){
+				String tmp = "<HTML>"+temp.substring(0,24)+"<br>"+temp.substring(24,48)
+						+"<br>"+temp.substring(48)+"</HTML>";
+				temp=tmp;
+			} else if (temp.length()>24){
+				String tmp = "<HTML>"+temp.substring(0,12)+"<br>"+temp.substring(12)+"</HTML>";
+				temp=tmp;
+			}
+			JLabel value = new JLabel(temp);
 			value.setVerticalAlignment(JLabel.TOP);
 			panel.add(value);
 		}
