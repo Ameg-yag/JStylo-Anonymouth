@@ -77,24 +77,6 @@ public class ClassTabDriver {
 						return;
 					}
 					
-					// show options and description
-					/*TODO bugfix	The IBk args aren't being accepted due to:
-								java.lang.Exception: Illegal options: -A "weka.core.EuclideanDistance -R first-last"
-					
-							While removing the problematic args does allow it to be accepted, it still gets added with this arg to the right hand side
-							Additionally, what's in the arg field seems to not matter as long as it is valid. If nothing at all is put, the default string
-							will be added to the right, and if the problematic clause is stripped first, it will be readded.
-							
-							Not removing the above, but removing the " -A weka.core.neighboursearch.LinearNNSearch" results in
-								java.lang.Exception: Quote parse error.
-					
-							After looking through the Weka documentation, I saw that both -K num and -W num were acceptable args, but -A String was not mentioned.
-							This code below will supply the default args without the two -A options. These args can be modified and added to the right side successfully.
-							The -A args are appended to the right regardless of what happens if they are absent. 
-					
-							--TD
-					*/		
-					
 					if (!className.equalsIgnoreCase("weka.classifiers.lazy.IBk")){
 						main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
 						main.classDescJTextPane.setText(getDesc(tmpClassifier));
@@ -142,12 +124,31 @@ public class ClassTabDriver {
 						main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
 						return;
 					}
-					
+					//ensure that the classifier hasn't already been added.
+					boolean add = true;
+					for (int i=0; i<main.classJList.getModel().getSize();i++){
+						Logger.logln("Checking for duplicates...");
+						if (main.classifiers.get(i).getClass().toString().equals((tmpClassifier.getClass().toString()))){ //same classifier
+							if(Arrays.equals(main.classifiers.get(i).getOptions(),(tmpClassifier.getOptions()))){ //same arguments
+								add=false; //so don't add
+							}
+						}
+					}
 					// add classifier
-					main.classifiers.add(tmpClassifier);
-					GUIUpdateInterface.updateClassList(main);
-					resetAvClassSelection(main);
-					main.classJTree.clearSelection();
+					if (add){
+						Logger.logln("Adding classifier...");
+						main.classifiers.add(tmpClassifier);
+						GUIUpdateInterface.updateClassList(main);
+						resetAvClassSelection(main);
+						main.classJTree.clearSelection();
+					} else {
+						Logger.logln("Duplicate classifier entered.",LogOut.STDERR);
+						JOptionPane.showMessageDialog(main,
+								"The classifier has already been entered with these arguments.\n"+
+										"Use a different classifier or change the args.",
+										"Classifier Options Error",
+										JOptionPane.ERROR_MESSAGE);
+					}
 				}
 			}
 		});
