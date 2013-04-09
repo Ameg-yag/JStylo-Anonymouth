@@ -198,8 +198,13 @@ public class GUIMain extends javax.swing.JFrame {
 	protected JRadioButton analysisClassTestDocsJRadioButton;
 	protected JLabel analysisResultsJLabel;
 	protected JButton analysisAboutJButton;
-	protected JButton analysisRemoveResultTabJButton; //TD analysisRemoveTabJButton
-
+	protected JButton analysisRemoveResultTabJButton;
+	protected JTextField analysisKFoldJTextField; //TODO
+	protected JLabel analysisKFoldJLabel;
+	protected JLabel analysisNThreadJLabel;
+	protected JTextField analysisNThreadJTextField;
+	protected JPanel analysisTrainCVJPanel;
+	protected JPanel analysisTrainCVoptionsJPanel;
 	/**
 	 * Auto-generated main method to display this JFrame
 	 */
@@ -1084,12 +1089,33 @@ public class GUIMain extends javax.swing.JFrame {
 						JPanel options = new JPanel(new GridLayout(2,1,cellPadding,cellPadding));
 						analysisTypePanel.add(options,BorderLayout.CENTER);
 						analysisTypeButtonGroup = new ButtonGroup();
-						{
-							analysisTrainCVJRadioButton = new JRadioButton();
-							analysisTrainCVJRadioButton.setSelected(true);
-							options.add(analysisTrainCVJRadioButton,BorderLayout.CENTER);
-							analysisTypeButtonGroup.add(analysisTrainCVJRadioButton);
-							analysisTrainCVJRadioButton.setText("Run 10-folds cross validation on training corpus");
+						{																			//TODO
+							analysisTrainCVJPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
+							options.add(analysisTrainCVJPanel,BorderLayout.CENTER);
+							{
+								analysisTrainCVJRadioButton = new JRadioButton();
+								analysisTrainCVJRadioButton.setSelected(true);
+								analysisTrainCVJPanel.add(analysisTrainCVJRadioButton,BorderLayout.CENTER);
+								analysisTypeButtonGroup.add(analysisTrainCVJRadioButton);
+								analysisTrainCVJRadioButton.setText("Run 10-folds cross validation on training corpus");
+							}
+							{
+								analysisTrainCVoptionsJPanel = new JPanel(new FlowLayout());
+								analysisTrainCVJPanel.add(analysisTrainCVoptionsJPanel,BorderLayout.SOUTH);
+								{
+									analysisKFoldJTextField = new JTextField("10");
+									analysisKFoldJTextField.setPreferredSize(new Dimension(25,20));
+									analysisKFoldJLabel = new JLabel("Use K Folds: ");
+									analysisNThreadJTextField = new JTextField("8");
+									analysisNThreadJLabel = new JLabel("    Use N Threads: ");
+									analysisNThreadJTextField.setPreferredSize(new Dimension(25,20));
+									
+									analysisTrainCVoptionsJPanel.add(analysisKFoldJLabel);
+									analysisTrainCVoptionsJPanel.add(analysisKFoldJTextField);
+									analysisTrainCVoptionsJPanel.add(analysisNThreadJLabel);
+									analysisTrainCVoptionsJPanel.add(analysisNThreadJTextField);
+								}
+							}
 						}
 						{
 							analysisClassTestDocsJRadioButton = new JRadioButton();
@@ -1097,9 +1123,10 @@ public class GUIMain extends javax.swing.JFrame {
 							analysisTypeButtonGroup.add(analysisClassTestDocsJRadioButton);
 							analysisClassTestDocsJRadioButton.setText("Train on training corpus and classify test documents");
 						}
+						
+						
 					}
-					
-					
+
 					// post-analysis
 					JPanel postAnalysisPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
 					header.add(postAnalysisPanel);
