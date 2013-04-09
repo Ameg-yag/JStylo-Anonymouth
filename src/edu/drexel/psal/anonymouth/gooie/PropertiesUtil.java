@@ -20,7 +20,7 @@ import com.jgaap.generics.Document;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.jstylo.generics.*;
 
-public class PropUtil {
+public class PropertiesUtil {
 	
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 
@@ -79,13 +79,14 @@ public class PropUtil {
 	}
 	
 	/**
-	 * Sets the previous problem set filename, so the user doesn't need to go searching for it. Must be in jsan_resources/problem_sets.
+	 * Sets the previous problem set filename, so the user doesn't need to go searching for it. 
 	 * @param filename - name of the file in string form (e.g. ps.xml)
 	 */
 	protected static void setRecentProbSet(String filename)
 	{
 		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
+		System.out.println(filename);
 		try {
 			prop.setProperty("recentProbSet", filename);
 			writer = new BufferedWriter(new FileWriter(propFileName));

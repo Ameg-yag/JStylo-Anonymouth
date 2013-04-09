@@ -335,7 +335,7 @@ public class BackendInterface {
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
 			//Backup of old version (In case I broke something)
 //			main.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
-			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			// TODO uncomment this // GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;

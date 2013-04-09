@@ -1,22 +1,17 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import edu.drexel.psal.anonymouth.calculators.Computer;
 import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
-import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
-import edu.drexel.psal.anonymouth.suggestors.HighlightMapMaker;
 import edu.drexel.psal.anonymouth.suggestors.Prophecy;
 import edu.drexel.psal.anonymouth.suggestors.TheOracle;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
-import edu.drexel.psal.jstylo.generics.FeatureDriver;
 import edu.drexel.psal.jstylo.generics.Logger;
-import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -25,25 +20,20 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import com.jgaap.generics.Canonicizer;
@@ -64,13 +54,10 @@ public class DriverDocumentsTab {
 	
 	protected static SentenceTools sentenceTools;
 	
-	private static int highlightSelectionBoxSelectionNumber;
 	public static boolean isUsingNineFeatures = false;
 	protected static boolean hasBeenInitialized = false;
-	private static final String SPECIFIC = "SPECIFIC";
 	protected static String[] condensedSuggestions;
 	protected static int numEdits = 0;
-	private static int nextTabIndex = 1;
 	protected static boolean isFirstRun = true; 
 	protected static DataAnalyzer wizard;
 	private static DocumentMagician magician;
@@ -86,6 +73,8 @@ public class DriverDocumentsTab {
 	public static boolean isWorkingOnUpdating = false;
 	// It seems redundant to have these next four variables, but they are used in slightly different ways, and are all necessary.
 	private static int thisCaretPosition = -1;
+	private static int startSelection = -1;
+	private static int endSelection = -1;
 	private static int lastCaretPosition = -1;
 	private static int thisKeyCaretPosition = -1;
 	private static int lastKeyCaretPosition = -1;
@@ -118,7 +107,7 @@ public class DriverDocumentsTab {
 	protected static ArrayList<String> topToRemove;
 	protected static ArrayList<String> topToAdd;
 	
-	private static final Color HILIT_COLOR = Color.yellow; //new Color(50, 161,227);// Color.blue;
+	private static final Color HILIT_COLOR = new Color(255,0,0,100);//Color.yellow; //new Color(50, 161,227);// Color.blue;
 	protected static DefaultHighlighter.DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
 	
 	protected static Highlighter editTracker;
@@ -133,298 +122,23 @@ public class DriverDocumentsTab {
 	
 	protected static TaggedDocument taggedDoc;
 	protected static int currentSentNum = 1;
+	protected static int lastSentNum = -1;
 	protected static int[] selectedSentIndexRange = new int[]{-2,-2}; 
 	protected static int lastCaretLocation = -1;
+	protected static int charsInserted = -1;
+	protected static int charsRemoved = -1;
+	protected static String currentSentenceString = "";
 	
-	private static int numberTimesFixTabs;
 	
 	protected static void signalTargetsSelected(GUIMain main, boolean goodToGo){
 		if(goodToGo == true)
 			BackendInterface.postTargetSelectionProcessing(main, wizard, magician);
 	}
 	
-	protected static void highlightSentence(TaggedSentence sentence, GUIMain main)
-	{
-		String sent = sentence.getUntagged().trim();
-		int start = 0;
-		int end = 0;
-		String document = ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument();
-		for (int i = 0; i < document.length(); i++)
-		{
-			if (document.contains(sent))
-			{
-				start = document.indexOf(sent);
-				end = document.indexOf(sent) + sent.length();
-			}
-		}
-		
-		main.documentPane.getHighlighter().removeAllHighlights();
-        try {
-			main.documentPane.getHighlighter().addHighlight(start, end, painter);
-        } catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-        }
-	}
 	
 	protected static void doTranslations(ArrayList<TaggedSentence> sentences, GUIMain main)
 	{
 		main.GUITranslator.load(sentences);
-	}
-	
-	/*
-	 * Highlights the sentence that is currently in the editor box in the main document
-	 * no return
-	 */
-	protected static void trackEditSentence(GUIMain main){
-		editTracker = new DefaultHighlighter();
-		painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
-		int startHighlight=0, endHighlight=0;
-		int sentNum=ConsolidationStation.toModifyTaggedDocs.get(0).getSentNumber();
-		ArrayList<String> sentences=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedSentences();
-		main.documentPane.setHighlighter(editTracker);
-		String newText=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument();
-		main.documentPane.setText(newText);
-		boolean fixTabs=false;
-		numberTimesFixTabs=0;
-		for (int i=0;i<sentNum+1;i++){
-			if(i<sentNum){
-				startHighlight+=sentences.get(i).length();
-			}
-			else if(i==sentNum){
-				endHighlight=startHighlight+sentences.get(i).length()-1;
-			}
-			if (fixTabs){
-				fixTabs=false;
-				startHighlight-=1;
-				numberTimesFixTabs++;
-			}
-			if(sentences.get(i).startsWith("\n")||sentences.get(i).startsWith("\n")||sentences.get(i).startsWith("\r")){
-				fixTabs=true;
-				//Logger.logln(NAME+"FOUND CHARACTER");
-				//startHighlight++;
-			}
-		}
-		topToRemove=ConsolidationStation.getPriorityWords(ConsolidationStation.toModifyTaggedDocs, true, .2);
-		topToAdd=ConsolidationStation.getPriorityWords(ConsolidationStation.authorSampleTaggedDocs, false, .02);
-		
-		//TaggedDocument taggedDoc=ConsolidationStation.toModifyTaggedDocs.get(0);
-		int lenPrevSentences=0;
-		String sentence=sentences.get(sentNum);
-		
-		//removeTracker = new DefaultHighlighter();
-		painter2 = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,0,0,128));
-
-		startHighlight = startHighlight;
-		
-		ArrayList<ArrayList<Integer>> indexArray=new ArrayList<ArrayList<Integer>>();
-		ArrayList<Integer> tempArray;
-		//ArrayList<String> toRemoveInSentence;
-		int indexOfTemp;
-		boolean added=false;
-		String setString="",tempString;
-		int arrSize=topToRemove.size(),fromIndex=0;
-		for(int i=0;i<arrSize;i++){//loops through top to remove list
-			setString+=topToRemove.get(i)+"\n";//sets the string to return
-	/*
-			Scanner parser=new Scanner(sentence);
-			fromIndex=0;
-			while(parser.hasNext()){//finds if the given word to remove is in the current sentence
-				//loops through current sentence
-				tempString=parser.next();
-				if(tempString.matches(cleanWordRegex)){//TODO: refine this.
-					
-					tempString=tempString.substring(0,tempString.length()-1);
-					//Logger.logln(NAME+"replaced a period in: "+tempString);
-				}
-				if(tempString.equals(topToRemove.get(i))){
-					tempArray=new ArrayList<Integer>(2);
-					
-					indexOfTemp=sentence.indexOf(tempString,fromIndex);
-					tempArray.add(indexOfTemp+startHighlight);//-numberTimesFixTabs
-					tempArray.add(indexOfTemp+tempString.length()+startHighlight);
-					//Logger.logln(NAME+"fromIndex: "+fromIndex+" startHighlight: "+startHighlight);
-					//Logger.logln(NAME+"Word: "+tempString+" start: "+tempArray.get(0)+" end: "+tempArray.get(1),Logger.LogOut.STDERR);
-					added=false;
-					for(int j=0;j<indexArray.size();j++){
-						if(indexArray.get(j).get(0)>tempArray.get(0)){
-							indexArray.add(j,tempArray);
-							added=true;
-							break;
-						}
-					}
-					if(!added)
-						indexArray.add(tempArray);
-					//fromIndex=tempArray.get(1);
-				}
-				fromIndex+=tempString.length()+1;
-				
-			}
-			*/
-		}
-		
-		main.elementsToRemovePane.setText(setString);
-		main.elementsToRemovePane.setCaretPosition(0);
-		findSynonyms(main,sentence);
-		
-		editTracker.removeAllHighlights();
-		main.documentPane.repaint();
-		int innerArrSize,outerArrSize=indexArray.size(), currentStart,currentEnd;
-		currentStart=startHighlight;
-		//Logger.logln(NAME+"indexArr "+indexArray.toString(),Logger.LogOut.STDERR);
-		try {
-			for(int i=0;i<outerArrSize;i++){
-				currentEnd=indexArray.get(i).get(0);
-				//Logger.logln(NAME+"before first addhighlight: currentStart: "+currentStart+" currentEnd: "+currentEnd);
-				//if(currentStart<currentEnd)
-					editTracker.addHighlight(currentStart,currentEnd, painter);
-				currentStart=currentEnd;
-				currentEnd=indexArray.get(i).get(1);
-				//Logger.logln(NAME+"currentEnd: "+currentEnd+" currentStart: "+currentStart);
-				//if(currentStart<currentEnd)
-					editTracker.addHighlight(currentStart, currentEnd, painter2);
-				currentStart=currentEnd;
-				//Logger.logln(NAME+"currentEnd: "+currentEnd+" currentStart: "+currentStart);
-			}
-			editTracker.addHighlight(currentStart,endHighlight, painter);
-		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Logger.logln(NAME+"Error highlighting the block");
-		}
-	}
-	/**
-	 * Finds the synonyms of the words to remove in the words to add list
-	 * 
-	 */
-	protected static void findSynonyms(GUIMain main,String currentSent){
-		/*
-		String[] tempArr;
-		addTracker = new DefaultHighlighter();
-		painter3 = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,0,255,128));
-		String setString,tempStr,synSetString = "";
-		main.addToSentencePane.setHighlighter(addTracker);
-		addTracker.removeAllHighlights();
-		
-		main.elementsToAddPane.repaint();
-		
-		setString="";
-		int arrSize=topToAdd.size(), index;
-		for(int i=0;i<arrSize;i++){//Sets the topToAddElements box
-			setString+=topToAdd.get(i)+"\n";
-		}
-		main.elementsToAddPane.setText(setString);
-		main.elementsToAddPane.setCaretPosition(0);
-		synSetString="";
-		boolean inSent;
-		Scanner parser;
-		HashMap<String,Integer> indexMap=new HashMap<String,Integer>();
-		/*for(String str:topToRemove){
-			tempArr=DictionaryBinding.getSynonyms(str);
-			if(tempArr!=null){
-				//inSent=currentSent.contains(str);
-				inSent=checkSentFor(currentSent,str);
-				
-				if(inSent)
-					synSetString+=str+"=>";
-				for(int i=0;i<tempArr.length;i++){//looks through synonyms
-					tempStr=tempArr[i];
-					if(inSent){
-						synSetString+=tempStr+", ";
-						for(String addString:topToAdd){
-							if(addString.equalsIgnoreCase(tempStr)){
-								index=synSetString.indexOf(tempStr);
-								indexMap.put(tempStr, index);
-							}
-						}
-					}
-				}
-				if(inSent)
-					synSetString=synSetString.substring(0, synSetString.length()-2)+"\n";
-			}
-		}*//*
-		Scanner sentParser=new Scanner(currentSent);
-		String wordToSearch, wordSynMatch;
-		HashMap<String,String>wordsWithSynonyms=new HashMap<String,String>();
-		boolean added=false;
-		synSetString="";
-		while(sentParser.hasNext()){//loops through every word in the sentence
-			wordToSearch=sentParser.next();
-			tempArr=DictionaryBinding.getSynonyms(wordToSearch);
-			wordSynMatch="";
-			
-			if(!wordsWithSynonyms.containsKey(wordToSearch.toLowerCase().trim())){
-				if(tempArr!=null){
-					for(int i=0;i<tempArr.length;i++){//looks through synonyms
-						tempStr=tempArr[i];
-						wordSynMatch+=tempStr+" ";
-						added=false;
-						for(String addString:topToAdd){//loops through the toAdd list
-							if(addString.trim().equalsIgnoreCase(tempStr.trim())){//there is a match in topToAdd!
-								if(!synSetString.contains(wordToSearch))
-									synSetString+=wordToSearch+" => ";
-								else{
-									Logger.logln(NAME+"Did not add this again: "+wordToSearch);
-								}
-								synSetString=synSetString+addString+", ";
-								//index=synSetString.indexOf(tempStr);
-								//indexMap.put(tempStr, index);
-								added=true;
-								break;
-							}
-						}
-						
-						if(added){
-							//do something if the word was added like print to the box.
-							synSetString=synSetString.substring(0, synSetString.length()-2)+"\n";
-						}
-					}
-					if(wordSynMatch.length()>2)
-						wordsWithSynonyms.put(wordToSearch.toLowerCase().trim(), wordSynMatch.substring(0, wordSynMatch.length()-1));
-					else
-						wordsWithSynonyms.put(wordToSearch.toLowerCase().trim(), "NO Synonyms");
-				}
-			}
-		}
-		String tempStrToAdd;
-		Word possibleToAdd;
-		double topAnon=0;
-		for(String wordToRem:topToRemove){//adds ALL the synonyms in the wordsToRemove
-			if(wordsWithSynonyms.containsKey(wordToRem)){
-				tempStr=wordsWithSynonyms.get(wordToRem);
-				tempStrToAdd="";
-				parser=new Scanner(tempStr);
-				topAnon=0;
-				while(parser.hasNext()){
-					possibleToAdd=new Word(parser.next().trim());
-					ConsolidationStation.setWordFeatures(possibleToAdd);
-					if(possibleToAdd.getAnonymityIndex()>topAnon){
-						tempStrToAdd=possibleToAdd.getUntagged()+", ";//changed for test
-						topAnon=possibleToAdd.getAnonymityIndex();
-					}
-				}
-				synSetString+=wordToRem+" => "+tempStrToAdd+"\n";
-			}
-		}
-		main.addToSentencePane.setText(synSetString);
-		main.addToSentencePane.setCaretPosition(0);
-		
-		Iterator iter=indexMap.keySet().iterator();
-		String key;
-		
-		while(iter.hasNext()){
-			key=(String) iter.next();
-			index=indexMap.get(key);
-			try {
-				addTracker.addHighlight(index, index+key.length(), painter3);
-			} catch (BadLocationException e) {
-				Logger.logln(NAME+"Problem highlighting the words To add list");
-				e.printStackTrace();
-			}
-		}
-		
-		*/
-		//SynonymReplaceTest.replaceWords(eits);
 	}
 	
 	
@@ -479,10 +193,10 @@ public class DriverDocumentsTab {
 	 * @param start
 	 * @param end
 	 */
-	protected static void resetHighlight(final GUIMain main, int start, int end){
+	protected static void moveHighlight(final GUIMain main, int[] bounds){
 			main.documentPane.getHighlighter().removeAllHighlights();
 	        try {
-				main.documentPane.getHighlighter().addHighlight(start, end, painter);
+				main.documentPane.getHighlighter().addHighlight(bounds[0], bounds[1], painter);
 	        } 
 	        catch (BadLocationException err) {
 				err.printStackTrace();
@@ -490,7 +204,33 @@ public class DriverDocumentsTab {
 	}
 	
 	
-	
+	   
+	   private static void displayEditInfo(DocumentEvent e) {
+		     javax.swing.text.Document document = (javax.swing.text.Document) e.getDocument();
+		     int changeLength = e.getLength();
+		     System.out.println(e.getType().toString() + ": " + changeLength + " character(s). Text length = " + document.getLength() + ".");
+		   }
+/*
+	   protected void addBindings() {
+		   InputMap inputMap = textPane.getInputMap();
+
+		   // Ctrl-b to go backward one character
+		   KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK);
+		   inputMap.put(key, DefaultEditorKit.backwardAction);
+
+		   // Ctrl-f to go forward one character
+		   key = KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK);
+		   inputMap.put(key, DefaultEditorKit.forwardAction);
+
+		   // Ctrl-p to go up one line
+		   key = KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK);
+		   inputMap.put(key, DefaultEditorKit.upAction);
+
+		   // Ctrl-n to go down one line
+		   key = KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK);
+		   inputMap.put(key, DefaultEditorKit.downAction);
+		 }
+*/	
 	
 	protected static void initListeners(final GUIMain main){
 		
@@ -505,20 +245,43 @@ public class DriverDocumentsTab {
 			
 			@Override
 			public void caretUpdate(CaretEvent e) {
-				
-				thisCaretPosition = e.getDot();
-				//System.out.println("Caret at: "+caret);
-				//String 
+				System.out.println("caretUpdate: "+System.currentTimeMillis());
 				if (taggedDoc != null){
-				
+					
+					startSelection = e.getDot();
+					endSelection = e.getMark();
+					if (startSelection == endSelection){
+						// no "selection"
+						thisCaretPosition = startSelection;
+					}
+					else if (startSelection < endSelection) {
+						// clicked then dragged right
+						
+					}
+					else if (startSelection > endSelection) {
+						// clicked then dragged left
+						
+					}
+						
+					System.out.printf("CARET INFO: %d to %d", startSelection, endSelection);
+					
 					/*
 					 * put in a check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
 					 */
 					if ( thisCaretPosition > selectedSentIndexRange[0] && thisCaretPosition < selectedSentIndexRange[1]){
+						// Caret is inside range of presently selected sentence.
 						// update from previous caret
-						//System.out.println("In range");
-						
-						return;
+						if (charsInserted > 0){
+							selectedSentIndexRange[1] += charsInserted;
+							moveHighlight(main,selectedSentIndexRange);
+							charsInserted = 0;
+						}
+						else if (charsRemoved > 0){
+							selectedSentIndexRange[1] -= charsRemoved;
+							moveHighlight(main,selectedSentIndexRange);
+							charsRemoved = 0;
+						}
+						currentSentenceString = main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]);
 					}
 					else{
 						
@@ -545,10 +308,15 @@ public class DriverDocumentsTab {
 							endHighlight = lengthTriangle[i]; // stop highlighting when the current sentence stops.
 						}
 							// now we determine where the sent is!	
+						lastSentNum = currentSentNum;
 						currentSentNum = i;
+						if (lastSentNum != currentSentNum){
+							taggedDoc.removeAndReplace(lastSentNum, currentSentenceString);
+						}
 						selectedSentIndexRange[0] = startHighlight;
 						selectedSentIndexRange[1] = endHighlight;
-						resetHighlight(main,selectedSentIndexRange[0],selectedSentIndexRange[1]);
+						moveHighlight(main,selectedSentIndexRange);
+						System.out.println("Moving highlight...");
 						//DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(i));
 					}
 									
@@ -565,6 +333,7 @@ public class DriverDocumentsTab {
 
 			@Override
 			public void keyPressed(KeyEvent arg0) {
+				System.out.println("keyPressed"+System.currentTimeMillis());
 				// TODO Auto-generated method stub
 				/*
 				if(checkForMouseInfluence == true){
@@ -641,21 +410,29 @@ public class DriverDocumentsTab {
 		});
 		
 		main.documentPane.getDocument().addDocumentListener(new DocumentListener(){
-
+		/*	
+			javax.swing.text.Document document = (javax.swing.text.Document) e.getDocument();
+		     int changeLength = e.getLength();
+		     System.out.println(e.getType().toString() + ": " + changeLength + " character(s). Text length = " + document.getLength() + ".");
+		*/
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				
+				System.out.println("InsertUpdate"+System.currentTimeMillis());
+				DriverDocumentsTab.displayEditInfo(e);
+				charsInserted = e.getLength();
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				System.out.println(e);
-				
+				System.out.println("removeUpdate"+System.currentTimeMillis());
+				DriverDocumentsTab.displayEditInfo(e);
+				charsRemoved = e.getLength();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent e) {
-				System.out.println(e);
+				System.out.println("changedUpdate"+System.currentTimeMillis());
+				DriverDocumentsTab.displayEditInfo(e);
 			}
 			
 			
@@ -1100,22 +877,16 @@ public class DriverDocumentsTab {
 						
 						theMirror.highlightRequestedNotSpecific(highlightingOptions[highlightSelectionBoxSelectionNumber].toString());
 					} catch (SecurityException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (NoSuchMethodException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					
@@ -1157,19 +928,14 @@ public class DriverDocumentsTab {
 				try {
 					theMirror.highlightRequestedSpecific(highlightingOptions[highlightSelectionBoxSelectionNumber].toString(), s);
 				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (NoSuchMethodException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -1253,25 +1019,21 @@ public class DriverDocumentsTab {
 
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 			
@@ -1658,3 +1420,258 @@ public class DriverDocumentsTab {
 		} 
 	 }
 */
+	
+	/*
+	 * Highlights the sentence that is currently in the editor box in the main document
+	 * no return
+	protected static void trackEditSentence(GUIMain main){
+		editTracker = new DefaultHighlighter();
+		painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
+		int startHighlight=0, endHighlight=0;
+		int sentNum=ConsolidationStation.toModifyTaggedDocs.get(0).getSentNumber();
+		ArrayList<String> sentences=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedSentences();
+		main.documentPane.setHighlighter(editTracker);
+		String newText=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument();
+		main.documentPane.setText(newText);
+		boolean fixTabs=false;
+		numberTimesFixTabs=0;
+		for (int i=0;i<sentNum+1;i++){
+			if(i<sentNum){
+				startHighlight+=sentences.get(i).length();
+			}
+			else if(i==sentNum){
+				endHighlight=startHighlight+sentences.get(i).length()-1;
+			}
+			if (fixTabs){
+				fixTabs=false;
+				startHighlight-=1;
+				numberTimesFixTabs++;
+			}
+			if(sentences.get(i).startsWith("\n")||sentences.get(i).startsWith("\n")||sentences.get(i).startsWith("\r")){
+				fixTabs=true;
+				//Logger.logln(NAME+"FOUND CHARACTER");
+				//startHighlight++;
+			}
+		}
+		topToRemove=ConsolidationStation.getPriorityWords(ConsolidationStation.toModifyTaggedDocs, true, .2);
+		topToAdd=ConsolidationStation.getPriorityWords(ConsolidationStation.authorSampleTaggedDocs, false, .02);
+		
+		//TaggedDocument taggedDoc=ConsolidationStation.toModifyTaggedDocs.get(0);
+		int lenPrevSentences=0;
+		String sentence=sentences.get(sentNum);
+		
+		//removeTracker = new DefaultHighlighter();
+		painter2 = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,0,0,128));
+
+		startHighlight = startHighlight;
+		
+		ArrayList<ArrayList<Integer>> indexArray=new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> tempArray;
+		//ArrayList<String> toRemoveInSentence;
+		int indexOfTemp;
+		boolean added=false;
+		String setString="",tempString;
+		int arrSize=topToRemove.size(),fromIndex=0;
+		for(int i=0;i<arrSize;i++){//loops through top to remove list
+			setString+=topToRemove.get(i)+"\n";//sets the string to return
+//	
+//			Scanner parser=new Scanner(sentence);
+//			fromIndex=0;
+//			while(parser.hasNext()){//finds if the given word to remove is in the current sentence
+//				//loops through current sentence
+//				tempString=parser.next();
+//				if(tempString.matches(cleanWordRegex)){//TODO: refine this.
+//					
+//					tempString=tempString.substring(0,tempString.length()-1);
+//					//Logger.logln(NAME+"replaced a period in: "+tempString);
+//				}
+//				if(tempString.equals(topToRemove.get(i))){
+//					tempArray=new ArrayList<Integer>(2);
+//					
+//					indexOfTemp=sentence.indexOf(tempString,fromIndex);
+//					tempArray.add(indexOfTemp+startHighlight);//-numberTimesFixTabs
+//					tempArray.add(indexOfTemp+tempString.length()+startHighlight);
+//					//Logger.logln(NAME+"fromIndex: "+fromIndex+" startHighlight: "+startHighlight);
+//					//Logger.logln(NAME+"Word: "+tempString+" start: "+tempArray.get(0)+" end: "+tempArray.get(1),Logger.LogOut.STDERR);
+//					added=false;
+//					for(int j=0;j<indexArray.size();j++){
+//						if(indexArray.get(j).get(0)>tempArray.get(0)){
+//							indexArray.add(j,tempArray);
+//							added=true;
+//							break;
+//						}
+//					}
+//					if(!added)
+//						indexArray.add(tempArray);
+//					//fromIndex=tempArray.get(1);
+//				}
+//				fromIndex+=tempString.length()+1;
+//				
+//			}
+//			
+		}
+		
+		main.elementsToRemovePane.setText(setString);
+		main.elementsToRemovePane.setCaretPosition(0);
+		findSynonyms(main,sentence);
+		
+		editTracker.removeAllHighlights();
+		main.documentPane.repaint();
+		int innerArrSize,outerArrSize=indexArray.size(), currentStart,currentEnd;
+		currentStart=startHighlight;
+		//Logger.logln(NAME+"indexArr "+indexArray.toString(),Logger.LogOut.STDERR);
+		try {
+			for(int i=0;i<outerArrSize;i++){
+				currentEnd=indexArray.get(i).get(0);
+				//Logger.logln(NAME+"before first addhighlight: currentStart: "+currentStart+" currentEnd: "+currentEnd);
+				//if(currentStart<currentEnd)
+					editTracker.addHighlight(currentStart,currentEnd, painter);
+				currentStart=currentEnd;
+				currentEnd=indexArray.get(i).get(1);
+				//Logger.logln(NAME+"currentEnd: "+currentEnd+" currentStart: "+currentStart);
+				//if(currentStart<currentEnd)
+					editTracker.addHighlight(currentStart, currentEnd, painter2);
+				currentStart=currentEnd;
+				//Logger.logln(NAME+"currentEnd: "+currentEnd+" currentStart: "+currentStart);
+			}
+			editTracker.addHighlight(currentStart,endHighlight, painter);
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Logger.logln(NAME+"Error highlighting the block");
+		}
+	}
+*/	
+	
+	/**
+	 * Finds the synonyms of the words to remove in the words to add list
+	 * 
+	protected static void findSynonyms(GUIMain main,String currentSent){
+		String[] tempArr;
+		addTracker = new DefaultHighlighter();
+		painter3 = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,0,255,128));
+		String setString,tempStr,synSetString = "";
+		main.addToSentencePane.setHighlighter(addTracker);
+		addTracker.removeAllHighlights();
+		
+		main.elementsToAddPane.repaint();
+		
+		setString="";
+		int arrSize=topToAdd.size(), index;
+		for(int i=0;i<arrSize;i++){//Sets the topToAddElements box
+			setString+=topToAdd.get(i)+"\n";
+		}
+		main.elementsToAddPane.setText(setString);
+		main.elementsToAddPane.setCaretPosition(0);
+		synSetString="";
+		boolean inSent;
+		Scanner parser;
+		HashMap<String,Integer> indexMap=new HashMap<String,Integer>();
+		/*for(String str:topToRemove){
+			tempArr=DictionaryBinding.getSynonyms(str);
+			if(tempArr!=null){
+				//inSent=currentSent.contains(str);
+				inSent=checkSentFor(currentSent,str);
+				
+				if(inSent)
+					synSetString+=str+"=>";
+				for(int i=0;i<tempArr.length;i++){//looks through synonyms
+					tempStr=tempArr[i];
+					if(inSent){
+						synSetString+=tempStr+", ";
+						for(String addString:topToAdd){
+							if(addString.equalsIgnoreCase(tempStr)){
+								index=synSetString.indexOf(tempStr);
+								indexMap.put(tempStr, index);
+							}
+						}
+					}
+				}
+				if(inSent)
+					synSetString=synSetString.substring(0, synSetString.length()-2)+"\n";
+			}
+		}*//*
+		Scanner sentParser=new Scanner(currentSent);
+		String wordToSearch, wordSynMatch;
+		HashMap<String,String>wordsWithSynonyms=new HashMap<String,String>();
+		boolean added=false;
+		synSetString="";
+		while(sentParser.hasNext()){//loops through every word in the sentence
+			wordToSearch=sentParser.next();
+			tempArr=DictionaryBinding.getSynonyms(wordToSearch);
+			wordSynMatch="";
+			
+			if(!wordsWithSynonyms.containsKey(wordToSearch.toLowerCase().trim())){
+				if(tempArr!=null){
+					for(int i=0;i<tempArr.length;i++){//looks through synonyms
+						tempStr=tempArr[i];
+						wordSynMatch+=tempStr+" ";
+						added=false;
+						for(String addString:topToAdd){//loops through the toAdd list
+							if(addString.trim().equalsIgnoreCase(tempStr.trim())){//there is a match in topToAdd!
+								if(!synSetString.contains(wordToSearch))
+									synSetString+=wordToSearch+" => ";
+								else{
+									Logger.logln(NAME+"Did not add this again: "+wordToSearch);
+								}
+								synSetString=synSetString+addString+", ";
+								//index=synSetString.indexOf(tempStr);
+								//indexMap.put(tempStr, index);
+								added=true;
+								break;
+							}
+						}
+						
+						if(added){
+							//do something if the word was added like print to the box.
+							synSetString=synSetString.substring(0, synSetString.length()-2)+"\n";
+						}
+					}
+					if(wordSynMatch.length()>2)
+						wordsWithSynonyms.put(wordToSearch.toLowerCase().trim(), wordSynMatch.substring(0, wordSynMatch.length()-1));
+					else
+						wordsWithSynonyms.put(wordToSearch.toLowerCase().trim(), "NO Synonyms");
+				}
+			}
+		}
+		String tempStrToAdd;
+		Word possibleToAdd;
+		double topAnon=0;
+		for(String wordToRem:topToRemove){//adds ALL the synonyms in the wordsToRemove
+			if(wordsWithSynonyms.containsKey(wordToRem)){
+				tempStr=wordsWithSynonyms.get(wordToRem);
+				tempStrToAdd="";
+				parser=new Scanner(tempStr);
+				topAnon=0;
+				while(parser.hasNext()){
+					possibleToAdd=new Word(parser.next().trim());
+					ConsolidationStation.setWordFeatures(possibleToAdd);
+					if(possibleToAdd.getAnonymityIndex()>topAnon){
+						tempStrToAdd=possibleToAdd.getUntagged()+", ";//changed for test
+						topAnon=possibleToAdd.getAnonymityIndex();
+					}
+				}
+				synSetString+=wordToRem+" => "+tempStrToAdd+"\n";
+			}
+		}
+		main.addToSentencePane.setText(synSetString);
+		main.addToSentencePane.setCaretPosition(0);
+		
+		Iterator iter=indexMap.keySet().iterator();
+		String key;
+		
+		while(iter.hasNext()){
+			key=(String) iter.next();
+			index=indexMap.get(key);
+			try {
+				addTracker.addHighlight(index, index+key.length(), painter3);
+			} catch (BadLocationException e) {
+				Logger.logln(NAME+"Problem highlighting the words To add list");
+				e.printStackTrace();
+			}
+		}
+		
+		//SynonymReplaceTest.replaceWords(eits);
+	}
+	*/
+	

@@ -98,12 +98,12 @@ public class GeneralSettingsFrame extends JDialog {
 	protected JButton cancelButton;
 	
 	// all "previous" variables which hold the values of variables when the settings frame was opened
-	protected PropUtil.Location prevDocumentsLocation;
-	protected PropUtil.Location prevResultsLocation;
-	protected PropUtil.Location prevPreprocessLocation;
-	protected PropUtil.Location prevSuggestionsLocation;
-	protected PropUtil.Location prevTranslationsLocation;
-	protected PropUtil.Location prevClustersLocation;
+	protected PropertiesUtil.Location prevDocumentsLocation;
+	protected PropertiesUtil.Location prevResultsLocation;
+	protected PropertiesUtil.Location prevPreprocessLocation;
+	protected PropertiesUtil.Location prevSuggestionsLocation;
+	protected PropertiesUtil.Location prevTranslationsLocation;
+	protected PropertiesUtil.Location prevClustersLocation;
 	
 	public GeneralSettingsFrame(GUIMain main)
 	{
@@ -176,10 +176,10 @@ public class GeneralSettingsFrame extends JDialog {
 					@Override
 					public void actionPerformed(ActionEvent e) 
 					{
-						PropUtil.setPreProcessTabLocation(prevPreprocessLocation);
-						PropUtil.setSuggestionsTabLocation(prevSuggestionsLocation);
-						PropUtil.setTranslationsTabLocation(prevTranslationsLocation);
-						PropUtil.setClustersTabLocation(prevClustersLocation);
+						PropertiesUtil.setPreProcessTabLocation(prevPreprocessLocation);
+						PropertiesUtil.setSuggestionsTabLocation(prevSuggestionsLocation);
+						PropertiesUtil.setTranslationsTabLocation(prevTranslationsLocation);
+						PropertiesUtil.setClustersTabLocation(prevClustersLocation);
 						
 						closeWindow();
 					}
@@ -231,12 +231,12 @@ public class GeneralSettingsFrame extends JDialog {
 		this.setVisible(true);
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 		
-		prevDocumentsLocation = PropUtil.Location.TOP;
-		prevResultsLocation = PropUtil.Location.BOTTOM;
-		prevPreprocessLocation = PropUtil.getPreProcessTabLocation();
-		prevSuggestionsLocation = PropUtil.getSuggestionsTabLocation();
-		prevTranslationsLocation = PropUtil.getTranslationsTabLocation();
-		prevClustersLocation = PropUtil.getClustersTabLocation();
+		prevDocumentsLocation = PropertiesUtil.Location.TOP;
+		prevResultsLocation = PropertiesUtil.Location.BOTTOM;
+		prevPreprocessLocation = PropertiesUtil.getPreProcessTabLocation();
+		prevSuggestionsLocation = PropertiesUtil.getSuggestionsTabLocation();
+		prevTranslationsLocation = PropertiesUtil.getTranslationsTabLocation();
+		prevClustersLocation = PropertiesUtil.getClustersTabLocation();
 	}
 	
 	public void closeWindow() 
@@ -375,13 +375,13 @@ public class GeneralSettingsFrame extends JDialog {
 			{
 				String item = (String)documentsLocationComboBox.getSelectedItem();
 				if (item == "Left")
-					PropUtil.setDocumentsTabLocation(PropUtil.Location.LEFT);
+					PropertiesUtil.setDocumentsTabLocation(PropertiesUtil.Location.LEFT);
 				if (item == "Top")
-					PropUtil.setDocumentsTabLocation(PropUtil.Location.TOP);
+					PropertiesUtil.setDocumentsTabLocation(PropertiesUtil.Location.TOP);
 				if (item == "Right")
-					PropUtil.setDocumentsTabLocation(PropUtil.Location.RIGHT);
+					PropertiesUtil.setDocumentsTabLocation(PropertiesUtil.Location.RIGHT);
 				if (item == "Bottom")
-					PropUtil.setDocumentsTabLocation(PropUtil.Location.BOTTOM);
+					PropertiesUtil.setDocumentsTabLocation(PropertiesUtil.Location.BOTTOM);
 			}
 		};
 		documentsLocationComboBox.addActionListener(documentsAL);
@@ -393,13 +393,13 @@ public class GeneralSettingsFrame extends JDialog {
 			{
 				String item = (String)resultsLocationComboBox.getSelectedItem();
 				if (item == "Left")
-					PropUtil.setResultsTabLocation(PropUtil.Location.LEFT);
+					PropertiesUtil.setResultsTabLocation(PropertiesUtil.Location.LEFT);
 				if (item == "Top")
-					PropUtil.setResultsTabLocation(PropUtil.Location.TOP);
+					PropertiesUtil.setResultsTabLocation(PropertiesUtil.Location.TOP);
 				if (item == "Right")
-					PropUtil.setResultsTabLocation(PropUtil.Location.RIGHT);
+					PropertiesUtil.setResultsTabLocation(PropertiesUtil.Location.RIGHT);
 				if (item == "Bottom")
-					PropUtil.setResultsTabLocation(PropUtil.Location.BOTTOM);
+					PropertiesUtil.setResultsTabLocation(PropertiesUtil.Location.BOTTOM);
 			}
 		};
 		resultsLocationComboBox.addActionListener(resultsAL);
@@ -411,13 +411,13 @@ public class GeneralSettingsFrame extends JDialog {
 			{
 				String item = (String)preprocessLocationComboBox.getSelectedItem();
 				if (item == "Left")
-					PropUtil.setPreProcessTabLocation(PropUtil.Location.LEFT);
+					PropertiesUtil.setPreProcessTabLocation(PropertiesUtil.Location.LEFT);
 				if (item == "Top")
-					PropUtil.setPreProcessTabLocation(PropUtil.Location.TOP);
+					PropertiesUtil.setPreProcessTabLocation(PropertiesUtil.Location.TOP);
 				if (item == "Right")
-					PropUtil.setPreProcessTabLocation(PropUtil.Location.RIGHT);
+					PropertiesUtil.setPreProcessTabLocation(PropertiesUtil.Location.RIGHT);
 				if (item == "Bottom")
-					PropUtil.setPreProcessTabLocation(PropUtil.Location.BOTTOM);
+					PropertiesUtil.setPreProcessTabLocation(PropertiesUtil.Location.BOTTOM);
 			}
 		};
 		preprocessLocationComboBox.addActionListener(preprocessAL);
@@ -429,13 +429,13 @@ public class GeneralSettingsFrame extends JDialog {
 			{
 				String item = (String)suggestionsLocationComboBox.getSelectedItem();
 				if (item == "Left")
-					PropUtil.setSuggestionsTabLocation(PropUtil.Location.LEFT);
+					PropertiesUtil.setSuggestionsTabLocation(PropertiesUtil.Location.LEFT);
 				if (item == "Top")
-					PropUtil.setSuggestionsTabLocation(PropUtil.Location.TOP);
+					PropertiesUtil.setSuggestionsTabLocation(PropertiesUtil.Location.TOP);
 				if (item == "Right")
-					PropUtil.setSuggestionsTabLocation(PropUtil.Location.RIGHT);
+					PropertiesUtil.setSuggestionsTabLocation(PropertiesUtil.Location.RIGHT);
 				if (item == "Bottom")
-					PropUtil.setSuggestionsTabLocation(PropUtil.Location.BOTTOM);
+					PropertiesUtil.setSuggestionsTabLocation(PropertiesUtil.Location.BOTTOM);
 			}
 		};
 		suggestionsLocationComboBox.addActionListener(suggestionsAL);
@@ -447,13 +447,13 @@ public class GeneralSettingsFrame extends JDialog {
 			{
 				String item = (String)translationsLocationComboBox.getSelectedItem();
 				if (item == "Left")
-					PropUtil.setTranslationsTabLocation(PropUtil.Location.LEFT);
+					PropertiesUtil.setTranslationsTabLocation(PropertiesUtil.Location.LEFT);
 				if (item == "Top")
-					PropUtil.setTranslationsTabLocation(PropUtil.Location.TOP);
+					PropertiesUtil.setTranslationsTabLocation(PropertiesUtil.Location.TOP);
 				if (item == "Right")
-					PropUtil.setTranslationsTabLocation(PropUtil.Location.RIGHT);
+					PropertiesUtil.setTranslationsTabLocation(PropertiesUtil.Location.RIGHT);
 				if (item == "Bottom")
-					PropUtil.setTranslationsTabLocation(PropUtil.Location.BOTTOM);
+					PropertiesUtil.setTranslationsTabLocation(PropertiesUtil.Location.BOTTOM);
 			}
 		};
 		translationsLocationComboBox.addActionListener(translationsAL);
@@ -465,13 +465,13 @@ public class GeneralSettingsFrame extends JDialog {
 			{
 				String item = (String)clustersLocationComboBox.getSelectedItem();
 				if (item == "Left")
-					PropUtil.setClustersTabLocation(PropUtil.Location.LEFT);
+					PropertiesUtil.setClustersTabLocation(PropertiesUtil.Location.LEFT);
 				if (item == "Top")
-					PropUtil.setClustersTabLocation(PropUtil.Location.TOP);
+					PropertiesUtil.setClustersTabLocation(PropertiesUtil.Location.TOP);
 				if (item == "Right")
-					PropUtil.setClustersTabLocation(PropUtil.Location.RIGHT);
+					PropertiesUtil.setClustersTabLocation(PropertiesUtil.Location.RIGHT);
 				if (item == "Bottom")
-					PropUtil.setClustersTabLocation(PropUtil.Location.BOTTOM);
+					PropertiesUtil.setClustersTabLocation(PropertiesUtil.Location.BOTTOM);
 			}
 		};
 		clustersLocationComboBox.addActionListener(clustersAL);
