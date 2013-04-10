@@ -22,7 +22,7 @@ import edu.drexel.psal.jstylo.generics.Logger;
  */
 public class ObjectIO {
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final static String NAME = "( ObjectIO ) - ";
 	
 	/**
 	 * Generic object writer
@@ -33,7 +33,7 @@ public class ObjectIO {
 	 */
 	public static boolean writeObject(Object o, String id, String dir){
 		ObjectOutputStream outObject = null;
-		System.out.println("Place to write: "+dir+id+".ser");
+		System.out.println(NAME+"Place to write: "+dir+id+".ser");
 		try {
 			outObject = new ObjectOutputStream(new BufferedOutputStream( new FileOutputStream(dir+id+".ser")));
 			try{
@@ -43,11 +43,11 @@ public class ObjectIO {
 				outObject.close();
 			}
 		} catch (FileNotFoundException e) {
-			Logger.logln("ERROR saving object: "+o.toString());
+			//Logger.logln(NAME+"FILE NOT FOUND saving object: "+o.toString());
 			e.printStackTrace();
 			return false;
 		} catch (IOException e) {
-			Logger.logln("ERROR saving object: "+o.toString());
+			//Logger.logln(NAME+"IO EXCEPTION saving object: "+o.toString());
 			e.printStackTrace();
 			return false;
 		}

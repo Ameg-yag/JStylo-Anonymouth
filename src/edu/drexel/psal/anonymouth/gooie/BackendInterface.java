@@ -19,7 +19,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
-
 import com.jgaap.generics.Canonicizer;
 import com.jgaap.generics.Document;
 
@@ -28,11 +27,11 @@ import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
 import edu.drexel.psal.anonymouth.engine.Mapper;
-import edu.drexel.psal.anonymouth.engine.TheMirror;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
 import edu.drexel.psal.anonymouth.suggestors.TheOracle;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.DocumentTagger;
+import edu.drexel.psal.anonymouth.utils.ObjectIO;
 import edu.drexel.psal.anonymouth.utils.Tagger;
 import edu.drexel.psal.jstylo.generics.FeatureDriver;
 import edu.drexel.psal.jstylo.generics.Logger;
@@ -107,71 +106,6 @@ public class BackendInterface {
 		
 	}
 	
-	protected static void updatePresentFeatureNow(GUIMain main,TheMirror theMirror){
-	
-		new Thread(bei.new UpdatePresentFeatureNow(main, theMirror)).start();
-		
-	}
-	
-	public class UpdatePresentFeatureNow extends GUIThread {
-		
-		TheMirror theMirror;
-		
-		public UpdatePresentFeatureNow(GUIMain main,TheMirror theMirror){
-			super(main);
-			this.theMirror = theMirror;
-		}
-		
-		public void run(){
-			if((DriverDocumentsTab.hasCurrentAttrib == true) && (DriverDocumentsTab.isWorkingOnUpdating == false)){
-				DriverDocumentsTab.isWorkingOnUpdating = true;
-				//System.out.println("EditorTabDriver is working on updating: "+EditorTabDriver.isWorkingOnUpdating);
-				try {
-					double updatedPresentValue = 0;
-					
-					//System.out.println(EditorTabDriver.currentAttrib.getGenericName());
-					//System.out.println(EditorTabDriver.featuresInCfd.toString());
-					FeatureDriver theOneToUpdate = main.cfd.featureDriverAt(DriverDocumentsTab.featuresInCfd.indexOf(DriverDocumentsTab.currentAttrib.getGenericName().toString()));
-					//WekaInstancesBuilder wib = new WekaInstancesBuilder(false);
-					Document currDoc = new Document();
-					currDoc.setText(main.documentPane.getText().toCharArray());
-					
-					List<Canonicizer> canonList = theOneToUpdate.getCanonicizers();
-					try{
-					Iterator<Canonicizer> canonIter = canonList.iterator();
-					while(canonIter.hasNext())
-						currDoc.addCanonicizer(canonIter.next());
-					} catch(NullPointerException npe){
-					}
-					
-					Computer.setTheDocument(currDoc);
-					
-					updatedPresentValue = theMirror.updatePresentValue(DriverDocumentsTab.currentAttrib);
-					//else
-					main.presentValueField.setText(Double.toString(updatedPresentValue));
-					//System.out.println("PRESENT VALUE UPDATED!: "+updatedPresentValue);
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					e.printStackTrace();
-				} catch (InstantiationException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				DriverDocumentsTab.isWorkingOnUpdating = false;
-				
-			}
-		}
-	}
 	
 	/*
 	protected static void tagDocs(GUIMain main, DocumentMagician magician){
@@ -433,6 +367,9 @@ public class BackendInterface {
 			main.anonymityDrawingPanel.showPointer(true);
 			//cpb.setText("User Editing... Waiting to\"Re-process\"");
 			
+			//Logger.logln(NAME+"Writing TaggedDocument...");
+			//ObjectIO.writeObject(ConsolidationStation.toModifyTaggedDocs.get(0), "toModifyDoc", ThePresident.SER_DIR);
+			//Logger.logln(NAME+"TaggedDocument written...");
 		}
 		
 	

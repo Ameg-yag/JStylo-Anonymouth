@@ -333,7 +333,7 @@ public class DataAnalyzer{
 		Attribute[] topAttribs;
 		topAttribs = findMostInfluentialEvents(presentSet,numFeaturesToReturn);
 		int numAttribs = topAttribs.length;
-			
+		
 		//for(i=0;i<numAttribs;i++){
 		//	FeatureList topIds = (topAttribs[i].getGenericName());	
 		//	System.out.println(topIds);
@@ -409,14 +409,7 @@ public class DataAnalyzer{
 		}
 		
 		String theSpacer = "";
-		
-		//Needed again since from initializing numAttribs at the beginning of the method to equal topAttribs.length to this part of
-		//the method the length of topAttribs.length has changed significantly (in my case from 200 all the way down to 9), and
-		//numAttribs is not changed to reflect this. This led to an array out of bounds exception being thrown whenever I would select
-		//9-Feature set and the SMO classifier, and simply updating numAttribs resolves this.
-		numAttribs = topAttribs.length;
-
-		for(i=0;i<numAttribs;i++){
+		for(i=0;i<topAttribs.length;i++){
 			if(topAttribs[i].getStringInBraces().equals(""))
 				theSpacer = "";
 			else

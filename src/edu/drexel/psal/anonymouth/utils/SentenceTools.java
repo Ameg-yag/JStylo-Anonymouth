@@ -33,8 +33,12 @@ import edu.drexel.psal.jstylo.generics.Logger;
  * @author Andrew W.E. McDonald
  *
  */
-public class SentenceTools  {
+public class SentenceTools implements Serializable  {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5007508872576011005L;
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	private int currentStart = 0;
 	private int currentStop = 0;

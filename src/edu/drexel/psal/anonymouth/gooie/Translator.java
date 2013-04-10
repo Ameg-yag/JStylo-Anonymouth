@@ -108,7 +108,7 @@ public class Translator implements Runnable
 				sentences.get(currentSentNum-1).getTranslations().add(taggedTrans);
 				sentences.get(currentSentNum-1).getTranslationNames().add(Translation.getName(lang));
 				sentences.get(currentSentNum-1).sortTranslations();
-				String one = DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(DriverDocumentsTab.currentSentNum-1).trim();
+				String one = DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(DriverDocumentsTab.currentSentNum).trim();
 				String two = sentences.get(currentSentNum-1).getUntagged().trim();
 				if (one.equals(two))
 					DriverTranslationsTab.showTranslations(sentences.get(currentSentNum-1));

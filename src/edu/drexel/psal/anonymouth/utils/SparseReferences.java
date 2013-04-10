@@ -1,5 +1,6 @@
 package edu.drexel.psal.anonymouth.utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -12,8 +13,12 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
  * @author Andrew W.E. McDonald
  *
  */
-public class SparseReferences {
+public class SparseReferences implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2656940525259833825L;
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected ArrayList<Reference> references;
 	

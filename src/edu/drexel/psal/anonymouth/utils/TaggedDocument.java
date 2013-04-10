@@ -40,8 +40,12 @@ enum CONJ {SIMPLE,PROGRESSIVE,PERFECT,PERFECT_PROGRESSIVE};
  * @author Joe Muoio
  * 
  */
-public class TaggedDocument {
+public class TaggedDocument implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2258415935896292619L;
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 	protected TaggedSentence currentLiveTaggedSentences;
 	protected ArrayList<TaggedSentence> taggedSentences;
@@ -54,13 +58,13 @@ public class TaggedDocument {
 	protected ArrayList<ArrayList<POV>> pointsOfView;
 	protected ArrayList<ArrayList<CONJ>> conjugations;
 	protected List<List<? extends HasWord>> sentencesPreTagging;
-	protected Iterator<List<? extends HasWord>> preTagIterator;
-	protected TreebankLanguagePack tlp = new PennTreebankLanguagePack(); 
-	protected List<? extends HasWord> sentenceTokenized;
-	protected Tokenizer<? extends HasWord> toke;
+	protected transient Iterator<List<? extends HasWord>> preTagIterator;
+	protected transient TreebankLanguagePack tlp = new PennTreebankLanguagePack(); 
+	protected transient List<? extends HasWord> sentenceTokenized;
+	protected transient Tokenizer<? extends HasWord> toke;
 	protected final int PROBABLE_NUM_SENTENCES = 50;
 	protected SentenceTools jigsaw;
-	protected Iterator<String> strIter;
+	protected transient Iterator<String> strIter;
 	private static int sentNumber = -1;
 	private String ID; 
 	private int totalSentences=0;
@@ -371,13 +375,29 @@ public class TaggedDocument {
 	 * @return
 	 */
 	public int[] getSentenceLengths(){
-		
-		return null;
+		int i =0;
+		int numSents = taggedSentences.size();
+		int[] lengthsToReturn = new int[numSents];
+		for(i = 0; i < numSents; i++){
+			lengthsToReturn[i] = taggedSentences.get(i).getLength();
+		}
+		return lengthsToReturn;
 	}
 	
 	public int getSentNumber(){
 		return sentNumber;
 	}
+	
+	
+	/**
+	 * returns TaggedSentence number 'i' (first sentence is index '0')
+	 * @param number the index of the sentence you want 
+	 * @return
+	 */
+	public TaggedSentence getSentenceNumber(int number){
+		return taggedSentences.get(number);
+	}
+		
 	
 	/**
 	 * returns the size of the ArrayList holding the TaggedSentences (i.e. the number of sentences in the document)

@@ -1,7 +1,9 @@
-package edu.drexel.psal.anonymouth.utils;
+package edu.drexel.psal.anonymouth.helpers;
 
 import java.util.HashMap;
 import java.util.Iterator;
+
+import edu.drexel.psal.anonymouth.utils.Word;
 
 /**
  * 

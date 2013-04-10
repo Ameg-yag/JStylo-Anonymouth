@@ -5,7 +5,6 @@ import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
-import edu.drexel.psal.anonymouth.engine.TheMirror;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
 import edu.drexel.psal.anonymouth.suggestors.HighlightMapMaker;
@@ -22,6 +21,10 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -38,6 +41,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
@@ -69,7 +74,6 @@ public class DriverDocumentsTab {
 	protected static boolean isFirstRun = true; 
 	protected static DataAnalyzer wizard;
 	private static DocumentMagician magician;
-	protected static TheMirror theMirror; // formerly known as 'theChief'
 	protected static String[] theFeatures;
 	protected static Prophecy utterance;
 	protected static ArrayList<HighlightMapper> highlightedObjects = new ArrayList<HighlightMapper>();
@@ -80,9 +84,11 @@ public class DriverDocumentsTab {
 	protected static Attribute currentAttrib;
 	public static boolean hasCurrentAttrib = false;
 	public static boolean isWorkingOnUpdating = false;
-	private static int caretPosition;
-	private static int oldCaretPosition;
-	private static int thisCaretPosition = 0;
+	// It seems redundant to have these next four variables, but they are used in slightly different ways, and are all necessary.
+	private static int thisCaretPosition = -1;
+	private static int lastCaretPosition = -1;
+	private static int thisKeyCaretPosition = -1;
+	private static int lastKeyCaretPosition = -1;
 	protected static boolean okayToSelectSuggestion = false;
 	private static boolean keyJustTyped = false;
 	private static int mouseEndPosition;
@@ -127,6 +133,8 @@ public class DriverDocumentsTab {
 	
 	protected static TaggedDocument taggedDoc;
 	protected static int currentSentNum = 1;
+	protected static int[] selectedSentIndexRange = new int[]{-2,-2}; 
+	protected static int lastCaretLocation = -1;
 	
 	private static int numberTimesFixTabs;
 	
@@ -464,66 +472,230 @@ public class DriverDocumentsTab {
 //		main.editorHelpTabPane.setEnabled(b);
 	}
 	
-	protected static void initListeners(final GUIMain main)
-	{
-		main.documentPane.addCaretListener(new CaretListener() 
-		{
+	
+	/**
+	 * resets the highlight to a new start and end.
+	 * @param main 
+	 * @param start
+	 * @param end
+	 */
+	protected static void resetHighlight(final GUIMain main, int start, int end){
+			main.documentPane.getHighlighter().removeAllHighlights();
+	        try {
+				main.documentPane.getHighlighter().addHighlight(start, end, painter);
+	        } 
+	        catch (BadLocationException err) {
+				err.printStackTrace();
+	        }	
+	}
+	
+	
+	
+	
+	protected static void initListeners(final GUIMain main){
+		
+/***********************************************************************************************************************************************
+ *############################################################################################################*
+ *###########################################  BEGIN EDITING HANDLERS  ###########################################*
+ *############################################################################################################*
+ ************************************************************************************************************************************************/	
+		
+		
+		main.documentPane.addCaretListener(new CaretListener() {
+			
 			@Override
-			public void caretUpdate(CaretEvent e) 
-			{
-				int caret = e.getDot();
+			public void caretUpdate(CaretEvent e) {
+				
+				thisCaretPosition = e.getDot();
+				//System.out.println("Caret at: "+caret);
 				//String 
-				if (taggedDoc != null)
-				{
+				if (taggedDoc != null){
+				
 					/*
-					 * We want to get a number of  
-					 * 
+					 * put in a check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
 					 */
-					ArrayList<TaggedSentence> sentences = taggedDoc.getTaggedSentences();
-					int start = caret;
-					int end = caret;
-					String selection = "";
-					
-					while (!selection.equals(".") && !selection.equals("!") && !selection.equals("?") && end != main.documentPane.getText().length()-1)
-					{
-						selection = main.documentPane.getText().substring(end, end+1);
-						end += 1;
-					}
-					selection = "";
-					while (!selection.equals(".") && !selection.equals("!") && !selection.equals("?") && start != 0)
-					{
-						selection = main.documentPane.getText().substring(start-1, start);
-						start -= 1;
-					}
-					
-					if (start != 0)
-					{
-						selection = main.documentPane.getText().substring(start+1, start+2);
-						while (!selection.equals(".") && !selection.equals("!") && !selection.equals("?") && !Character.isLetter(selection.toCharArray()[0]))
-						{
-							start += 1;
-							selection = main.documentPane.getText().substring(start, start + 1);
-						}
-					}
-					
-					selection = main.documentPane.getText().substring(start, end);
-					for (int i = 0; i < sentences.size(); i++)
-					{
-						TaggedSentence sentence = sentences.get(i);
-						if (sentence.getUntagged().contains(selection))
-						{
-							currentSentNum = i+1;
-							highlightSentence(sentence, main);
-							DriverTranslationsTab.showTranslations(sentence);
-							break;
-						}
-					}
+					if ( thisCaretPosition > selectedSentIndexRange[0] && thisCaretPosition < selectedSentIndexRange[1]){
+						// update from previous caret
+						//System.out.println("In range");
 						
+						return;
+					}
+					else{
+						
+						// get the lengths of each of the sentences
+						int[] sentenceLengths = taggedDoc.getSentenceLengths();
+						int i = 0;
+						int numSents = sentenceLengths.length;
+						int lengthSoFar = 0;
+						int[] lengthTriangle = new int[numSents]; // index '0' will be the length of sentence 0, index '1' will be the length of sentence '0' plus sentence '1', index '2' will be the lengths of the first three sentences added together, and so on. 
+						while (lengthSoFar <= thisCaretPosition && i < numSents){
+							lengthSoFar += sentenceLengths[i];
+							lengthTriangle[i] = lengthSoFar;
+							i++;
+						}
+						i -= 1; // after exiting the loop, 'i' will be one greater than we want it to be.
+						int startHighlight = 0;
+						int endHighlight = 0;
+						if (i >= numSents)
+							return; // don't do anything.
+						else if (i <= 0)
+							endHighlight = sentenceLengths[0];
+						else{
+							startHighlight = lengthTriangle[i-1]+1; // start highlighting JUST after the previous sentence stops
+							endHighlight = lengthTriangle[i]; // stop highlighting when the current sentence stops.
+						}
+							// now we determine where the sent is!	
+						currentSentNum = i;
+						selectedSentIndexRange[0] = startHighlight;
+						selectedSentIndexRange[1] = endHighlight;
+						resetHighlight(main,selectedSentIndexRange[0],selectedSentIndexRange[1]);
+						//DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(i));
+					}
+									
 				}
+			}
+			
+		});
+		
+		
+		/**
+		 * Key listener for the documentPane. Allows tracking the cursor while typing to make sure that indices of sentence start and ends 
+		 */
+		main.documentPane.addKeyListener(new KeyListener(){
+
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				// TODO Auto-generated method stub
+				/*
+				if(checkForMouseInfluence == true){
+					if(mouseEndPosition > thisCaretPosition)
+						oldCaretPosition = thisCaretPosition - (mouseEndPosition-thisCaretPosition);
+					else if(mouseEndPosition < thisCaretPosition)
+						oldCaretPosition = thisCaretPosition +(thisCaretPosition - mouseEndPosition);
+					else
+						oldCaretPosition = thisCaretPosition;
+				}
+				else
+				*/
+					lastKeyCaretPosition = thisKeyCaretPosition;
+						
+					
+				
+				//System.out.println("Caret postion registered at keypressed: old: "+oldCaretPosition);
+			}
+			
+			/*
+			 * TODO: make the highlighter and sentences track when people type. think about copy and paste and cut and paste too.
+			 */
+			
+			
+			@Override
+			public void keyReleased(KeyEvent arg0) {  
+				/* 	Code		|	key
+				 * ----------------
+				 * 		8			|	Backspace
+				 *		10			|	Enter
+				 *		9			|	Tab
+				 *		27			|	Escape
+ 				 *		32			|	Space
+ 				 *
+ 				 * Codes 
+				 */
+				thisKeyCaretPosition = main.documentPane.getCaretPosition(); // todo maybe we dont need to call for this.. all we might have to do is get the dot position from the CaretListener
+				//System.out.println("Caret postion resitered at keyreleased:  "+thisCaretPosition);
+				if(keyJustTyped == true){
+					keyJustTyped = false;
+					char keyChar = arg0.getKeyChar();
+					int keyCode = arg0.getKeyCode();
+					int keyLocation = arg0.getKeyLocation();
+					String keyText = KeyEvent.getKeyText(keyCode);
+					//System.out.printf("key char: <%c> key code: <%d> key location: <%d> key text: <%s>\n",keyChar, keyCode, keyLocation, keyText);
+					//System.out.printf("%c		%d		%d		%s\n",keyChar, keyCode, keyLocation, keyText);
+					//System.out.println("Should start present features continuous present value update thread..");
+					//BackendInterface.updatePresentFeatureNow(main, eits,theChief);
+					//int caretPos =main.editorBox.getCaretPosition();
+					//System.out.println("Old Caret Postion: "+oldCaretPosition+" and current CARET POSITION IS: "+thisCaretPosition);
+					//Collections.sort(highlightedObjects);
+					if(lastKeyCaretPosition < thisKeyCaretPosition){
+						// cursor has advanced 
+						//System.out.println("Cursor advanced");
+						
+						
+					}
+					else if(lastKeyCaretPosition > thisKeyCaretPosition){
+						// cursor has gone back
+						//System.out.println("Cursor gone back");
+					
+					}
+				}
+			}
+			
+
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				keyJustTyped = true;
+			}
+				
+			
+		
+		});
+		
+		main.documentPane.getDocument().addDocumentListener(new DocumentListener(){
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				System.out.println(e);
+				
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				System.out.println(e);
+			}
+			
+			
+		});
+		
+			
+		main.documentPane.addMouseListener(new MouseListener(){
+
+			@Override
+			public void mouseClicked(MouseEvent me) {
+		
+			}
+
+			@Override
+			public void mousePressed(MouseEvent me) {
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent me) {
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent me) {
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent me) {
 				
 			}
 			
 		});
+		
+/***********************************************************************************************************************************************
+ *############################################################################################################*
+ *###########################################   END EDITING HANDLERS   ########################################### *
+ *############################################################################################################*
+ ************************************************************************************************************************************************/
 		
 		/**
 		 * ActionListener for process button (bar).
@@ -596,7 +768,6 @@ public class DriverDocumentsTab {
 							}
 							wizard = new DataAnalyzer(main.ps,ThePresident.sessionName);
 							magician = new DocumentMagician(false);
-							theMirror = new TheMirror();
 						}
 						else
 							Logger.logln(NAME+"Repeat processing starting....");
@@ -1315,122 +1486,41 @@ public class DriverDocumentsTab {
 //		
 //		
 //		
-//		main.documentPane.addKeyListener(new KeyListener(){
-//
-//			@Override
-//			public void keyPressed(KeyEvent arg0) {
-//				// TODO Auto-generated method stub
-//				/*
-//				if(checkForMouseInfluence == true){
-//					if(mouseEndPosition > thisCaretPosition)
-//						oldCaretPosition = thisCaretPosition - (mouseEndPosition-thisCaretPosition);
-//					else if(mouseEndPosition < thisCaretPosition)
-//						oldCaretPosition = thisCaretPosition +(thisCaretPosition - mouseEndPosition);
-//					else
-//						oldCaretPosition = thisCaretPosition;
-//				}
-//				else
-//				*/
-//					oldCaretPosition = thisCaretPosition;
-//						
-//					
-//				
-//				//System.out.println("Caret postion registered at keypressed: old: "+oldCaretPosition);
-//			}
-//		
-//
-//			@Override
-//			public void keyReleased(KeyEvent arg0) {
-//				
-//				thisCaretPosition = main.documentPane.getCaretPosition();
-//				//System.out.println("Caret postion resitered at keyreleased:  "+thisCaretPosition);
-//				if(keyJustTyped == true){
-//					keyJustTyped = false;
-//					//System.out.println("Should start present features continuous present value update thread..");
-//					BackendInterface.updatePresentFeatureNow(main, eits,theMirror);
-//					//int caretPos =main.documentPane.getCaretPosition();
-//					//System.out.println("Old Caret Postion: "+oldCaretPosition+" and current CARET POSITION IS: "+thisCaretPosition);
-//					//Collections.sort(highlightedObjects);
-//					if(oldCaretPosition < thisCaretPosition){
-//						
-//						Iterator<HighlightMapper> hloi = highlightedObjects.iterator();
-//						boolean isGone;
-//						while(hloi.hasNext()){
-//							isGone = false;
-//							HighlightMapper tempHm = hloi.next();
-//							if((tempHm.getStart() <= thisCaretPosition) && (oldCaretPosition <= tempHm.getEnd())){
-//								//System.out.println("FOUND object... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
-//								main.documentPane.getHighlighter().removeHighlight(tempHm.getHighlightedObject());
-//								isGone = true;
-//							}	
-//							if ((oldCaretPosition <= tempHm.getStart() && !isGone))
-//								tempHm.increment(thisCaretPosition - oldCaretPosition);
-//						}
-//						
-//						
-//					}
-//					else if(oldCaretPosition > thisCaretPosition){
-//						Iterator<HighlightMapper> hloi = highlightedObjects.iterator();
-//						boolean isGone;
-//						while(hloi.hasNext()){
-//							isGone = false;
-//							HighlightMapper tempHm = hloi.next();
-//							if((tempHm.getStart() <= oldCaretPosition) && (thisCaretPosition <= tempHm.getEnd())){
-//								//System.out.println("FOUND object ... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
-//								main.documentPane.getHighlighter().removeHighlight(tempHm.getHighlightedObject());
-//								isGone = true;
-//							}	
-//							if ((thisCaretPosition <= tempHm.getStart()) && !isGone)
-//								tempHm.decrement(oldCaretPosition - thisCaretPosition);
-//						}
-//					
-//					}
-//				}
-//			}
-//			
-//
-//			@Override
-//			public void keyTyped(KeyEvent arg0) {
-//				keyJustTyped = true;
-//			}
-//				
-//			
-//		
-//		});
+
 //	
 //		
 //		
 //		
 //	}
 //	
-	public static void dispHighlights(){
-		Highlighter highlight = GUIMain.inst.documentPane.getHighlighter();
-		HashMap<Color,ArrayList<int[]>> currentMap = HighlightMapMaker.highlightMap;
-		int i = 0;
-		if(!currentMap.isEmpty()){
-			Set<Color> theseColors = currentMap.keySet();
-			Iterator<Color> colorsIter = theseColors.iterator();
-			while(colorsIter.hasNext()){
-				Color currentColor = colorsIter.next();
-				TheHighlighter thisPen = new TheHighlighter(currentColor);
-				ArrayList<int[]> theseIndices = currentMap.get(currentColor);
-				for(i=0;i<theseIndices.size();i++){
-					try {
-						int[] tempHighlightIndices =theseIndices.get(i);
-						HighlightMapper hm =new HighlightMapper(tempHighlightIndices[0],tempHighlightIndices[1],highlight.addHighlight(theseIndices.get(i)[0],theseIndices.get(i)[1],thisPen));
-						DriverDocumentsTab.highlightedObjects.add(hm);
-					} catch (BadLocationException e) {
-						Logger.logln(NAME+"Error displaying highlights.");// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		
-		
-	}
-	
-	
+//	public static void dispHighlights(){
+//		Highlighter highlight = GUIMain.inst.documentPane.getHighlighter();
+//		HashMap<Color,ArrayList<int[]>> currentMap = HighlightMapMaker.highlightMap;
+//		int i = 0;
+//		if(!currentMap.isEmpty()){
+//			Set<Color> theseColors = currentMap.keySet();
+//			Iterator<Color> colorsIter = theseColors.iterator();
+//			while(colorsIter.hasNext()){
+//				Color currentColor = colorsIter.next();
+//				TheHighlighter thisPen = new TheHighlighter(currentColor);
+//				ArrayList<int[]> theseIndices = currentMap.get(currentColor);
+//				for(i=0;i<theseIndices.size();i++){
+//					try {
+//						int[] tempHighlightIndices =theseIndices.get(i);
+//						HighlightMapper hm =new HighlightMapper(tempHighlightIndices[0],tempHighlightIndices[1],highlight.addHighlight(theseIndices.get(i)[0],theseIndices.get(i)[1],thisPen));
+//						DriverDocumentsTab.highlightedObjects.add(hm);
+//					} catch (BadLocationException e) {
+//						Logger.logln(NAME+"Error displaying highlights.");// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		}
+//		
+//		
+//	}
+//	
+//	
 } 
 
 	class TheHighlighter extends DefaultHighlighter.DefaultHighlightPainter{
@@ -1471,7 +1561,8 @@ public class DriverDocumentsTab {
 //		}	
 //	
 //	*/
-			
+	
+/*			
 	 class SuggestionCalculator implements Runnable{
 		//TODO: need to process sentence to find most salient features
 		 
@@ -1566,3 +1657,4 @@ public class DriverDocumentsTab {
 			//System.out.println("Should exit Suggestion Calculator.");
 		} 
 	 }
+*/

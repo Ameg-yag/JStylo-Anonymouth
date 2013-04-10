@@ -91,6 +91,60 @@ public class DriverTranslationsTab
 
 	protected static void initListeners(final GUIMain main)
 	{
+		
+		// Mouse listener taken from early version of anonymouth to listen for right clicks. Should use this as a template for code to allow right-clicking a translation and 
+		// a response asking use if they want to swap this translation in for the highlighted sentence. If they agree, then the translation should be swapped in for the highlighted sentence.
+	/*	
+		main.addMouseListener(new MouseListener(){
 
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int theAnswer = -1;
+				boolean okayToDelete = true;
+				if(e.getButton() != 1){
+					if(main.editTP.getSelectedIndex() == 0){
+						JOptionPane.showMessageDialog(main, "You cannot delete your original document.", "Can't Delete Original!",JOptionPane.ERROR_MESSAGE,GUIMain.iconNO);
+						okayToDelete = false;
+					}
+					else{
+					theAnswer = JOptionPane.showConfirmDialog(main,"Really delete current tab? \n\nNote: this action effects the current tab","Delete Current Tab",
+							JOptionPane.YES_NO_OPTION);
+					}
+				}
+				if(theAnswer == 0 && okayToDelete == true){
+					main.editTP.remove(eits.editBoxPanel);
+					nextTabIndex--;
+					//main.editTP.setSelectedIndex(nextTabIndex);
+				}
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			
+		});
+		*/
 	}
+	
 }
