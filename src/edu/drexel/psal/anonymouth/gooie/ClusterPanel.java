@@ -113,7 +113,7 @@ public class ClusterPanel extends JPanel {
 			g2.fill(new Ellipse2D.Double(centroid-Math.sqrt(dim), yoffset-Math.sqrt(dim),dim,dim));
 			*/
 			
-			int selectedCluster = DriverClustersTab.selectedClustersByFeature[featureNumber];
+			int selectedCluster = DriverAnonymityTab.selectedClustersByFeature[featureNumber];
 			if(i == selectedCluster-1){ // this needs to be offset by 1, because a '1' was added to the cluster numbers to avoid
 				// a cluster being number '0'. 
 				g2.setColor(highlightColor);

@@ -1,5 +1,6 @@
 package edu.drexel.psal.anonymouth.gooie;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -7,6 +8,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -34,7 +37,7 @@ import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.anonymouth.gooie.Translation;
-import edu.drexel.psal.anonymouth.gooie.DriverClustersTab.alignListRenderer;
+import edu.drexel.psal.anonymouth.gooie.DriverAnonymityTab.alignListRenderer;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 
@@ -340,28 +343,10 @@ public class GUIMain extends javax.swing.JFrame  {
 	//---------------------------------------------------------------------
 		
 		protected JTabbedPane rightTabPane;
-		protected JPanel clustersPanel;
-		protected JLabel clustersLabel;
-		protected JPanel featuresPanel;
-		protected JLabel legendLabel;
-		protected JPanel legendPanel;
-		private String oldEditorBoxDoc = " ";
-		private TableModel oldResultsTableModel = null;
-		private TableCellRenderer tcr = new DefaultTableCellRenderer();
+		protected JPanel anonymityPanel;
+		protected JLabel anonymityLabel;
+		protected AnonymityDrawingPanel anonymityDrawingPanel;
 		
-		protected JScrollPane featuresListScrollPane;
-		protected JList featuresList;
-		protected DefaultListModel featuresListModel;
-		protected JScrollPane subFeaturesListScrollPane;
-		protected JList subFeaturesList;
-		protected DefaultListModel subFeaturesListModel;
-		protected JScrollPane clusterScrollPane;
-		protected ScrollablePanel clusterHolderPanel;
-		protected JPanel topPanel;
-		protected JButton reClusterAllButton;
-		protected JButton refreshButton;
-		protected JButton selectClusterConfiguration;
-		protected JPanel secondPanel;
 	//--------------------------------------------------------------------
 	
 	protected JPanel editorInfoJPanel;
@@ -539,7 +524,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			createSugTab();
 			createTransTab();
 			createDocumentTab();
-			createClustersTab();
+			createAnonymityTab();
 			createResultsTab();
 			
 			setUpContentPane();
@@ -556,7 +541,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			// initialize listeners - except for EditorTabDriver!
 			
 			DriverMenu.initListeners(this);
-			DriverClustersTab.initListeners(this);
+//			DriverAnonymityTab.initListeners(this);
 			DriverDocumentsTab.initListeners(this);
 			DriverPreProcessTab.initListeners(this);
 			DriverResultsTab.initListeners(this);
@@ -581,7 +566,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		panelNames.add("Suggestions");
 		panelNames.add("Translations");
 		panelNames.add("Document");
-		panelNames.add("Clusters");
+		panelNames.add("Anonymity");
 		panelNames.add("Results");
 		
 		HashMap<String, JPanel> panels = new HashMap<String, JPanel>(6);
@@ -589,7 +574,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		panels.put("Suggestions", suggestionsPanel);
 		panels.put("Translations", translationsPanel);
 		panels.put("Document", documentsPanel);
-		panels.put("Clusters", clustersPanel);
+		panels.put("Anonymity", anonymityPanel);
 		panels.put("Results", resultsPanel);
 		
 		ArrayList<PropUtil.Location> panelLocations = new ArrayList<PropUtil.Location>();
@@ -597,7 +582,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		panelLocations.add(PropUtil.getSuggestionsTabLocation());
 		panelLocations.add(PropUtil.getTranslationsTabLocation());
 		panelLocations.add(PropUtil.getDocumentsTabLocation());
-		panelLocations.add(PropUtil.getClustersTabLocation());
+		panelLocations.add(PropUtil.getAnonymityTabLocation());
 		panelLocations.add(PropUtil.getResultsTabLocation());
 		
 		// ----- form the column specifications
@@ -673,32 +658,28 @@ public class GUIMain extends javax.swing.JFrame  {
 	 */
 	public void fixLayouts()
 	{
-		PropUtil.Location clustersLocation = PropUtil.getClustersTabLocation();
+		PropUtil.Location clustersLocation = PropUtil.getAnonymityTabLocation();
 		if (clustersLocation == PropUtil.Location.LEFT || clustersLocation == PropUtil.Location.RIGHT)
 		{
-			clustersPanel.setLayout(new MigLayout(
+			anonymityPanel.setLayout(new MigLayout(
 					"wrap, ins 0, gap 0 0",
 					"grow, fill",
 					"[][grow, fill][]"));
 			
-			clustersPanel.removeAll();
-			clustersPanel.add(clustersLabel);
-			clustersPanel.add(clusterScrollPane);
-			clustersPanel.add(featuresPanel, "h 250!");
+			anonymityPanel.removeAll();
+			anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
+			anonymityPanel.add(anonymityDrawingPanel, "grow");
 		}
 		else if (clustersLocation == PropUtil.Location.TOP)
 		{
-			clustersPanel.setLayout(new MigLayout(
+			anonymityPanel.setLayout(new MigLayout(
 					"wrap 2, fill, ins 0, gap 0",
 					"[70%][30%]",
 					"[][][grow, fill]"));
 			
-			clustersPanel.removeAll();
-			clustersPanel.add(clustersLabel, "grow, h " + titleHeight + "!");
-			clustersPanel.add(legendLabel, "grow, h " + titleHeight + "!");
-			clustersPanel.add(clusterScrollPane, "grow, spany");
-			clustersPanel.add(legendPanel, "grow");
-			clustersPanel.add(featuresPanel, "spany, grow");
+			anonymityPanel.removeAll();
+			anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
+			anonymityPanel.add(anonymityDrawingPanel, "grow");
 		}
 		
 		PropUtil.Location resultsLocation = PropUtil.getResultsTabLocation();
@@ -834,45 +815,45 @@ public class GUIMain extends javax.swing.JFrame  {
 		return ready;
 	}
 	
-	public void addClusterFeatures (String[] names)
-	{
-		Arrays.sort(names);
-		// add the holder at top
-		subfeatures.add(new ArrayList<String>());
-		for (int i = 0; i < names.length; i++)
-		{
-			String feature = null;
-			String subfeature = null;
-			
-			// get the feature and subfeature from the name
-			if (names[i].contains("--"))
-			{
-				feature = names[i].substring(0, names[i].indexOf("--"));
-				subfeature = names[i].substring(names[i].indexOf("--")+2, names[i].length());
-			}
-			else
-				feature = names[i];
-			
-			// if the feature doesnt exist yet, add it to the feature list
-			if (!features.contains(feature))
-			{
-				features.add(feature);
-				subfeatures.add(new ArrayList<String>());
-				if (subfeature != null)
-					subfeatures.get(features.indexOf(feature)).add(subfeature);
-					
-			}
-			else // if the feature does exist, add its subfeature to the subfeature list
-			{
-				if (subfeature != null)
-					subfeatures.get(features.indexOf(feature)).add(subfeature);
-			}
-		}
-		featuresListModel = new DefaultListModel();
-		for (int i = 0; i < features.size(); i++)
-			featuresListModel.addElement(features.get(i));
-		featuresList.setModel(featuresListModel);
-	}
+//	public void addClusterFeatures (String[] names)
+//	{
+//		Arrays.sort(names);
+//		// add the holder at top
+//		subfeatures.add(new ArrayList<String>());
+//		for (int i = 0; i < names.length; i++)
+//		{
+//			String feature = null;
+//			String subfeature = null;
+//			
+//			// get the feature and subfeature from the name
+//			if (names[i].contains("--"))
+//			{
+//				feature = names[i].substring(0, names[i].indexOf("--"));
+//				subfeature = names[i].substring(names[i].indexOf("--")+2, names[i].length());
+//			}
+//			else
+//				feature = names[i];
+//			
+//			// if the feature doesnt exist yet, add it to the feature list
+//			if (!features.contains(feature))
+//			{
+//				features.add(feature);
+//				subfeatures.add(new ArrayList<String>());
+//				if (subfeature != null)
+//					subfeatures.get(features.indexOf(feature)).add(subfeature);
+//					
+//			}
+//			else // if the feature does exist, add its subfeature to the subfeature list
+//			{
+//				if (subfeature != null)
+//					subfeatures.get(features.indexOf(feature)).add(subfeature);
+//			}
+//		}
+//		featuresListModel = new DefaultListModel();
+//		for (int i = 0; i < features.size(); i++)
+//			featuresListModel.addElement(features.get(i));
+//		featuresList.setModel(featuresListModel);
+//	}
 	
 	/**
 	 * Creates a Pre-Process panel that can be added to the "help area".
@@ -926,14 +907,14 @@ public class GUIMain extends javax.swing.JFrame  {
 			DefaultListModel mainDocListModel = new DefaultListModel();
 			prepMainDocList = new JList(mainDocListModel);
 			prepMainDocList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			prepMainDocList.setCellRenderer(new DriverClustersTab.alignListRenderer(SwingConstants.CENTER));
+			prepMainDocList.setCellRenderer(new DriverAnonymityTab.alignListRenderer(SwingConstants.CENTER));
 			prepMainDocScrollPane = new JScrollPane(prepMainDocList);
 			
 			// sample documents list
 			DefaultListModel sampleDocsListModel = new DefaultListModel();
 			prepSampleDocsList = new JList(sampleDocsListModel);
 			prepSampleDocsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			prepSampleDocsList.setCellRenderer(new DriverClustersTab.alignListRenderer(SwingConstants.CENTER));
+			prepSampleDocsList.setCellRenderer(new DriverAnonymityTab.alignListRenderer(SwingConstants.CENTER));
 			prepSampleDocsScrollPane = new JScrollPane(prepSampleDocsList);
 			
 			// main add button
@@ -1040,7 +1021,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			DefaultListModel selectedListModel = new DefaultListModel();
 			classJList = new JList(selectedListModel);
 			classJList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-			classJList.setCellRenderer(new DriverClustersTab.alignListRenderer(SwingConstants.CENTER));
+			classJList.setCellRenderer(new DriverAnonymityTab.alignListRenderer(SwingConstants.CENTER));
 			prepSelectedClassScrollPane = new JScrollPane(classJList);
 			
 			classAddJButton = new JButton("Select");
@@ -1452,17 +1433,17 @@ public class GUIMain extends javax.swing.JFrame  {
 		return documentsPanel;
 	}
 	
-	private JPanel createClustersTab() throws Exception
+	private JPanel createAnonymityTab() throws Exception
 	{
-		PropUtil.Location location = PropUtil.getClustersTabLocation();
-		clustersPanel = new JPanel();
+		PropUtil.Location location = PropUtil.getAnonymityTabLocation();
+		anonymityPanel = new JPanel();
 		if (location == PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
-			clustersPanel.setLayout(new MigLayout(
+			anonymityPanel.setLayout(new MigLayout(
 					"wrap, ins 0",
 					"grow, fill",
 					"0[]0[grow, fill][]0"));
 		else if (location == PropUtil.Location.TOP)
-			clustersPanel.setLayout(new MigLayout(
+			anonymityPanel.setLayout(new MigLayout(
 					"wrap 2, fill, ins 0, gap 0",
 					"[70%][30%]",
 					"[][][grow, fill]"));
@@ -1470,119 +1451,32 @@ public class GUIMain extends javax.swing.JFrame  {
 			throw new Exception();
 		
 		{ // --------------cluster panel components
-			clustersLabel = new JLabel("Clusters:");
-			clustersLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			clustersLabel.setFont(titleFont);
-			clustersLabel.setOpaque(true);
-			clustersLabel.setBackground(tan);
-			clustersLabel.setBorder(rlborder);
+			anonymityLabel = new JLabel("Anonymity:");
+			anonymityLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			anonymityLabel.setFont(titleFont);
+			anonymityLabel.setOpaque(true);
+			anonymityLabel.setBackground(tan);
+			anonymityLabel.setBorder(rlborder);
 			
-			clusterHolderPanel = new ScrollablePanel()
-			{
-				public boolean getScrollableTracksViewportWidth()
-				{
-					return true;
-				}
-			};
-			clusterHolderPanel.setScrollableUnitIncrement(SwingConstants.VERTICAL, ScrollablePanel.IncrementType.PIXELS, 74);
-			clusterHolderPanel.setAutoscrolls(true);
-			clusterHolderPanel.setOpaque(true);
-			BoxLayout clusterHolderPanelLayout = new BoxLayout(clusterHolderPanel, javax.swing.BoxLayout.Y_AXIS);
-			clusterHolderPanel.setLayout(clusterHolderPanelLayout);
-			clusterScrollPane = new JScrollPane(clusterHolderPanel);
-			clusterScrollPane.setOpaque(true);
+			anonymityDrawingPanel = new AnonymityDrawingPanel();
 			
-			legendLabel = new JLabel("Legend:");
-			legendLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			legendLabel.setFont(titleFont);
-			legendLabel.setOpaque(true);
-			legendLabel.setBackground(tan);
-			legendLabel.setBorder(rlborder);
-			
-			legendPanel = new JPanel();
-			legendPanel.setLayout(new MigLayout(
-					"wrap 2",
-					"20[][100]",
-					"grow, fill"));
-			
-			{ // --------------------legend panel components
-				JLabel presentValueLabel = new JLabel("Present Value:");
-				
-				JPanel presentValuePanel = new JPanel();
-				presentValuePanel.setBackground(Color.black);
-				
-				JLabel normalRangeLabel = new JLabel("Normal Range:");
-				
-				JPanel normalRangePanel = new JPanel();
-				normalRangePanel.setBackground(Color.red);
-				
-				JLabel safeZoneLabel = new JLabel("Safe Zone:");
-				
-				JPanel safeZonePanel = new JPanel();
-				safeZonePanel.setBackground(Color.green);
-				
-				legendPanel.add(presentValueLabel, "grow");
-				legendPanel.add(presentValuePanel, "grow");
-				legendPanel.add(normalRangeLabel, "grow");
-				legendPanel.add(normalRangePanel, "grow");
-				legendPanel.add(safeZoneLabel, "grow");
-				legendPanel.add(safeZonePanel, "grow");
-			}
-			
-			featuresPanel = new JPanel();
-				featuresPanel.setLayout(new MigLayout(
-						"wrap, fill, ins 0, gap 0 0",
-						"grow, fill",
-						"[][grow, fill][][grow, fill]"));
-			{ // --------------------legend panel components
-				JLabel featuresLabel = new JLabel("Feature Search:");
-				featuresLabel.setHorizontalAlignment(SwingConstants.CENTER);
-				featuresLabel.setFont(titleFont);
-				featuresLabel.setOpaque(true);
-				featuresLabel.setBackground(tan);
-				featuresLabel.setBorder(rlborder);
-				
-				featuresListModel = new DefaultListModel();
-				featuresList = new JList(featuresListModel);
-				featuresListScrollPane = new JScrollPane(featuresList);
-				
-				JLabel subFeaturesLabel = new JLabel("Sub-Feature Search:");
-				subFeaturesLabel.setHorizontalAlignment(SwingConstants.CENTER);
-				subFeaturesLabel.setFont(titleFont);
-				subFeaturesLabel.setOpaque(true);
-				subFeaturesLabel.setBackground(tan);
-				subFeaturesLabel.setBorder(rlborder);
-				
-				subFeaturesListModel = new DefaultListModel();
-				subFeaturesList = new JList(subFeaturesListModel);
-				subFeaturesList.setEnabled(false);
-				subFeaturesListScrollPane = new JScrollPane(subFeaturesList);
-				
-				featuresPanel.add(featuresLabel, "grow, h " + titleHeight + "!");
-				featuresPanel.add(featuresListScrollPane, "grow");
-				featuresPanel.add(subFeaturesLabel, "grow, h " + titleHeight + "!");
-				featuresPanel.add(subFeaturesListScrollPane, "grow");
-			}
+//			anonymityDrawingPanel.setBackground(Color.WHITE);
 			
 			if (location== PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
 			{
-				//clustersPanel.add(legendPanel);
-				clustersPanel.add(clustersLabel);
-				clustersPanel.add(clusterScrollPane);
-				clustersPanel.add(featuresPanel, "h 250!");
+				//anonymityPanel.add(legendPanel);
+				anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
+				anonymityPanel.add(anonymityDrawingPanel, "grow");
 			}
 			else if (location == PropUtil.Location.TOP)
 			{
-				clustersPanel.add(clustersLabel, "grow, h " + titleHeight + "!");
-				clustersPanel.add(legendLabel, "grow, h " + titleHeight + "!");
-				clustersPanel.add(clusterScrollPane, "grow, spany");
-				clustersPanel.add(legendPanel, "grow");
-				clustersPanel.add(featuresPanel, "spany, grow");
+				anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
+				anonymityPanel.add(anonymityDrawingPanel, "grow, spany");
 			}
 			else
 				throw new Exception();
 		}
-		return clustersPanel;
+		return anonymityPanel;
 	}
 	
 	private JPanel createResultsTab() throws Exception

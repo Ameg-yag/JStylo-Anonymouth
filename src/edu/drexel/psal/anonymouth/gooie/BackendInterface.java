@@ -256,7 +256,7 @@ public class BackendInterface {
 						Tagger.initTagger();
 						
 						pw.setText("Initialize Cluster Viewer...");
-						DriverClustersTab.initializeClusterViewer(main,true);
+						DriverAnonymityTab.initializeAnonymityBar(main);
 						pw.setText("Initialize Cluster Viewer... Done");
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
@@ -273,6 +273,7 @@ public class BackendInterface {
 					Logger.logln(NAME+wekaResults.toString());
 					makeResultsTable(wekaResults, main);
 					ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
+					main.anonymityDrawingPanel.showPointer(true);
 				}
 				else //This reprocesses
 				{
@@ -298,7 +299,7 @@ public class BackendInterface {
 							wizard.reRunModified(magician);
 							pw.setText("Extracting and Clustering Features... Done");
 							pw.setText("Initialize Cluster Viewer...");
-							DriverClustersTab.initializeClusterViewer(main,false);
+							DriverAnonymityTab.initializeAnonymityBar(main);
 							pw.setText("Initialize Cluster Viewer... Done");
 							pw.setText("Classifying Documents...");
 							magician.runWeka();
@@ -314,14 +315,15 @@ public class BackendInterface {
 						makeResultsTable(wekaResults, main);
 						pw.setText("Setting Results... Done");
 						pw.stop();
+						main.anonymityDrawingPanel.showPointer(true);
 					}
 				}
 				int selectedIndex = 1;
 				int trueIndex = selectedIndex - 1;
-				Logger.logln(NAME+"Cluster Group number '"+trueIndex+"' selected: " + DriverClustersTab.getStringRep()[selectedIndex]);
-				Logger.logln(NAME+"Cluster Group chosen by Anonymouth: "+DriverClustersTab.getStringRep()[1]);
-				DataAnalyzer.selectedTargets = DriverClustersTab.getIntRep()[trueIndex];
-				Logger.logln(NAME+"INTREP: "+DriverClustersTab.getIntRep()[trueIndex]);//added this.
+				Logger.logln(NAME+"Cluster Group number '"+trueIndex+"' selected: " + DriverAnonymityTab.getStringRep()[selectedIndex]);
+				Logger.logln(NAME+"Cluster Group chosen by Anonymouth: "+DriverAnonymityTab.getStringRep()[1]);
+				DataAnalyzer.selectedTargets = DriverAnonymityTab.getIntRep()[trueIndex];
+				Logger.logln(NAME+"INTREP: "+DriverAnonymityTab.getIntRep()[trueIndex]);//added this.
 				DriverDocumentsTab.wizard.setSelectedTargets();
 				DriverDocumentsTab.signalTargetsSelected(main, true);
 				//eits.documentPane.setText(tempDoc);	
@@ -428,6 +430,7 @@ public class BackendInterface {
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			
 			pw.stop();
+			main.anonymityDrawingPanel.showPointer(true);
 			//cpb.setText("User Editing... Waiting to\"Re-process\"");
 			
 		}
