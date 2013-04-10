@@ -1041,6 +1041,7 @@ public class GUIMain extends javax.swing.JFrame {
 						JPanel options = new JPanel(new GridLayout(4,1,cellPadding,cellPadding));
 						analysisConfPanel.add(options,BorderLayout.CENTER);
 						{
+							analysisOutputFeatureVectorJCheckBox.setToolTipText("");
 							analysisOutputFeatureVectorJCheckBox = new JCheckBox();
 							analysisOutputFeatureVectorJCheckBox.setSelected(false);
 							options.add(analysisOutputFeatureVectorJCheckBox);
@@ -1052,8 +1053,9 @@ public class GUIMain extends javax.swing.JFrame {
 							options.add(analysisSparseInstancesJCheckBox);
 							analysisSparseInstancesJCheckBox.setText("Use sparse representation for feature vectors");
 						}
-						{
+						{	
 							analysisCalcInfoGainJCheckBox = new JCheckBox();
+							analysisCalcInfoGainJCheckBox.setToolTipText("Display how much information each feature taught the computer.");
 							analysisCalcInfoGainJCheckBox.setSelected(true);
 							options.add(analysisCalcInfoGainJCheckBox);
 							analysisCalcInfoGainJCheckBox.setText("Calculate InfoGain on feature set");
@@ -1062,7 +1064,9 @@ public class GUIMain extends javax.swing.JFrame {
 							JPanel applyIG = new JPanel(new FlowLayout(FlowLayout.LEFT));
 							options.add(applyIG);
 							{
+								
 								analysisApplyInfoGainJCheckBox = new JCheckBox();
+								analysisApplyInfoGainJCheckBox.setToolTipText("Limit the display to the top N features");
 								applyIG.add(analysisApplyInfoGainJCheckBox);
 								analysisApplyInfoGainJCheckBox.setText("Apply InfoGain on top N features:");
 							}
@@ -1106,7 +1110,10 @@ public class GUIMain extends javax.swing.JFrame {
 									analysisKFoldJTextField = new JTextField("10");
 									analysisKFoldJTextField.setPreferredSize(new Dimension(25,20));
 									analysisKFoldJLabel = new JLabel("Use K Folds: ");
+									analysisKFoldJTextField.setToolTipText("The number of groups to split the documents into. Must be larger then one and can't be larger then the number of documents you have." );
 									analysisNThreadJTextField = new JTextField("8");
+									analysisNThreadJTextField.setToolTipText("The number of processing threads to use.\n" +
+											" With a more powerful computer, a higher number will speed up the program.");
 									analysisNThreadJLabel = new JLabel("    Use N Threads: ");
 									analysisNThreadJTextField.setPreferredSize(new Dimension(25,20));
 									

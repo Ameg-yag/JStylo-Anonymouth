@@ -31,7 +31,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import com.jgaap.generics.Document;
-import com.sun.corba.se.impl.io.TypeMismatchException;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -262,38 +261,6 @@ public class AnalysisTabDriver {
 			}
 		});
 		
-		//
-		// K-fold and N-thread text area toggling
-		// =====================================
-		main.analysisTrainCVJRadioButton.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				Logger.logln("K-Fold radio button selected");
-				
-				boolean selected = main.analysisTrainCVJRadioButton.isSelected();
-				if (selected){
-					main.analysisKFoldJTextField.setEnabled(true);
-					main.analysisNThreadJTextField.setEnabled(true);
-				}			
-			}		
-		});
-		main.analysisClassTestDocsJRadioButton.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				Logger.logln("Test and Classify radio button selected");
-				
-				boolean selected = main.analysisClassTestDocsJRadioButton.isSelected();
-				if (selected){
-					main.analysisKFoldJTextField.setEnabled(false);
-					main.analysisNThreadJTextField.setEnabled(false);
-				}			
-			}		
-		});
-		
 		// run analysis button
 		// ===================
 		
@@ -331,43 +298,6 @@ public class AnalysisTabDriver {
 							"Run Analysis Error",
 							JOptionPane.ERROR_MESSAGE);
 					return;
-				} else if (main.analysisTrainCVJRadioButton.isSelected()) { //makes sure K and N are in the appropriate range
-					int docCount = 0;
-					try{
-						String kfolds = main.analysisKFoldJTextField.getText();
-						String nthreads = main.analysisNThreadJTextField.getText();
-						
-						//find out how many documents there are
-						Enumeration<DefaultMutableTreeNode> authors = ((DefaultMutableTreeNode) main.trainCorpusJTree.getModel().getRoot()).children();
-						DefaultMutableTreeNode author;
-						while (authors.hasMoreElements()) {
-							author = authors.nextElement();
-							docCount+=author.getChildCount();
-						}
-							
-						if (Integer.parseInt(kfolds)<=1 || Integer.parseInt(kfolds)>docCount)
-								throw new TypeMismatchException();
-						
-						if (Integer.parseInt(nthreads)<1 || Integer.parseInt(nthreads)>50)
-							throw new TypeMismatchException();
-						
-						
-						
-					} catch (TypeMismatchException tme) {
-						JOptionPane.showMessageDialog(main,
-								"K and N do not have correct values. Both must be integers in the range:\n1<K<="
-										+docCount+"\n1<=N<=50",
-								"Run Analysis Error",
-								JOptionPane.ERROR_MESSAGE);
-						return;
-					} catch (NumberFormatException nme){
-						JOptionPane.showMessageDialog(main,
-								"K and N do not have correct values. Both must be integers in the range:\n1<K<="
-										+docCount+"\n1<=N<=50",
-								"Run Analysis Error",
-								JOptionPane.ERROR_MESSAGE);
-						return;
-					}
 				}
 				
 				// lock
@@ -375,7 +305,6 @@ public class AnalysisTabDriver {
 				
 				// start analysis thread
 				//main.at = AnalyzerTypeEnum.WRITEPRINTS_ANALYZER;
-				main.wib.numCalcThreads=Integer.parseInt(main.analysisNThreadJTextField.getText());
 				main.analysisThread = new Thread(new RunAnalysisThread(main));
 				main.analysisThread.start();
 			}
@@ -538,11 +467,6 @@ public class AnalysisTabDriver {
 		main.analysisCalcInfoGainJCheckBox.setEnabled(!lock);
 		main.analysisApplyInfoGainJCheckBox.setEnabled(!lock);
 		main.infoGainValueJTextField.setEnabled(!lock);
-		
-		main.analysisKFoldJTextField.setEnabled(!lock);
-		main.analysisNThreadJTextField.setEnabled(!lock);
-		main.analysisKFoldJLabel.setEnabled(!lock);
-		main.analysisNThreadJLabel.setEnabled(!lock);
 		
 		main.analysisExportTrainToARFFJButton.setEnabled(!lock);
 		main.analysisExportTestToARFFJButton.setEnabled(!lock);
@@ -805,6 +729,7 @@ public class AnalysisTabDriver {
 					Logger.log("Starting classification...\n");
 					updateResultsView();
 					
+					// classify FIXME somewhere in here is where the nullpointer is being thrown if N for infoGain is < number of Features in the set
 					results = main.wad.classify(
 							main.wib.getTrainingSet(),
 							main.wib.getTestSet(),
@@ -827,9 +752,9 @@ public class AnalysisTabDriver {
 				// Running cross-validation on training corpus
 				// ===========================================
 				
-				Logger.logln("Starting training K-folds CV phase...");
+				Logger.logln("Starting training 10-folds CV phase...");
 				
-				content += getTimestamp()+" Starting K-folds cross-validation on training corpus phase...\n";
+				content += getTimestamp()+" Starting 10-folds cross-validation on training corpus phase...\n";
 				content += "\n================================================================================\n\n";
 				
 				Classifier c;
@@ -846,7 +771,7 @@ public class AnalysisTabDriver {
 					updateResultsView();
 					
 					// run
-					Object results = main.wad.runCrossValidation(main.wib.getTrainingSet(),Integer.parseInt(main.analysisKFoldJTextField.getText()),0);
+					Object results = main.wad.runCrossValidation(main.wib.getTrainingSet(),10,0);
 					content += getTimestamp()+" done!\n\n";
 					Logger.logln("Done!");
 					updateResultsView();
