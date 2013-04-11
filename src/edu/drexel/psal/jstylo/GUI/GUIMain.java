@@ -1041,14 +1041,16 @@ public class GUIMain extends javax.swing.JFrame {
 						JPanel options = new JPanel(new GridLayout(4,1,cellPadding,cellPadding));
 						analysisConfPanel.add(options,BorderLayout.CENTER);
 						{
-							analysisOutputFeatureVectorJCheckBox.setToolTipText("");
+							
 							analysisOutputFeatureVectorJCheckBox = new JCheckBox();
+							analysisOutputFeatureVectorJCheckBox.setToolTipText("Display the data collected from each document for each feature.");
 							analysisOutputFeatureVectorJCheckBox.setSelected(false);
 							options.add(analysisOutputFeatureVectorJCheckBox);
 							analysisOutputFeatureVectorJCheckBox.setText("Output feature vectors (ARFF format)");
 						}
 						{
 							analysisSparseInstancesJCheckBox = new JCheckBox();
+							analysisSparseInstancesJCheckBox.setToolTipText("Display non-zero features only.");
 							analysisSparseInstancesJCheckBox.setSelected(true);
 							options.add(analysisSparseInstancesJCheckBox);
 							analysisSparseInstancesJCheckBox.setText("Use sparse representation for feature vectors");
