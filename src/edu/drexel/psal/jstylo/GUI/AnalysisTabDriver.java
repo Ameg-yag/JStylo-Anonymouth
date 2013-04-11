@@ -275,7 +275,7 @@ public class AnalysisTabDriver {
 				boolean selected = main.analysisTrainCVJRadioButton.isSelected();
 				if (selected){
 					main.analysisKFoldJTextField.setEnabled(true);
-					main.analysisNThreadJTextField.setEnabled(true);
+					//main.analysisNThreadJTextField.setEnabled(true);
 				}			
 			}		
 		});
@@ -289,7 +289,7 @@ public class AnalysisTabDriver {
 				boolean selected = main.analysisClassTestDocsJRadioButton.isSelected();
 				if (selected){
 					main.analysisKFoldJTextField.setEnabled(false);
-					main.analysisNThreadJTextField.setEnabled(false);
+					//main.analysisNThreadJTextField.setEnabled(false);
 				}			
 			}		
 		});

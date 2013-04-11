@@ -272,7 +272,6 @@ public class ClassTabDriver {
 	protected static void resetSelClassSelection(GUIMain main) {
 		// clear everything
 		main.classSelClassArgsJTextField.setText("");
-		main.classDescJTextPane.setText("");
 	}
 	
 	/**
