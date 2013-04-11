@@ -49,9 +49,6 @@ import javax.swing.text.Highlighter;
 import com.jgaap.generics.Canonicizer;
 import com.jgaap.generics.Document;
 
-
-
-
 /**
  * editorTabDriver does the work for the editorTab (Editor) in the main GUI (GUIMain)
  * @author Andrew W.E. McDonald
@@ -725,7 +722,7 @@ public class DriverDocumentsTab {
 				}
 				else
 				{
-					main.leftTabPane.setSelectedIndex(1);
+					main.leftTabPane.setSelectedIndex(0);
 					// ----- confirm they want to process
 					if (true) // ---- can be a confirm dialog to make sure they want to process.
 					{

@@ -41,10 +41,10 @@ public class GramMatcher {
 	 */
 	public int getOccurrencesOfBigram(String wordBigram, String stringToSearch){
 		//String theDoc = document;
-		//theDoc = theDoc.replaceAll("[“”‘’„˚˙‚’‘`*$%@#~\\r\\n\\t.?!\",;:()\\[\\]\\\\]"," ");
+		//theDoc = theDoc.replaceAll("[����������������������������`*$%@#~\\r\\n\\t.?!\",;:()\\[\\]\\\\]"," ");
 
 		String theWords = wordBigram.replaceAll("\\p{C}", " ");
-		System.out.println(theWords);
+//		System.out.println(theWords);
 		
 		String[] split = wordBigram.split("-");
 		int numTokes = split.length;
@@ -106,7 +106,7 @@ public class GramMatcher {
 		if(found == true){
 			int start = m.start();
 			int end = m.end();
-			System.out.println("Found match for: '"+theRegEx+"' => "+stringToTest.substring(start,end));
+//			System.out.println("Found match for: '"+theRegEx+"' => "+stringToTest.substring(start,end));
 			toHighlight.add(new int[]{start,end});
 			startIndex=start;
 			m.reset();
@@ -124,7 +124,7 @@ public class GramMatcher {
 	
 	public int getOccurrencesOfTrigram(String wordTrigram, String stringToSearch){
 		//String theDoc = document;
-		//theDoc = theDoc.replaceAll("[“”‘’„˚˙‚’‘`*$%@#~\\r\\n\\t.?!\",;:()\\[\\]\\\\]"," ");
+		//theDoc = theDoc.replaceAll("[����������������������������`*$%@#~\\r\\n\\t.?!\",;:()\\[\\]\\\\]"," ");
 
 		String theWords = wordTrigram.replaceAll("\\p{C}", " ");
 		//System.out.println("Finding trigram: "+theWords);

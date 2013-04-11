@@ -316,4 +316,37 @@ public class PropUtil {
 		}
 		return stringToLocation(location);
 	}
+	
+	protected static void setClustersTabLocation(Location location)
+	{
+		// saves the path of the file chosen in the properties file
+		BufferedWriter writer;
+		try {
+			prop.setProperty("clustersTabLocation", "" + location.strRep);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	/**
+	 * Gets the location of the translations tab (default location also set here)
+	 */
+	protected static Location getClustersTabLocation()
+	{
+		String location = "";
+		try {
+			location = prop.getProperty("clustersTabLocation");
+			if (location == null)
+			{
+				prop.setProperty("clustersTabLocation", DEFAULT_LOCATIONS[1]); // left
+				location = prop.getProperty("clustersTabLocation");
+			}
+		} catch (NullPointerException e) {
+			prop.setProperty("clustersTabLocation", DEFAULT_LOCATIONS[1]);
+			location = prop.getProperty("clustersTabLocation");
+		}
+		return stringToLocation(location);
+	}
 }

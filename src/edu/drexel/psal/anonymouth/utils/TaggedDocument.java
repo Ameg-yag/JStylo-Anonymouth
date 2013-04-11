@@ -508,7 +508,7 @@ public class TaggedDocument implements Serializable{
 		if (is_initial)
 			return avg_percent_change;
 		else{
-			double percent_change_needed = 1 - (Math.abs(avg_percent_change - baseline_percent_change_needed)/baseline_percent_change_needed);
+			double percent_change_needed = baseline_percent_change_needed - (Math.abs(avg_percent_change - baseline_percent_change_needed)/baseline_percent_change_needed);
 			return percent_change_needed;
 		}
 	}
