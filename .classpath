@@ -24,11 +24,11 @@
 	<classpathentry kind="lib" path="lib/external/pdfbox-1.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/external/jscience-4.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/external/edu.mit.jwi_2.2.1.jar"/>
-	<classpathentry kind="lib" path="lib/external/stanford-postagger-2012-01-06.jar"/>
 	<classpathentry kind="lib" path="lib/external/jaws-bin.jar"/>
 	<classpathentry kind="lib" path="lib/external/ui.jar"/>
 	<classpathentry kind="lib" path="lib/external/Jama-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/external/microsoft-translator-java-api-0.6.1-jar-with-dependencies.jar"/>
 	<classpathentry kind="lib" path="lib/external/miglayout-4.0-swing.jar"/>
+	<classpathentry kind="lib" path="lib/external/stanford-postagger-2012-01-06.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

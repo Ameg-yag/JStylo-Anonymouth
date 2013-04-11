@@ -80,6 +80,7 @@ public class DriverDocumentsTab {
 	private static int lastKeyCaretPosition = -1;
 	protected static boolean okayToSelectSuggestion = false;
 	private static boolean keyJustTyped = false;
+	private static boolean keyJustPressed = false;
 	private static int mouseEndPosition;
 	private static boolean checkForMouseInfluence =false;
 	//protected static ArrayList<EditorInnerTabSpawner> eitsList = new ArrayList<EditorInnerTabSpawner>();
@@ -121,9 +122,10 @@ public class DriverDocumentsTab {
 	protected static Translation translator = new Translation();
 	
 	protected static TaggedDocument taggedDoc;
-	protected static int currentSentNum = 1;
+	protected static int currentSentNum = -1;
 	protected static int lastSentNum = -1;
 	protected static int[] selectedSentIndexRange = new int[]{-2,-2}; 
+	protected static int[] lastSelectedSentIndexRange = new int[]{-3,-3};
 	protected static int lastCaretLocation = -1;
 	protected static int charsInserted = -1;
 	protected static int charsRemoved = -1;
@@ -263,7 +265,7 @@ public class DriverDocumentsTab {
 						
 					}
 						
-					System.out.printf("CARET INFO: %d to %d", startSelection, endSelection);
+					System.out.printf("CARET INFO: %d to %d\n", startSelection, endSelection);
 					
 					/*
 					 * put in a check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
@@ -271,17 +273,26 @@ public class DriverDocumentsTab {
 					if ( thisCaretPosition > selectedSentIndexRange[0] && thisCaretPosition < selectedSentIndexRange[1]){
 						// Caret is inside range of presently selected sentence.
 						// update from previous caret
-						if (charsInserted > 0){
+						if (charsInserted > 0  && keyJustPressed){
+							keyJustPressed = false;
+							System.out.println("Chars inserted");
 							selectedSentIndexRange[1] += charsInserted;
 							moveHighlight(main,selectedSentIndexRange);
-							charsInserted = 0;
+							charsInserted = ~-1; // puzzle: what does this mean? (scroll to bottom of file for answer) - AweM
+							System.out.println("charsInserted == "+charsInserted);
+							Scanner in = new Scanner(System.in);
+							in.nextLine();
 						}
-						else if (charsRemoved > 0){
+						else if (charsRemoved > 0 && keyJustPressed){
+							keyJustPressed = false;
+							System.out.println("Chars removed");
 							selectedSentIndexRange[1] -= charsRemoved;
 							moveHighlight(main,selectedSentIndexRange);
 							charsRemoved = 0;
 						}
+						System.out.printf("selectedSentIndexRange: %d - %d\n",selectedSentIndexRange[0], selectedSentIndexRange[1]);
 						currentSentenceString = main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]);
+						System.out.println("currentSentenceString: "+currentSentenceString);
 					}
 					else{
 						
@@ -310,13 +321,20 @@ public class DriverDocumentsTab {
 							// now we determine where the sent is!	
 						lastSentNum = currentSentNum;
 						currentSentNum = i;
-						if (lastSentNum != currentSentNum){
-							taggedDoc.removeAndReplace(lastSentNum, currentSentenceString);
+						if (lastSentNum != -1){
+							lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
+							lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
+							currentSentenceString = main.documentPane.getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
+							// FIXME NOW! this remove and replace deletes the current sentence and adds nothing in! why??
+							if (lastSentNum != currentSentNum && lastSentNum != -1){
+								System.out.println("going to replace sentence number '"+lastSentNum+"' with: "+currentSentenceString);
+								taggedDoc.removeAndReplace(lastSentNum, currentSentenceString);
+							}
 						}
 						selectedSentIndexRange[0] = startHighlight;
 						selectedSentIndexRange[1] = endHighlight;
+						System.out.printf("Moving highlight to range %d-%d\n", startHighlight, endHighlight);
 						moveHighlight(main,selectedSentIndexRange);
-						System.out.println("Moving highlight...");
 						//DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(i));
 					}
 									
@@ -334,6 +352,7 @@ public class DriverDocumentsTab {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				System.out.println("keyPressed"+System.currentTimeMillis());
+				keyJustPressed = true;
 				// TODO Auto-generated method stub
 				/*
 				if(checkForMouseInfluence == true){
@@ -1674,4 +1693,12 @@ public class DriverDocumentsTab {
 		//SynonymReplaceTest.replaceWords(eits);
 	}
 	*/
+	
+/*
+ * Answer to puzzle:
+ * The "~" is a bitwise "NOT". 2147483647 is the largest value an 'int' can take in java (at least on my machine when I did this). 
+ * This means, that the number is all 1's. A bitwise 'NOT' makes it equivalent to '0'. So,
+ *  
+ * ~2147483647 == 0
+ */
 	

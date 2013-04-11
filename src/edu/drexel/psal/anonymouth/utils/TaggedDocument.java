@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -169,7 +170,7 @@ public class TaggedDocument implements Serializable{
 	 * @return the TaggedSentences
 	 */
 	public ArrayList<TaggedSentence> makeAndTagSentences(String untagged, boolean appendTaggedSentencesToGlobalArrayList){
-		ArrayList<String> untaggedSent = jigsaw.makeSentenceTokens(untagged);
+		ArrayList<String> untaggedSent = jigsaw.makeSentenceTokens(untagged); // IMPORTANT TODO update this to set EOS characters to different symbols to allow people to highlight things that were broken up into more than one sentence and select, "make this one sentence"
 		ArrayList<TaggedSentence> taggedSentences = new ArrayList<TaggedSentence>(untaggedSent.size());
 		//sentencesPreTagging = new ArrayList<List<? extends HasWord>>();
 		strIter = untaggedSent.iterator();
@@ -331,9 +332,12 @@ public class TaggedDocument implements Serializable{
 		TaggedSentence toReturn =new TaggedSentence(taggedSentences.get(0));
 		int numSents = taggedSentences.size();
 		int i, j;
+		TaggedSentence thisTaggedSent;
 		for (i=1;i<numSents;i++){
-				toReturn.wordsInSentence.addAll(taggedSentences.get(i).wordsInSentence);
-				toReturn.untagged += taggedSentences.get(i).untagged;
+			thisTaggedSent = taggedSentences.get(i);
+			toReturn.wordsInSentence.addAll(thisTaggedSent.wordsInSentence);
+			toReturn.untagged += thisTaggedSent.untagged;
+			toReturn.sentenceLevelFeaturesFound.merge(thisTaggedSent.sentenceLevelFeaturesFound);
 		}
 		return toReturn;
 	}	
@@ -397,27 +401,32 @@ public class TaggedDocument implements Serializable{
 	 * @return 1 if everything worked as expected. 0 if user deleted a sentence. -1 if user submitted an incomplete sentence
 	 */
 	public int removeAndReplace(int sentNumber, String sentsToAdd){//, int indexToRemove, int placeToAdd){
+		TaggedSentence toReplace = taggedSentences.get(sentNumber);
 		if(sentsToAdd.matches("\\s*")){//checks to see if the user deleted the current sentence
-			TaggedSentence justDeleted = taggedSentences.get(sentNumber);
 			//CALL COMPARE
 			removeTaggedSentence(sentNumber);
 			Logger.logln(NAME+"User deleted a sentence.");
-			updateReferences(justDeleted,new TaggedSentence(""));//all features must be deleted
+			updateReferences(toReplace,new TaggedSentence(""));//all features must be deleted
 			totalSentences--;
 			return 0;
 		}
 		ArrayList<TaggedSentence> taggedSentsToAdd = makeAndTagSentences(sentsToAdd,false);
+		Scanner s = new Scanner(System.in);
 		removeTaggedSentence(sentNumber);
 		addTaggedSentence(taggedSentsToAdd.get(0),sentNumber);
 		//call compare
-		int i, len = taggedSentsToAdd.size();
+		int i;
+		int len = taggedSentsToAdd.size();
 		for(i=1;i<len;i++){
 			sentNumber++;
 			//removeTaggedSentence(sentNumber);
 			addTaggedSentence(taggedSentsToAdd.get(i),sentNumber);
 			totalSentences++;
 		}
-		updateReferences(currentLiveTaggedSentences,concatSentences(taggedSentsToAdd));
+		TaggedSentence concatted = concatSentences(taggedSentsToAdd);
+		System.out.println("TaggedSent to add: "+taggedSentsToAdd.get(0).toString());
+		System.out.println("TaggedSent to remove: "+toReplace.toString());
+		updateReferences(toReplace,concatted);
 		return 1;
 		
 	}
@@ -479,7 +488,6 @@ public class TaggedDocument implements Serializable{
 		}
 	}
 	
-	
 	public String toString(){
 		String toReturn = "Document Title: "+documentTitle+" Author: "+documentAuthor+"\n";
 		int len = taggedSentences.size();
@@ -490,14 +498,15 @@ public class TaggedDocument implements Serializable{
 		return toReturn;
 	}
 	
-	
+	/*
 	public static void main(String[] args){
-		String text1 = "people's enjoy coffee, especially in the mornings, because it helps to wake me up. My dog is fairly small, but she seems not to realize it when she is around bigger dogs. This is my third testing sentence. I hope this works well.";
+		String text1 = "people enjoy coffee, especially in the mornings, because it helps to wake me up. My dog is fairly small, but she seems not to realize it when she is around bigger dogs. This is my third testing sentence. I hope this works well.";
 		TaggedDocument testDoc = new TaggedDocument(text1);
 		System.out.println(testDoc.toString());			
 		//System.out.println(testDoc.getFunctionWords());
 		
 	}
+	*/
 	
 	
 }
