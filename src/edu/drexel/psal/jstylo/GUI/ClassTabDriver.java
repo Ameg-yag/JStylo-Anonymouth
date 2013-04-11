@@ -79,10 +79,10 @@ public class ClassTabDriver {
 					
 					if (!className.equalsIgnoreCase("weka.classifiers.lazy.IBk")){
 						main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
-						main.classDescJTextPane.setText(getDesc(tmpClassifier));
+						//main.classDescJTextPane.setText(getDesc(tmpClassifier));
 					} else {
 						main.classAvClassArgsJTextField.setText("-K 1 -W 0");
-						main.classDescJTextPane.setText(getDesc(tmpClassifier));
+						//main.classDescJTextPane.setText(getDesc(tmpClassifier));
 					}
 
 				}

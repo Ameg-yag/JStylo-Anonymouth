@@ -102,6 +102,7 @@ public class GUIMain extends javax.swing.JFrame {
 	protected JButton addTestDocJButton;
 	protected JButton clearDocPreviewJButton;
 	protected JButton docsAboutJButton;
+	protected JTextPane docsInstructionPane;
 
 	// features tab
 	protected JButton featuresNextJButton;
@@ -149,7 +150,8 @@ public class GUIMain extends javax.swing.JFrame {
 	protected DefaultComboBoxModel featuresSetJComboBoxModel;
 	protected JLabel featuresSetJLabel;
 	protected JButton featuresAboutJButton;
-
+	protected JTextPane featuresInstructionPane;
+	
 	// Calssifiers tab
 	protected JTextField classAvClassArgsJTextField;
 	protected JLabel classAvClassArgsJLabel;
@@ -171,6 +173,7 @@ public class GUIMain extends javax.swing.JFrame {
 	protected JLabel classSelClassJLabel;
 	protected JButton classRemoveJButton;
 	protected JButton classAboutJButton;
+	protected JTextPane classInstructionPane;
 	
 	// Analysis tab
 	protected JLabel analysisTypeJLabel;
@@ -199,12 +202,14 @@ public class GUIMain extends javax.swing.JFrame {
 	protected JLabel analysisResultsJLabel;
 	protected JButton analysisAboutJButton;
 	protected JButton analysisRemoveResultTabJButton;
-	protected JTextField analysisKFoldJTextField; //TODO
+	protected JTextField analysisKFoldJTextField; 
 	protected JLabel analysisKFoldJLabel;
 	protected JLabel analysisNThreadJLabel;
 	protected JTextField analysisNThreadJTextField;
 	protected JPanel analysisTrainCVJPanel;
 	protected JPanel analysisTrainCVoptionsJPanel;
+	protected JTextPane analysisInstructionPane;
+	
 	/**
 	 * Auto-generated main method to display this JFrame
 	 */
@@ -263,23 +268,38 @@ public class GUIMain extends javax.swing.JFrame {
 				// problem set buttons
 				// ===================
 				{
+					JPanel topPanel = new JPanel(new BorderLayout());
 					JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-					docsTab.add(panel,BorderLayout.NORTH);
-					{
-						newProblemSetJButton = new JButton();
-						panel.add(newProblemSetJButton);
-						newProblemSetJButton.setText("New Problem Set");
-					}
-					{
-						saveProblemSetJButton = new JButton();
-						panel.add(saveProblemSetJButton);
-						saveProblemSetJButton.setText("Save Problem Set...");
-					}
-					{
-						loadProblemSetJButton = new JButton();
-						panel.add(loadProblemSetJButton);
-						loadProblemSetJButton.setText("Load Problem Set...");
-					}
+					
+					docsTab.add(topPanel,BorderLayout.NORTH);
+					
+					topPanel.add(panel,BorderLayout.CENTER);
+					
+						{
+							newProblemSetJButton = new JButton();
+							panel.add(newProblemSetJButton);
+							newProblemSetJButton.setText("New Problem Set");
+						}
+						{
+							saveProblemSetJButton = new JButton();
+							panel.add(saveProblemSetJButton);
+							saveProblemSetJButton.setText("Save Problem Set...");
+						}
+						{
+							loadProblemSetJButton = new JButton();
+							panel.add(loadProblemSetJButton);
+							loadProblemSetJButton.setText("Load Problem Set...");
+						}
+						{
+							docsInstructionPane = new JTextPane();
+							docsInstructionPane.setEditable(false);
+							docsInstructionPane.setPreferredSize(new java.awt.Dimension(500, 50));
+							docsInstructionPane.setText("Step One: The Documents Tab\n" +
+									"In this tab, you will create your training corpus by adding known authors and documents they have written to it.\n" +
+									"You can also add test documents. JStylo will determine which of the authors you have provided is the best match for the test document(s) you provide.");		
+							topPanel.add(docsInstructionPane,BorderLayout.NORTH);
+						}
+
 				}
 				{
 					JPanel centerPanel = new JPanel(new GridLayout(2,1,cellPadding,cellPadding));
@@ -360,7 +380,7 @@ public class GUIMain extends javax.swing.JFrame {
 						{
 							addAuthorJButton = new JButton();
 							buttons.add(addAuthorJButton);
-							addAuthorJButton.setText("Add Author...");
+							addAuthorJButton.setText("Add Author(s)...");
 						}
 						{
 							addTrainDocsJButton = new JButton();
@@ -370,7 +390,7 @@ public class GUIMain extends javax.swing.JFrame {
 						{
 							trainNameJButton = new JButton();
 							buttons.add(trainNameJButton);
-							trainNameJButton.setText("Edit Name...");
+							trainNameJButton.setText("Edit Corpus Name...");
 						}
 						{
 							removeAuthorJButton = new JButton();
@@ -451,8 +471,21 @@ public class GUIMain extends javax.swing.JFrame {
 				{
 					// top of the features tab
 					// =======================
+					JPanel topPanel = new JPanel(new BorderLayout());
 					JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT,cellPadding,cellPadding));
-					featuresTab.add(panel,BorderLayout.NORTH);
+					topPanel.add(panel,BorderLayout.CENTER);
+					
+					featuresTab.add(topPanel,BorderLayout.NORTH);
+					{
+						featuresInstructionPane = new JTextPane();
+						featuresInstructionPane.setEditable(false);
+						featuresInstructionPane.setPreferredSize(new java.awt.Dimension(500, 50));
+						featuresInstructionPane.setText("Step Two: The Features Tab\n" +
+								"In this tab, you will select the set of traits to use to evaluate the documents. " + 
+								"You can choose a pre-built feature set from the drop down menu, import one from an XML file, or make your own.\n" +
+								"If you are unsure of what to pick, we recommend selecting the Writeprints(Limited) feature set.");
+						topPanel.add(featuresInstructionPane, BorderLayout.NORTH);
+					}
 					{
 						featuresSetJLabel = new JLabel();
 						featuresSetJLabel.setFont(defaultLabelFont);
@@ -862,15 +895,27 @@ public class GUIMain extends javax.swing.JFrame {
 					// main center
 					// ===========
 					
-					JPanel center = new JPanel(new GridLayout(2,1,cellPadding,cellPadding));
+					//JPanel center = new JPanel(new GridLayout(2,1,cellPadding,cellPadding));
+					JPanel center = new JPanel(new BorderLayout());
 					classTab.add(center,BorderLayout.CENTER);
 					
+					{
+						classInstructionPane = new JTextPane();
+						classInstructionPane.setEditable(false);
+						classInstructionPane.setPreferredSize(new java.awt.Dimension(500, 50));
+						classInstructionPane.setText("Step Three: The Classifiers Tab\n" +
+								"In this tab, you will select the classifier(s) used for the machine learning algorithm. " + 
+								"You can select as many classifiers as you like, but if you are picking duplicates, they must have different arguments.\n" +
+								"Default arguments are provided for classifiers that take arguments. " +
+								"If you are unsure of what to pick, we recommend selecting the weka SMO classifier.");
+						classTab.add(classInstructionPane,BorderLayout.NORTH);
+					}
 					{
 						// available and selected classifiers
 						// ==================================
 						
 						JPanel top = new JPanel(new GridLayout(1,2,cellPadding,cellPadding));
-						center.add(top);
+						center.add(top,BorderLayout.CENTER);
 						
 						{
 							// available
@@ -958,7 +1003,7 @@ public class GUIMain extends javax.swing.JFrame {
 						}
 					}
 					
-					{
+				/*	{	No longer in use, will be replaced by the WEKA Generic Object Editor or something similar
 						// classifier description
 						// ======================
 						
@@ -979,7 +1024,7 @@ public class GUIMain extends javax.swing.JFrame {
 								classDescJScrollPane.setViewportView(classDescJTextPane);
 							}
 						}
-					}
+					}*/
 				}
 				{
 					// bottom toolbar buttons
@@ -1025,9 +1070,20 @@ public class GUIMain extends javax.swing.JFrame {
 					
 					//JPanel header = new JPanel(new GridLayout(5,3,cellPadding,cellPadding));
 					//JPanel header = new JPanel(new GridLayout(3,3,cellPadding,cellPadding));
+					JPanel topPanel = new JPanel(new BorderLayout());
 					JPanel header = new JPanel(new GridLayout(1,3,cellPadding,cellPadding));
-					analysisTab.add(header,BorderLayout.NORTH);
-					
+					topPanel.add(header,BorderLayout.CENTER);
+					analysisTab.add(topPanel,BorderLayout.NORTH);
+					{
+						analysisInstructionPane = new JTextPane();
+						analysisInstructionPane.setEditable(false);
+						analysisInstructionPane.setPreferredSize(new java.awt.Dimension(500, 65));
+						analysisInstructionPane.setText("Step Four: The Analysis Tab\n" +
+								"After completing all of the other steps, you can now evaluate your documents. If there is a document you want to identify, select \"Train on Training Corpus and Classify Documents\"\n" +
+								"Otherwise, leave the radio button at the default \"Perform K-fold Cross validation\" to evaluate the classifier(s) and features on your training set.\n" +
+								"Hover over the other options for more information on what each individual one does. The default settings provided will be desirable in most circumstances.");
+						topPanel.add(analysisInstructionPane,BorderLayout.NORTH);
+					}
 					// configuration
 					JPanel analysisConfPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
 					header.add(analysisConfPanel);
@@ -1095,7 +1151,7 @@ public class GUIMain extends javax.swing.JFrame {
 						JPanel options = new JPanel(new GridLayout(2,1,cellPadding,cellPadding));
 						analysisTypePanel.add(options,BorderLayout.CENTER);
 						analysisTypeButtonGroup = new ButtonGroup();
-						{																			//TODO
+						{																			
 							analysisTrainCVJPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
 							options.add(analysisTrainCVJPanel,BorderLayout.CENTER);
 							{
@@ -1103,7 +1159,7 @@ public class GUIMain extends javax.swing.JFrame {
 								analysisTrainCVJRadioButton.setSelected(true);
 								analysisTrainCVJPanel.add(analysisTrainCVJRadioButton,BorderLayout.CENTER);
 								analysisTypeButtonGroup.add(analysisTrainCVJRadioButton);
-								analysisTrainCVJRadioButton.setText("Run 10-folds cross validation on training corpus");
+								analysisTrainCVJRadioButton.setText("Run K-fold cross validation on training corpus");
 							}
 							{
 								analysisTrainCVoptionsJPanel = new JPanel(new FlowLayout());

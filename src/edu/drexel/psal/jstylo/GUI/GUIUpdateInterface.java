@@ -31,7 +31,7 @@ public class GUIUpdateInterface {
 				"<html><p>" +
 				"<h3>JStylo</h3><br>" +
 				"Version "+version+"<br>" +
-				"Author: Ariel Stolerman<br>" +
+				"Authors: Ariel Stolerman and Travis Dutko<br>" +
 				"Privacy, Security and Automation Lab (PSAL)<br>" +
 				"Drexel University<br>" +
 				"<br>" +
