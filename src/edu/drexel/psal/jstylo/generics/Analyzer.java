@@ -139,18 +139,13 @@ public abstract class Analyzer {
 		for (String testDocTitle: results.keySet()) {
 			f = new Formatter();
 			f.format("%-14s |", testDocTitle);
-			/*
-			Logger.logln("results.get(testDocTitle): "+results.get("c_07.txt")+" results.keySet(): "+results.keySet().toString()+" testDocTitle: "+testDocTitle);
-			Logger.logln("results.containsKey(testDocTitle): "+results.containsKey(testDocTitle)+" results.containsKey(c_07.txt): "+results.containsKey("c_07.txt"));
-			Logger.logln("results.values(): "+results.values().toString());	//FIXME if N for infoGain < number of features in set, results.values() is empty
-				*/																//no clue why
-			Map<String,Double> currRes = results.get(testDocTitle);	//FIXME results.get(testDocTitle).size() = 0 ! should be 1! problem here.
+
+			Map<String,Double> currRes = results.get(testDocTitle);	
 			
 			String resAuthor = "";
 			double maxProb = 0, oldMaxProb;
 
-			for (String author: currRes.keySet()) { //FIXME this loop is never entered. If the N for infoGain is < number of features in set 
-														//currRes.keySet().size() is 0--that's why loop isn't entered. see above
+			for (String author: currRes.keySet()) { 
 				oldMaxProb = maxProb;
 				maxProb = Math.max(maxProb, currRes.get(author).doubleValue());
 				if (maxProb > oldMaxProb)
@@ -164,7 +159,6 @@ public abstract class Analyzer {
 					c = '+';
 				else c = ' ';
 
-				if (currRes.get(author)==null)break; //TODO NOT ORIGINAL CODE this was added to help track down a bug. Should be removed when I'm done
 				f.format(" %2.6f %c     |",currRes.get(author).doubleValue(),c);
 				
 			}

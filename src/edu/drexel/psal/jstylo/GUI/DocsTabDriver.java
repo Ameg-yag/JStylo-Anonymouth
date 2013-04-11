@@ -275,7 +275,7 @@ public class DocsTabDriver {
 				if (ans == null) {
 					Logger.logln("Aborted adding new author");
 				}
-				else if (ans.isEmpty()) { //TODO add the file chooser stuff here
+				else if (ans.isEmpty()) { 
 					
 					Logger.logln("No author name entered, attempting to load from folder...");
 
