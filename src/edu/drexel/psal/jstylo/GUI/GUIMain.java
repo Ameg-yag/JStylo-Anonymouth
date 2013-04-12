@@ -166,8 +166,8 @@ public class GUIMain extends javax.swing.JFrame {
 	protected DefaultComboBoxModel classSelClassJListModel;
 	protected JScrollPane classTreeScrollPane;
 	protected JScrollPane classDescJScrollPane;
-	protected JTextPane classDescJTextPane;
-	protected JLabel classDescJLabel;
+//	protected JTextPane classDescJTextPane;
+//	protected JLabel classDescJLabel;
 	protected JButton classBackJButton;
 	protected JButton classNextJButton;
 	protected JLabel classSelClassJLabel;

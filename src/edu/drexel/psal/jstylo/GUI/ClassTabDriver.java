@@ -181,7 +181,7 @@ public class ClassTabDriver {
 
 				// show options and description
 				main.classSelClassArgsJTextField.setText(getOptionsStr(main.classifiers.get(selected).getOptions()));
-				main.classDescJTextPane.setText(getDesc(main.classifiers.get(selected)));
+//				main.classDescJTextPane.setText(getDesc(main.classifiers.get(selected))); //Pane no longer exists	
 				
 			}
 		});
@@ -263,7 +263,7 @@ public class ClassTabDriver {
 		// clear everything
 		tmpClassifier = null;
 		main.classAvClassArgsJTextField.setText("");
-		main.classDescJTextPane.setText("");
+//		main.classDescJTextPane.setText("");	//Pane no longer exists
 	}
 	
 	/**
