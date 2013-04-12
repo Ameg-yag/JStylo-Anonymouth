@@ -5,7 +5,14 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -22,6 +29,7 @@ import weka.classifiers.lazy.*;
 import weka.classifiers.rules.ZeroR;
 import weka.classifiers.trees.*;
 import weka.core.Option;
+import weka.gui.GenericObjectEditor;
 
 public class ClassTabDriver {
 
@@ -31,6 +39,7 @@ public class ClassTabDriver {
 	 */ 
 	
 	protected static Classifier tmpClassifier;
+	protected static String loadedClassifiers;
 	
 	/**
 	 * Initialize all documents tab listeners.
@@ -62,7 +71,7 @@ public class ClassTabDriver {
 					Logger.logln("Classifier selected in the available classifiers tree in the classifiers tab: "+selectedNode.toString());
 					
 					// get classifier
-					String className = getClassNameFromPath(path);
+					String className = getClassNameFromPath(path).substring(5);
 					tmpClassifier = null;
 					try {
 						//tmpClassifier = Classifier.forName(className, null);						//TODO
@@ -92,6 +101,35 @@ public class ClassTabDriver {
 				}
 			}
 		});
+		
+		//TODO make a genericObjectEditor open up when the args are selected
+		// classAvClassArgsJTextField
+		// =========
+		main.classAvClassArgsJTextField.addMouseListener(new MouseListener(){
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				Logger.logln("clicked in text field!");
+				//GenericObjectEditor test = new GenericObjectEditor();
+				GenericObjectEditor.main(new String[] {"weka.classifiers.rules.ZeroR"});
+			}
+
+			//not used
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+			}
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+			}
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+			}
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+			}
+			
+		});
+		
 		
 		// add button
 		// ==========
@@ -176,7 +214,7 @@ public class ClassTabDriver {
 				// unselect available classifiers tree
 				main.classJTree.clearSelection();
 
-				String className = main.classJList.getSelectedValue().toString();
+				String className = main.classJList.getSelectedValue().toString().substring(5);
 				Logger.logln("Classifier selected in the selected classifiers list in the classifiers tab: "+className);
 
 				// show options and description
@@ -254,6 +292,7 @@ public class ClassTabDriver {
 				}
 			}
 		});
+		
 	}
 	
 	/**
@@ -303,13 +342,15 @@ public class ClassTabDriver {
 	 */
 
 	// build classifiers tree from list of class names
-	protected static String[] classNames = new String[] {
+	protected static String[] classNames = new String[] {		//TODO maybe convert this into an ordering list instead of getting rid of it entirely?
+																//		as is, if at least one classifier in a package shows up first, that whole package will be
+																//		listed first. Just an idea.
 		// bayes
-		//"weka.classifiers.bayes.BayesNet",
+		"weka.classifiers.bayes.BayesNet",
 		"weka.classifiers.bayes.NaiveBayes",
 		"weka.classifiers.bayes.NaiveBayesMultinomial",
-		//"weka.classifiers.bayes.NaiveBayesMultinomialUpdateable",
-		//"weka.classifiers.bayes.NaiveBayesUpdateable",
+		"weka.classifiers.bayes.NaiveBayesMultinomialUpdateable",
+		"weka.classifiers.bayes.NaiveBayesUpdateable",
 
 		// functions
 		"weka.classifiers.functions.Logistic",
@@ -339,23 +380,66 @@ public class ClassTabDriver {
 	@SuppressWarnings("unchecked")
 	protected static void initWekaClassifiersTree(GUIMain main) {
 		// create root and set to tree
+		ArrayList<DefaultMutableTreeNode> roots = new ArrayList<DefaultMutableTreeNode>();
+		ArrayList<Node> loadedClassifiers = generateClassifiers();
+		
+		DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("root");
 		DefaultMutableTreeNode wekaNode = new DefaultMutableTreeNode("weka");
+		rootNode.add(wekaNode);
+		
+		for (Node n : loadedClassifiers){
+			String name = n.getName();
+			if (name.contains("weka")) break; //weka's in a wierd spot currently. TODO probably remove this later once everything's standardized. 
+																//in the meantime, this prevents a second, empty, weka folder from being added.
+			String[] components = name.split("\\."); 
+			DefaultMutableTreeNode temp = new DefaultMutableTreeNode(components[0]);
+			DefaultMutableTreeNode previous = temp;
+			for (int k=1; k<components.length;k++){
+				DefaultMutableTreeNode t = new DefaultMutableTreeNode(components[k]);
+				previous.add(t);
+				previous=t;
+			}
+			rootNode.add(temp);
+		}
+		
 		DefaultMutableTreeNode classifiersNode = new DefaultMutableTreeNode("classifiers");
+		
 		wekaNode.add(classifiersNode);
-		DefaultTreeModel model = new DefaultTreeModel(wekaNode);
+		DefaultTreeModel model = new DefaultTreeModel(rootNode);
 		main.classJTree.setModel(model);
 		
-		// add all classes
-		DefaultMutableTreeNode currNode, child;
-		for (String className: classNames) {
+		String[] loadedClasses = loadedClassifiers(loadedClassifiers);
+		String[] cNames = new String[loadedClasses.length+classNames.length];
+		int j=0;
+		for (String c : classNames){
+			//Logger.logln("wekaClasses: "+c);
+			cNames[j]=c;
+			j++;
+		}
+		for (String c : loadedClasses){
+			
+			if (c.substring(c.length()-6).equals(".class"))
+				cNames[j]=c.substring(0,c.length()-6);
+			else {
+				cNames[j]=c;
+			}
+			j++;
+		}
+		
+		// add all classes							//TODO add the loaded classes
+		DefaultMutableTreeNode currNode, child;	
+		for (String className: cNames) {
 			String[] nameArr = className.split("\\.");
-			currNode = classifiersNode;
-			for (int i=2; i<nameArr.length; i++) {
+			currNode = rootNode;
+			
+			//Logger.logln("className: "+className+" currNode: "+currNode.toString());
+			for (int i=0; i<nameArr.length; i++) {
+				//Logger.logln("          currNode: "+currNode.toString()+" i: "+i+"  nameARr:"+nameArr[i]);
 				// look for node
 				Enumeration<DefaultMutableTreeNode> children = currNode.children();
 				while (children.hasMoreElements()) {
 					child = children.nextElement();
-					if (child.getUserObject().toString().equals(nameArr[i])) {
+					if (child.getUserObject().toString().equals(nameArr[i])) { //this is the adding of a subsequent child to a node				
 						currNode = child;
 						break;
 					}
@@ -368,12 +452,217 @@ public class ClassTabDriver {
 					currNode = child;
 				}
 			}
+			
+			
 		}
 		
 		// expand tree
 		int row = 0;
 		while (row < main.classJTree.getRowCount())
 			main.classJTree.expandRow(row++);
+	}
+	/**
+	 * Strings which represent the "root" directories for a given set of classifiers
+	 * These directories can contain subdirectories
+	 */
+	protected static String[] classifierGroups = new String[] {
+		"edu.drexel.psal.jstylo.analyzers",
+		"com.jgaap.classifiers",
+		"weka.classifiers"
+		
+	};
+	
+	/**
+	 * Class used to store classifiers and populate classifier tree
+	 */
+	protected static class Node{
+		
+		private String name;
+		private ArrayList<Node> children;
+		
+		//All nodes are initialized as leaves
+		protected Node(String n){
+			name=n;
+			children = new ArrayList<Node>();
+		}
+		
+		//tells us if the node is a leaf or not
+		protected boolean hasChildren(){
+			if (children.size()==0)
+				return false;
+			else
+				return true;
+		}
+		
+		//add a leaf node
+		protected void addChild(String s){
+			children.add(new Node(s));
+		}
+		
+		protected void addChild(Node n){
+			children.add(n);
+		}
+		
+		//returns the children
+		protected ArrayList<Node> getChildren(){
+			return children;
+		}
+		
+		protected String getName(){
+			return name;
+		}
+
+		@Override
+		public String toString(){
+			String msg = getName()+"\n";
+			for (Node child : children){
+				if (child.hasChildren())
+					msg+=child.toString()+"";
+				else
+					msg+=child.toString()+"";
+			}
+			return msg;
+		}
+		
+		
+	}
+	
+	protected static String[] loadedClassifiers(ArrayList<Node> given){
+		ArrayList<Node> temp = given;
+		ArrayList<String> classifiers = new ArrayList<String>();
+		for (Node n : temp){
+			String[] t = n.toString().split("\n");
+			for (String s: t){
+				if (s.contains(".class"))
+					classifiers.add(s);
+			}
+		}
+		
+		String[] converted = new String[classifiers.size()];
+		int i =0;
+		for (String c : classifiers){
+			converted[i]=c;
+			i++;
+		}	
+		return converted;
+	}
+	
+	
+	//TODO put in new loggers once everything is figured out/working smoothly.
+	/**
+	*		Okay, so it currently can get jgaap and psal, try to fix up weka
+	**/
+	protected static ArrayList<Node> generateClassifiers(){
+		
+		ArrayList<Node> modules = new ArrayList<Node>();
+		
+		
+		
+		//adds all of the classifier groups to the tree--these are all the "parents"
+		for (String ID: classifierGroups){
+			modules.add(new Node(ID));
+		}
+
+		for (Node current: modules){
+			populateNode(current); //populates each node and all its subnodes
+			//Logger.logln("\nClassifier Tree for "+current.toString()); //TODO use this to see each tree ---really useful
+		}
+		
+		
+		return modules;	
+	}
+	
+	/**
+	 * recursive method used to populate tree
+	 */
+	protected static Node populateNode(Node current){
+		
+		//Logger.logln("node to populate: "+current.getName());
+		
+		//non-leave
+		if (!current.getName().substring(current.getName().lastIndexOf(".")).equals(".class")){	//if it is not a .class, it is a directory
+			
+			URL resource = ClassLoader.getSystemClassLoader().getResource(new String(current.getName().replace(".","/")));
+			File df = null;
+			
+			try { //loads the path to the resource. doubles as a test to see if we're in a jar
+				df = new File(resource.toURI());
+			} catch (Exception e) {
+				Logger.logln("Reading from jar file..."); 
+			} 
+			
+			//for non-jars
+			if (df!=null && df.exists()){
+				//since it's a directory, get all of its contents so we can add/populate them
+				File directory = new File(resource.getPath());
+				File[] files = directory.listFiles();
+				
+				//create and populate the child nodes
+				for (File file : files){
+					Node temp = new Node(current.getName()+"."+file.getName());
+					populateNode(temp);
+					current.addChild(temp);
+				}
+				
+				//the node is now populated. add it to the above
+				return current;
+				
+			} //end non-jars
+			
+			//here is where the weka/jar related stuff will be handled
+			else { 
+				try { 
+					
+					//set up jar path and information
+					JarFile source = new JarFile(resource.getFile().replaceFirst("[.]jar[!].*",".jar").replaceFirst("file:",""));
+					Enumeration<JarEntry> files = source.entries();
+					//iterate over subfiles
+
+					
+					boolean foundClassifiers = false; //once we find the classifier, there's no need to keep looking
+					while(files.hasMoreElements()){
+						JarEntry file = files.nextElement();
+						String fileName = file.toString();
+						if (fileName.endsWith(".class")&&fileName.contains(current.getName().replace(".","/"))){
+							Logger.logln("Print classes: "+fileName);
+						}
+						/*
+						if ((file.toString()).contains((current.getName().replace(".","/")+"/"))){
+							foundClassifiers=true; //next time there is not a match, it means that we're done
+							String convertedFileName = file.toString().substring(0,file.toString().length()-1).replace("/",".");
+							
+							
+							Logger.logln("convertedFileName: "+convertedFileName);
+							
+							
+						} else {
+							if (foundClassifiers){ 
+								break; //stop iterating
+							}
+						}
+						*/
+					}
+					
+				} catch (Exception e){ //if we're unsuccessful for some reason
+					Logger.logln("could not load node "+current.getName());
+					e.printStackTrace();
+				}
+				return null;
+			}
+			
+			
+		} //end directory
+		
+		//leaf node
+		else if (current.getName().substring(current.getName().lastIndexOf(".")).equals(".class")){
+			return null; //So it doesn't need to be to populated. We're done here.
+		}
+		
+		//should be unreachable, but is here just in case.
+		else {
+			Logger.logln("Welp that wasn't supposed to happen");
+			return null;
+		}
 	}
 	
 	/**
@@ -432,34 +721,3 @@ public class ClassTabDriver {
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
