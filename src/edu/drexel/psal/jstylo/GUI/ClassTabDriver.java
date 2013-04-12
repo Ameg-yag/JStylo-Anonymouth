@@ -426,15 +426,14 @@ public class ClassTabDriver {
 			j++;
 		}
 		
-		// add all classes							//TODO add the loaded classes
+		// add all classes		
 		DefaultMutableTreeNode currNode, child;	
 		for (String className: cNames) {
 			String[] nameArr = className.split("\\.");
 			currNode = rootNode;
 			
-			//Logger.logln("className: "+className+" currNode: "+currNode.toString());
+;
 			for (int i=0; i<nameArr.length; i++) {
-				//Logger.logln("          currNode: "+currNode.toString()+" i: "+i+"  nameARr:"+nameArr[i]);
 				// look for node
 				Enumeration<DefaultMutableTreeNode> children = currNode.children();
 				while (children.hasMoreElements()) {
@@ -612,7 +611,6 @@ public class ClassTabDriver {
 			//here is where the weka/jar related stuff will be handled
 			else { 
 				try { 
-					
 					//set up jar path and information
 					JarFile source = new JarFile(resource.getFile().replaceFirst("[.]jar[!].*",".jar").replaceFirst("file:",""));
 					Enumeration<JarEntry> files = source.entries();
