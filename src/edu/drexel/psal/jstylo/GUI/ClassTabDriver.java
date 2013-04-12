@@ -463,9 +463,18 @@ public class ClassTabDriver {
 	/**
 	 * Strings which represent the "root" directories for a given set of classifiers
 	 * These directories can contain subdirectories
+	 * 
+	 * TODO add filtering capability
+	 *      ie the ability to specify files or subdirectories to skip
+	 *      
+	 *      Thoughts: (not yet implemented)
+	 *      
+	 *      "-P str"  ignore package "str" and all of its sub packages and files
+	 *      "-F str"  ignore file "str" File names must end in ".class" also, they're case sensitive
+	 * 
 	 */
 	protected static String[] classifierGroups = new String[] {
-		"edu.drexel.psal.jstylo.analyzers",
+		"edu.drexel.psal.jstylo.analyzers -F AuthorWPdata.class",
 		"com.jgaap.classifiers",
 		"weka.classifiers"
 		
@@ -555,15 +564,41 @@ public class ClassTabDriver {
 		
 		ArrayList<Node> modules = new ArrayList<Node>();
 		
+		String[] classifierRoots = new String[classifierGroups.length];
 		
-		
+		ArrayList<String> packagesToIgnore = new ArrayList<String>();
+		ArrayList<String> filesToIgnore = new ArrayList<String>();
+				
 		//adds all of the classifier groups to the tree--these are all the "parents"
 		for (String ID: classifierGroups){
-			modules.add(new Node(ID));
+			String[] components = ID.split(" ");
+
+			if (components.length!=1){ //arg extraction if len==1 there are no args, skip and add the module
+				
+				for (int i=1; i<components.length;i++){ //skip the first component as that's the parent name
+					
+					//check which arg it has, if its invalid break the loop and complain.
+					//if it is valid, increment i by another index, as each arg-flag is on even indices
+					if (components[i].equalsIgnoreCase("-P")){
+						Logger.logln("Adding directory to ignore: "+components[i+1]);
+						packagesToIgnore.add(components[i+1]);
+						i++; 
+					} else if (components[i].equalsIgnoreCase("-F")){
+						Logger.logln("Adding file to ignore: "+components[i+1]);
+						filesToIgnore.add(components[i+1]);
+						i++;
+					} else {
+						Logger.log("Invalid arguments in classifier loader source string!", LogOut.STDERR);
+						break;
+					}
+				}
+			}
+				
+			modules.add(new Node(components[0]));
 		}
 
 		for (Node current: modules){
-			populateNode(current); //populates each node and all its subnodes
+			populateNode(current,packagesToIgnore,filesToIgnore); //populates each node and all its subnodes
 			//Logger.logln("\nClassifier Tree for "+current.toString()); //TODO use this to see each tree ---really useful
 		}
 		
@@ -574,11 +609,11 @@ public class ClassTabDriver {
 	/**
 	 * recursive method used to populate tree
 	 */
-	protected static Node populateNode(Node current){
+	protected static Node populateNode(Node current,ArrayList<String> packagesToIgnore,ArrayList<String> filesToIgnore){
 		
 		//Logger.logln("node to populate: "+current.getName());
 		
-		//non-leave
+		//non-leaf
 		if (!current.getName().substring(current.getName().lastIndexOf(".")).equals(".class")){	//if it is not a .class, it is a directory
 			
 			URL resource = ClassLoader.getSystemClassLoader().getResource(new String(current.getName().replace(".","/")));
@@ -592,15 +627,45 @@ public class ClassTabDriver {
 			
 			//for non-jars
 			if (df!=null && df.exists()){
+				
+				//check to make sure this directory isn't on the ignore list
+				for (String ignore : packagesToIgnore){
+					if (df.toString().replace("/",".").contains(ignore)){
+						return null;
+					}
+				}
+				
 				//since it's a directory, get all of its contents so we can add/populate them
 				File directory = new File(resource.getPath());
 				File[] files = directory.listFiles();
 				
 				//create and populate the child nodes
 				for (File file : files){
+					
 					Node temp = new Node(current.getName()+"."+file.getName());
-					populateNode(temp);
-					current.addChild(temp);
+					boolean toAdd = true;		
+					//check to see if the file is on the ignore list
+					if (file.isFile()){
+						for (String ignore : filesToIgnore){
+							//Logger.logln("checking ignore list temptoString:" +temp.toString()+" file.getName(): "+file.getName()+" ignore: "+ignore);
+							if (temp.getName().equalsIgnoreCase(ignore)|| file.getName().equalsIgnoreCase(ignore)){
+								toAdd=false;
+							}
+						}
+					}
+					//check to see if directory is on ignore list
+					else if (file.isDirectory()){
+						for (String ignore : packagesToIgnore){
+							if (temp.getName().equalsIgnoreCase(ignore)||file.getName().equalsIgnoreCase(ignore)){
+								toAdd=false;
+							}
+						}
+					}
+					
+					if (toAdd){
+						populateNode(temp,packagesToIgnore,filesToIgnore);
+						current.addChild(temp);
+					}
 				}
 				
 				//the node is now populated. add it to the above
@@ -622,7 +687,7 @@ public class ClassTabDriver {
 						JarEntry file = files.nextElement();
 						String fileName = file.toString();
 						if (fileName.endsWith(".class")&&fileName.contains(current.getName().replace(".","/"))){
-							Logger.logln("Print classes: "+fileName);
+							//Logger.logln("Print classes: "+fileName);
 						}
 						/*
 						if ((file.toString()).contains((current.getName().replace(".","/")+"/"))){
