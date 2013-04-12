@@ -166,8 +166,8 @@ public class GUIMain extends javax.swing.JFrame {
 	protected DefaultComboBoxModel classSelClassJListModel;
 	protected JScrollPane classTreeScrollPane;
 	protected JScrollPane classDescJScrollPane;
-//	protected JTextPane classDescJTextPane;
-//	protected JLabel classDescJLabel;
+	protected JTextPane classDescJTextPane;
+	protected JLabel classDescJLabel;
 	protected JButton classBackJButton;
 	protected JButton classNextJButton;
 	protected JLabel classSelClassJLabel;
@@ -895,9 +895,9 @@ public class GUIMain extends javax.swing.JFrame {
 					// main center
 					// ===========
 					
-					//JPanel center = new JPanel(new GridLayout(2,1,cellPadding,cellPadding));
-					JPanel center = new JPanel(new BorderLayout());
-					classTab.add(center,BorderLayout.CENTER);
+					JPanel center = new JPanel(new GridLayout(2,1,cellPadding,cellPadding));
+					//JPanel center = new JPanel(new BorderLayout());
+					classTab.add(center);
 					
 					{
 						classInstructionPane = new JTextPane();
@@ -1003,12 +1003,12 @@ public class GUIMain extends javax.swing.JFrame {
 						}
 					}
 					
-				/*	{	No longer in use, will be replaced by the WEKA Generic Object Editor or something similar
+					{
 						// classifier description
 						// ======================
 						
 						JPanel bottom = new JPanel(new BorderLayout(cellPadding,cellPadding));
-						center.add(bottom);
+						center.add(bottom,BorderLayout.SOUTH);
 						{
 							classDescJLabel = new JLabel();
 							bottom.add(classDescJLabel,BorderLayout.NORTH);
@@ -1024,7 +1024,7 @@ public class GUIMain extends javax.swing.JFrame {
 								classDescJScrollPane.setViewportView(classDescJTextPane);
 							}
 						}
-					}*/
+					}
 				}
 				{
 					// bottom toolbar buttons
