@@ -464,13 +464,19 @@ public class ClassTabDriver {
 	 * Strings which represent the "root" directories for a given set of classifiers
 	 * These directories can contain subdirectories
 	 * 
-	 * TODO add filtering capability
-	 *      ie the ability to specify files or subdirectories to skip
-	 *      
-	 *      Thoughts: (not yet implemented)
+	 * 
+	 *      Current usable args/filters
 	 *      
 	 *      "-P str"  ignore package "str" and all of its sub packages and files
 	 *      "-F str"  ignore file "str" File names must end in ".class" also, they're case sensitive
+	 * 
+	 * 		UNUSABLE args, but nifty ideas, I think
+	 * 
+	 * 		"-FC str" ignore a file containing a given string  On its own, not very useful, but perhaps...
+	 * 		"-FPC str" ignore a file, in a package, containing the string. I could see this being used in, say jgaap where there's one package with 
+	 * 											a huge number of classifiers that we may not want. (I don't know if jgaap's weka classifiers are basically the same as WEKA's or not
+	 * 													but if they were, they could be filtered out in this manner.
+	 * 
 	 * 
 	 */
 	protected static String[] classifierGroups = new String[] {
@@ -481,7 +487,7 @@ public class ClassTabDriver {
 	};
 	
 	/**
-	 * Class used to store classifiers and populate classifier tree
+	 * Used for loading classifiers on startup.
 	 */
 	protected static class Node{
 		
@@ -534,9 +540,19 @@ public class ClassTabDriver {
 		
 		
 	}
-	
-	protected static String[] loadedClassifiers(ArrayList<Node> given){
-		ArrayList<Node> temp = given;
+	/**
+	 * 
+	 * Rakes up the leaves of the loaded classifier tree and returns them.
+	 * I don't really like how this is necessary.
+	 * At some point, I might try to change something higher up to remove the need for this.
+	 * However, right now it's needed because the algorithm to populate the tree using a string array
+	 * 		and I can't just switch it thanks to the complications with weka
+	 * 
+	 * @param loadedClassifiers : the ArrayLists/trees which contain the loaded classifiers to be converted
+	 * @return all of the leaf nodes in an array instead of a tree
+	 */
+	protected static String[] loadedClassifiers(ArrayList<Node> loadedClassifiers){
+		ArrayList<Node> temp = loadedClassifiers;
 		ArrayList<String> classifiers = new ArrayList<String>();
 		for (Node n : temp){
 			String[] t = n.toString().split("\n");
@@ -556,7 +572,7 @@ public class ClassTabDriver {
 	}
 	
 	
-	//TODO put in new loggers once everything is figured out/working smoothly.
+	//TODO put in new loggers once everything is figured out/working smoothly. AND DOCUMENTATION
 	/**
 	*		Okay, so it currently can get jgaap and psal, try to fix up weka
 	**/
@@ -607,7 +623,14 @@ public class ClassTabDriver {
 	}
 	
 	/**
-	 * recursive method used to populate tree
+	 * 
+	 * Populates the tree with all of the .class files that are located in the directories supplied by the source string.
+	 * Not quite dynamically importing them, but a big improvement on doing it manually.
+	 * 
+	 * @param current		the current node to be populated
+	 * @param packagesToIgnore		the blacklist containing packages we don't want in our tree
+	 * @param filesToIgnore		the blacklist containing files we don't want in our tree
+	 * @return
 	 */
 	protected static Node populateNode(Node current,ArrayList<String> packagesToIgnore,ArrayList<String> filesToIgnore){
 		
