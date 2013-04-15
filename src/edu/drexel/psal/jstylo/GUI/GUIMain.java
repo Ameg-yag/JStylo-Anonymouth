@@ -17,6 +17,7 @@ import edu.drexel.psal.jstylo.generics.ProblemSet;
 import edu.drexel.psal.jstylo.generics.WekaInstancesBuilder;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.*;
 import javax.swing.tree.*;
 
@@ -294,9 +295,11 @@ public class GUIMain extends javax.swing.JFrame {
 							docsInstructionPane = new JTextPane();
 							docsInstructionPane.setEditable(false);
 							docsInstructionPane.setPreferredSize(new java.awt.Dimension(500, 50));
-							docsInstructionPane.setText("Step One: The Documents Tab\n" +
-									"In this tab, you will create your training corpus by adding known authors and documents they have written to it.\n" +
-									"You can also add test documents. JStylo will determine which of the authors you have provided is the best match for the test document(s) you provide.");		
+							docsInstructionPane.setText(" Step One: The Documents Tab\n" +
+									" In this tab, you will create your training corpus by adding known authors and documents they have written to it.\n" +
+									" You can also add test documents. JStylo will determine which of the authors you have provided is the best match for the test document(s) you provide.");		
+							docsInstructionPane.setBorder(new EmptyBorder(cellPadding/2, cellPadding/2, cellPadding/2, cellPadding/2));
+							docsInstructionPane.setBorder(BorderFactory.createLineBorder(Color.gray));
 							topPanel.add(docsInstructionPane,BorderLayout.NORTH);
 						}
 
@@ -480,10 +483,12 @@ public class GUIMain extends javax.swing.JFrame {
 						featuresInstructionPane = new JTextPane();
 						featuresInstructionPane.setEditable(false);
 						featuresInstructionPane.setPreferredSize(new java.awt.Dimension(500, 50));
-						featuresInstructionPane.setText("Step Two: The Features Tab\n" +
-								"In this tab, you will select the set of traits to use to evaluate the documents. " + 
-								"You can choose a pre-built feature set from the drop down menu, import one from an XML file, or make your own.\n" +
-								"If you are unsure of what to pick, we recommend selecting the Writeprints(Limited) feature set.");
+						featuresInstructionPane.setText(" Step Two: The Features Tab\n" +
+								" In this tab, you will select the set of traits to use to evaluate the documents. " + 
+								" You can choose a pre-built feature set from the drop down menu, import one from an XML file, or make your own.\n" +
+								" If you are unsure of what to pick, we recommend selecting the Writeprints(Limited) feature set.");
+						featuresInstructionPane.setBorder(new EmptyBorder(cellPadding/2, cellPadding/2, cellPadding/2, cellPadding/2));
+						featuresInstructionPane.setBorder(BorderFactory.createLineBorder(Color.gray));
 						topPanel.add(featuresInstructionPane, BorderLayout.NORTH);
 					}
 					{
@@ -903,11 +908,13 @@ public class GUIMain extends javax.swing.JFrame {
 						classInstructionPane = new JTextPane();
 						classInstructionPane.setEditable(false);
 						classInstructionPane.setPreferredSize(new java.awt.Dimension(500, 50));
-						classInstructionPane.setText("Step Three: The Classifiers Tab\n" +
-								"In this tab, you will select the classifier(s) used for the machine learning algorithm. " + 
-								"You can select as many classifiers as you like, but if you are picking duplicates, they must have different arguments.\n" +
-								"Default arguments are provided for classifiers that take arguments. " +
-								"If you are unsure of what to pick, we recommend selecting the weka SMO classifier.");
+						classInstructionPane.setText(" Step Three: The Classifiers Tab\n" +
+								" In this tab, you will select the classifier(s) used for the machine learning algorithm. " + 
+								" You can select as many classifiers as you like, but if you are picking duplicates, they must have different arguments.\n" +
+								" Default arguments are provided for classifiers that take arguments. " +
+								" If you are unsure of what to pick, we recommend selecting the weka SMO classifier.");
+						classInstructionPane.setBorder(new EmptyBorder(cellPadding/2, cellPadding/2, cellPadding/2, cellPadding/2));
+						classInstructionPane.setBorder(BorderFactory.createLineBorder(Color.gray));
 						classTab.add(classInstructionPane,BorderLayout.NORTH);
 					}
 					{
@@ -1078,10 +1085,12 @@ public class GUIMain extends javax.swing.JFrame {
 						analysisInstructionPane = new JTextPane();
 						analysisInstructionPane.setEditable(false);
 						analysisInstructionPane.setPreferredSize(new java.awt.Dimension(500, 65));
-						analysisInstructionPane.setText("Step Four: The Analysis Tab\n" +
-								"After completing all of the other steps, you can now evaluate your documents. If there is a document you want to identify, select \"Train on Training Corpus and Classify Documents\"\n" +
-								"Otherwise, leave the radio button at the default \"Perform K-fold Cross validation\" to evaluate the classifier(s) and features on your training set.\n" +
-								"Hover over the other options for more information on what each individual one does. The default settings provided will be desirable in most circumstances.");
+						analysisInstructionPane.setText(" Step Four: The Analysis Tab\n" +
+								" After completing all of the other steps, you can now evaluate your documents. If there is a document you want to identify, select \"Train on Training Corpus and Classify Documents\"\n" +
+								" Otherwise, leave the radio button at the default \"Perform K-fold Cross validation\" to evaluate the classifier(s) and features on your training set.\n" +
+								" Hover over the other options for more information on what each individual one does. The default settings provided will be desirable in most circumstances.");
+						analysisInstructionPane.setBorder(new EmptyBorder(cellPadding/2, cellPadding/2, cellPadding/2, cellPadding/2));
+						analysisInstructionPane.setBorder(BorderFactory.createLineBorder(Color.gray));
 						topPanel.add(analysisInstructionPane,BorderLayout.NORTH);
 					}
 					// configuration
@@ -1135,6 +1144,18 @@ public class GUIMain extends javax.swing.JFrame {
 								infoGainValueJTextField.setEnabled(false);
 							}
 						}
+						{
+							JPanel analysisNPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+							analysisNThreadJTextField = new JTextField("8");
+							analysisNThreadJTextField.setColumns(5);
+							analysisNThreadJTextField.setToolTipText("The number of processing threads to use.\n" +
+									" With a more powerful computer, a higher number will speed up the program.");
+							analysisNThreadJLabel = new JLabel(" Use N Calculation Threads: ");
+							analysisNThreadJTextField.setPreferredSize(new Dimension(25,20));
+							analysisNPanel.add(analysisNThreadJLabel);
+							analysisNPanel.add(analysisNThreadJTextField);
+							analysisConfPanel.add(analysisNPanel,BorderLayout.SOUTH);		
+						}
 					}					
 					
 					
@@ -1169,16 +1190,11 @@ public class GUIMain extends javax.swing.JFrame {
 									analysisKFoldJTextField.setPreferredSize(new Dimension(25,20));
 									analysisKFoldJLabel = new JLabel("Use K Folds: ");
 									analysisKFoldJTextField.setToolTipText("The number of groups to split the documents into. Must be larger then one and can't be larger then the number of documents you have." );
-									analysisNThreadJTextField = new JTextField("8");
-									analysisNThreadJTextField.setToolTipText("The number of processing threads to use.\n" +
-											" With a more powerful computer, a higher number will speed up the program.");
-									analysisNThreadJLabel = new JLabel("    Use N Threads: ");
-									analysisNThreadJTextField.setPreferredSize(new Dimension(25,20));
 									
 									analysisTrainCVoptionsJPanel.add(analysisKFoldJLabel);
 									analysisTrainCVoptionsJPanel.add(analysisKFoldJTextField);
-									analysisTrainCVoptionsJPanel.add(analysisNThreadJLabel);
-									analysisTrainCVoptionsJPanel.add(analysisNThreadJTextField);
+									//analysisTrainCVoptionsJPanel.add(analysisNThreadJLabel);
+									//analysisTrainCVoptionsJPanel.add(analysisNThreadJTextField);
 								}
 							}
 						}
