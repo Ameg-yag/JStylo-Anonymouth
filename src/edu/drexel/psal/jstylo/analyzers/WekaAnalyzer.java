@@ -46,6 +46,10 @@ public class WekaAnalyzer extends Analyzer {
 		this.classifier = classifier;
 	}
 	
+	public WekaAnalyzer(Object obj){
+		this.classifier = (Classifier) obj;
+	}
+	
 	/* ==========
 	 * operations
 	 * ==========

@@ -59,9 +59,9 @@ public class GUIMain extends javax.swing.JFrame {
 	protected CumulativeFeatureDriver cfd;
 	protected List<CumulativeFeatureDriver> presetCFDs;
 	protected WekaInstancesBuilder wib;
-	protected Analyzer wad;
+	protected Analyzer analysisDriver;
 	protected AnalyzerTypeEnum at = AnalyzerTypeEnum.WEKA_ANALYZER; // default
-	protected List<Classifier> classifiers;
+	protected List<Analyzer> analyzers;
 	protected Thread analysisThread;
 	protected List<String> results;
 
@@ -243,7 +243,7 @@ public class GUIMain extends javax.swing.JFrame {
 		cfd = new CumulativeFeatureDriver();
 		FeaturesTabDriver.initPresetCFDs(this);
 		FeatureWizardDriver.populateAll();
-		classifiers = new ArrayList<Classifier>();
+		analyzers = new ArrayList<Analyzer>();
 		wib = new WekaInstancesBuilder(true);
 		results = new ArrayList<String>();
 	}
@@ -900,7 +900,7 @@ public class GUIMain extends javax.swing.JFrame {
 					// main center
 					// ===========
 					
-					JPanel center = new JPanel(new GridLayout(2,1,cellPadding,cellPadding));
+					JPanel center = new JPanel(new GridLayout(1,1,cellPadding,cellPadding));
 					//JPanel center = new JPanel(new BorderLayout());
 					classTab.add(center);
 					
@@ -1008,29 +1008,6 @@ public class GUIMain extends javax.swing.JFrame {
 									config.add(classRemoveJButton);
 									classRemoveJButton.setText("Remove");
 								}
-							}
-						}
-					}
-					
-					{
-						// classifier description
-						// ======================
-						
-						JPanel bottom = new JPanel(new BorderLayout(cellPadding,cellPadding));
-						center.add(bottom,BorderLayout.SOUTH);
-						{
-							classDescJLabel = new JLabel();
-							bottom.add(classDescJLabel,BorderLayout.NORTH);
-							classDescJLabel.setText("Classifier Description");
-							classDescJLabel.setFont(defaultLabelFont);
-						}
-						{
-							classDescJScrollPane = new JScrollPane();
-							bottom.add(classDescJScrollPane,BorderLayout.CENTER);
-							{
-								classDescJTextPane = new JTextPane();
-								classDescJTextPane.setEditable(false);
-								classDescJScrollPane.setViewportView(classDescJTextPane);
 							}
 						}
 					}

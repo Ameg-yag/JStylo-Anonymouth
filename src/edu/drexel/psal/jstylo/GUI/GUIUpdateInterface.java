@@ -8,6 +8,7 @@ import javax.swing.tree.DefaultTreeModel;
 import weka.classifiers.Classifier;
 
 import edu.drexel.psal.JSANConstants;
+import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.CumulativeFeatureDriver;
 import edu.drexel.psal.jstylo.generics.FeatureDriver;
 import edu.drexel.psal.jstylo.generics.Logger;
@@ -249,11 +250,11 @@ public class GUIUpdateInterface {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected static void updateClassList(GUIMain main) {
 		DefaultComboBoxModel model = main.classSelClassJListModel;
-		List<Classifier> classifiers = main.classifiers;
+		List<Analyzer> analyzers = main.analyzers;
 		
 		model.removeAllElements();
-		for (Classifier c: classifiers) {
-			model.addElement(c.getClass().getName());
+		for (Analyzer a: analyzers) {
+			model.addElement(a.getClass().getName());
 		}
 	}
 }

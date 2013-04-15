@@ -2,6 +2,7 @@ package edu.drexel.psal.jstylo.generics;
 
 import java.util.*;
 
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.*;
 
@@ -13,7 +14,7 @@ import com.jgaap.generics.*;
  * 
  * @author Ariel Stolerman
  */
-public abstract class Analyzer {
+public abstract class Analyzer{
 	
 	/* ======
 	 * fields
@@ -40,6 +41,10 @@ public abstract class Analyzer {
 	 */
 	protected List<String> authors;
 	
+	/**
+	 * Array of options.
+	 */
+	protected String[] options;
 	
 	/* ============
 	 * constructors
@@ -257,4 +262,24 @@ public abstract class Analyzer {
 	public Map<String,Map<String, Double>> getLastResults() {
 		return results;
 	}
+	
+	/**
+	 * Returns the option string 
+	 * @return the arguments the analyzer has or null if it doesn't have any
+	 */
+	public String[] getOptions(){
+		if (options==null)
+			return new String[] {""}; //TODO maybe change this to null
+		else
+			return options;
+	}
+	
+	/**
+	 * Sets the option string
+	 * @param ops array of strings (the arguments) for the analyzer
+	 */
+	public void setOptions(String[] ops){
+		options = ops;
+	}
+	
 }

@@ -3,6 +3,7 @@ package edu.drexel.psal.jstylo.GUI;
 import edu.drexel.psal.jstylo.GUI.DocsTabDriver.ExtFilter;
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 import edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer;
+import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.AnalyzerTypeEnum;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.WekaInstancesBuilder;
@@ -325,7 +326,7 @@ public class AnalysisTabDriver {
 							JOptionPane.ERROR_MESSAGE);
 					return;
 					
-				} else if (main.classifiers.isEmpty()) {
+				} else if (main.analyzers.isEmpty()) {
 					JOptionPane.showMessageDialog(main,
 							"No classifiers added.",
 							"Run Analysis Error",
@@ -640,9 +641,9 @@ public class AnalysisTabDriver {
 			content += "\n";
 			
 			// classifiers
-			content += "Classifiers used:\n";
-			for (Classifier c: main.classifiers) {
-				content += "> "+String.format("%-50s", c.getClass().getName())+"\t"+ClassTabDriver.getOptionsStr(c.getOptions())+"\n";
+			content += "Analyzers used:\n";
+			for (Analyzer a: main.analyzers) {
+				content += "> "+String.format("%-50s", a.getClass().getName())+"\t"+ClassTabDriver.getOptionsStr(a.getOptions())+"\n";
 			}
 
 			content +=
@@ -791,21 +792,21 @@ public class AnalysisTabDriver {
 				content += getTimestamp()+" Starting training and testing phase...\n";
 				content += "\n================================================================================\n\n";
 				
-				Classifier c;
+				Analyzer a;
 				Map<String,Map<String, Double>> results;
-				int numClass = main.classifiers.size();
+				int numClass = main.analyzers.size();
 				for (int i=0; i<numClass; i++) {
-					c = main.classifiers.get(i);
+					a = main.analyzers.get(i);
 					content += "Running analysis with classifier "+(i+1)+" out of "+numClass+":\n" +
-							"> Classifier: "+c.getClass().getName()+"\n" +
-							"> Options:    "+ClassTabDriver.getOptionsStr(c.getOptions())+"\n\n";
+							"> Classifier: "+a.getClass().getName()+"\n" +
+							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
-					main.wad = new WekaAnalyzer(c);
+					main.analysisDriver = new WekaAnalyzer(a); //TODO not sure what to do with wad atm.
 					content += getTimestamp()+" Starting classification...\n";
 					Logger.log("Starting classification...\n");
 					updateResultsView();
 					
-					results = main.wad.classify(
+					results = main.analysisDriver.classify(
 							main.wib.getTrainingSet(),
 							main.wib.getTestSet(),
 							main.ps.getTestDocs());
@@ -818,7 +819,7 @@ public class AnalysisTabDriver {
 							"Results:\n" +
 							"========\n";
 					
-					content += main.wad.getLastStringResults();
+					content += main.analysisDriver.getLastStringResults();
 					updateResultsView();
 					
 				}
@@ -832,21 +833,21 @@ public class AnalysisTabDriver {
 				content += getTimestamp()+" Starting K-folds cross-validation on training corpus phase...\n";
 				content += "\n================================================================================\n\n";
 				
-				Classifier c;
-				int numClass = main.classifiers.size();
+				Analyzer a;
+				int numClass = main.analyzers.size();
 				for (int i=0; i<numClass; i++) {
-					c = main.classifiers.get(i);
+					a = main.analyzers.get(i);
 					content += "Running analysis with classifier "+(i+1)+" out of "+numClass+":\n" +
-							"> Classifier: "+c.getClass().getName()+"\n" +
-							"> Options:    "+ClassTabDriver.getOptionsStr(c.getOptions())+"\n\n";
+							"> Classifier: "+a.getClass().getName()+"\n" +
+							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
-					main.wad = new WekaAnalyzer(c);
+					main.analysisDriver = new WekaAnalyzer(a); //TODO not sure what to do with wad at the moment
 					content += getTimestamp()+" Starting cross validation...\n";
 					Logger.log("Starting cross validation...");
 					updateResultsView();
 					
 					// run
-					Object results = main.wad.runCrossValidation(main.wib.getTrainingSet(),Integer.parseInt(main.analysisKFoldJTextField.getText()),0);
+					Object results = main.analysisDriver.runCrossValidation(main.wib.getTrainingSet(),Integer.parseInt(main.analysisKFoldJTextField.getText()),0);
 					content += getTimestamp()+" done!\n\n";
 					Logger.logln("Done!");
 					updateResultsView();
