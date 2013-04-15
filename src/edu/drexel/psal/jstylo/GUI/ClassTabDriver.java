@@ -88,10 +88,10 @@ public class ClassTabDriver {
 					
 					if (!className.equalsIgnoreCase("weka.classifiers.lazy.IBk")){
 						main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
-						//main.classDescJTextPane.setText(getDesc(tmpClassifier));
+						main.classDescJTextPane.setText(getDesc(tmpClassifier));
 					} else {
 						main.classAvClassArgsJTextField.setText("-K 1 -W 0");
-						//main.classDescJTextPane.setText(getDesc(tmpClassifier));
+						main.classDescJTextPane.setText(getDesc(tmpClassifier));
 					}
 
 				}
@@ -219,7 +219,7 @@ public class ClassTabDriver {
 
 				// show options and description
 				main.classSelClassArgsJTextField.setText(getOptionsStr(main.classifiers.get(selected).getOptions()));
-//				main.classDescJTextPane.setText(getDesc(main.classifiers.get(selected))); //Pane no longer exists	
+				main.classDescJTextPane.setText(getDesc(main.classifiers.get(selected))); 	
 				
 			}
 		});
@@ -302,7 +302,7 @@ public class ClassTabDriver {
 		// clear everything
 		tmpClassifier = null;
 		main.classAvClassArgsJTextField.setText("");
-//		main.classDescJTextPane.setText("");	//Pane no longer exists
+		main.classDescJTextPane.setText("");	
 	}
 	
 	/**
