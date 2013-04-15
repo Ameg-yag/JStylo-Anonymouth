@@ -13,19 +13,44 @@ public class EOSCharacterTracker {
 	
 	// Basically parallel arrays... we use the replacement characters instead of the corresponding eos characters. 
 	// Doing this allows us to break sentences only where we are sure we want to break them, and will allow the user more flexibility.
+	// as a side note, while realEOS[2] and replacementEOS[2] look very similar, they are not the same character.. this can be tested (which I did at the bottom of 'main', below) by asking Java if they are equal to eachother.
 	private char[] realEOS = {'.', '?', '!'};
 	private char[] replacementEOS = {'๏', 'ʔ', 'ǃ'};
 	private ArrayList<EOS> eoses;
 
+	/**
+	 * Constructor
+	 */
 	public EOSCharacterTracker(){
 		eoses = new ArrayList<EOS>(100); //note at this point, it's unlikely that we'll have more than 100 sentences.. but this should eventually be changed to some global parameter than is relative to the length of the document or something.
 	}
 	
+	/**
+	 * Adds the EOS eos to the EOS ArrayList
+	 * @param eos
+	 */
 	public void addEOS(EOS eos){
 		eoses.add(eos);
 	}
 	
-	public void removeEOS(){
+	/**
+	 * Removes the EOS objects located between [lowerBound, upperBound] (inclusive)
+	 * @param lowerBound
+	 * @param upperBound
+	 */
+	public void removeEOSesInRange(int lowerBound, int upperBound){
+		int i;
+		int numEOSes = eoses.size();
+		int thisEOSLoc;
+		for (i=0; i < numEOSes; i++){
+			thisEOSLoc = eoses.get(i).location;
+			System.out.printf("thisEOSLoc: %d, lowerBound: %d, upperBound: %d\n", thisEOSLoc, lowerBound, upperBound);
+			if (thisEOSLoc >= lowerBound && thisEOSLoc <= upperBound){
+				eoses.remove(i);
+				i--; // decrement 'i' so that we don't miss the object that shifts down into the spot just freed.
+				numEOSes--; // also decrement numEOSes so that 
+			}
+		}
 		
 	}
 	
@@ -68,9 +93,16 @@ public class EOSCharacterTracker {
 		ect.addEOS(new EOS('.',5));
 		ect.addEOS(new EOS('!',7));
 		ect.addEOS(new EOS('?',9));
+		ect.addEOS(new EOS('!',6));
+		ect.addEOS(new EOS('.',12));
 		System.out.println(ect.toString());
 		ect.shiftAllEOSChars(true, 4, 5);
 		System.out.println(ect.toString());
+		ect.removeEOSesInRange(11, 15);
+		System.out.println(ect.toString());
+		System.out.println(ect.realEOS[0] == ect.replacementEOS[0]);
+		System.out.println(ect.realEOS[1] == ect.replacementEOS[1]);
+		System.out.println(ect.realEOS[2] == ect.replacementEOS[2]);
 	}
 	
 	/**

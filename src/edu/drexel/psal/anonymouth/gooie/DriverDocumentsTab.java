@@ -8,6 +8,7 @@ import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
 import edu.drexel.psal.anonymouth.suggestors.Prophecy;
 import edu.drexel.psal.anonymouth.suggestors.TheOracle;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
+import edu.drexel.psal.anonymouth.utils.EOSCharacterTracker;
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
@@ -131,6 +132,7 @@ public class DriverDocumentsTab {
 	protected static int charsRemoved = -1;
 	protected static String currentSentenceString = "";
 	protected static Object currentHighlight = null;
+	public static EOSCharacterTracker eosTracker;
 	
 	
 	protected static void signalTargetsSelected(GUIMain main, boolean goodToGo){
