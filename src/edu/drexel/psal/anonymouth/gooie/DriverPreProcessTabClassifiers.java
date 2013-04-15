@@ -103,170 +103,170 @@ public class DriverPreProcessTabClassifiers {
 		// available classifiers tree
 		// ==========================
 		
-		main.classJTree.addTreeSelectionListener(new TreeSelectionListener() {
-			
-			@Override
-			public void valueChanged(TreeSelectionEvent arg0) {
-				// if unselected
-				if (main.classJTree.getSelectionCount() == 0) {
-					Logger.logln(NAME+"Classifier tree unselected in the classifiers tab.");
-					//resetAvClassSelection(main);
-					tmpClassifier = null;
-					return;
-				}
-				
-				// unselect selected list
-				main.classJList.clearSelection();
-				
-				Object[] path = main.classJTree.getSelectionPath().getPath();
-				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path[path.length-1];
-				
-				// if selected a classifier
-				if (selectedNode.isLeaf()) {
-					Logger.logln(NAME+"Classifier selected in the available classifiers tree in the classifiers tab: "+selectedNode.toString());
-					
-					// get classifier
-					String className = getClassNameFromPath(path);
-					tmpClassifier = null;
-					try {
-						tmpClassifier = Classifier.forName(className, null);						
-					} catch (Exception e) {
-						Logger.logln(NAME+"Could not create classifier out of class: "+className);
-						JOptionPane.showMessageDialog(main,
-								"Could not generate classifier for selected class:\n"+className,
-								"Classifier Selection Error",
-								JOptionPane.ERROR_MESSAGE);
-						e.printStackTrace();
-						return;
-					}
-					// Add an -M option for SMO classifier
-					String dashM = "";
-					if(className.toLowerCase().contains("smo"))
-						dashM = " -M";
-					
-					
-					// show options and description
-					
-					//main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions())+dashM);
-					//main.classDescJTextPane.setText(getDesc(tmpClassifier));
-				}
-				// otherwise
-				else {
-					//resetAvClassSelection(main);
-					tmpClassifier = null;
-				}
-			}
-		});
+//		main.classJTree.addTreeSelectionListener(new TreeSelectionListener() {
+//			
+//			@Override
+//			public void valueChanged(TreeSelectionEvent arg0) {
+//				// if unselected
+//				if (main.classJTree.getSelectionCount() == 0) {
+//					Logger.logln(NAME+"Classifier tree unselected in the classifiers tab.");
+//					//resetAvClassSelection(main);
+//					tmpClassifier = null;
+//					return;
+//				}
+//				
+//				// unselect selected list
+//				main.classJList.clearSelection();
+//				
+//				Object[] path = main.classJTree.getSelectionPath().getPath();
+//				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)path[path.length-1];
+//				
+//				// if selected a classifier
+//				if (selectedNode.isLeaf()) {
+//					Logger.logln(NAME+"Classifier selected in the available classifiers tree in the classifiers tab: "+selectedNode.toString());
+//					
+//					// get classifier
+//					String className = getClassNameFromPath(path);
+//					tmpClassifier = null;
+//					try {
+//						tmpClassifier = Classifier.forName(className, null);						
+//					} catch (Exception e) {
+//						Logger.logln(NAME+"Could not create classifier out of class: "+className);
+//						JOptionPane.showMessageDialog(main,
+//								"Could not generate classifier for selected class:\n"+className,
+//								"Classifier Selection Error",
+//								JOptionPane.ERROR_MESSAGE);
+//						e.printStackTrace();
+//						return;
+//					}
+//					// Add an -M option for SMO classifier
+//					String dashM = "";
+//					if(className.toLowerCase().contains("smo"))
+//						dashM = " -M";
+//					
+//					
+//					// show options and description
+//					
+//					//main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions())+dashM);
+//					//main.classDescJTextPane.setText(getDesc(tmpClassifier));
+//				}
+//				// otherwise
+//				else {
+//					//resetAvClassSelection(main);
+//					tmpClassifier = null;
+//				}
+//			}
+//		});
 		
 		// add button
 		// ==========
 		
-		main.classAddJButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Logger.logln(NAME+"'Add' button clicked in the analysis tab.");
-
-				// check if classifier is selected
-				if (tmpClassifier == null) {
-					JOptionPane.showMessageDialog(main,
-							"You must select a classifier to be added.",
-							"Add Classifier Error",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				else if( main.classifiers.size() >0){
-					JOptionPane.showMessageDialog(main,
-							"It is only possible to select one classifier at a time.",
-							"Add Classifier Error",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				else {
-					// check classifier options
-					try {
-						//tmpClassifier.setOptions(main.classAvClassArgsJTextField.getText().split(" "));
-						tmpClassifier.setOptions(getOptionsStr(tmpClassifier.getOptions()).split(" "));
-					} catch (Exception e) {
-						Logger.logln(NAME+"Invalid options given for classifier.",LogOut.STDERR);
-						JOptionPane.showMessageDialog(main,
-								"The classifier arguments entered are invalid.\n"+
-										"Restoring original options.",
-										"Classifier Options Error",
-										JOptionPane.ERROR_MESSAGE);
-						//main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
-						return;
-					}
-					
-					// add classifier
-					main.classifiers.add(tmpClassifier);
-					GUIUpdateInterface.updateClassList(main);
-					GUIUpdateInterface.updateClassPrepColor(main);
-					//resetAvClassSelection(main);
-					tmpClassifier = null;
-					main.classJTree.clearSelection();
-				}
-			}
-		});
+//		main.classAddJButton.addActionListener(new ActionListener() {
+//			
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) {
+//				Logger.logln(NAME+"'Add' button clicked in the analysis tab.");
+//
+//				// check if classifier is selected
+//				if (tmpClassifier == null) {
+//					JOptionPane.showMessageDialog(main,
+//							"You must select a classifier to be added.",
+//							"Add Classifier Error",
+//							JOptionPane.ERROR_MESSAGE);
+//					return;
+//				}
+//				else if( main.classifiers.size() >0){
+//					JOptionPane.showMessageDialog(main,
+//							"It is only possible to select one classifier at a time.",
+//							"Add Classifier Error",
+//							JOptionPane.ERROR_MESSAGE);
+//					return;
+//				}
+//				else {
+//					// check classifier options
+//					try {
+//						//tmpClassifier.setOptions(main.classAvClassArgsJTextField.getText().split(" "));
+//						tmpClassifier.setOptions(getOptionsStr(tmpClassifier.getOptions()).split(" "));
+//					} catch (Exception e) {
+//						Logger.logln(NAME+"Invalid options given for classifier.",LogOut.STDERR);
+//						JOptionPane.showMessageDialog(main,
+//								"The classifier arguments entered are invalid.\n"+
+//										"Restoring original options.",
+//										"Classifier Options Error",
+//										JOptionPane.ERROR_MESSAGE);
+//						//main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
+//						return;
+//					}
+//					
+//					// add classifier
+//					main.classifiers.add(tmpClassifier);
+//					GUIUpdateInterface.updateClassList(main);
+//					GUIUpdateInterface.updateClassPrepColor(main);
+//					//resetAvClassSelection(main);
+//					tmpClassifier = null;
+//					main.classJTree.clearSelection();
+//				}
+//			}
+//		});
 		
 		// selected classifiers list
 		// =========================
 		
-		main.classJList.addListSelectionListener(new ListSelectionListener() {
-			int lastSelected = -2;
-			
-			@Override
-			public void valueChanged(ListSelectionEvent arg0) {
-				int selected = main.classJList.getSelectedIndex();
-				if (selected == lastSelected)
-					return;
-				lastSelected = selected;
-				
-				// if unselected
-				if (selected == -1) {
-					Logger.logln(NAME+"Classifier list unselected in the classifiers tab.");
-					//resetSelClassSelection(main);
-					tmpClassifier = null;
-					return;
-				}
-
-				// unselect available classifiers tree
-				main.classJTree.clearSelection();
-
-				String className = main.classJList.getSelectedValue().toString();
-				Logger.logln(NAME+"Classifier selected in the selected classifiers list in the classifiers tab: "+className);
-
-				// show options and description
-				//main.classSelClassArgsJTextField.setText(getOptionsStr(main.classifiers.get(selected).getOptions()));
-				//main.classDescJTextPane.setText(getDesc(main.classifiers.get(selected)));
-			}
-		});
+//		main.classJList.addListSelectionListener(new ListSelectionListener() {
+//			int lastSelected = -2;
+//			
+//			@Override
+//			public void valueChanged(ListSelectionEvent arg0) {
+//				int selected = main.classJList.getSelectedIndex();
+//				if (selected == lastSelected)
+//					return;
+//				lastSelected = selected;
+//				
+//				// if unselected
+//				if (selected == -1) {
+//					Logger.logln(NAME+"Classifier list unselected in the classifiers tab.");
+//					//resetSelClassSelection(main);
+//					tmpClassifier = null;
+//					return;
+//				}
+//
+//				// unselect available classifiers tree
+//				main.classJTree.clearSelection();
+//
+//				String className = main.classJList.getSelectedValue().toString();
+//				Logger.logln(NAME+"Classifier selected in the selected classifiers list in the classifiers tab: "+className);
+//
+//				// show options and description
+//				//main.classSelClassArgsJTextField.setText(getOptionsStr(main.classifiers.get(selected).getOptions()));
+//				//main.classDescJTextPane.setText(getDesc(main.classifiers.get(selected)));
+//			}
+//		});
 		
 		// remove button
 		// =============
 		
-		main.classRemoveJButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Logger.log("'Remove' button clicked in the classifiers tab.");
-				int selected = main.classJList.getSelectedIndex();
-				
-				// check if selected
-				if (selected == -1) {
-					JOptionPane.showMessageDialog(main,
-							"You must select a classifier to be removed.",
-							"Remove Classifier Error",
-							JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				// remove classifier
-				main.classifiers.remove(selected);
-				GUIUpdateInterface.updateClassList(main);
-				GUIUpdateInterface.updateClassPrepColor(main);
-			}
-		});
+//		main.classRemoveJButton.addActionListener(new ActionListener() {
+//			
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) {
+//				Logger.log("'Remove' button clicked in the classifiers tab.");
+//				int selected = main.classJList.getSelectedIndex();
+//				
+//				// check if selected
+//				if (selected == -1) {
+//					JOptionPane.showMessageDialog(main,
+//							"You must select a classifier to be removed.",
+//							"Remove Classifier Error",
+//							JOptionPane.ERROR_MESSAGE);
+//					return;
+//				}
+//				
+//				// remove classifier
+//				main.classifiers.remove(selected);
+//				GUIUpdateInterface.updateClassList(main);
+//				GUIUpdateInterface.updateClassPrepColor(main);
+//			}
+//		});
 		
 		// about button
 		// ============
@@ -381,6 +381,7 @@ public class DriverPreProcessTabClassifiers {
 					
 					// get classifier
 					String className = getClassNameFromPath(path);
+					System.out.println(className);
 					tmpClassifier = null;
 					try {
 						tmpClassifier = Classifier.forName(className, null);						
@@ -429,7 +430,7 @@ public class DriverPreProcessTabClassifiers {
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				else if( main.classifiers.size() >0){
+				else if( main.classifiers.size() > 0){
 					JOptionPane.showMessageDialog(main,
 							"It is only possible to select one classifier at a time.",
 							"Add Classifier Error",
@@ -640,6 +641,32 @@ public class DriverPreProcessTabClassifiers {
 		int row = 0;
 		while (row < main.classJTree.getRowCount())
 			main.classJTree.expandRow(row++);
+	}
+	
+	protected static void initMainWekaClassifiersComboBox(GUIMain main) {
+		main.classifiersVector.add("weka");
+		main.classifiersVector.add("classifiers");
+		main.folderIcons.add(main.folder);
+		main.folderIcons.add(main.folder2);
+		main.disabled.add("weka");
+		main.disabled.add("classifiers");
+		
+		ImageIcon folder = main.folder;
+		for (String className: classNames) {
+			String[] nameArr = className.split("\\.");
+			
+			for (int i = 2; i < nameArr.length; i++) {
+				if (!main.classifiersVector.contains(nameArr[2])) {
+					main.classifiersVector.add(nameArr[i]);
+					main.folderIcons.add(main.folder3);
+					main.disabled.add(nameArr[i]);
+				} else {
+					main.classifiersVector.add(nameArr[3]);
+					main.folderIcons.add(null);
+					break;
+				}
+			}
+		}
 	}
 	
 	/**
