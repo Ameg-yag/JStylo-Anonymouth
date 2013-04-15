@@ -949,6 +949,7 @@ public class GUIMain extends javax.swing.JFrame {
 								}
 								{
 									classAvClassArgsJTextField = new JTextField();
+									classAvClassArgsJTextField.setEditable(false);
 									config.add(classAvClassArgsJTextField);
 								}
 								{
@@ -992,6 +993,7 @@ public class GUIMain extends javax.swing.JFrame {
 								}
 								{
 									classSelClassArgsJTextField = new JTextField();
+									classSelClassArgsJTextField.setEditable(false);
 									config.add(classSelClassArgsJTextField);
 								}
 								{
