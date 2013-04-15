@@ -193,7 +193,6 @@ public class TaggedDocument implements Serializable{
 				this.taggedSentences.add(taggedSentences.get(i)); 
 			}
 		}
-		
 		return taggedSentences;
 	}
 	
@@ -283,9 +282,9 @@ public class TaggedDocument implements Serializable{
 	 * @param newSentence The post-editing version of the sentence(s)
 	 */
 	private void updateReferences(TaggedSentence oldSentence, TaggedSentence newSentence){
-		Logger.logln(NAME+"Old Sentence: "+oldSentence.toString()+"\nNew Sentence: "+newSentence.toString());
+		//Logger.logln(NAME+"Old Sentence: "+oldSentence.toString()+"\nNew Sentence: "+newSentence.toString());
 		SparseReferences updatedValues = newSentence.getOldToNewDeltas(oldSentence);
-		Logger.logln(NAME+updatedValues.toString());
+		//Logger.logln(NAME+updatedValues.toString());
 		for(Reference ref:updatedValues.references){
 			//Logger.logln(NAME+"Attribute: "+DataAnalyzer.topAttributes[ref.index].getFullName()+" pre-update value: "+DataAnalyzer.topAttributes[ref.index].getToModifyValue());
 			if(DataAnalyzer.topAttributes[ref.index].getFullName().contains("Percentage")){
@@ -402,6 +401,8 @@ public class TaggedDocument implements Serializable{
 	 */
 	public int removeAndReplace(int sentNumber, String sentsToAdd){//, int indexToRemove, int placeToAdd){
 		TaggedSentence toReplace = taggedSentences.get(sentNumber);
+		Logger.logln(NAME+"removing: "+toReplace.toString());
+		Logger.logln(NAME+"adding: "+sentsToAdd);
 		if(sentsToAdd.matches("\\s*")){//checks to see if the user deleted the current sentence
 			//CALL COMPARE
 			removeTaggedSentence(sentNumber);

@@ -44,7 +44,7 @@ public class GramMatcher {
 		//theDoc = theDoc.replaceAll("[“”‘’„˚˙‚’‘`*$%@#~\\r\\n\\t.?!\",;:()\\[\\]\\\\]"," ");
 
 		String theWords = wordBigram.replaceAll("\\p{C}", " ");
-		System.out.println(theWords);
+		//System.out.println(theWords);
 		
 		String[] split = wordBigram.split("-");
 		int numTokes = split.length;

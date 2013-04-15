@@ -133,7 +133,7 @@ public class SparseReferences implements Serializable {
 			}
 			else{// There are zero appearances of the feature in the new SparseReferences, so just multiply the number found in the old SparseReferences by -1 (all were removed)
 				newRef = new Reference(r.index,(-r.value));
-				Logger.logln(NAME+"Reference not in both lists");
+				//Logger.logln(NAME+"Reference not in both lists");
 			}
 			//Logger.logln(NAME+"Left Minus Right addNewRef");
 			adjustmentReferences.addNewReference(newRef);

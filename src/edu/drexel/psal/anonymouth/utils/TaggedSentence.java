@@ -408,7 +408,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	}
 
 	public String toString(){
-		return "[ untagged: "+untagged+" ||| tagged: "+wordsInSentence.toString()+" ||| SparseReferences Object: "+getReferences().toString()+" ]";
+		return "[ untagged: <"+untagged+"> ||| tagged: "+wordsInSentence.toString()+" ||| SparseReferences Object: "+getReferences().toString()+" ]";
 		//||| tense: "+tense.toString()+" ||| point of view: "+pointOfView.toString()+" conjugation(s): "+conj.toString()+" ]";// ||| functionWords : "+functionWords.toString()+" ]";
 	}
 

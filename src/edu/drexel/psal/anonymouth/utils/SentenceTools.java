@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +27,7 @@ import javax.swing.text.Highlighter;
 
 import com.jgaap.generics.Document;
 
+import edu.drexel.psal.anonymouth.gooie.ErrorHandler;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 /**
@@ -44,7 +46,12 @@ public class SentenceTools implements Serializable  {
 	private int currentStop = 0;
 	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]){1}");
 	private static final Pattern sentence_quote = Pattern.compile("[.?!]\"\\s+[A-Z]");
-	private static final String PERIOD_REPLACEMENT = ""; // XXX: Hopefully it is safe to assume no one sprinkles apple symbols in their paper
+	private static final String t_PERIOD_REPLACEMENT = ""; // XXX: Hopefully it is safe to assume no one sprinkles apple symbols in their paper
+	// The below three "permanent" replacments are to mark EOS characters in text that the user has told us are not actually ending a sentence. 
+	// DO NOT remove these... in order to get them back, you need to know the unicode code
+	public static final char p_PERIOD_REPLACEMENT ='๏';
+	public static final char p_EXCLAMATION_REPLACEMENT ='ǃ';
+	public static final char p_QUESTION_REPLACEMENT ='ʔ';
 	private static int MAX_SENTENCES = 500;
 	private int numSentences;
 	private boolean shouldInitialize = true;
@@ -60,7 +67,7 @@ public class SentenceTools implements Serializable  {
 	private String[] notEndsOfSentence = {"Dr.","Mr.","Mrs.","Ms.","St.","vs.","U.S.","Sr.","Sgt.","R.N.","pt.","mt.","mts.","M.D.","Ltd.","Jr.","Lt.","Hon.","i.e.","e.x.","inc.",
 			"et al.","est.","ed.","D.C.","B.C.","B.S.","Ph.D.","B.A.","A.B.","A.D.","A.M.","P.M.","Ln.","fig.","p.","pp.","ref.","r.b.i.","V.P.","yr.","yrs.","etc.","..."};
 	//what if a name like F. Scott Fitzgerald 
-			// ^^ To whoever said this, then we are in trouble. - AweM
+			// ^^ To whoever said this: then, we are in trouble. - AweM
 	
 	/**
 	 * Takes a text (one String representing an entire document), and breaks it up into sentences. Tries to find true ends of sentences: shouldn't break up sentences containing quoted sentences, 
@@ -86,12 +93,12 @@ public class SentenceTools implements Serializable  {
 		String replacementString = "";
 		String safeString = "";
 		
-		for(notEOSNumber = 0;notEOSNumber<numNotEOS; notEOSNumber++){
-			replacementString = notEndsOfSentence[notEOSNumber].replaceAll("\\.",PERIOD_REPLACEMENT);
+		for(notEOSNumber = 0; notEOSNumber < numNotEOS; notEOSNumber++){
+			replacementString = notEndsOfSentence[notEOSNumber].replaceAll("\\.",t_PERIOD_REPLACEMENT);
 			//System.out.println("REPLACEMENT: "+replacementString);
 			safeString = notEndsOfSentence[notEOSNumber].replaceAll("\\.","\\\\.");
 			//System.out.println(safeString);
-			text = text.replaceAll("\\b(?i)"+safeString,replacementString);
+			text = text.replaceAll("(?i)"+safeString,replacementString); // the "(?i)" tells Java to do a case-insensitive search.
 		}
 		Matcher sent = EOS_chars.matcher(text);
 		boolean foundEOS = sent.find(currentStart);
@@ -101,6 +108,7 @@ public class SentenceTools implements Serializable  {
 		int lastQuoteAt = 0;
 		boolean foundQuote = false;
 		boolean isSentence;
+		boolean foundAtLeastOneEOS = foundEOS;
 		while (foundEOS == true){
 			currentStop = sent.end();
 			//System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
@@ -144,14 +152,14 @@ public class SentenceTools implements Serializable  {
 				safeString = text.substring(currentStart-1,currentStop);
 			}
 			
-			safeString = safeString.replaceAll(PERIOD_REPLACEMENT,".");
+			safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
 			//System.out.println(safeString);
 			if(mergeFinal){
 				mergeFinal=false;
 				String prev=sents.remove(sents.size()-1);
 				safeString=prev+safeString;
 			}
-			if (merge1){//makes so that the merge happens on the next pass through
+			if (merge1){//makes the merge happen on the next pass through
 				merge1=false;
 				mergeFinal=true;
 			}
@@ -160,7 +168,7 @@ public class SentenceTools implements Serializable  {
 			//System.out.println("start minus one: "+(currentStart-1)+" stop: "+currentStop);
 			if(currentStart < 0 || currentStop < 0){
 				Logger.logln(NAME+"Something went really wrong making sentence tokens.");
-				System.exit(0);
+				ErrorHandler.fatalError();
 			}
 			//System.out.println("The rest of the text: "+text.substring(currentStart));
 			currentStart = currentStop+1;
@@ -170,7 +178,11 @@ public class SentenceTools implements Serializable  {
 			}
 			foundEOS = sent.find(currentStart);
 		}
-		
+		if (!foundAtLeastOneEOS){
+			ArrayList<String> wrapper = new ArrayList<String>(1);
+			wrapper.add(text);
+			return wrapper;
+		}
 		return sents;
 	}
 	
@@ -231,7 +243,7 @@ public class SentenceTools implements Serializable  {
 		//String testText = "There are many issues with the\n concept of intelligence and the way it is tested in people. As stated by David Myers, intelligence is the �mental quality consisting of the ability. to learn from experience�, solve problems, and use knowledge �to adapt. to new situations� (2010). Is there really just one intelligence? According to many psychologists, there exists numerous intelligences. One such psychologist, Sternberg, believes there are three: Analytical Intelligence, Creative Intelligence, and Practical Intelligence. Analytical Intelligence is the intelligence assessed by intelligence tests which presents well-defined problems with set answers and predicts school grades reasonably well and to a lesser extent, job success.\n \tCreative Intelligence is demonstrated by the way one reacts to certain unforeseen situations in �new� ways. The last of the three is Practical intelligence which is the type of intelligence required for everyday tasks. This is what is used by business managers and the like to manage and motivate people, promote themselves, and delegate tasks efficiently. In contrast to this idea of 3 separate intelligences is the idea of just one intelligence started by Charles Spearman. He thought we had just one intelligence that he called �General Intelligence� which is many times shortened to just: �G�. This G factor was an underlying factor in all areas of our intelligence. Spearman was the one who also developed factor analysis which is a statistics method which allowed him to track different clusters of topics being tested in an intelligence test which showed that those who score higher in one area are more likely to score higher in another. This is the reason why he believed in this concept of G.";
 		String testText = "Hello, Dr., this is my \"test\"ing tex\"t\".\nI need to. See if it \"correctly (i.e. nothing goes wrong) ... and finds the first, and every other sentence, etc.. These quotes are silly, and it is 1 A.m. a.m. just for testing purposes.\" No, that isn't a \"real\" \"quote\".";
 		//testText = " Or maybe, he did understand, but had more to share with humanity before his inevitable death. Maybe still, he was forecasting his own suicide twenty-eight years before it happened. No matter what Hemingway might have felt at the time, the deep nothingness that he shows in 'A Clean Well-Lighted Place,' is a nothingness that pervades the story and becomes more apparent to the characters as they age as humans do not last forever. Ernest Hemingway wrote much about the struggle to cope with the nothingness in the world, but eventually succumbed to the nothingness that he wrote about.";
-		testText=" After living so long, the old man lacks some of the gifts that people are born with that the young man takes for granted. The old man�s long life shows that as humans age, the length of time they have been around not only ages their body, but it ages their soul.";
+		//testText=" After living so long, the old man lacks some of the gifts that people are born with that the young man takes for granted. The old man�s long life shows that as humans age, the length of time they have been around not only ages their body, but it ages their soul.";
 		ArrayList<String> Stok=ss.makeSentenceTokens(testText);
 		Object[] arr = Stok.toArray();
 		try {
@@ -239,9 +251,9 @@ public class SentenceTools implements Serializable  {
 			Writer out=outStream;
 			for (int i = 0; i<arr.length; i++){
 				for(int j=0;j<arr[i].toString().length();j++){
-					System.out.println(arr[i].toString().charAt(j));
-					 out.write("Character Coding of the output Stream is " + outStream.getEncoding()+"\n");
-					 out.flush();
+					//System.out.println(arr[i].toString().charAt(j));
+					//out.write("Character Coding of the output Stream is " + outStream.getEncoding()+"\n");
+					//out.flush();
 				}
 			}
 			
