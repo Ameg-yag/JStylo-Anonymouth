@@ -642,8 +642,8 @@ public class AnalysisTabDriver {
 			
 			// classifiers
 			content += "Analyzers used:\n";
-			for (Analyzer a: main.analyzers) {
-				content += "> "+String.format("%-50s", a.getClass().getName())+"\t"+ClassTabDriver.getOptionsStr(a.getOptions())+"\n";
+			for (Object a: main.analyzers) {
+				content += "> "+String.format("%-50s", a.getClass().getName())+"\t"+ClassTabDriver.getOptionsStr(((Analyzer) a).getOptions())+"\n";
 			}
 
 			content +=
@@ -796,12 +796,18 @@ public class AnalysisTabDriver {
 				Map<String,Map<String, Double>> results;
 				int numClass = main.analyzers.size();
 				for (int i=0; i<numClass; i++) {
-					a = main.analyzers.get(i);
+					a = (Analyzer) main.analyzers.get(i);
 					content += "Running analysis with classifier "+(i+1)+" out of "+numClass+":\n" +
 							"> Classifier: "+a.getClass().getName()+"\n" +
 							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
-					main.analysisDriver = new WekaAnalyzer(a); //TODO not sure what to do with wad atm.
+					
+					if (a instanceof WriteprintsAnalyzer)
+						main.analysisDriver = new WriteprintsAnalyzer(); //TODO another instanceof
+					else
+						main.analysisDriver = new WekaAnalyzer(((WekaAnalyzer) a).getClassifier());
+					
+					
 					content += getTimestamp()+" Starting classification...\n";
 					Logger.log("Starting classification...\n");
 					updateResultsView();
@@ -836,12 +842,18 @@ public class AnalysisTabDriver {
 				Analyzer a;
 				int numClass = main.analyzers.size();
 				for (int i=0; i<numClass; i++) {
-					a = main.analyzers.get(i);
+					a = (Analyzer) main.analyzers.get(i);
 					content += "Running analysis with classifier "+(i+1)+" out of "+numClass+":\n" +
 							"> Classifier: "+a.getClass().getName()+"\n" +
 							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
-					main.analysisDriver = new WekaAnalyzer(a); //TODO not sure what to do with wad at the moment
+					
+					if (a instanceof WriteprintsAnalyzer)
+						main.analysisDriver = new WriteprintsAnalyzer(); //TODO not sure what to do with wad at the moment
+					else
+						main.analysisDriver = new WekaAnalyzer(((WekaAnalyzer) a).getClassifier());
+					
+					
 					content += getTimestamp()+" Starting cross validation...\n";
 					Logger.log("Starting cross validation...");
 					updateResultsView();

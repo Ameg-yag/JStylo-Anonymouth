@@ -107,6 +107,9 @@ public class WriteprintsAnalyzer extends Analyzer {
 		for (int i = 0; i < numAuthors; i++) {
 			authorName = classAttribute.value(i);
 			authorData = new AuthorWPData(authorName);
+			if (authors==null)
+				authors = new ArrayList<String>();
+			authors.add(authorName);
 			log.println("- " + authorName);
 			authorData.initFeatureMatrix(trainingSet, averageFeatureVectors);
 			trainAuthorData.add(authorData);
@@ -599,7 +602,6 @@ public class WriteprintsAnalyzer extends Analyzer {
 		return sum;
 	}
 	
-	
 	// ============================================================================================
 	// ============================================================================================
 	
@@ -608,6 +610,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * Main for testing.
 	 * @param args
 	 */
+	/*
 	public static void main(String[] args) throws Exception {
 		// initialize log
 		PrintStream logPS = new PrintStream(new File("./log/" + MultiplePrintStream.getLogFilename()));
@@ -650,8 +653,8 @@ public class WriteprintsAnalyzer extends Analyzer {
 		WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_test.arff", test);
 		System.exit(0);
 		*/
-		Instances train = new Instances(new FileReader(new File("d:/tmp/drexel_1_train.arff")));
-		train.setClassIndex(train.numAttributes() - 1);
+//		Instances train = new Instances(new FileReader(new File("d:/tmp/drexel_1_train.arff")));
+//		train.setClassIndex(train.numAttributes() - 1);
 		//Instances test = new Instances(new FileReader(new File("d:/tmp/drexel_1_tt_test.arff")));
 		//test.setClassIndex(test.numAttributes() - 1);
 		
@@ -681,6 +684,6 @@ public class WriteprintsAnalyzer extends Analyzer {
 		*/
 		
 		// cross-validation
-		wa.runCrossValidation(train, 10, 0);
-	}
+//		wa.runCrossValidation(train, 10, 0);
+	//}
 }

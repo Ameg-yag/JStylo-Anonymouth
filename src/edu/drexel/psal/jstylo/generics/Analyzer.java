@@ -282,4 +282,9 @@ public abstract class Analyzer{
 		options = ops;
 	}
 	
+	//TODO remove if necessary
+	public Classifier getClassifier() {
+		return null;
+	}
+	
 }

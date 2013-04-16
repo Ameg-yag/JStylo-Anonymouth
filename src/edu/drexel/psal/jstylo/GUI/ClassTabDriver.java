@@ -1,5 +1,7 @@
 package edu.drexel.psal.jstylo.GUI;
 
+import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
+import edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer;
 import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
@@ -39,7 +41,7 @@ public class ClassTabDriver {
 	 * =========================
 	 */ 
 	
-	protected static Object tmpanalyzer;
+	protected static Object tmpAnalyzer;
 	protected static String loadedClassifiers;
 	
 	/**
@@ -73,10 +75,19 @@ public class ClassTabDriver {
 
 					// get classifier
 					String className = getClassNameFromPath(path).substring(5);
-					tmpanalyzer = null;
+					tmpAnalyzer = null;
 					try {
-						//tmpanalyzer = Classifier.forName(className, null);						//TODO
-						tmpanalyzer = Class.forName(className).newInstance();
+						tmpAnalyzer = Class.forName(className).newInstance();
+						
+						if (tmpAnalyzer instanceof Classifier){	//TODO hopefully this is the only "instanceOf" I'll need
+							Analyzer temp = new WekaAnalyzer(Class.forName(className).newInstance());
+							tmpAnalyzer = temp;
+						} else if (tmpAnalyzer instanceof Analyzer){
+							Logger.logln("Added a subclass of analyzer");
+						} else {
+							Logger.logln("Non jstylo, non weka analyzer");
+						}	
+							
 					} catch (Exception e) {
 						Logger.logln("Could not create classifier out of class: "+className);
 						JOptionPane.showMessageDialog(main,
@@ -86,13 +97,11 @@ public class ClassTabDriver {
 						e.printStackTrace();
 						return;
 					}
-					Logger.logln("looking at analyzer class "+tmpanalyzer.getClass());
-					if (tmpanalyzer instanceof Analyzer)
-						main.classAvClassArgsJTextField.setText(getOptionsStr(((Analyzer) tmpanalyzer).getOptions()));
-					else if (tmpanalyzer instanceof Classifier)
-						main.classAvClassArgsJTextField.setText(getOptionsStr((((Classifier) tmpanalyzer).getOptions())));
-					else
-						Logger.logln("Non jstylo classifier");
+					Logger.logln("looking at analyzer class "+tmpAnalyzer.getClass());
+					Logger.logln("with a classifier of: "+(((Analyzer) tmpAnalyzer).getClassifier()));
+					
+					main.classAvClassArgsJTextField.setText(getOptionsStr(((Analyzer) tmpAnalyzer).getOptions()));
+	
 
 				}
 					// otherwise
@@ -141,7 +150,7 @@ public class ClassTabDriver {
 				Logger.logln("'Add' button clicked in the analysis tab.");
 
 				// check if classifier is selected
-				if (tmpanalyzer == null) {
+				if (tmpAnalyzer == null) {
 					JOptionPane.showMessageDialog(main,
 							"You must select a classifier to be added.",
 							"Add Classifier Error",
@@ -151,10 +160,10 @@ public class ClassTabDriver {
 				} else {
 					// check classifier options
 					try {
-						if (tmpanalyzer instanceof Analyzer)
-							((Analyzer) tmpanalyzer).setOptions(main.classAvClassArgsJTextField.getText().split(" "));
-						else if (tmpanalyzer instanceof Classifier)
-							((Classifier) tmpanalyzer).setOptions(main.classAvClassArgsJTextField.getText().split(" "));
+						if (tmpAnalyzer instanceof Analyzer)
+							((Analyzer) tmpAnalyzer).setOptions(main.classAvClassArgsJTextField.getText().split(" "));
+						else if (tmpAnalyzer instanceof Classifier)
+							((Classifier) tmpAnalyzer).setOptions(main.classAvClassArgsJTextField.getText().split(" "));
 						else
 							throw new Exception();
 					} catch (Exception e) {
@@ -164,15 +173,16 @@ public class ClassTabDriver {
 										"Restoring original options.",
 										"Classifier Options Error",
 										JOptionPane.ERROR_MESSAGE);
-						main.classAvClassArgsJTextField.setText(getOptionsStr(((Analyzer) tmpanalyzer).getOptions()));
-						return;
+						
+						main.classAvClassArgsJTextField.setText(getOptionsStr(((Analyzer) tmpAnalyzer).getOptions()));
+
 					}
 					//ensure that the classifier hasn't already been added.
 					boolean add = true;
 					for (int i=0; i<main.classJList.getModel().getSize();i++){
 						Logger.logln("Checking for duplicates...");
-						if (main.analyzers.get(i).getClass().toString().equals((tmpanalyzer.getClass().toString()))){ //same classifier
-							if(Arrays.equals(main.analyzers.get(i).getOptions(),(((Analyzer) tmpanalyzer).getOptions()))){ //same arguments
+						if (main.analyzers.get(i).getClass().toString().equals((tmpAnalyzer.getClass().toString()))){ //same classifier
+							if(Arrays.equals(((Analyzer) main.analyzers.get(i)).getOptions(),(((Analyzer) tmpAnalyzer).getOptions()))){ //same arguments
 								add=false; //so don't add
 							}
 						}
@@ -180,7 +190,9 @@ public class ClassTabDriver {
 					// add classifier
 					if (add){
 						Logger.logln("Adding classifier...");
-						main.analyzers.add((Analyzer) tmpanalyzer);
+						
+						main.analyzers.add((Analyzer) tmpAnalyzer);
+						
 						GUIUpdateInterface.updateClassList(main);
 						resetAvClassSelection(main);
 						main.classJTree.clearSelection();
@@ -219,11 +231,11 @@ public class ClassTabDriver {
 				// unselect available classifiers tree
 				main.classJTree.clearSelection();
 
-				String className = main.classJList.getSelectedValue().toString().substring(5);
+				String className = main.classJList.getSelectedValue().toString();//.substring(5);
 				Logger.logln("Classifier selected in the selected classifiers list in the classifiers tab: "+className);
 
 				// show options and description
-				main.classSelClassArgsJTextField.setText(getOptionsStr(main.analyzers.get(selected).getOptions()));
+				main.classSelClassArgsJTextField.setText(getOptionsStr(((Analyzer) main.analyzers.get(selected)).getOptions()));
 				
 			}
 		});
@@ -304,9 +316,8 @@ public class ClassTabDriver {
 	 */
 	protected static void resetAvClassSelection(GUIMain main) {
 		// clear everything
-		tmpanalyzer = null;
+		tmpAnalyzer = null;
 		main.classAvClassArgsJTextField.setText("");
-		main.classDescJTextPane.setText("");	
 	}
 	
 	/**

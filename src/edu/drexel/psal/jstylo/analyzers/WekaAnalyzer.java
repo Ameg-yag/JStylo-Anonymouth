@@ -246,10 +246,15 @@ public class WekaAnalyzer extends Analyzer {
 	 * @return
 	 * 		The underlying Weka classifier.
 	 */
-	public Classifier getClassifer() {
+	@Override
+	public Classifier getClassifier() {
 		return this.classifier;
 	}
 	
+	@Override
+	public String[] getOptions(){
+		return this.classifier.getOptions();
+	}
 	
 	/* =======
 	 * setters

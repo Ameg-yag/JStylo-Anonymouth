@@ -8,6 +8,8 @@ import javax.swing.tree.DefaultTreeModel;
 import weka.classifiers.Classifier;
 
 import edu.drexel.psal.JSANConstants;
+import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
+import edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer;
 import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.CumulativeFeatureDriver;
 import edu.drexel.psal.jstylo.generics.FeatureDriver;
@@ -254,7 +256,10 @@ public class GUIUpdateInterface {
 		
 		model.removeAllElements();
 		for (Analyzer a: analyzers) {
-			model.addElement(a.getClass().getName());
+			if (a instanceof WriteprintsAnalyzer)
+				model.addElement(a.getClass().getName());	//TODO an instance of getClassifier and another instanceof
+			else
+				model.addElement(((Analyzer) a).getClassifier());
 		}
 	}
 }
