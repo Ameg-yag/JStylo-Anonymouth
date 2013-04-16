@@ -60,7 +60,7 @@ public class GUIMain extends javax.swing.JFrame {
 	protected List<CumulativeFeatureDriver> presetCFDs;
 	protected WekaInstancesBuilder wib;
 	protected Analyzer analysisDriver;
-	protected AnalyzerTypeEnum at = AnalyzerTypeEnum.WEKA_ANALYZER; // default
+	//protected AnalyzerTypeEnum at = AnalyzerTypeEnum.WEKA_ANALYZER; // default
 	protected List<Analyzer> analyzers;
 	protected Thread analysisThread;
 	protected List<String> results;

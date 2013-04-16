@@ -495,10 +495,9 @@ public class ClassTabDriver {
 	 * 
 	 */
 	protected static String[] classifierGroups = new String[] {
-		"edu.drexel.psal.jstylo.analyzers -F AuthorWPdata.class",
+		"edu.drexel.psal.jstylo.analyzers -F AuthorWPdata.class -F SynonymBasedClassifier.class -F WekaAnalyzer.class",
 		"com.jgaap.classifiers",
 		"weka.classifiers"
-		
 	};
 	
 	/**

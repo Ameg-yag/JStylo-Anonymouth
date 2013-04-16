@@ -642,8 +642,8 @@ public class AnalysisTabDriver {
 			
 			// classifiers
 			content += "Analyzers used:\n";
-			for (Object a: main.analyzers) {
-				content += "> "+String.format("%-50s", a.getClass().getName())+"\t"+ClassTabDriver.getOptionsStr(((Analyzer) a).getOptions())+"\n";
+			for (Analyzer a: main.analyzers) {
+				content += "> "+String.format("%-50s", a.getClass().getName())+"\t"+ClassTabDriver.getOptionsStr(a.getOptions())+"\n";
 			}
 
 			content +=
@@ -657,6 +657,7 @@ public class AnalysisTabDriver {
 			// ==================
 			
 			// pre-processing
+			/*	TODO uncomment and fix this section
 			if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER) {
 				Logger.logln("Applying analyzer feature-extraction pre-processing procedures...");
 				content += getTimestamp() + "Applying analyzer feature-extraction pre-processing procedures...\n";
@@ -667,6 +668,7 @@ public class AnalysisTabDriver {
 				
 				content += getTimestamp() + "done!\n\n";
 			}
+			*/
 			
 			// training set
 			Logger.logln("Extracting features from training corpus...");
@@ -734,6 +736,7 @@ public class AnalysisTabDriver {
 			}
 
 			// post processing
+			/* TODO uncomment and fix this section
 			if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER &&
 					main.analysisClassTestDocsJRadioButton.isSelected()) {
 				
@@ -753,7 +756,7 @@ public class AnalysisTabDriver {
 				
 				content += getTimestamp() + "done!\n\n";
 			}
-			
+			*/
 			
 			// running InfoGain
 			// ================
@@ -801,12 +804,7 @@ public class AnalysisTabDriver {
 							"> Classifier: "+a.getClass().getName()+"\n" +
 							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
-					
-					if (a instanceof WriteprintsAnalyzer)
-						main.analysisDriver = new WriteprintsAnalyzer(); //TODO another instanceof
-					else
-						main.analysisDriver = new WekaAnalyzer(((WekaAnalyzer) a).getClassifier());
-					
+					main.analysisDriver = a;
 					
 					content += getTimestamp()+" Starting classification...\n";
 					Logger.log("Starting classification...\n");
@@ -847,12 +845,6 @@ public class AnalysisTabDriver {
 							"> Classifier: "+a.getClass().getName()+"\n" +
 							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
-					/*
-					if (a instanceof WriteprintsAnalyzer)
-						main.analysisDriver = new WriteprintsAnalyzer(); //TODO not sure what to do with wad at the moment
-					else
-						main.analysisDriver = new WekaAnalyzer(((WekaAnalyzer) a).getClassifier());
-					*/
 					main.analysisDriver = a;
 					
 					content += getTimestamp()+" Starting cross validation...\n";
@@ -866,24 +858,24 @@ public class AnalysisTabDriver {
 					updateResultsView();
 					
 					// print out results
-					switch (main.at) {
-					case WEKA_ANALYZER:
+
+							//TODO convert WriteprintsAnalyzer results into an evaluation or maybe formate a single String in writeprints to have the below
+							//		composition, then modify wekaAnalyzer to do the below calculations internally and return a string of its own. 
+					if (results instanceof Evaluation){ //temporary check. Should be removable once Writeprintsanalyzer is sufficiently modified
 						Evaluation eval = (Evaluation) results;
-						content += eval.toSummaryString(false)+"\n";
+						content += eval.toSummaryString(false)+"\n";			//"Summary" Section
 						try {
 							content +=
-									eval.toClassDetailsString()+"\n" +
-									eval.toMatrixString()+"\n" ;
+								eval.toClassDetailsString()+"\n" +			//"Detailed accuracy by class" section
+								eval.toMatrixString()+"\n" ;				//The Confusion matrix
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-						break;
-					case WRITEPRINTS_ANALYZER:
-						String strResults = (String) results;
-						content += strResults + "\n";
-						break;
+					} else if (results instanceof String){
+						content += (String) results;
 					}
 					updateResultsView();
+					
 				}
 				
 			}

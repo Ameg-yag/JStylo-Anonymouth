@@ -13,8 +13,10 @@ import com.jgaap.JGAAPConstants;
 import com.jgaap.generics.*;
 
 import weka.attributeSelection.InfoGainAttributeEval;
+import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.Instances;
+import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.SynsetType;
@@ -232,14 +234,15 @@ public class WriteprintsAnalyzer extends Analyzer {
 		Instances test = new Instances(data,0);
 		Instances tmp;
 		int tmpSize;
-		Map<String,Map<String,Double>> results;
+		Map<String,Map<String,Double>> results = null;
 		Map<String,Double> instResults;
-		double success;
+		double success = 0;
+		double correct = 0;
 		double total = 0;
 		double max;
 		String selected;
 		for (int i = 0; i < folds; i ++) {
-			log.println("Running experiment " + (i + 1) + " out of " + folds);
+			Logger.logln("Running experiment " + (i + 1) + " out of " + folds);
 			
 			// initialize
 			train.delete();
@@ -273,19 +276,45 @@ public class WriteprintsAnalyzer extends Analyzer {
 						selected = key;
 					}
 				}
-				log.println(testInstAuthor + ": " + selected);
+				Logger.logln(testInstAuthor + ": " + selected);
 				if (testInstAuthor.equals(selected))
 					success++;
 			}
+			correct = success;
 			success = 100 * success / results.size();
-			log.printf("- Accuracy for experiment %d: %.2f\n", (i + 1), success);
+			Logger.logln(String.format("- Accuracy for experiment %d: %.2f\n", (i + 1), success));
 			total += success;
 		}
 		total /= folds;
-		log.println("========================");
-		log.printf("Total Accuracy: %.2f\n", total);
-		log.println(">>> runCrossValidation finished");
-		return null;
+		Logger.logln("========================");
+		Logger.logln("Total Accuracy: " + total);
+		Logger.logln(">>> runCrossValidation finished");
+		
+		
+		//Building results string
+	
+		//Summary section
+		String resultsString = null;
+		resultsString+=" === Summary === \n\n";															//wrong variables to be using
+		resultsString+=String.format("Correctly Classified Instances          %d               %.4f %\n",(int)correct,success);
+		resultsString+=String.format("Incorrectly Classified Instances        %d               %.4f %\n",(int)results.size()-(int)correct,1-success);
+		
+		//formulas I don't know how to calculate manually, will look up later:
+		/*
+		resultsString+=String.format("Kappa statistic                         %.4f",); 
+		resultsString+=String.format("Mean absolute error                     %.4f",);
+		resultsString+=String.format("Root mean squared error                 %.4f",);
+		resultsString+=String.format("Relative absolute error                 %.4f",);
+		resultsString+=String.format("Root relative squared error             %.4f",);  
+		 */
+		resultsString+=String.format("Total number of Instances                             %d\n",results.size());
+		
+		//Detailed Accuracy section
+		resultsString+=String.format("");
+		
+		//Confusion Matrix
+		
+		return resultsString;
 	}
 	
 	@Override
@@ -624,9 +653,9 @@ public class WriteprintsAnalyzer extends Analyzer {
 		WriteprintsAnalyzer wa = new WriteprintsAnalyzer();
 		
 		//ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "drexel_1_train_test.xml");
-		//ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "drexel_1.xml");
+		ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "drexel_1.xml");
 		//ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "amt.xml");
-		/*
+		
 		CumulativeFeatureDriver cfd =
 				new CumulativeFeatureDriver(JSANConstants.JSAN_FEATURESETS_PREFIX + "writeprints_feature_set_limited.xml");
 		WekaInstancesBuilder wib = new WekaInstancesBuilder(false);
@@ -651,20 +680,20 @@ public class WriteprintsAnalyzer extends Analyzer {
 		for (int i = total - 1; i >= numTrainDocs; i--)
 			trainingSet.delete(i);
 		System.out.println("done!");
-		
+	
 		Instances train = wib.getTrainingSet();
 		Instances test = wib.getTestSet();
-		WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_train.arff", train);
-		WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_test.arff", test);
-		System.exit(0);
-		*/
-//		Instances train = new Instances(new FileReader(new File("d:/tmp/drexel_1_train.arff")));
-//		train.setClassIndex(train.numAttributes() - 1);
+	//	WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_train.arff", train);
+		//WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_test.arff", test);
+		//System.exit(0);
+		
+		//Instances train = new Instances(new FileReader(new File("c:/tmp/drexel_1_train.arff")));
+		train.setClassIndex(train.numAttributes() - 1);
 		//Instances test = new Instances(new FileReader(new File("d:/tmp/drexel_1_tt_test.arff")));
 		//test.setClassIndex(test.numAttributes() - 1);
 		
 		// classify
-		/*
+		
 		System.out.println("classification");
 		Map<String,Map<String, Double>> res = wa.classify(train, test, ps.getTestDocs());
 		System.out.println("done!");
@@ -686,9 +715,9 @@ public class WriteprintsAnalyzer extends Analyzer {
 		}
 		success = 100 * success / res.size();
 		System.out.printf("Total accuracy: %.2f\n",success);
-		*/
 		
-		// cross-validation
-//		wa.runCrossValidation(train, 10, 0);
-	//}
+		
+		//cross-validation
+		wa.runCrossValidation(train, 10, 0);
+	}*/
 }
