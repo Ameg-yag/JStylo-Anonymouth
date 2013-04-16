@@ -214,13 +214,23 @@ public class WriteprintsAnalyzer extends Analyzer {
 	public String runCrossValidation(Instances data, int folds,
 			long randSeed) {
 		log.println(">>> runCrossValidation started");
-		
 		// setup
 		data.setClass(data.attribute("authorName"));
+		
 		Instances randData = new Instances(data);
 		Random rand = new Random(randSeed);
 		randData.randomize(rand);
 		randData.stratify(folds);
+		
+		Attribute extractedAuthors = data.instance(0).attribute(data.instance(0).classIndex());
+		Logger.logln("extractedAuthors: "+extractedAuthors.toString());
+		int[][] confusionMatrix = new int[extractedAuthors.numValues()][extractedAuthors.numValues()];		
+		//initialize confusion matrix
+		for (int i=0; i< extractedAuthors.numValues(); i++){
+			for (int j=0; j<extractedAuthors.numValues(); j++){
+				confusionMatrix[i][j]=0;
+			}
+		}
 		
 		// prepare folds
 		Instances[] foldData = new Instances[folds];
@@ -236,13 +246,15 @@ public class WriteprintsAnalyzer extends Analyzer {
 		int tmpSize;
 		Map<String,Map<String,Double>> results = null;
 		Map<String,Double> instResults;
+		int count = 0;
 		double success = 0;
-		double correct = 0;
+		int correct = 0;
 		double total = 0;
 		double max;
 		String selected;
+		
 		for (int i = 0; i < folds; i ++) {
-			Logger.logln("Running experiment " + (i + 1) + " out of " + folds);
+		//	Logger.logln("Running experiment " + (i + 1) + " out of " + folds);
 			
 			// initialize
 			train.delete();
@@ -276,11 +288,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 						selected = key;
 					}
 				}
-				Logger.logln(testInstAuthor + ": " + selected);
-				if (testInstAuthor.equals(selected))
+			//	Logger.logln(testInstAuthor + ": " + selected);
+				if (testInstAuthor.equals(selected)){
 					success++;
+					correct++;
+				}
+				confusionMatrix[extractedAuthors.indexOfValue(selected)][extractedAuthors.indexOfValue(testInstAuthor)]++;
+				count++;
 			}
-			correct = success;
 			success = 100 * success / results.size();
 			Logger.logln(String.format("- Accuracy for experiment %d: %.2f\n", (i + 1), success));
 			total += success;
@@ -291,28 +306,63 @@ public class WriteprintsAnalyzer extends Analyzer {
 		Logger.logln(">>> runCrossValidation finished");
 		
 		
-		//Building results string
+		
+		//--------------Building results string----------------//
+		Logger.logln("Building results...");
 	
 		//Summary section
 		String resultsString = null;
-		resultsString+=" === Summary === \n\n";															//wrong variables to be using
-		resultsString+=String.format("Correctly Classified Instances          %d               %.4f %\n",(int)correct,success);
-		resultsString+=String.format("Incorrectly Classified Instances        %d               %.4f %\n",(int)results.size()-(int)correct,1-success);
+		resultsString=" === Summary === \n\n";															
+		resultsString+=String.format("Correctly Classified Instances          %d               %.4f%%\n",correct,total);
+		resultsString+=String.format("Incorrectly Classified Instances        %d               %.4f%%\n",count-correct,(100.0-total));
 		
 		//formulas I don't know how to calculate manually, will look up later:
-		/*
-		resultsString+=String.format("Kappa statistic                         %.4f",); 
-		resultsString+=String.format("Mean absolute error                     %.4f",);
-		resultsString+=String.format("Root mean squared error                 %.4f",);
-		resultsString+=String.format("Relative absolute error                 %.4f",);
-		resultsString+=String.format("Root relative squared error             %.4f",);  
-		 */
-		resultsString+=String.format("Total number of Instances                             %d\n",results.size());
+		
+		resultsString+=String.format("Kappa statistic                         %.4f(Not yet implemented)\n",0.0); 
+		resultsString+=String.format("Mean absolute error                     %.4f(Not yet implemented)\n",0.0);
+		resultsString+=String.format("Root mean squared error                 %.4f(Not yet implemented)\n",0.0);
+		resultsString+=String.format("Relative absolute error                 %.4f %%(Not yet implemented)\n",0.0);
+		resultsString+=String.format("Root relative squared error             %.4f %%(Not yet implemented)\n",0.0);  
+		 
+		resultsString+=String.format("Total number of Instances               %d\n",count);
 		
 		//Detailed Accuracy section
-		resultsString+=String.format("");
+		resultsString+=String.format("\n === Detailed Accuracy By Class === \n\n");
+		resultsString+=String.format("TP Rate   FP Rate   Precision   Recall  F-Measure   ROC Area  Class\n");
+		resultsString+=String.format(" X------ Not yet implemented ------X\n");
+		for (int i = 0; i<extractedAuthors.numValues(); i++){
+			//TODO all those calculations (use confusion matrix values)
+		}
 		
 		//Confusion Matrix
+		resultsString+=String.format("\n === Confusion Matrix === \n\n");
+		
+		String[] labels = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+		String[] authorLabels = new String[extractedAuthors.numValues()];
+		int authorCount = 0;
+		for (int i=0; i<extractedAuthors.numValues();i++){
+			String label = "";
+			if (i<26){
+				label=labels[i];
+			}else{
+				for (int j=0; j<authorCount/26;j++){
+					label+=labels[j];
+				}
+			}
+			authorLabels[i]=label;
+			resultsString+="  "+label;
+		}
+		
+		resultsString+="   <--classified as\n";
+		for (int i=0; i<confusionMatrix.length;i++){
+			for (int j=0; j<confusionMatrix.length;j++){
+				if (confusionMatrix[i][j]<10)
+					resultsString+="  "+confusionMatrix[i][j];
+				else
+					resultsString+=" "+confusionMatrix[i][j];
+			}
+			resultsString+=" |  "+authorLabels[i]+" = "+extractedAuthors.value(i)+"\n";
+		}
 		
 		return resultsString;
 	}
