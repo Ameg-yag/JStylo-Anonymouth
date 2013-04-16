@@ -30,4 +30,10 @@ public class SynonymBasedClassifier extends Analyzer {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -847,12 +847,13 @@ public class AnalysisTabDriver {
 							"> Classifier: "+a.getClass().getName()+"\n" +
 							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
-					
+					/*
 					if (a instanceof WriteprintsAnalyzer)
 						main.analysisDriver = new WriteprintsAnalyzer(); //TODO not sure what to do with wad at the moment
 					else
 						main.analysisDriver = new WekaAnalyzer(((WekaAnalyzer) a).getClassifier());
-					
+					*/
+					main.analysisDriver = a;
 					
 					content += getTimestamp()+" Starting cross validation...\n";
 					Logger.log("Starting cross validation...");

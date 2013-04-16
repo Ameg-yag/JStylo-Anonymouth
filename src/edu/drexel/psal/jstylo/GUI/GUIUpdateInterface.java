@@ -255,11 +255,8 @@ public class GUIUpdateInterface {
 		List<Analyzer> analyzers = main.analyzers;
 		
 		model.removeAllElements();
-		for (Analyzer a: analyzers) {
-			if (a instanceof WriteprintsAnalyzer)
-				model.addElement(a.getClass().getName());	//TODO an instance of getClassifier and another instanceof
-			else
-				model.addElement(((Analyzer) a).getClassifier());
+		for (Analyzer a: analyzers) {		
+			model.addElement(a.getName());	//TODO an instance of getClassifier and another instanceof	
 		}
 	}
 }

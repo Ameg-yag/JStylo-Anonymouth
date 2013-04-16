@@ -282,9 +282,11 @@ public abstract class Analyzer{
 		options = ops;
 	}
 	
-	//TODO remove if necessary
+	//TODO remove if necessary, organize/document otherwise
 	public Classifier getClassifier() {
 		return null;
 	}
+	
+	public abstract String getName();
 	
 }

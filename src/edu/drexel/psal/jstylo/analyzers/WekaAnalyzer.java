@@ -269,4 +269,10 @@ public class WekaAnalyzer extends Analyzer {
 	public void setClassifier(Classifier classifier) {
 		this.classifier = classifier;
 	}
+	
+	@Override
+	public String getName(){
+		return this.classifier.getClass().getName();
+	}
+	
 }

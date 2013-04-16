@@ -602,6 +602,11 @@ public class WriteprintsAnalyzer extends Analyzer {
 		return sum;
 	}
 	
+	@Override
+	public String getName(){
+		return "edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer";
+	}
+	
 	// ============================================================================================
 	// ============================================================================================
 	
