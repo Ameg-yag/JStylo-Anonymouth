@@ -110,33 +110,18 @@ public class DriverPreProcessTabFeatures {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Logger.logln(NAME+"Preset feature set selected in the features tab.");
-				
-				int answer = JOptionPane.YES_OPTION;
-				/*
-				if (!isCFDEmpty(main.cfd)) {
-					answer = JOptionPane.showConfirmDialog(main,
-							"Are you sure you want to override current feature set?",
-							"Load Preset Feature Set",
-							JOptionPane.YES_NO_OPTION);
-				}
-				*/
 
-				if (answer == JOptionPane.YES_OPTION) {
-					int selected = main.featuresSetJComboBox.getSelectedIndex() - 1;
-					if (selected == -1) {
-						main.cfd = new CumulativeFeatureDriver();
-					} else {
-						main.cfd = main.presetCFDs.get(selected);
-						Logger.logln(NAME+"loaded preset feature set: "+main.cfd.getName());
-					}
-					main.featuresSetJComboBox.setSelectedIndex(selected+1);
-					main.PPSP.featuresSetJComboBox.setSelectedIndex(selected+1);
-					// update tab view
-					GUIUpdateInterface.updateFeatureSetView(main);
-					GUIUpdateInterface.updateFeatPrepColor(main);
-				} else {
-					Logger.logln(NAME+"Loading preset feature set canceled.");
-				}
+				int selected = main.featuresSetJComboBox.getSelectedIndex();
+
+				main.cfd = main.presetCFDs.get(selected);
+				Logger.logln(NAME+"loaded preset feature set: "+main.cfd.getName());
+
+				main.featuresSetJComboBox.setSelectedIndex(selected);
+				main.PPSP.featuresSetJComboBox.setSelectedIndex(selected);
+				
+				// update tab view
+				GUIUpdateInterface.updateFeatureSetView(main);
+				GUIUpdateInterface.updateFeatPrepColor(main);
 			}
 		});
 	}
@@ -170,7 +155,7 @@ public class DriverPreProcessTabFeatures {
 					if (selected == -1) {
 						main.cfd = new CumulativeFeatureDriver();
 					} else {
-						main.cfd = main.presetCFDs.get(selected);
+						main.cfd = main.presetCFDs.get(selected+1);
 						Logger.logln(NAME+"loaded preset feature set: "+main.cfd.getName());
 					}
 					main.featuresSetJComboBox.setSelectedIndex(selected+1);

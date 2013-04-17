@@ -39,6 +39,8 @@ public class DriverPreProcessTabClassifiers {
 	
 	protected static MouseListener classifierLabelClickAL;
 	protected static Classifier tmpClassifier;
+	protected static Hashtable<String, String> fullClassPath;
+	protected static Hashtable<String, String> shortClassName;
 	
 	/**
 	 * Initialize all classifiers tab listeners.
@@ -99,6 +101,54 @@ public class DriverPreProcessTabClassifiers {
 		};
 		main.prepClassLabel.addMouseListener(classifierLabelClickAL);
 		
+		main.classChoice.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (main.classChoice.getSelectedIndex() == -1) {
+					return;
+				} else {
+					Logger.logln(NAME+"Classifier selected from main's Classifier selector");
+					
+					String className = fullClassPath.get(main.classChoice.getSelectedItem().toString());
+					tmpClassifier = null;
+					try {
+						tmpClassifier = Classifier.forName(className, null);
+					} catch (Exception e2) {
+						Logger.logln(NAME+"Could not create classifier out of class: "+className);
+						JOptionPane.showMessageDialog(main,
+								"Could not generate classifier for selected class:\n"+className,
+								"Classifier Selection Error",
+								JOptionPane.ERROR_MESSAGE);
+						e2.printStackTrace();
+						return;
+					}
+					
+					try {
+						//tmpClassifier.setOptions(main.classAvClassArgsJTextField.getText().split(" "));
+						tmpClassifier.setOptions(getOptionsStr(tmpClassifier.getOptions()).split(" "));
+					} catch (Exception e1) {
+						Logger.logln(NAME+"Invalid options given for classifier.",LogOut.STDERR);
+						JOptionPane.showMessageDialog(main,
+								"The classifier arguments entered are invalid.\n"+
+										"Restoring original options.",
+										"Classifier Options Error",
+										JOptionPane.ERROR_MESSAGE);
+						//main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
+						return;
+					}
+					
+					main.classifiers.clear();
+					main.classifiers.add(tmpClassifier);
+					main.classChoice.setSelectedItem(shortClassName.get(tmpClassifier.getClass().getName()));
+					main.PPSP.classAvClassArgsJTextField.setText("");
+					main.PPSP.classDescJTextPane.setText(getDesc(tmpClassifier));
+					GUIUpdateInterface.updateClassList(main);
+					GUIUpdateInterface.updateClassPrepColor(main);
+					tmpClassifier = null;
+					main.PPSP.classJTree.clearSelection();
+				}
+			}
+		});
 		
 		// available classifiers tree
 		// ==========================
@@ -241,10 +291,10 @@ public class DriverPreProcessTabClassifiers {
 //				//main.classDescJTextPane.setText(getDesc(main.classifiers.get(selected)));
 //			}
 //		});
-		
-		// remove button
-		// =============
-		
+//		
+//		// remove button
+//		// =============
+//		
 //		main.classRemoveJButton.addActionListener(new ActionListener() {
 //			
 //			@Override
@@ -381,10 +431,9 @@ public class DriverPreProcessTabClassifiers {
 					
 					// get classifier
 					String className = getClassNameFromPath(path);
-					System.out.println(className);
 					tmpClassifier = null;
 					try {
-						tmpClassifier = Classifier.forName(className, null);						
+						tmpClassifier = Classifier.forName(className, null);
 					} catch (Exception e) {
 						Logger.logln(NAME+"Could not create classifier out of class: "+className);
 						JOptionPane.showMessageDialog(main,
@@ -430,7 +479,7 @@ public class DriverPreProcessTabClassifiers {
 							JOptionPane.ERROR_MESSAGE);
 					return;
 				}
-				else if( main.classifiers.size() > 0){
+				else if( main.classifiers.size() >0){
 					JOptionPane.showMessageDialog(main,
 							"It is only possible to select one classifier at a time.",
 							"Add Classifier Error",
@@ -455,6 +504,9 @@ public class DriverPreProcessTabClassifiers {
 					
 					// add classifier
 					main.classifiers.add(tmpClassifier);
+//					System.out.println("===" + tmpClassifier.getClass().getName());
+//					System.out.println("===" + shortClassName.get(tmpClassifier.getClass().getName()));
+					main.classChoice.setSelectedItem(shortClassName.get(tmpClassifier.getClass().getName()));
 					GUIUpdateInterface.updateClassList(main);
 					GUIUpdateInterface.updateClassPrepColor(main);
 					//resetAvClassSelection(main);
@@ -494,6 +546,7 @@ public class DriverPreProcessTabClassifiers {
 				// show options and description
 				main.PPSP.classSelClassArgsJTextField.setText(getOptionsStr(main.classifiers.get(selected).getOptions()));
 				main.PPSP.classDescJTextPane.setText(getDesc(main.classifiers.get(selected)));
+				main.PPSP.classAvClassArgsJTextField.setText("");
 			}
 		});
 		
@@ -518,6 +571,11 @@ public class DriverPreProcessTabClassifiers {
 				
 				// remove classifier
 				main.classifiers.remove(selected);
+				
+				main.PPSP.classSelClassArgsJTextField.setText("");
+				main.PPSP.classDescJTextPane.setText("");
+				main.PPSP.classAvClassArgsJTextField.setText("");
+				main.classChoice.setSelectedIndex(-1);
 				GUIUpdateInterface.updateClassList(main);
 				GUIUpdateInterface.updateClassPrepColor(main);
 			}
@@ -604,69 +662,64 @@ public class DriverPreProcessTabClassifiers {
 	/**
 	 * Initialize available classifiers tree
 	 */
-	protected static void initMainWekaClassifiersTree(GUIMain main) {
-		// create root and set to tree
-		DefaultMutableTreeNode wekaNode = new DefaultMutableTreeNode("weka");
-		DefaultMutableTreeNode classifiersNode = new DefaultMutableTreeNode("classifiers");
-		wekaNode.add(classifiersNode);
-		DefaultTreeModel model = new DefaultTreeModel(wekaNode);
-		main.classJTree.setModel(model);
+	protected static void initMainWekaClassifiersTree(GUIMain main) {	
+		Boolean shouldAdd = false;
+		fullClassPath = new Hashtable<String, String>();
+		shortClassName = new Hashtable<String, String>();
 		
-		// add all classes
-		DefaultMutableTreeNode currNode, child;
-		for (String className: classNames) {
-			String[] nameArr = className.split("\\.");
-			currNode = classifiersNode;
-			for (int i=2; i<nameArr.length; i++) {
-				// look for node
-				Enumeration<DefaultMutableTreeNode> children = currNode.children();
-				while (children.hasMoreElements()) {
-					child = children.nextElement();
-					if (child.getUserObject().toString().equals(nameArr[i])) {
-						currNode = child;
-						break;
-					}
-				}
-				
-				// if not found, create a new one
-				if (!currNode.getUserObject().toString().equals(nameArr[i])) {
-					child = new DefaultMutableTreeNode(nameArr[i]);
-					currNode.add(child);
-					currNode = child;
-				}
-			}
-		}
-		
-		// expand tree
-		int row = 0;
-		while (row < main.classJTree.getRowCount())
-			main.classJTree.expandRow(row++);
-	}
-	
-	protected static void initMainWekaClassifiersComboBox(GUIMain main) {
-		main.classifiersVector.add("weka");
-		main.classifiersVector.add("classifiers");
-		main.folderIcons.add(main.folder);
-		main.folderIcons.add(main.folder2);
-		main.disabled.add("weka");
-		main.disabled.add("classifiers");
-		
-		ImageIcon folder = main.folder;
 		for (String className: classNames) {
 			String[] nameArr = className.split("\\.");
 			
 			for (int i = 2; i < nameArr.length; i++) {
-				if (!main.classifiersVector.contains(nameArr[2])) {
-					main.classifiersVector.add(nameArr[i]);
-					main.folderIcons.add(main.folder3);
-					main.disabled.add(nameArr[i]);
+				if (shouldAdd) {
+					main.classChoice.addItem(nameArr[i]);
+					fullClassPath.put(nameArr[i], className);
+					shortClassName.put(className, nameArr[i]);
+//					System.out.println("   " + className + " : " + nameArr[i]);
+//					System.out.println("---" + nameArr[i] + " : " + fullClassPath.get(nameArr[i]));
+					shouldAdd = false;
 				} else {
-					main.classifiersVector.add(nameArr[3]);
-					main.folderIcons.add(null);
-					break;
+					shouldAdd = true;
 				}
 			}
 		}
+		
+//		// create root and set to tree
+//		DefaultMutableTreeNode wekaNode = new DefaultMutableTreeNode("weka");
+//		DefaultMutableTreeNode classifiersNode = new DefaultMutableTreeNode("classifiers");
+//		wekaNode.add(classifiersNode);
+//		DefaultTreeModel model = new DefaultTreeModel(wekaNode);
+//		main.classJTree.setModel(model);
+//		
+//		// add all classes
+//		DefaultMutableTreeNode currNode, child;
+//		for (String className: classNames) {
+//			String[] nameArr = className.split("\\.");
+//			currNode = classifiersNode;
+//			for (int i=2; i<nameArr.length; i++) {
+//				// look for node
+//				Enumeration<DefaultMutableTreeNode> children = currNode.children();
+//				while (children.hasMoreElements()) {
+//					child = children.nextElement();
+//					if (child.getUserObject().toString().equals(nameArr[i])) {
+//						currNode = child;
+//						break;
+//					}
+//				}
+//				
+//				// if not found, create a new one
+//				if (!currNode.getUserObject().toString().equals(nameArr[i])) {
+//					child = new DefaultMutableTreeNode(nameArr[i]);
+//					currNode.add(child);
+//					currNode = child;
+//				}
+//			}
+//		}
+//		
+//		// expand tree
+//		int row = 0;
+//		while (row < main.classJTree.getRowCount())
+//			main.classJTree.expandRow(row++);
 	}
 	
 	/**
@@ -679,14 +732,22 @@ public class DriverPreProcessTabClassifiers {
 		wekaNode.add(classifiersNode);
 		DefaultTreeModel model = new DefaultTreeModel(wekaNode);
 		PPSP.classJTree.setModel(model);
+//		fullPathClass = new Hashtable<String, String>();
 		
 		// add all classes
+//		String temp = "";
 		DefaultMutableTreeNode currNode, child;
 		for (String className: classNames) {
 			String[] nameArr = className.split("\\.");
 			currNode = classifiersNode;
+			
+//			if (nameArr[0] != temp) {
+//				temp = nameArr[0];
+//			}
 			for (int i=2; i<nameArr.length; i++) {
 				// look for node
+//				fullPathClass.put(temp, className);
+//				System.out.println(nameArr[i] + " : " + fullPathClass.get(nameArr[i]));
 				Enumeration<DefaultMutableTreeNode> children = currNode.children();
 				while (children.hasMoreElements()) {
 					child = children.nextElement();
@@ -757,7 +818,6 @@ public class DriverPreProcessTabClassifiers {
 		}
 	}
 }
-
 
 
 

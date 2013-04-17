@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -49,9 +50,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.table.*;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -177,31 +181,28 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JButton userSampleDocPreviewJButton;
 
 	// Classifiers tab
-//	protected JTextField classAvClassArgsJTextField;
-//	protected JLabel classAvClassArgsJLabel;
-//	protected JComboBox classClassJComboBox;
-//	protected JLabel classAvClassJLabel;
+	protected JTextField classAvClassArgsJTextField;
+	protected JLabel classAvClassArgsJLabel;
+	protected JComboBox classClassJComboBox;
+	protected JLabel classAvClassJLabel;
 	protected JButton classAddJButton;
 	
-//	protected JTextField classSelClassArgsJTextField;
-//	protected JLabel classSelClassArgsJLabel;
-//	protected JScrollPane classSelClassJScrollPane;
-//	protected DefaultComboBoxModel classSelClassJListModel;
-//	protected JScrollPane classTreeScrollPane;
-//	protected JScrollPane classDescJScrollPane;
-//	protected JTextPane classDescJTextPane;
-//	protected JLabel classDescJLabel;
-//	protected JButton classBackJButton;
-//	protected JButton classNextJButton;
-//	protected JLabel classSelClassJLabel;
-	protected Vector classifiersVector;
-//	protected ImageIcon[] folderIcons;
-	protected static ImageIcon folder;
-	protected static ImageIcon folder2;
-	protected static ImageIcon folder3;
-	protected List<ImageIcon> folderIcons;
-	protected Vector disabled;
-//	protected JButton classAboutJButton;
+	protected JTextField classSelClassArgsJTextField;
+	protected JLabel classSelClassArgsJLabel;
+	protected JScrollPane classSelClassJScrollPane;
+	protected DefaultComboBoxModel classSelClassJListModel;
+	protected JScrollPane classTreeScrollPane;
+	protected JScrollPane classDescJScrollPane;
+	protected JTextPane classDescJTextPane;
+	protected JLabel classDescJLabel;
+	protected JButton classBackJButton;
+	protected JButton classNextJButton;
+	protected JLabel classSelClassJLabel;
+	protected JButton classRemoveJButton;
+	protected JButton classAboutJButton;
+	
+	protected JList classList;
+	protected JComboBox classChoice;
 	
 	// Editor tab
 	
@@ -448,9 +449,6 @@ public class GUIMain extends javax.swing.JFrame  {
 					icon = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png"),"logo");
 					iconNO = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_NO.png"), "my 'no' icon");
 					iconFINISHED = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_FINISHED.png"), "my 'finished' icon");
-					folder = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"folder.png"), "folder");
-					folder2 = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"folder2.png"), "folder2");
-					folder3 = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"folder3.png"), "folder3");
 					//javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					System.err.println("Look-and-Feel error!");
@@ -579,6 +577,9 @@ public class GUIMain extends javax.swing.JFrame  {
 			PPSP = new PreProcessSettingsFrame(this);
 			GSP = new GeneralSettingsFrame(this);
 			
+			//init default values
+			setDefaultValues();
+			
 			// initialize listeners - except for EditorTabDriver!
 			
 			DriverMenu.initListeners(this);
@@ -593,6 +594,61 @@ public class GUIMain extends javax.swing.JFrame  {
 		}
 	}
 	
+	protected void setDefaultValues() throws Exception {
+		featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
+		PPSP.featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
+		cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
+		GUIUpdateInterface.updateFeatureSetView(this);
+		GUIUpdateInterface.updateFeatPrepColor(this);
+		
+		classChoice.setSelectedItem("SMO");
+		DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
+		DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
+		classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
+		PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()));
+		PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
+		GUIUpdateInterface.updateClassList(this);
+		GUIUpdateInterface.updateClassPrepColor(this);
+		DriverPreProcessTabClassifiers.tmpClassifier = null;
+
+//		PropUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+//		if (PropUtil.prop.getProperty("recentProbSet") == null) {
+//			PropUtil.setRecentProbSet();
+//		} else {
+//			String absPath = PropUtil.propFile.getAbsolutePath();
+//			String problemSetDir = absPath.substring(0, absPath.indexOf("anonymouth_prop")-1) + "\\problem_sets\\";
+//			PropUtil.load.setCurrentDirectory(new File(problemSetDir));
+//			PropUtil.load.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
+//		}
+//		
+//		int answer = 0;
+//		answer = PropUtil.load.showDialog(this, "Load Problem Set");
+//
+//		if (answer == JFileChooser.APPROVE_OPTION) {
+//			String path = PropUtil.load.getSelectedFile().getAbsolutePath();
+//			String filename = PropUtil.load.getSelectedFile().getName();
+//			//path = path.substring(path.indexOf("jsan_resources"));
+//
+//			PropUtil.setRecentProbSet(filename);
+//
+//			Logger.logln(NAME+"Trying to load problem set from "+path);
+//			try {
+//				ps = new ProblemSet(path);
+//				GUIUpdateInterface.updateProblemSet(this);
+//			} catch (Exception exc) {
+//				Logger.logln(NAME+"Failed loading "+path, LogOut.STDERR);
+//				Logger.logln(NAME+exc.toString(),LogOut.STDERR);
+//				JOptionPane.showMessageDialog(null,
+//						"Failed loading problem set from:\n"+path,
+//						"Load Problem Set Failure",
+//						JOptionPane.ERROR_MESSAGE);
+//			}
+//
+//		} else {
+//			Logger.logln(NAME+"Load problem set canceled");
+//		}
+	}
+
 	/**
 	 * Adds everything to the content pane.
 	 * @throws Exception 
@@ -868,7 +924,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		boolean ready = true;
 		
 		try {
-			if (inst.cfd.numOfFeatureDrivers() == 0)
+			if (cfd.numOfFeatureDrivers() == 0)
 				ready = false;
 		}
 		catch (Exception e){
@@ -883,7 +939,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		boolean ready = true;
 		
 		try {
-			if (inst.classifiers.isEmpty())
+			if (classifiers.isEmpty())
 				ready = false;
 		}
 		catch (Exception e){
@@ -1069,10 +1125,9 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			JLabel label = new JLabel("Feature Set:");
 			
-			String[] presetCFDsNames = new String[presetCFDs.size() + 1];
-			presetCFDsNames[0] = "Select A Feature Set...";
+			String[] presetCFDsNames = new String[presetCFDs.size()];
 			for (int i=0; i<presetCFDs.size(); i++)
-				presetCFDsNames[i+1] = presetCFDs.get(i).getName();
+				presetCFDsNames[i] = presetCFDs.get(i).getName();
 			
 			featuresSetJComboBoxModel = new DefaultComboBoxModel(presetCFDsNames);
 			featuresSetJComboBox = new JComboBox();
@@ -1097,92 +1152,41 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepClassLabel.setBorder(rlborder);
 			prepClassLabel.setBackground(notReady);
 			
-//			classTextPane = new JTextPane();
-//			classTextPane.setDragEnabled(false);
-//			classTextPane.setEditable(false);
-//			classTextPane.setFocusable(false);
-//			classTextPane.setText("SMO");
-//			classTextPane.setPreferredSize(new Dimension(150, 15));
-			
-			classifiersVector = new Vector();
-			folderIcons = new ArrayList<ImageIcon>();
-			disabled = new Vector();
-			DriverPreProcessTabClassifiers.initMainWekaClassifiersComboBox(this);
-			classComboBox = new ComboBox(classifiersVector, disabled, folderIcons, this);
-
-			try {
-				classifiers.add(Classifier.forName(classComboBox.getSelectedItem().toString(), null));						
-			} catch (Exception e) {
-				Logger.logln(NAME+"Could not create classifier out of class: "+classComboBox.getSelectedItem().toString());
-				JOptionPane.showMessageDialog(this,
-						"Could not generate classifier for selected class:\n"+classComboBox.getSelectedItem().toString(),
-						"Classifier Selection Error",
-						JOptionPane.ERROR_MESSAGE);
-				e.printStackTrace();
-				return;
-			}
-			
-			String dashM = "";
-			if(classComboBox.getSelectedItem().toString().toLowerCase().contains("smo"))
-				dashM = " -M";
-			
-			PPSP.classAvClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions())+dashM);
-			PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
-			
-//			classComboBox.setSelectedIndex(0);
-			
-//			StyledDocument doc = classTextPane.getStyledDocument();
-//			SimpleAttributeSet center = new SimpleAttributeSet();
-//			StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
-//			doc.setParagraphAttributes(0, doc.getLength(), center, false);
-			
-			prepClassifiersPanel.add(prepClassLabel, "span 2, h " + titleHeight + "!");
-			prepClassifiersPanel.add(classComboBox, "growx");
-		}
-		
-//		prepClassifiersPanel = new JPanel();
-//		MigLayout classLayout = new MigLayout(
-//				"fill, wrap 2, ins 0, gap 0 0",
-//				"center, fill, grow",
-//				"grow, fill");
-//		prepClassifiersPanel.setLayout(classLayout);
-//		{
-//			prepClassLabel = new JLabel("Classifiers:");
-//			prepClassLabel.setOpaque(true);
-//			prepClassLabel.setFont(titleFont);
-//			prepClassLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//			prepClassLabel.setBorder(rlborder);
-//			prepClassLabel.setBackground(notReady);
-//			
 //			JLabel availLabel = new JLabel("Available:");
 //			availLabel.setHorizontalAlignment(SwingConstants.CENTER);
 //			
 //			JLabel selectedLabel = new JLabel("Selected:");
 //			selectedLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//			
+			
 //			classJTree = new JTree();
 //			classJTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 //			prepAvailableClassScrollPane = new JScrollPane(classJTree);
 //			DriverPreProcessTabClassifiers.initMainWekaClassifiersTree(this);
-//			
+			
+			classChoice = new JComboBox();
+			
+//			prepAvailableClassScrollPane = new JScrollPane(classChoice);
+			DriverPreProcessTabClassifiers.initMainWekaClassifiersTree(this);
+			
 //			DefaultListModel selectedListModel = new DefaultListModel();
 //			classJList = new JList(selectedListModel);
 //			classJList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 //			classJList.setCellRenderer(new DriverClustersTab.alignListRenderer(SwingConstants.CENTER));
 //			prepSelectedClassScrollPane = new JScrollPane(classJList);
-//			
+			
 //			classAddJButton = new JButton("Select");
 //			
 //			classRemoveJButton = new JButton("Remove");
-//			
-//			prepClassifiersPanel.add(prepClassLabel, "span 2, h " + titleHeight + "!");
+			
+			prepClassifiersPanel.add(prepClassLabel, "span 2, h " + titleHeight + "!");
 //			prepClassifiersPanel.add(availLabel);
 //			prepClassifiersPanel.add(selectedLabel);
+			prepClassifiersPanel.add(classChoice);
 //			prepClassifiersPanel.add(prepAvailableClassScrollPane, "grow, h 150:360:, w 50%::");
 //			prepClassifiersPanel.add(prepSelectedClassScrollPane, "grow, h 150:360:");
 //			prepClassifiersPanel.add(classAddJButton, "gaptop 0, growy 0");
 //			prepClassifiersPanel.add(classRemoveJButton, "gaptop 0, growy 0");
-//		}
+		}
 		preProcessPanel.add(prepDocumentsPanel, "growx");
 		preProcessPanel.add(prepFeaturesPanel, "growx");
 		preProcessPanel.add(prepClassifiersPanel, "growx");
