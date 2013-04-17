@@ -461,7 +461,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	/**
 	 * TODO
 	 */
-	public Object runCrossValidation(Instances data, int folds, long randSeed,
+	public String runCrossValidation(Instances data, int folds, long randSeed,
 			int relaxFactor) {
 		return null;
 	}

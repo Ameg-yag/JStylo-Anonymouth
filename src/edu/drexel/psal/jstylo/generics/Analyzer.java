@@ -110,7 +110,7 @@ public abstract class Analyzer{
 	 * 		Some object containing the cross validation results (e.g. Evaluation for Weka
 	 * 		classifiers CV results), or null if failed running.		
 	 */
-	public abstract Object runCrossValidation(Instances data, int folds, long randSeed, int relaxFactor);
+	public abstract String runCrossValidation(Instances data, int folds, long randSeed, int relaxFactor);
 	
 	/* =======
 	 * getters
