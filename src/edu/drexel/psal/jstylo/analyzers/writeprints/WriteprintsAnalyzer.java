@@ -88,13 +88,13 @@ public class WriteprintsAnalyzer extends Analyzer {
 	@Override
 	public Map<String,Map<String, Double>> classify(Instances trainingSet,
 			Instances testSet, List<Document> unknownDocs) {
-		log.println(">>> classify started");
+		Logger.logln(">>> classify started");
 		
 		/* ========
 		 * LEARNING
 		 * ========
 		 */
-		log.println("> Learning");
+		Logger.logln("> Learning");
 		
 		trainAuthorData.clear();
 		testAuthorData.clear();
@@ -105,14 +105,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 		String authorName;
 		AuthorWPData authorData;
 		// training set
-		log.println("Initializing training authors data:");
+		Logger.logln("Initializing training authors data:");
 		for (int i = 0; i < numAuthors; i++) {
 			authorName = classAttribute.value(i);
 			authorData = new AuthorWPData(authorName);
 			if (authors==null)
 				authors = new ArrayList<String>();
 			authors.add(authorName);
-			log.println("- " + authorName);
+			Logger.logln("- " + authorName);
 			authorData.initFeatureMatrix(trainingSet, averageFeatureVectors);
 			trainAuthorData.add(authorData);
 			authorData.initBasisAndWriteprintMatrices();
@@ -121,14 +121,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 		int numTestInstances = testSet.numInstances();
 		// train-test mode
 		if (unknownDocs != null) {
-			log.println("Initializing test authors data (author per test document):");
+			Logger.logln("Initializing test authors data (author per test document):");
 			for (int i = 0; i < numTestInstances; i++) {
 				authorName =
 						TEST_AUTHOR_NAME_PREFIX +
 						String.format("%03d", i) + "_" +
 						unknownDocs.get(i).getTitle();
 				authorData = new AuthorWPData(authorName);
-				log.println("- " + authorName);
+				Logger.logln("- " + authorName);
 				authorData.initFeatureMatrix(testSet, i, averageFeatureVectors);
 				testAuthorData.add(authorData);				
 				authorData.initBasisAndWriteprintMatrices();
@@ -136,11 +136,11 @@ public class WriteprintsAnalyzer extends Analyzer {
 		}
 		// CV mode
 		else {
-			log.println("Initializing test authors data (CV mode):");
+			Logger.logln("Initializing test authors data (CV mode):");
 			for (int i = 0; i < numAuthors; i++) {
 				authorName = classAttribute.value(i);
 				authorData = new AuthorWPData(authorName);
-				log.println("- " + authorName);
+				Logger.log("- " + authorName);
 				authorData.initFeatureMatrix(testSet, averageFeatureVectors);
 				testAuthorData.add(authorData);
 				authorData.initBasisAndWriteprintMatrices();
@@ -151,7 +151,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		results = new HashMap<String,Map<String,Double>>(trainAuthorData.size());
 		
 		// calculate information-gain over only training authors
-		log.println("Calculating information gain over training authors data");
+		Logger.logln("Calculating information gain over training authors data");
 		double[] IG = null;
 		int numFeatures = trainingSet.numAttributes() - 1;
 		try {
@@ -163,7 +163,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		}
 		
 		// initialize synonym count mapping
-		log.println("Initializing word synonym count");
+		Logger.logln("Initializing word synonym count");
 		Map<Integer,Integer> wordsSynCount = calcSynonymCount(trainingSet,numFeatures);
 		
 		
@@ -171,14 +171,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 		 * TESTING
 		 * =======
 		 */
-		log.println("> Testing");
+		Logger.logln("> Testing");
 		
 		Matrix testPattern, trainPattern;
 		double dist1, dist2, totalDist;
 		AuthorWPData testDataCopy, trainDataCopy;
 		for (AuthorWPData testData: testAuthorData) {
 			Map<String,Double> testRes = new HashMap<String,Double>();
-			log.println("Test author: " + testData.authorName);
+			Logger.logln("Test author: " + testData.authorName);
 			for (AuthorWPData trainData: trainAuthorData) {
 				testDataCopy = testData.halfClone();
 				trainDataCopy = trainData.halfClone();
@@ -202,18 +202,18 @@ public class WriteprintsAnalyzer extends Analyzer {
 				// save the inverse to maintain the smallest distance as the best fit
 				totalDist = - (dist1 + dist2);
 				testRes.put(trainData.authorName, totalDist);
-				//log.println("- " + trainData.authorName + ": " + totalDist);
+				Logger.logln("- " + trainData.authorName + ": " + totalDist);
 			}
 			results.put(testData.authorName,testRes);
 		}
-		log.println(">>> classify finished");
+		Logger.logln(">>> classify finished");
 		return results;
 	}
 
 	@Override
 	public String runCrossValidation(Instances data, int folds,
 			long randSeed) {
-		log.println(">>> runCrossValidation started");
+		Logger.logln(">>> runCrossValidation started");
 		// setup
 		data.setClass(data.attribute("authorName"));
 		
@@ -305,13 +305,26 @@ public class WriteprintsAnalyzer extends Analyzer {
 		Logger.logln("Total Accuracy: " + total);
 		Logger.logln(">>> runCrossValidation finished");
 		
-		
-		//TODO once everything's done it'd probably be cleaner to split this up into its own method(s)
 		//--------------Building results string----------------//
 		Logger.logln("Building results...");
+		
+		return resultsString(confusionMatrix,count,correct,total,extractedAuthors);
+	}
 	
+	/**
+	 * Builds the result/output string and calculates statistics based on the classification
+	 * 
+	 * @param confusionMatrix matrix of which documents were credited to which authors
+	 * @param count number of instances
+	 * @param correct number of instances tested correctly
+	 * @param total percentage correct
+	 * @param extractedAuthors Attribute containing all authors
+	 * @return
+	 */
+	protected String resultsString(int[][] confusionMatrix,int count,int correct,double total,Attribute extractedAuthors){
+		String resultsString = "";
+		
 		//Summary section
-		String resultsString = null;
 		resultsString=" === Summary === \n\n";															
 		resultsString+=String.format("Correctly Classified Instances          %d               %.4f%%\n",correct,total);
 		resultsString+=String.format("Incorrectly Classified Instances        %d               %.4f%%\n",count-correct,(100.0-total));
@@ -353,7 +366,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 			double precision = precision(trueP,falseP);
 			double recall = trueP; 						//not sure about this one, TODO check with Ariel once everything's working
 			double fMeasure = fMeasure(precision,recall);
-			double AUROC = AUROC();
+			double AUROC = AUROC();						//same here
 			resultsString+=String.format("       %.3f     %.3f      %.3f      %.3f     %.3f       NYI      %s\n",trueP,falseP,precision,recall,fMeasure,extractedAuthors.value(i));
 		}
 		//TODO use arraylists to keep track of all trueP, falseP, etc. and then take a weighted average at the end.
@@ -375,6 +388,10 @@ public class WriteprintsAnalyzer extends Analyzer {
 		return resultsString;
 	}
 	
+	/* ================
+	 * Statistics generation
+	 * ================
+	 */
 	/**
 	 * Calculates the truePositive rate for an author
 	 * 
@@ -482,13 +499,13 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 */
 	public SortedMap<String, double[]> getCrossDatasetsDistances(
 			Instances dataset1, Instances dataset2) {
-		log.println(">>> getCrossDatasetsDistances started");
+		Logger.logln(">>> getCrossDatasetsDistances started");
 		
 		/* ========
 		 * LEARNING
 		 * ========
 		 */
-		log.println("> Learning");
+		Logger.logln("> Learning");
 		
 		List<AuthorWPData> dataset1AuthorData = new LinkedList<AuthorWPData>();
 		List<AuthorWPData> dataset2AuthorData = new LinkedList<AuthorWPData>();
@@ -500,22 +517,22 @@ public class WriteprintsAnalyzer extends Analyzer {
 		AuthorWPData authorData;
 		
 		// dataset1
-		log.println("Initializing dataset1 authors data:");
+		Logger.logln("Initializing dataset1 authors data:");
 		for (int i = 0; i < numAuthors; i++) {
 			authorName = classAttribute.value(i);
 			authorData = new AuthorWPData(authorName);
-			log.println("- " + authorName);
+			Logger.logln("- " + authorName);
 			authorData.initFeatureMatrix(dataset1, averageFeatureVectors);
 			dataset1AuthorData.add(authorData);
 			authorData.initBasisAndWriteprintMatrices();
 		}
 		
 		// dataset2
-		log.println("Initializing dataset2 authors data:");
+		Logger.logln("Initializing dataset2 authors data:");
 		for (int i = 0; i < numAuthors; i++) {
 			authorName = classAttribute.value(i);
 			authorData = new AuthorWPData(authorName);
-			log.println("- " + authorName);
+			Logger.logln("- " + authorName);
 			authorData.initFeatureMatrix(dataset2, averageFeatureVectors);
 			dataset2AuthorData.add(authorData);
 			authorData.initBasisAndWriteprintMatrices();
@@ -525,7 +542,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		SortedMap<String, double[]> results = new TreeMap<String,double[]>();
 		
 		// calculate information-gain
-		log.println("Calculating information gain over dataset1");
+		Logger.logln("Calculating information gain over dataset1");
 		double[] IG1 = null;
 		int numFeatures = dataset1.numAttributes() - 1;
 		try {
@@ -535,7 +552,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 			e.printStackTrace();
 			return null;
 		}
-		log.println("Calculating information gain over dataset1");
+		Logger.logln("Calculating information gain over dataset1");
 		double[] IG2 = null;
 		try {
 			IG2 = calcInfoGain(dataset2, numFeatures);
@@ -546,7 +563,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		}
 		
 		// initialize synonym count mapping
-		log.println("Initializing word synonym count");
+		Logger.logln("Initializing word synonym count");
 		Map<Integer,Integer> wordsSynCount =
 				calcSynonymCount(dataset1,numFeatures);
 		
@@ -555,7 +572,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		 * CALCULATING DISTANCES
 		 * =====================
 		 */
-		log.println("> Calculating distances");
+		Logger.logln("> Calculating distances");
 		
 		Matrix dataset1Pattern, dataset2Pattern;
 		double dist1, dist2, avgDist;
@@ -563,7 +580,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		double min = Double.MAX_VALUE;
 		String minAuthor = "";
 		for (AuthorWPData dataset1Data: dataset1AuthorData) {
-			log.println("dataset1 author: " + dataset1Data.authorName);
+			Logger.logln("dataset1 author: " + dataset1Data.authorName);
 			for (AuthorWPData dataset2Data: dataset2AuthorData)
 			{
 				//log.print("- dataset2 author: " + dataset2Data.authorName + ": ");
@@ -600,12 +617,12 @@ public class WriteprintsAnalyzer extends Analyzer {
 					min = avgDist;
 					minAuthor = dataset2Data.authorName;
 				}
-				//log.println(avgDist);
+				//Logger.logln(avgDist);
 			}
-			log.println("minimum distance author: " + minAuthor +
+			Logger.logln("minimum distance author: " + minAuthor +
 					", distance: " + min);
 		}
-		log.println(">>> getCrossDatasetsDistances finished");
+		Logger.logln(">>> getCrossDatasetsDistances finished");
 		return results;
 	}
 	
