@@ -264,7 +264,7 @@ public abstract class Analyzer{
 	}
 	
 	/**
-	 * Returns the option string 
+	 * Returns an array containing each of the analyzer's/classifier's options
 	 * @return the arguments the analyzer has or null if it doesn't have any
 	 */
 	public String[] getOptions(){
@@ -276,25 +276,28 @@ public abstract class Analyzer{
 	
 	/**
 	 * Sets the option string
-	 * @param ops array of strings (the arguments) for the analyzer
+	 * @param ops array of strings (the arguments) for the analyzer/classifier
 	 */
 	public void setOptions(String[] ops){
 		options = ops;
 	}
 	
 	/**
-	 * Returns an array of 1-2 sentences per index describing each option the analyzer has
-	 * @return
+	 * An array of 1-2 sentences per index describing each option the analyzer has.
+	 * @return a description corresponding to each option the analyzer/classifier has
 	 */
 	public abstract String[] optionsDescription();
 	
 	/**
-	 * Returns a string describing the analyzer. Should be formatted in the method.
-	 * @return
+	 * A string describing the analyzer. Should be formatted and ready for display.
+	 * @return the string describing how the analyzer/classifier functions and its benefits/drawbacks
 	 */
 	public abstract String analyzerDescription();
 	
-	//TODO remove if necessary, organize/document otherwise
+	/**
+	 * Describes the underlying classifier (if there is one)
+	 * @return returns the analyzer's driving classifier if it has one, otherwise returns null.
+	 */
 	public Classifier getClassifier() {
 		return null;
 	}

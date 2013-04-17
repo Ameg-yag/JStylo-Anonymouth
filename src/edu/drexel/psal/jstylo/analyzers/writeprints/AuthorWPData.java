@@ -183,7 +183,6 @@ public class AuthorWPData {
 		// calculate MU, the (#features)x(#instances) matrix of feature means
 		// where each cell i,j equals mean(feature_i)
 		double[][] MU_matrix_values = new double[numFeatures][numInstances];
-		Logger.logln("Testing... numfeatures: "+numFeatures+" numInstances: "+numInstances);
 		for (int i = 0; i < numFeatures; i++)
 			for (int j = 0; j < numInstances; j++)
 				MU_matrix_values[i][j] = featureAverages[i];

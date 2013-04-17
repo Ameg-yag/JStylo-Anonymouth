@@ -205,7 +205,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 				//totalDist = - (dist1 + dist2);
 				totalDist = 100 / (dist1 + dist2);
 				testRes.put(trainData.authorName, totalDist);
-				Logger.logln("- " + trainData.authorName + ": " + totalDist+ " actual: "+testData.authorName);
+				//Logger.logln("- " + trainData.authorName + ": " + totalDist+ " actual: "+testData.authorName);
 			}
 			results.put(testData.authorName,testRes);
 		}
@@ -249,8 +249,8 @@ public class WriteprintsAnalyzer extends Analyzer {
 		randData.stratify(folds);
 		
 		Attribute extractedAuthors = data.instance(0).attribute(data.instance(0).classIndex());
-		Logger.logln("extractedAuthors: "+extractedAuthors.toString());
-		int[][] confusionMatrix = new int[extractedAuthors.numValues()][extractedAuthors.numValues()];		
+		//Logger.logln("extractedAuthors: "+extractedAuthors.toString());
+		int[][] confusionMatrix = new int[extractedAuthors.numValues()][extractedAuthors.numValues()];	//keeps track of what documents were predicted to be which author
 		//initialize confusion matrix
 		for (int i=0; i< extractedAuthors.numValues(); i++){
 			for (int j=0; j<extractedAuthors.numValues(); j++){
@@ -323,7 +323,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 				count++;
 			}
 			success = 100 * success / results.size();
-			Logger.logln(String.format("- Accuracy for experiment %d: %.2f\n", (i + 1), success));
+			//Logger.logln(String.format("- Accuracy for experiment %d: %.2f\n", (i + 1), success));
 			total += success;
 		}
 		total /= folds;
@@ -331,9 +331,8 @@ public class WriteprintsAnalyzer extends Analyzer {
 		Logger.logln("Total Accuracy: " + total);
 		Logger.logln(">>> runCrossValidation finished");
 		
-		//--------------Building results string----------------//
-		Logger.logln("Building results...");
 		
+		// Build and return results string
 		return resultsString(confusionMatrix,count,correct,total,extractedAuthors);
 	}
 	
@@ -348,6 +347,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * @return
 	 */
 	protected String resultsString(int[][] confusionMatrix,int count,int correct,double total,Attribute extractedAuthors){
+		Logger.logln("Building results string...");
 		String resultsString = "";
 		
 		//Summary section
@@ -355,17 +355,17 @@ public class WriteprintsAnalyzer extends Analyzer {
 		resultsString+=String.format("Correctly Classified Instances          %d               %.4f%%\n",correct,total);
 		resultsString+=String.format("Incorrectly Classified Instances        %d               %.4f%%\n",count-correct,(100.0-total));
 		
-		//formulas I don't know how to calculate manually, will look up later:
-		
+		//formulas I don't know how to calculate yet, will add them in once the abstraction is finished/mostly finished
 		resultsString+=String.format("Kappa statistic                         %.4f    (Not yet implemented)\n",0.0); 
 		resultsString+=String.format("Mean absolute error                     %.4f    (Not yet implemented)\n",0.0);
 		resultsString+=String.format("Root mean squared error                 %.4f    (Not yet implemented)\n",0.0);
 		resultsString+=String.format("Relative absolute error                 %.4f %%  (Not yet implemented)\n",0.0);
 		resultsString+=String.format("Root relative squared error             %.4f %%  (Not yet implemented)\n",0.0);  
 		 
+		
 		resultsString+=String.format("Total number of Instances               %d\n",count);
 		
-		//Building author labels	
+		//Building author labels (used to keep tables relatively even in size
 		String[] labels = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
 		String[] authorLabels = new String[extractedAuthors.numValues()];
 		String labelString = "";
@@ -375,6 +375,8 @@ public class WriteprintsAnalyzer extends Analyzer {
 			if (i<26){
 				label=labels[i];
 			}else{
+				//not the most elegant solution, but it works well enough. will only produce labels like "aa","cccccc" and not "ababab"
+				//in most cases this probably isn't even necessary, and in those that it is, the table will probably be really distorted no matter what
 				for (int j=0; j<authorCount/26;j++){
 					label+=labels[j];
 				}
@@ -395,10 +397,10 @@ public class WriteprintsAnalyzer extends Analyzer {
 			double AUROC = AUROC();						//same here
 			resultsString+=String.format("       %.3f     %.3f      %.3f      %.3f     %.3f       NYI      %s\n",trueP,falseP,precision,recall,fMeasure,extractedAuthors.value(i));
 		}
-		//TODO use arraylists to keep track of all trueP, falseP, etc. and then take a weighted average at the end.
+		//TODO use arraylists or something to keep track of all trueP, falseP, etc. and then take a weighted average at the end.
 		
 		//Confusion Matrix
-		resultsString+="\n === Confusion Matrix ===\n";
+		resultsString+="\n === Confusion Matrix ===\n\n";
 		resultsString+=labelString;
 		resultsString+="   <--classified as\n";
 		for (int i=0; i<confusionMatrix.length;i++){
@@ -424,7 +426,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * @param confusionMatrix
 	 * @param index
 	 * @param count
-	 * @return
+	 * @return true[index]/(true[index]+false[index]) where index is a row of the confusion matrix
 	 */
 	protected double truePositive(int[][] confusionMatrix,int index, int count){
 		
@@ -440,7 +442,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		}
 		
 		if (incorrect==0){
-			answer = 1.0;
+			answer = 1.0; //got everything right
 		} else {
 			answer = (double)correct/((double)incorrect+(double)correct);
 		}
@@ -454,7 +456,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * @param confusionMatrix
 	 * @param index
 	 * @param count
-	 * @return
+	 * @return false[index]/(true[index]+false[index]) where index is a column of the confusion matrix
 	 */
 	protected double falsePositive(int[][] confusionMatrix,int index, int count){
 		
@@ -470,11 +472,10 @@ public class WriteprintsAnalyzer extends Analyzer {
 		}
 		
 		if (incorrect==0){
-			answer = 1.0;
+			answer = 0.0; //got everything right
 		} else {
 			answer = (double)incorrect/((double)incorrect+(double)correct);
-		}
-		
+		}		
 		return answer;
 	}
 	
@@ -484,11 +485,12 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * 
 	 * @param truePositive number of correctly classified documents for this author
 	 * @param falsePositive number of documents incorrectly assigned to this author
-	 * @return
+	 * @return truePositive/(truePositive+falsePositive)
 	 */
 	protected double precision(double truePositive,double falsePositive){
 		return truePositive/(truePositive+falsePositive);
 	}
+	
 	/**
 	 * Calculates the area under the Reciever Operating Characteristic (ROC) curve
 	 * TODO need to actually implement this
