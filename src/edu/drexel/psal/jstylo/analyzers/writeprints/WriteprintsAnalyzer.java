@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.*;
+import java.util.Map.Entry;
 
 import Jama.Matrix;
 
@@ -200,16 +201,41 @@ public class WriteprintsAnalyzer extends Analyzer {
 				dist2 = sumEuclideanDistance(trainPattern, testDataCopy.writeprint);
 				
 				// save the inverse to maintain the smallest distance as the best fit
-				totalDist = - (dist1 + dist2);
+				//ORIGINAL 
+				//totalDist = - (dist1 + dist2);
+				totalDist = 100 / (dist1 + dist2);
 				testRes.put(trainData.authorName, totalDist);
-				Logger.logln("- " + trainData.authorName + ": " + totalDist);
+				Logger.logln("- " + trainData.authorName + ": " + totalDist+ " actual: "+testData.authorName);
 			}
 			results.put(testData.authorName,testRes);
 		}
 		Logger.logln(">>> classify finished");
-		return results;
+		return normalize(results);
 	}
 
+	public Map<String,Map<String,Double>> normalize(Map<String,Map<String,Double>> data){
+		Map<String,Map<String,Double>> normalizedResults=data;
+		
+		double totalValue=0;
+		
+		for (String testDoc : data.keySet()){//iterates over the test docs
+			Map<String,Double> dataSet = data.get(testDoc);
+			for (String potentialAuthor : dataSet.keySet()){ //then over potential authors
+				totalValue+=data.get(testDoc).get(potentialAuthor).doubleValue(); //and gets the total "value"
+			}
+		}
+		
+		//redo the iteration, normalizing results into a percentage of the total
+		for (String testDoc : data.keySet()){//iterates over the test docs
+			Map<String,Double> dataSet = data.get(testDoc);
+			for (String potentialAuthor : dataSet.keySet()){ //then over potential authors
+				normalizedResults.get(testDoc).put(potentialAuthor, data.get(testDoc).get(potentialAuthor).doubleValue()/totalValue);
+			}
+		}
+		
+		return normalizedResults;
+	}
+	
 	@Override
 	public String runCrossValidation(Instances data, int folds,
 			long randSeed) {
@@ -791,9 +817,25 @@ public class WriteprintsAnalyzer extends Analyzer {
 		return sum;
 	}
 	
+	//the analyzer itself is the heavy-lifter
 	@Override
 	public String getName(){
 		return "edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer";
+	}
+
+	//does not have args to describe
+	@Override
+	public String[] optionsDescription() {
+		return null;
+	}
+
+	//TODO add lengthy-ish description of what this analyzer does and its +/-
+	@Override
+	public String analyzerDescription() {
+		String description =
+				"Writeprints Analyzer\n"
+				;
+		return description;
 	}
 	
 	// ============================================================================================

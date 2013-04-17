@@ -98,7 +98,7 @@ public class ClassTabDriver {
 						return;
 					}
 					Logger.logln("looking at analyzer class "+tmpAnalyzer.getClass());
-					Logger.logln("with a classifier of: "+(((Analyzer) tmpAnalyzer).getClassifier()));
+					Logger.logln("with a classifier of: "+((Analyzer) tmpAnalyzer).getName());
 					
 					main.classAvClassArgsJTextField.setText(getOptionsStr(((Analyzer) tmpAnalyzer).getOptions()));
 	
@@ -117,10 +117,33 @@ public class ClassTabDriver {
 		main.classAvClassArgsJTextField.addMouseListener(new MouseListener(){
 
 			@Override
-			public void mouseClicked(MouseEvent arg0) {
-				Logger.logln("clicked in text field!");
-				//GenericObjectEditor test = new GenericObjectEditor();
-				GenericObjectEditor.main(new String[] {"weka.classifiers.rules.ZeroR"});
+			public void mouseClicked(MouseEvent arg0) { //TODO maybe just try to build my own analyzer editor, as this doesn't seem to be working out too well.
+				if (tmpAnalyzer!=null){
+					Logger.logln("clicked in textfield with a classifier selected!");
+					
+					//====Recipe:
+					/*
+					 * 1) Interact-able pop-up window
+					 * 2) ability to return information back here
+					 * 3) should describe the analyzer (and classifier if there is one)
+					 * 4) should provide a text field, name label, and description for each argument
+					 * 5) changing the args and pressing "OK" should change the args here
+					 * 6) changing the args and pressing "cancel" should not change anything
+					 * 7) default args/reset button should be listed? (maybe not as just canceling and clicking again would suffice?)
+					 * 
+					 */
+					String[] s = ((Analyzer) tmpAnalyzer).optionsDescription();
+					if (s!=null){
+						for (int i=0; i<s.length;i++)
+							Logger.logln("Option "+i+" desc:"+s[i]);
+					} else {
+						Logger.logln("No options for analyzer/classifier");
+					}
+					
+					
+				} else {
+					Logger.logln("clicked in textfield without a classifier selected!");
+				}
 			}
 
 			//not used
@@ -629,7 +652,7 @@ public class ClassTabDriver {
 
 		for (Node current: modules){
 			populateNode(current,packagesToIgnore,filesToIgnore); //populates each node and all its subnodes
-			//Logger.logln("\nClassifier Tree for "+current.toString()); //TODO use this to see each tree ---really useful
+			//Logger.logln("\nClassifier Tree for "+current.toString()); //TODO use this to see each tree ---I think it's pretty useful
 		}
 		
 		

@@ -657,8 +657,9 @@ public class AnalysisTabDriver {
 			// ==================
 			
 			// pre-processing
-			/*	TODO uncomment and fix this section
-			if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER) {
+			//	TODO uncomment and fix this section note: uncommenting breaks both cross-val and classify/test
+		//	if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER) {
+			/*
 				Logger.logln("Applying analyzer feature-extraction pre-processing procedures...");
 				content += getTimestamp() + "Applying analyzer feature-extraction pre-processing procedures...\n";
 				
@@ -666,9 +667,9 @@ public class AnalysisTabDriver {
 				trainingDocs.addAll(testDocs);
 				testDocs = new ArrayList<Document>();
 				
-				content += getTimestamp() + "done!\n\n";
-			}
-			*/
+				content += getTimestamp() + "done!\n\n";*/
+		//	}
+			
 			
 			// training set
 			Logger.logln("Extracting features from training corpus...");
@@ -736,10 +737,10 @@ public class AnalysisTabDriver {
 			}
 
 			// post processing
-			/* TODO uncomment and fix this section
-			if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER &&
-					main.analysisClassTestDocsJRadioButton.isSelected()) {
-				
+			// TODO uncomment and fix this section note: uncommenting breaks both cross-val and classify/test
+		//	if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER &&
+		//			main.analysisClassTestDocsJRadioButton.isSelected()) {
+		/*		
 				Logger.logln("Applying analyzer feature-extraction post-processing procedures...");
 				content += getTimestamp() + "Applying analyzer feature-extraction post-processing procedures...\n";
 				
@@ -754,9 +755,9 @@ public class AnalysisTabDriver {
 				for (int i = total - 1; i >= numTrainDocs; i--)
 					trainingSet.delete(i);
 				
-				content += getTimestamp() + "done!\n\n";
-			}
-			*/
+				content += getTimestamp() + "done!\n\n"; */
+		//	}
+			
 			
 			// running InfoGain
 			// ================
@@ -799,8 +800,8 @@ public class AnalysisTabDriver {
 				Map<String,Map<String, Double>> results;
 				int numClass = main.analyzers.size();
 				for (int i=0; i<numClass; i++) {
-					a = (Analyzer) main.analyzers.get(i);
-					content += "Running analysis with classifier "+(i+1)+" out of "+numClass+":\n" +
+					a = main.analyzers.get(i);
+					content += "Running analysis with Analyzer "+(i+1)+" out of "+numClass+":\n" +
 							"> Classifier: "+a.getClass().getName()+"\n" +
 							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
@@ -814,6 +815,7 @@ public class AnalysisTabDriver {
 							main.wib.getTrainingSet(),
 							main.wib.getTestSet(),
 							main.ps.getTestDocs());
+					
 					content += getTimestamp()+" done!\n\n";
 					Logger.logln("Done!");
 					updateResultsView();

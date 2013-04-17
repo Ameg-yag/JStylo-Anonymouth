@@ -286,7 +286,29 @@ public class WekaAnalyzer extends Analyzer {
 	
 	@Override
 	public String getName(){
-		return this.classifier.getClass().getName();
+		return classifier.getClass().getName();
+	}
+
+	@Override
+	public String[] optionsDescription() {
+		String[] optionsDesc=null;
+		
+		List<Option> descriptions = Collections.list(classifier.listOptions());
+		optionsDesc = new String[descriptions.size()];
+		
+		int i=0;
+		for (Option opt : descriptions){
+			optionsDesc[i]=opt.description();
+			i++;
+		}
+		
+		return optionsDesc;
+	}
+
+	@Override
+	public String analyzerDescription() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

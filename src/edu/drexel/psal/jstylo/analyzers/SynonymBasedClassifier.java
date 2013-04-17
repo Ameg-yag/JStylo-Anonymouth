@@ -36,4 +36,16 @@ public class SynonymBasedClassifier extends Analyzer {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String[] optionsDescription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String analyzerDescription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

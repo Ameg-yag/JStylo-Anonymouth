@@ -282,11 +282,27 @@ public abstract class Analyzer{
 		options = ops;
 	}
 	
+	/**
+	 * Returns an array of 1-2 sentences per index describing each option the analyzer has
+	 * @return
+	 */
+	public abstract String[] optionsDescription();
+	
+	/**
+	 * Returns a string describing the analyzer. Should be formatted in the method.
+	 * @return
+	 */
+	public abstract String analyzerDescription();
+	
 	//TODO remove if necessary, organize/document otherwise
 	public Classifier getClassifier() {
 		return null;
 	}
 	
+	/**
+	 * Returns the name of whatever is doing the "heavy lifting" in terms of classification
+	 * @return the name of the analyzer/classifier being used
+	 */
 	public abstract String getName();
 	
 }
