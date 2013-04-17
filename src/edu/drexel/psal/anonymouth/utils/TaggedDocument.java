@@ -70,22 +70,25 @@ public class TaggedDocument implements Serializable{
 	private int totalSentences=0;
 	private double baseline_percent_change_needed = 0; // This may end up over 100%. That's unimportant. This is used to gauge the change that the rest of the document needs -- this is normalized to 100%, effectivley.
 	private boolean can_set_baseline_percent_change_needed = true;
+	public EOSCharacterTracker eosTracker;
 
 	/**
 	 * Constructor for TaggedDocument
 	 */
 	public TaggedDocument(){
 		jigsaw = new SentenceTools();
+		eosTracker = new EOSCharacterTracker();
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
 		//currentLiveTaggedSentences = new ArrayList<TaggedSentence>(5); // Most people probably won't try to edit more than 5 sentences at a time.... if they do... they'll just have to wait for the array to grow.
 	}
 	
 	/**
-	 * Constructor for TaggedDocument, accepts an untagged string, and calls addSentences method.
+	 * Constructor for TaggedDocument, accepts an untagged string (a whole document), and makes sentence tokens out of it.
 	 * @param untaggedDocument
 	 */
 	public TaggedDocument(String untaggedDocument){
 		jigsaw = new SentenceTools();
+		eosTracker = new EOSCharacterTracker();
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
 		//currentLiveTaggedSentences = new ArrayList<TaggedSentence>(5); 
 		makeAndTagSentences(untaggedDocument, true);
@@ -182,6 +185,8 @@ public class TaggedDocument implements Serializable{
 			sentenceTokenized = toke.tokenize();
 			taggedSentence.setTaggedSentence(Tagger.mt.tagSentence(sentenceTokenized));
 			consolidateFeatures(taggedSentence);
+			
+			// todo: put stuff here
 			taggedSentences.add(taggedSentence); 
 			
 		}
@@ -450,6 +455,22 @@ public class TaggedDocument implements Serializable{
 			str+=taggedSentences.get(i).getUntagged();
 		}
 		return str;
+	}
+	
+	public String getUntaggedDocument(boolean returnSubEOS){
+		String str = "";
+		if (returnSubEOS){
+			for (int i=0;i<totalSentences;i++){
+				str+=taggedSentences.get(i).getUntagged(true);
+			}
+		}
+		else{
+			for (int i=0;i<totalSentences;i++){
+				str+=taggedSentences.get(i).getUntagged();
+			}
+		}
+		return str;
+			
 	}
 	
 	/**

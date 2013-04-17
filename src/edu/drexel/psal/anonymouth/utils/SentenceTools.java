@@ -77,6 +77,7 @@ public class SentenceTools implements Serializable  {
 	 * @return
 	 */
 	public ArrayList<String> makeSentenceTokens(String text){
+		Scanner scan = new Scanner(System.in);
 		ArrayList<String> sents = new ArrayList<String>(MAX_SENTENCES);
 		boolean merge1=false, mergeFinal=false;
 		int currentStart = 1;
@@ -101,7 +102,7 @@ public class SentenceTools implements Serializable  {
 			text = text.replaceAll("(?i)"+safeString,replacementString); // the "(?i)" tells Java to do a case-insensitive search.
 		}
 		Matcher sent = EOS_chars.matcher(text);
-		boolean foundEOS = sent.find(currentStart);
+		boolean foundEOS = sent.find(currentStart); // xxx TODO xxx take this EOS character, and if not in quotes, swap it for a permanent replacement, and create and add an EOS to the calling TaggedDocument's eosTracker.
 		Matcher sentEnd;
 		int charNum = 0;
 		int lenString = 0;
@@ -110,6 +111,7 @@ public class SentenceTools implements Serializable  {
 		boolean isSentence;
 		boolean foundAtLeastOneEOS = foundEOS;
 		while (foundEOS == true){
+			System.out.println(sent.group(0));
 			currentStop = sent.end();
 			//System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
 			temp = text.substring(currentStart-1,currentStop);
@@ -130,9 +132,9 @@ public class SentenceTools implements Serializable  {
 					//System.out.println("Found quote!!! here it is: "+temp.charAt(charNum)+" ... in position: "+lastQuoteAt+" ... foundQuote is: "+foundQuote);
 				}
 			}
-			if(foundQuote == true && ((closingQuoteIndex = temp.indexOf("\"",lastQuoteAt+1)) == -1)){
+			if(foundQuote == true && ((closingQuoteIndex = temp.indexOf("\"",lastQuoteAt+1)) == -1)){ // then we found an EOS character that shouldn't split a sentence because it's within an open quote.
 				if((currentStop = text.indexOf("\"",currentStart +lastQuoteAt+1)) == -1){
-					currentStop = text.length();
+					currentStop = text.length(); // if we can't find a closing quote in the rest of the input text, then we assume the author forgot to put a closing quote, and act like it's at the end of the input text.
 				}
 				else{
 					currentStop +=1;
@@ -152,8 +154,10 @@ public class SentenceTools implements Serializable  {
 				safeString = text.substring(currentStart-1,currentStop);
 			}
 			
+			System.out.println("---------------");
+			System.out.println(safeString);
 			safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
-			//System.out.println(safeString);
+			System.out.println(safeString);
 			if(mergeFinal){
 				mergeFinal=false;
 				String prev=sents.remove(sents.size()-1);
@@ -163,7 +167,8 @@ public class SentenceTools implements Serializable  {
 				merge1=false;
 				mergeFinal=true;
 			}
-			
+			System.out.println(safeString);
+			System.out.println("---------------");
 			sents.add(safeString);
 			//System.out.println("start minus one: "+(currentStart-1)+" stop: "+currentStop);
 			if(currentStart < 0 || currentStop < 0){
@@ -240,12 +245,15 @@ public class SentenceTools implements Serializable  {
 	*/
 	public static void main(String[] args) throws IOException{
 		SentenceTools ss = new SentenceTools();
-		//String testText = "There are many issues with the\n concept of intelligence and the way it is tested in people. As stated by David Myers, intelligence is the �mental quality consisting of the ability. to learn from experience�, solve problems, and use knowledge �to adapt. to new situations� (2010). Is there really just one intelligence? According to many psychologists, there exists numerous intelligences. One such psychologist, Sternberg, believes there are three: Analytical Intelligence, Creative Intelligence, and Practical Intelligence. Analytical Intelligence is the intelligence assessed by intelligence tests which presents well-defined problems with set answers and predicts school grades reasonably well and to a lesser extent, job success.\n \tCreative Intelligence is demonstrated by the way one reacts to certain unforeseen situations in �new� ways. The last of the three is Practical intelligence which is the type of intelligence required for everyday tasks. This is what is used by business managers and the like to manage and motivate people, promote themselves, and delegate tasks efficiently. In contrast to this idea of 3 separate intelligences is the idea of just one intelligence started by Charles Spearman. He thought we had just one intelligence that he called �General Intelligence� which is many times shortened to just: �G�. This G factor was an underlying factor in all areas of our intelligence. Spearman was the one who also developed factor analysis which is a statistics method which allowed him to track different clusters of topics being tested in an intelligence test which showed that those who score higher in one area are more likely to score higher in another. This is the reason why he believed in this concept of G.";
-		String testText = "Hello, Dr., this is my \"test\"ing tex\"t\".\nI need to. See if it \"correctly (i.e. nothing goes wrong) ... and finds the first, and every other sentence, etc.. These quotes are silly, and it is 1 A.m. a.m. just for testing purposes.\" No, that isn't a \"real\" \"quote\".";
+		String testText = "This is a test text. I said, \"this, is a test text.\", didn't you hear me? You said, \"I didn't hear you!\"... well, did you? Or, did you not!? I am hungry.";
+		//String testText = "There are many issues with the\n concept of intelligence and the way it is tested in people. As stated by David Myers, intelligence is the �mental quality consisting of the ability. to learn from experience�, solve problems, and use knowledge �to adapt. to new situations� (2010). Is there really just one intelligence? According to many psychologists, there exists numerous intelligences. One such psychologist, Sternberg, believes there are three: Analytical Intelligence, Creative Intelligence, and Practical Intelligence. Analytical Intelligence is the intelligence assessed by intelligence tests which presents well-defined problems with set answers and predicts school grades reasonably well and to a lesser extent, job success! \n \tCreative Intelligence is demonstrated by the way one reacts to certain unforeseen situations in �new� ways. The last of the three is Practical intelligence which is the type of intelligence required for everyday tasks. This is what is used by business managers and the like to manage and motivate people, promote themselves, and delegate tasks efficiently. In contrast to this idea of 3 separate intelligences is the idea of just one intelligence started by Charles Spearman. He thought we had just one intelligence that he called �General Intelligence� which is many times shortened to just: �G�. This G factor was an underlying factor in all areas of our intelligence. Spearman was the one who also developed factor analysis which is a statistics method which allowed him to track different clusters of topics being tested in an intelligence test which showed that those who score higher in one area are more likely to score higher in another. This is the reason why he believed in this concept of G.";
+		//String testText = "Hello?, Dr., this! is my \"t!est?\"ing tex\"t?\".\nI need!? to. See if it \"correctly (i.e. nothing goes wrong) ... and finds the first, and every other sentence, etc.. These quotes are silly, and it is 1 A.m.! a.m.? just for testing purposes?\" No! Okay, yes. What? that isn't a \"real\" \"quote\".";
 		//testText = " Or maybe, he did understand, but had more to share with humanity before his inevitable death. Maybe still, he was forecasting his own suicide twenty-eight years before it happened. No matter what Hemingway might have felt at the time, the deep nothingness that he shows in 'A Clean Well-Lighted Place,' is a nothingness that pervades the story and becomes more apparent to the characters as they age as humans do not last forever. Ernest Hemingway wrote much about the struggle to cope with the nothingness in the world, but eventually succumbed to the nothingness that he wrote about.";
 		//testText=" After living so long, the old man lacks some of the gifts that people are born with that the young man takes for granted. The old man�s long life shows that as humans age, the length of time they have been around not only ages their body, but it ages their soul.";
-		ArrayList<String> Stok=ss.makeSentenceTokens(testText);
-		Object[] arr = Stok.toArray();
+		ArrayList<String> sTok=ss.makeSentenceTokens(testText);
+		for (String s: sTok)
+			System.out.println(s);
+		Object[] arr = sTok.toArray();
 		try {
 			OutputStreamWriter outStream=new OutputStreamWriter(System.out,"UTF8");
 			Writer out=outStream;

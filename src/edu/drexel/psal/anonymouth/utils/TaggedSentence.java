@@ -44,6 +44,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	protected SparseReferences sentenceLevelFeaturesFound;
 
 	protected String untagged;
+	protected String untaggedWithEOSSubs = "";
 	protected ArrayList<Word> wordsInSentence;
 	protected ArrayList<String> translationNames = new ArrayList<String>();
 	protected ArrayList<TaggedSentence> translations = new ArrayList<TaggedSentence>();
@@ -405,6 +406,18 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	 */
 	public String getUntagged(){
 		return untagged;
+	}
+	
+	/**
+	 * if returnWithEOSSubs
+	 * @param returnWithEOSSubs 
+	 * @return
+	 */
+	public String getUntagged(boolean returnWithEOSSubs){
+		if (returnWithEOSSubs)
+			return untaggedWithEOSSubs;
+		else
+			return untagged;
 	}
 
 	public String toString(){

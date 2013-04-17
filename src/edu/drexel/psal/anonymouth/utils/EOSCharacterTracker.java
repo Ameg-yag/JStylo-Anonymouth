@@ -3,14 +3,19 @@
  */
 package edu.drexel.psal.anonymouth.utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * @author Andrew W.E. McDonald
  *
  */
-public class EOSCharacterTracker {
+public class EOSCharacterTracker implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5900337779583604917L;
 	// Basically parallel arrays... we use the replacement characters instead of the corresponding eos characters. 
 	// Doing this allows us to break sentences only where we are sure we want to break them, and will allow the user more flexibility.
 	// as a side note, while realEOS[2] and replacementEOS[2] look very similar, they are not the same character.. this can be tested (which I did at the bottom of 'main', below) by asking Java if they are equal to eachother.
@@ -126,7 +131,11 @@ public class EOSCharacterTracker {
  * @author Andrew W.E. McDonald
  *
  */
-class EOS {
+class EOS implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3147071940148952343L;
 	protected char eos;
 	protected int location;
 	

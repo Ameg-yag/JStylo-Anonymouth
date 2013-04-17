@@ -8,7 +8,6 @@ import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
 import edu.drexel.psal.anonymouth.suggestors.Prophecy;
 import edu.drexel.psal.anonymouth.suggestors.TheOracle;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
-import edu.drexel.psal.anonymouth.utils.EOSCharacterTracker;
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
@@ -132,7 +131,6 @@ public class DriverDocumentsTab {
 	protected static int charsRemoved = -1;
 	protected static String currentSentenceString = "";
 	protected static Object currentHighlight = null;
-	public static EOSCharacterTracker eosTracker;
 	
 	
 	protected static void signalTargetsSelected(GUIMain main, boolean goodToGo){
@@ -328,18 +326,18 @@ public class DriverDocumentsTab {
 							keyJustPressed = false;
 							System.out.println("Chars inserted");
 							selectedSentIndexRange[1] += charsInserted;
-							moveHighlight(main,selectedSentIndexRange,false);
+							//moveHighlight(main,selectedSentIndexRange,false);
 							charsInserted = ~-1; // puzzle: what does this mean? (scroll to bottom of file for answer) - AweM
 						}
 						else if (charsRemoved > 0 && lastSentNum != -1){
 							keyJustPressed = false;
 							System.out.println("Chars removed");
 							selectedSentIndexRange[1] -= charsRemoved;
-							moveHighlight(main,selectedSentIndexRange,false);
+							//moveHighlight(main,selectedSentIndexRange,false);
 							charsRemoved = 0;
 						}
 						System.out.printf("selectedSentIndexRange: %d - %d\n",selectedSentIndexRange[0], selectedSentIndexRange[1]);
-						currentSentenceString = main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]+1);
+						//currentSentenceString = main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]+1);
 						System.out.println("currentSentenceString: "+currentSentenceString);
 					}
 					
@@ -352,14 +350,13 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.documentPane.getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
-						// FIXME NOW! this remove and replace deletes the current sentence and adds nothing in! why??
-						System.out.println("going to replace sentence number '"+lastSentNum+"' with: "+currentSentenceString);
 						taggedDoc.removeAndReplace(lastSentNum, currentSentenceString);
 						selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 					}
 					selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 					selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 					System.out.printf("Moving highlight to range %d-%d\n", selectionInfo[1], selectionInfo[2]);
+					main.documentPane.setText(taggedDoc.getUntaggedDocument(false));
 					if(!inRange)
 						moveHighlight(main,selectedSentIndexRange,true);
 					else
