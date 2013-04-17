@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.Scanner;
 
+import edu.drexel.psal.anonymouth.gooie.AnonymityDrawingPanel;
 import edu.drexel.psal.anonymouth.gooie.ClusterPanel;
+import edu.drexel.psal.anonymouth.gooie.DriverAnonymityTab;
 import edu.drexel.psal.anonymouth.gooie.DriverClustersTab;
 import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
@@ -586,6 +588,7 @@ public class DataAnalyzer{
 		mapMakerCharTargetSet = false;
 		String targetSaver = "                  ~~~~~~~ Targets ~~~~~~~\n";
 		int targetsSaved = 0;
+
 		for(i=0;i<lengthTopAttributes;i++){
 			clusterNumberPlusOne = selectedTargets[i];
 			clusterNumber = clusterNumberPlusOne-1;

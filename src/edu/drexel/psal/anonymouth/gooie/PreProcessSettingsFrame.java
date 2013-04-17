@@ -789,10 +789,9 @@ public class PreProcessSettingsFrame extends JDialog {
 					featMainTopPanel.add(featuresSetJLabel);
 					
 					// Combo box----------------------------------------------------------
-					String[] presetCFDsNames = new String[main.presetCFDs.size() + 1];
-					presetCFDsNames[0] = "Select A Feature Set...";
+					String[] presetCFDsNames = new String[main.presetCFDs.size()];
 					for (int i=0; i<main.presetCFDs.size(); i++)
-						presetCFDsNames[i+1] = main.presetCFDs.get(i).getName();
+						presetCFDsNames[i] = main.presetCFDs.get(i).getName();
 			
 					featuresSetJComboBoxModel = new DefaultComboBoxModel(presetCFDsNames);
 					featuresSetJComboBox = new JComboBox();
@@ -1000,6 +999,7 @@ public class PreProcessSettingsFrame extends JDialog {
 //				featuresEditJButton = new JButton("Edit");
 //				featMainPanel.add(featuresAddJButton);
 			}
+			
 			featPanel.add(prepFeatLabel, "span, h 30!");
 			featPanel.add(featMainPanel);
 		}

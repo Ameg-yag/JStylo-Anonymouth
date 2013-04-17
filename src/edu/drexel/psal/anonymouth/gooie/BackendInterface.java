@@ -40,8 +40,9 @@ import edu.drexel.psal.jstylo.generics.ProblemSet;
 public class BackendInterface {
 	
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
-
-	protected static BackendInterface bei = new BackendInterface(); 
+	private ProgressWindow pw;
+	
+	protected static BackendInterface bei = new BackendInterface();
 	
 	public class GUIThread implements Runnable {
 		GUIMain main;
@@ -49,6 +50,7 @@ public class BackendInterface {
 		public GUIThread(GUIMain main) {
 			
 			this.main = main;
+			pw = new ProgressWindow("Processing...", main);
 		}
 		
 		public void run() {}
@@ -143,7 +145,6 @@ public class BackendInterface {
 		
 		private DataAnalyzer wizard;
 		private DocumentMagician magician;
-		private ProgressWindow pw;
 		//private EditorInnerTabSpawner eits;
 		
 		
@@ -152,8 +153,7 @@ public class BackendInterface {
 			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
 			this.wizard = wizard;
 			this.magician = magician;
-			
-			pw = new ProgressWindow("Processing...", main);
+
 			pw.run();
 			
 			//selectedIndex = main.editTP.getSelectedIndex();
@@ -190,12 +190,11 @@ public class BackendInterface {
 						Tagger.initTagger();
 						
 						pw.setText("Initialize Cluster Viewer...");
-						DriverClustersTab.initializeClusterViewer(main,true);
+						DriverClustersTab.initializeClusterViewer(main,false);
 						pw.setText("Initialize Cluster Viewer... Done");
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
 						pw.setText("Classifying Documents... Done");
-						pw.stop();
 					}
 					catch(Exception e){
 						e.printStackTrace();
@@ -207,6 +206,13 @@ public class BackendInterface {
 					Logger.logln(NAME+wekaResults.toString());
 					makeResultsTable(wekaResults, main);
 					ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
+					
+					pw.stop();
+					main.anonymityDrawingPanel.updateAnonymityBar();
+					main.anonymityDescription.setText("About " +
+							Integer.toString(main.anonymityDrawingPanel.getAvgPercentChangeNeeded()) +
+							"% of your document needs to be changed for it to be 100% anonymous");
+					main.anonymityDrawingPanel.showPointer(true);
 				}
 				else //This reprocesses
 				{
@@ -247,7 +253,6 @@ public class BackendInterface {
 						Logger.logln(NAME+wekaResults.toString());
 						makeResultsTable(wekaResults, main);
 						pw.setText("Setting Results... Done");
-						pw.stop();
 					}
 				}
 				int selectedIndex = 1;
@@ -258,6 +263,13 @@ public class BackendInterface {
 				Logger.logln(NAME+"INTREP: "+DriverClustersTab.getIntRep()[trueIndex]);//added this.
 				DriverDocumentsTab.wizard.setSelectedTargets();
 				DriverDocumentsTab.signalTargetsSelected(main, true);
+				
+				pw.stop();
+				main.anonymityDrawingPanel.updateAnonymityBar();
+				main.anonymityDescription.setText("About " +
+						Integer.toString(main.anonymityDrawingPanel.getAvgPercentChangeNeeded()) +
+						"% of your document needs to be changed for it to be 100% anonymous");
+				main.anonymityDrawingPanel.showPointer(true);
 				//eits.documentPane.setText(tempDoc);	
 				//cpb.setText("Waiting for Target Selection...");
 				}
@@ -292,15 +304,13 @@ public class BackendInterface {
 
 		private DataAnalyzer wizard;
 		private DocumentMagician magician;
-		private ProgressWindow pw;
 
 		public PostTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
 			super(main);
 			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
 			this.wizard = wizard;
 			this.magician = magician;
-			pw = new ProgressWindow("Processing...", main);
-			pw.run();
+//			pw.run();
 			//selectedIndex = main.editTP.getSelectedIndex();
 			//this.eits = EditorTabDriver.eitsList.get(selectedIndex);
 		}
@@ -329,12 +339,12 @@ public class BackendInterface {
 			
 			main.resultsTablePane.setOpaque(true);
 			DriverDocumentsTab.okayToSelectSuggestion = true;
+			
 			if(DriverDocumentsTab.isFirstRun)
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), true);
 			else
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
-			//Backup of old version (In case I broke something)
-//			main.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+
 			// TODO uncomment this // GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
@@ -361,15 +371,15 @@ public class BackendInterface {
 //			main.nextSentenceButton.doClick();
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			
-			pw.stop();
+//			pw.stop();
 			//cpb.setText("User Editing... Waiting to\"Re-process\"");
 			
+//			AnonymityDrawingPanel.updateAnonymityBar();
+//			main.anonymityDrawingPanel.showPointer(true);
 			//Logger.logln(NAME+"Writing TaggedDocument...");
 			//ObjectIO.writeObject(ConsolidationStation.toModifyTaggedDocs.get(0), "toModifyDoc", ThePresident.SER_DIR);
 			//Logger.logln(NAME+"TaggedDocument written...");
 		}
-		
-	
 	}
 	
 	public static ComboBoxModel makeHighlightBarModel(){

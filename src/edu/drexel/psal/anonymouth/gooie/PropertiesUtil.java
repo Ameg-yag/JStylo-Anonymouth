@@ -317,4 +317,42 @@ public class PropertiesUtil {
 		}
 		return stringToLocation(location);
 	}
+	
+	/**
+	 * Sets the location of the clusters tab
+	 * @param location - Should only use LEFT, TOP, or RIGHT
+	 */
+	protected static void setAnonymityTabLocation(Location location)
+	{
+		// saves the path of the file chosen in the properties file
+		BufferedWriter writer;
+		try {
+			prop.setProperty("anonymousTabLocation", "" + location.strRep);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Gets the location of the translations tab (default location also set here)
+	 */
+	protected static Location getAnonymityTabLocation()
+	{
+		String location = "";
+		try {
+			location = prop.getProperty("anonymousTabLocation");
+			if (location == null)
+			{
+				prop.setProperty("anonymousTabLocation", DEFAULT_LOCATIONS[1]); // left
+				location = prop.getProperty("anonymousTabLocation");
+			}
+		} catch (NullPointerException e) {
+			prop.setProperty("anonymousTabLocation", DEFAULT_LOCATIONS[1]);
+			location = prop.getProperty("anonymousTabLocation");
+		}
+		return stringToLocation(location);
+	}
+
 }
