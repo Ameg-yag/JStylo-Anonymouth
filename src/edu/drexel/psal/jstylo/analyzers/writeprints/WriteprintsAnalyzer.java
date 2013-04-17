@@ -306,7 +306,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		Logger.logln(">>> runCrossValidation finished");
 		
 		
-		
+		//TODO once everything's done it'd probably be cleaner to split this up into its own method(s)
 		//--------------Building results string----------------//
 		Logger.logln("Building results...");
 	
@@ -318,27 +318,18 @@ public class WriteprintsAnalyzer extends Analyzer {
 		
 		//formulas I don't know how to calculate manually, will look up later:
 		
-		resultsString+=String.format("Kappa statistic                         %.4f(Not yet implemented)\n",0.0); 
-		resultsString+=String.format("Mean absolute error                     %.4f(Not yet implemented)\n",0.0);
-		resultsString+=String.format("Root mean squared error                 %.4f(Not yet implemented)\n",0.0);
-		resultsString+=String.format("Relative absolute error                 %.4f %%(Not yet implemented)\n",0.0);
-		resultsString+=String.format("Root relative squared error             %.4f %%(Not yet implemented)\n",0.0);  
+		resultsString+=String.format("Kappa statistic                         %.4f    (Not yet implemented)\n",0.0); 
+		resultsString+=String.format("Mean absolute error                     %.4f    (Not yet implemented)\n",0.0);
+		resultsString+=String.format("Root mean squared error                 %.4f    (Not yet implemented)\n",0.0);
+		resultsString+=String.format("Relative absolute error                 %.4f %%  (Not yet implemented)\n",0.0);
+		resultsString+=String.format("Root relative squared error             %.4f %%  (Not yet implemented)\n",0.0);  
 		 
 		resultsString+=String.format("Total number of Instances               %d\n",count);
 		
-		//Detailed Accuracy section
-		resultsString+=String.format("\n === Detailed Accuracy By Class === \n\n");
-		resultsString+=String.format("TP Rate   FP Rate   Precision   Recall  F-Measure   ROC Area  Class\n");
-		resultsString+=String.format(" X------ Not yet implemented ------X\n");
-		for (int i = 0; i<extractedAuthors.numValues(); i++){
-			//TODO all those calculations (use confusion matrix values)
-		}
-		
-		//Confusion Matrix
-		resultsString+=String.format("\n === Confusion Matrix === \n\n");
-		
+		//Building author labels	
 		String[] labels = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
 		String[] authorLabels = new String[extractedAuthors.numValues()];
+		String labelString = "";
 		int authorCount = 0;
 		for (int i=0; i<extractedAuthors.numValues();i++){
 			String label = "";
@@ -350,9 +341,26 @@ public class WriteprintsAnalyzer extends Analyzer {
 				}
 			}
 			authorLabels[i]=label;
-			resultsString+="  "+label;
+			labelString+="  "+label;
 		}
 		
+		//Detailed Accuracy section
+		resultsString+=String.format("\n === Detailed Accuracy By Class === \n\n");
+		resultsString+=String.format("      TP Rate   FP Rate   Precision   Recall   F-Measure   ROC Area  Class\n");
+		for (int i = 0; i<extractedAuthors.numValues(); i++){
+			double trueP = truePositive(confusionMatrix,i,count);
+			double falseP = falsePositive(confusionMatrix,i,count);
+			double precision = precision(trueP,falseP);
+			double recall = trueP; 						//not sure about this one, TODO check with Ariel once everything's working
+			double fMeasure = fMeasure(precision,recall);
+			double AUROC = AUROC();
+			resultsString+=String.format("       %.3f     %.3f      %.3f      %.3f     %.3f       NYI      %s\n",trueP,falseP,precision,recall,fMeasure,extractedAuthors.value(i));
+		}
+		//TODO use arraylists to keep track of all trueP, falseP, etc. and then take a weighted average at the end.
+		
+		//Confusion Matrix
+		resultsString+="\n === Confusion Matrix ===\n";
+		resultsString+=labelString;
 		resultsString+="   <--classified as\n";
 		for (int i=0; i<confusionMatrix.length;i++){
 			for (int j=0; j<confusionMatrix.length;j++){
@@ -367,14 +375,99 @@ public class WriteprintsAnalyzer extends Analyzer {
 		return resultsString;
 	}
 	
+	/**
+	 * Calculates the truePositive rate for an author
+	 * 
+	 * @param confusionMatrix
+	 * @param index
+	 * @param count
+	 * @return
+	 */
+	protected double truePositive(int[][] confusionMatrix,int index, int count){
+		
+		int correct = 0;
+		int incorrect = 0;
+		double answer = 0;
+		for (int i=0; i<confusionMatrix.length;i++){
+			if (index==i){
+				correct = confusionMatrix[index][i];
+			} else {
+				incorrect+= confusionMatrix[index][i];
+			}
+		}
+		
+		if (incorrect==0){
+			answer = 1.0;
+		} else {
+			answer = (double)correct/((double)incorrect+(double)correct);
+		}
+		
+		return answer;
+	}
+	
+	/**
+	 * Calculates the falsePositive rate for an author
+	 * 
+	 * @param confusionMatrix
+	 * @param index
+	 * @param count
+	 * @return
+	 */
+	protected double falsePositive(int[][] confusionMatrix,int index, int count){
+		
+		int correct = 0;
+		int incorrect = 0;
+		double answer = 0;
+		for (int i=0; i<confusionMatrix.length;i++){
+			if (index==i){
+				correct = confusionMatrix[i][index];
+			} else {
+				incorrect+= confusionMatrix[i][index];
+			}
+		}
+		
+		if (incorrect==0){
+			answer = 1.0;
+		} else {
+			answer = (double)incorrect/((double)incorrect+(double)correct);
+		}
+		
+		return answer;
+	}
+	
+	
+	/**
+	 * Calculates the precision
+	 * 
+	 * @param truePositive number of correctly classified documents for this author
+	 * @param falsePositive number of documents incorrectly assigned to this author
+	 * @return
+	 */
+	protected double precision(double truePositive,double falsePositive){
+		return truePositive/(truePositive+falsePositive);
+	}
+	/**
+	 * Calculates the area under the Reciever Operating Characteristic (ROC) curve
+	 * TODO need to actually implement this
+	 * 
+	 * @return
+	 */
+	protected double AUROC(){
+		return 0.0;
+	}
+	
+	
 	@Override
 	/**
 	 * TODO
 	 */
 	public Object runCrossValidation(Instances data, int folds, long randSeed,
 			int relaxFactor) {
-		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	protected double fMeasure(double precision,double recall){
+		return (2.0*(precision*recall)/(precision+recall));
 	}
 	
 	/**

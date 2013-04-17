@@ -858,22 +858,8 @@ public class AnalysisTabDriver {
 					updateResultsView();
 					
 					// print out results
-
-							//TODO convert WriteprintsAnalyzer results into an evaluation or maybe formate a single String in writeprints to have the below
-							//		composition, then modify wekaAnalyzer to do the below calculations internally and return a string of its own. 
-					if (results instanceof Evaluation){ //temporary check. Should be removable once Writeprintsanalyzer is sufficiently modified
-						Evaluation eval = (Evaluation) results;
-						content += eval.toSummaryString(false)+"\n";			//"Summary" Section
-						try {
-							content +=
-								eval.toClassDetailsString()+"\n" +			//"Detailed accuracy by class" section
-								eval.toMatrixString()+"\n" ;				//The Confusion matrix
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					} else if (results instanceof String){
-						content += (String) results;
-					}
+					content += (String) results; //TODO either make it mandatory in the Analyzer that the result needs to be a string or do something so the cast isn't needed.
+					
 					updateResultsView();
 					
 				}

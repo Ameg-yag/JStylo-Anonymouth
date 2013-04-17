@@ -164,7 +164,7 @@ public class WekaAnalyzer extends Analyzer {
 	 * 		The evaluation object with cross-validation results, or null if failed running.
 	 */
 	@Override
-	public Evaluation runCrossValidation(Instances data, int folds, long randSeed) {
+	public String runCrossValidation(Instances data, int folds, long randSeed) {
 		// setup
 		data.setClass(data.attribute("authorName"));
 		Instances randData = new Instances(data);
@@ -188,7 +188,21 @@ public class WekaAnalyzer extends Analyzer {
 			e.printStackTrace();
 		}
 		
-		return eval;
+		return resultsString(eval);
+	}
+	
+	protected String resultsString(Evaluation eval){
+		String results = "";
+		
+		results+=eval.toSummaryString(false)+"\n";
+		try {
+			results+=eval.toClassDetailsString()+"\n";
+			results+=eval.toMatrixString()+"\n";
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return results;
 	}
 	
 	@Override
@@ -230,7 +244,7 @@ public class WekaAnalyzer extends Analyzer {
 	 * @return
 	 * 		The evaluation object with cross-validation results, or null if did not succeed running.
 	 */
-	public Evaluation runCrossValidation(Instances data, int folds) {
+	public String runCrossValidation(Instances data, int folds) {
 		long randSeed = 0;
 		return runCrossValidation(data, folds, randSeed);
 	}
