@@ -41,7 +41,8 @@ public class ClassTabDriver {
 	 * =========================
 	 */ 
 	
-	protected static Object tmpAnalyzer;
+	protected static Analyzer tmpAnalyzer;
+	protected static Object tmpObject;
 	protected static String loadedClassifiers;
 	
 	/**
@@ -76,16 +77,16 @@ public class ClassTabDriver {
 					// get classifier
 					String className = getClassNameFromPath(path).substring(5);
 					tmpAnalyzer = null;
+					tmpObject = null;
 					try {
-						tmpAnalyzer = Class.forName(className).newInstance();
+						tmpObject = Class.forName(className).newInstance();
 						
-						if (tmpAnalyzer instanceof Classifier){	//TODO hopefully this is the only "instanceOf" I'll need
-							Analyzer temp = new WekaAnalyzer(Class.forName(className).newInstance());
-							tmpAnalyzer = temp;
-						} else if (tmpAnalyzer instanceof Analyzer){
-							Logger.logln("Added a subclass of analyzer");
+						if (tmpObject instanceof Classifier){	//TODO hopefully this is the only "instanceOf" I'll need
+							tmpAnalyzer = new WekaAnalyzer(Class.forName(className).newInstance());
+						} else if (tmpObject instanceof WriteprintsAnalyzer){
+							tmpAnalyzer = new WriteprintsAnalyzer();
 						} else {
-							Logger.logln("Non jstylo, non weka analyzer");
+							Logger.logln("Tried to add an Analyzer we do not yet support");
 						}	
 							
 					} catch (Exception e) {
@@ -98,9 +99,9 @@ public class ClassTabDriver {
 						return;
 					}
 					Logger.logln("looking at analyzer class "+tmpAnalyzer.getClass());
-					Logger.logln("with a classifier of: "+((Analyzer) tmpAnalyzer).getName());
+					Logger.logln("with a classifier of: "+tmpAnalyzer.getName());
 					
-					main.classAvClassArgsJTextField.setText(getOptionsStr(((Analyzer) tmpAnalyzer).getOptions()));
+					main.classAvClassArgsJTextField.setText(getOptionsStr( tmpAnalyzer.getOptions()));
 	
 
 				}
@@ -132,7 +133,7 @@ public class ClassTabDriver {
 					 * 7) default args/reset button should be listed? (maybe not as just canceling and clicking again would suffice?)
 					 * 
 					 */
-					String[] s = ((Analyzer) tmpAnalyzer).optionsDescription();
+					String[] s =  tmpAnalyzer.optionsDescription();
 					if (s!=null){
 						for (int i=0; i<s.length;i++)
 							Logger.logln("Option "+i+" desc:"+s[i]);
@@ -183,12 +184,7 @@ public class ClassTabDriver {
 				} else {
 					// check classifier options
 					try {
-						if (tmpAnalyzer instanceof Analyzer)
-							((Analyzer) tmpAnalyzer).setOptions(main.classAvClassArgsJTextField.getText().split(" "));
-						else if (tmpAnalyzer instanceof Classifier)
-							((Classifier) tmpAnalyzer).setOptions(main.classAvClassArgsJTextField.getText().split(" "));
-						else
-							throw new Exception();
+						tmpAnalyzer.setOptions(main.classAvClassArgsJTextField.getText().split(" "));
 					} catch (Exception e) {
 						Logger.logln("Invalid options given for classifier.",LogOut.STDERR);
 						JOptionPane.showMessageDialog(main,
@@ -197,7 +193,7 @@ public class ClassTabDriver {
 										"Classifier Options Error",
 										JOptionPane.ERROR_MESSAGE);
 						
-						main.classAvClassArgsJTextField.setText(getOptionsStr(((Analyzer) tmpAnalyzer).getOptions()));
+						main.classAvClassArgsJTextField.setText(getOptionsStr(tmpAnalyzer.getOptions()));
 
 					}
 					//ensure that the classifier hasn't already been added.
@@ -205,7 +201,7 @@ public class ClassTabDriver {
 					for (int i=0; i<main.classJList.getModel().getSize();i++){
 						Logger.logln("Checking for duplicates...");
 						if (main.analyzers.get(i).getClass().toString().equals((tmpAnalyzer.getClass().toString()))){ //same classifier
-							if(Arrays.equals(((Analyzer) main.analyzers.get(i)).getOptions(),(((Analyzer) tmpAnalyzer).getOptions()))){ //same arguments
+							if(Arrays.equals(main.analyzers.get(i).getOptions(),(tmpAnalyzer.getOptions()))){ //same arguments
 								add=false; //so don't add
 							}
 						}
@@ -214,7 +210,7 @@ public class ClassTabDriver {
 					if (add){
 						Logger.logln("Adding classifier...");
 						
-						main.analyzers.add((Analyzer) tmpAnalyzer);
+						main.analyzers.add(tmpAnalyzer);
 						
 						GUIUpdateInterface.updateClassList(main);
 						resetAvClassSelection(main);
@@ -258,7 +254,7 @@ public class ClassTabDriver {
 				Logger.logln("Classifier selected in the selected classifiers list in the classifiers tab: "+className);
 
 				// show options and description
-				main.classSelClassArgsJTextField.setText(getOptionsStr(((Analyzer) main.analyzers.get(selected)).getOptions()));
+				main.classSelClassArgsJTextField.setText(getOptionsStr(main.analyzers.get(selected).getOptions()));
 				
 			}
 		});

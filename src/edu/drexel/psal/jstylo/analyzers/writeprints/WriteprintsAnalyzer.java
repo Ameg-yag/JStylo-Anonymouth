@@ -179,7 +179,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		AuthorWPData testDataCopy, trainDataCopy;
 		for (AuthorWPData testData: testAuthorData) {
 			Map<String,Double> testRes = new HashMap<String,Double>();
-			Logger.logln("Test author: " + testData.authorName);
+
 			for (AuthorWPData trainData: trainAuthorData) {
 				testDataCopy = testData.halfClone();
 				trainDataCopy = trainData.halfClone();

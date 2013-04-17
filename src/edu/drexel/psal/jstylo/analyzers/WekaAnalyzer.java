@@ -290,6 +290,20 @@ public class WekaAnalyzer extends Analyzer {
 	}
 
 	@Override
+	public void setOptions(String[] ops){
+		try {
+			classifier.setOptions(ops);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	///TODO organize the below
+	
+	@Override
 	public String[] optionsDescription() {
 		String[] optionsDesc=null;
 		
