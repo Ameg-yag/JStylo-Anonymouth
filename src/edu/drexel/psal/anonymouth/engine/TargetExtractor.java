@@ -201,7 +201,7 @@ public class TargetExtractor {
 	 * and assigns features to partitions based upon Euclidean distance from centroids (single dimension)
 	 */
 	public void initialize(){
-		Logger.logln(NAME+"Intitializing Clustering, will call kPlusPlusPrep.");
+		Logger.logln(NAME+"Initializing Clustering, will call kPlusPlusPrep.");
 		kPlusPlusPrep();
 		Logger.logln(NAME+"kPlusPlusPrep seems to have done its job. Moving on.");
 		//System.out.println("Initialized with k-means++....");

@@ -179,7 +179,7 @@ public class GeneralSettingsFrame extends JDialog {
 						PropertiesUtil.setPreProcessTabLocation(prevPreprocessLocation);
 						PropertiesUtil.setSuggestionsTabLocation(prevSuggestionsLocation);
 						PropertiesUtil.setTranslationsTabLocation(prevTranslationsLocation);
-						PropertiesUtil.setClustersTabLocation(prevClustersLocation);
+						PropertiesUtil.setAnonymityTabLocation(prevClustersLocation);
 						
 						closeWindow();
 					}
@@ -236,7 +236,7 @@ public class GeneralSettingsFrame extends JDialog {
 		prevPreprocessLocation = PropertiesUtil.getPreProcessTabLocation();
 		prevSuggestionsLocation = PropertiesUtil.getSuggestionsTabLocation();
 		prevTranslationsLocation = PropertiesUtil.getTranslationsTabLocation();
-		prevClustersLocation = PropertiesUtil.getClustersTabLocation();
+		prevClustersLocation = PropertiesUtil.getAnonymityTabLocation();
 	}
 	
 	public void closeWindow() 
@@ -465,13 +465,13 @@ public class GeneralSettingsFrame extends JDialog {
 			{
 				String item = (String)clustersLocationComboBox.getSelectedItem();
 				if (item == "Left")
-					PropertiesUtil.setClustersTabLocation(PropertiesUtil.Location.LEFT);
+					PropertiesUtil.setAnonymityTabLocation(PropertiesUtil.Location.LEFT);
 				if (item == "Top")
-					PropertiesUtil.setClustersTabLocation(PropertiesUtil.Location.TOP);
+					PropertiesUtil.setAnonymityTabLocation(PropertiesUtil.Location.TOP);
 				if (item == "Right")
-					PropertiesUtil.setClustersTabLocation(PropertiesUtil.Location.RIGHT);
+					PropertiesUtil.setAnonymityTabLocation(PropertiesUtil.Location.RIGHT);
 				if (item == "Bottom")
-					PropertiesUtil.setClustersTabLocation(PropertiesUtil.Location.BOTTOM);
+					PropertiesUtil.setAnonymityTabLocation(PropertiesUtil.Location.BOTTOM);
 			}
 		};
 		clustersLocationComboBox.addActionListener(clustersAL);

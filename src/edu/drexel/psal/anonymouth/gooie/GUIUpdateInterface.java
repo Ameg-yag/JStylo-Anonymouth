@@ -358,15 +358,15 @@ public class GUIUpdateInterface {
 	 * Updates the list of selected classifiers with respect to the list of classifiers.
 	 */
 	protected static void updateClassList(GUIMain main) {
-		DefaultListModel model = (DefaultListModel)main.classJList.getModel();
+//		DefaultListModel model = (DefaultListModel)main.classJList.getModel();
 		DefaultListModel model2 = (DefaultListModel)main.PPSP.classJList.getModel();
 		List<Classifier> classifiers = main.classifiers;
 		
-		model.removeAllElements();
+//		model.removeAllElements();
 		model2.removeAllElements();
 		for (Classifier c: classifiers) {
 			String className = c.getClass().getName();
-			model.addElement(className.substring(className.lastIndexOf(".")+1));
+//			model.addElement(className.substring(className.lastIndexOf(".")+1));
 			model2.addElement(className);
 		}
 	}

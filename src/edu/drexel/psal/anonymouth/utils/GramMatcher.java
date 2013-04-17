@@ -106,7 +106,7 @@ public class GramMatcher {
 		if(found == true){
 			int start = m.start();
 			int end = m.end();
-			System.out.println("Found match for: '"+theRegEx+"' => "+stringToTest.substring(start,end));
+//			System.out.println("Found match for: '"+theRegEx+"' => "+stringToTest.substring(start,end));
 			toHighlight.add(new int[]{start,end});
 			startIndex=start;
 			m.reset();
