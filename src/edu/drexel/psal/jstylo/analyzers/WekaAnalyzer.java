@@ -271,12 +271,12 @@ public class WekaAnalyzer extends Analyzer {
 	 */
 	@Override
 	public Classifier getClassifier() {
-		return this.classifier;
+		return classifier;
 	}
 	
 	@Override
 	public String[] getOptions(){
-		return this.classifier.getOptions();
+		return classifier.getOptions();
 	}
 	
 	@Override

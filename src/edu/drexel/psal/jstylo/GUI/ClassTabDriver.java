@@ -134,10 +134,10 @@ public class ClassTabDriver {
 					 * 
 					 */
 					
-					
+					ClassWizard cw = new ClassWizard(main,tmpAnalyzer);
+					cw.setVisible(true);
 					//Testing/assembling all components for the editor window
-					
-					
+					/*
 					//works for both
 					String tmpName = tmpAnalyzer.getName();
 					Logger.logln("Analyzer name: "+tmpName);
@@ -154,7 +154,7 @@ public class ClassTabDriver {
 					} else {
 						Logger.logln("No options for analyzer/classifier");
 					}
-					
+					*/
 					
 				} else {
 					Logger.logln("clicked in textfield without a classifier selected!");
@@ -366,6 +366,11 @@ public class ClassTabDriver {
 	 */
 	public static String getOptionsStr(String[] options) {
 		String optionStr = "";
+		
+		if (options==null)
+			return optionStr;
+					
+					
 		for (String option: options)
 			optionStr += option+" ";
 		return optionStr;
