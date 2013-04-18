@@ -137,24 +137,24 @@ public class ClassTabDriver {
 					ClassWizard cw = new ClassWizard(main,tmpAnalyzer);
 					cw.setVisible(true);
 					//Testing/assembling all components for the editor window
-					/*
+					
 					//works for both
-					String tmpName = tmpAnalyzer.getName();
-					Logger.logln("Analyzer name: "+tmpName);
+					//String tmpName = tmpAnalyzer.getName();
+					//Logger.logln("Analyzer name: "+tmpName);
 					
 					//works for both
 					String tmpDesc = tmpAnalyzer.analyzerDescription();
 					Logger.logln("Analyzer/Classifier desc: "+tmpDesc);
 					
 					//works for both
-					String[] tmpOptions =  tmpAnalyzer.optionsDescription();
-					if (tmpOptions!=null){
-						for (int i=0; i<tmpOptions.length;i++)
-							Logger.logln("Option "+i+" desc:"+tmpOptions[i]);
-					} else {
-						Logger.logln("No options for analyzer/classifier");
-					}
-					*/
+					//String[] tmpOptions =  tmpAnalyzer.optionsDescription();
+					//	if (tmpOptions!=null){
+						//	for (int i=0; i<tmpOptions.length;i++)
+							//Logger.logln("Option "+i+" desc:"+tmpOptions[i]);
+						//	} else {
+						//	Logger.logln("No options for analyzer/classifier");
+						//}
+					
 					
 				} else {
 					Logger.logln("clicked in textfield without a classifier selected!");

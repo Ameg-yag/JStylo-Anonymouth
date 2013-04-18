@@ -92,7 +92,7 @@ public class ClassWizard extends javax.swing.JFrame {
 					descriptionPanel.setBorder(BorderFactory.createCompoundBorder(defaultBorder,BorderFactory.createEmptyBorder(10,10,10,10)));
 					descriptionJScrollPane = new JScrollPane(descriptionPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-					if (options==null) //if there are no options, make the description the main focus of the window
+					if (options==null || options.length==0) //if there are no options, make the description the main focus of the window
 						mainPanel.add(descriptionJScrollPane,BorderLayout.CENTER);
 					else //otherwise the description is delegated to the top of the window
 						mainPanel.add(descriptionJScrollPane,BorderLayout.NORTH);
@@ -103,7 +103,6 @@ public class ClassWizard extends javax.swing.JFrame {
 						descriptionJTextArea.setEditable(false);
 						descriptionJTextArea.setLineWrap(true);
 						descriptionJTextArea.setWrapStyleWord(true);
-						//descriptionJTextArea.setFont(defaultLabelFont);
 						descriptionJTextArea.setPreferredSize(new Dimension(500,300));
 						descriptionPanel.add(descriptionJTextArea,BorderLayout.CENTER);
 					}
@@ -115,8 +114,11 @@ public class ClassWizard extends javax.swing.JFrame {
 								"Clicking the \"Apply Changes\" button will change the arg string and close the window.<br>"+
 								"Clicking the \"Cancel\" button will undo any changes.<br><br>" +
 								"NOTE: Due to the way weka classifiers are coded, we do not yet support the editing<br>"+
-								"&nbsp&nbsp&nbsp&nbsp&nbsp of arguments for them. You can still read the description and what each arg does, but note that<br>" +
-								"&nbsp&nbsp&nbsp&nbsp&nbsp the default args in the textfield may be incorrect, and that trying to save them may not go as planned."+
+								"&nbsp&nbsp&nbsp&nbsp&nbsp of arguments for all classifiers. You can still read the description and what each arg does, but note that<br>" +
+								"&nbsp&nbsp&nbsp&nbsp&nbsp the default args in the textfield may be incorrect, and that trying to save them may not go as planned.<br>" +
+								"<br>" +
+								"<b>Classifiers with known issues:</b><br>" +
+								"Multilayer Perceptron, NaiveBayes, J48, "+
 								"<br></p></html>");
 						descriptionPanel.add(summaryJLabel,BorderLayout.NORTH);
 					}
@@ -131,13 +133,15 @@ public class ClassWizard extends javax.swing.JFrame {
 					optionsPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 					optionsJScrollPane = new JScrollPane(optionsPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 					optionsJScrollPane.setBorder(defaultBorder);
-					if (options!=null){
+					if (options!=null && options.length>0){
 						optionsPanel.setPreferredSize(new Dimension(500,400));
 						mainPanel.add(optionsJScrollPane,BorderLayout.CENTER);
 						
 						//loop through options, adding a new option-description pair for each one
 						for (int i=0; i<options.length/2;i++){
 							
+							if (optionsDesc[i]==null)
+								break;
 							JTextField tempLabel = new JTextField("\n"+optionsDesc[i].trim().replaceAll("\\s+", " "));
 							tempLabel.setPreferredSize(new Dimension(550,50));
 							tempLabel.setEditable(false);
