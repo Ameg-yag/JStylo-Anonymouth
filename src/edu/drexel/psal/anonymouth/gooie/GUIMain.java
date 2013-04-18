@@ -1092,10 +1092,10 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepDocumentsPanel.add(clearProblemSetJButton);
 			prepDocumentsPanel.add(mainLabel, "span 2");
 			prepDocumentsPanel.add(sampleLabel, "span 2");
-			prepDocumentsPanel.add(prepMainDocScrollPane, "span 2, growy, h 60::180, w 0::150");
+			prepDocumentsPanel.add(prepMainDocScrollPane, "span 2, growy, h 60::180, w 60::150");
 			
 //			prepDocumentsPanel.add(prepMainDocList, "span 2, top, growy, h 60::20, w 0::160");
-			prepDocumentsPanel.add(prepSampleDocsScrollPane, "span 2, growy, h 60::180, w 0::150");
+			prepDocumentsPanel.add(prepSampleDocsScrollPane, "span 2, growy, h 60::180, w 60::150");
 			prepDocumentsPanel.add(addTestDocJButton);
 			prepDocumentsPanel.add(removeTestDocJButton);
 			
