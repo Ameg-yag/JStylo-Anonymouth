@@ -172,6 +172,8 @@ public class DriverPreProcessTabDocuments {
 							Logger.logln(NAME+"Trying to load problem set at: " + path);
 							try {
 								main.ps = new ProblemSet(path);
+								main.classComboBox.setSelectedItem(PropertiesUtil.prop.getProperty("recentClass"));
+								main.featuresSetJComboBox.setSelectedItem(PropertiesUtil.prop.getProperty("recentFeat"));
 								GUIUpdateInterface.updateProblemSet(main);
 							} catch (Exception exc) {
 								Logger.logln(NAME+"Failed loading "+path, LogOut.STDERR);
@@ -202,8 +204,13 @@ public class DriverPreProcessTabDocuments {
 				Logger.logln(NAME+"'Save Problem Set' button clicked on the documents tab.");
 				
 				PropertiesUtil.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-				if (PropertiesUtil.prop.getProperty("recentProbSet") != null)
+				if (PropertiesUtil.prop.getProperty("recentProbSet") != null) {
 					PropertiesUtil.save.setSelectedFile(new File(PropertiesUtil.prop.getProperty("recentProbSet")));
+					System.out.println(PropertiesUtil.save.getSelectedFile().getAbsolutePath());
+				} else {
+					PropertiesUtil.save.setSelectedFile(new File("problemSet.xml"));
+				}
+				
 				int answer = PropertiesUtil.save.showSaveDialog(main);
 				
 				if (answer == JFileChooser.APPROVE_OPTION) {
@@ -211,7 +218,7 @@ public class DriverPreProcessTabDocuments {
 					String path = f.getAbsolutePath();
 					String filename = f.getName();
 					
-					PropertiesUtil.setRecentProbSet(filename);
+					PropertiesUtil.setRecentProbSet(PropertiesUtil.save.getSelectedFile().getAbsolutePath());
 					
 					if (!path.toLowerCase().endsWith(".xml"))
 						path += ".xml";

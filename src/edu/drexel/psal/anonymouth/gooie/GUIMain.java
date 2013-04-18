@@ -594,59 +594,75 @@ public class GUIMain extends javax.swing.JFrame  {
 		}
 	}
 	
+	/**
+	 * Loads up the last saved prop file (if able) and sets all the documents from that prop file automatically. It also checks
+	 * what the last used feature and classifier were and (if able) set them over the default values.
+	 * @throws Exception - if any of these values are not found in the prop file, we instead set them to the defaults
+	 */
 	protected void setDefaultValues() throws Exception {
-		featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
-		PPSP.featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
-		cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
-		GUIUpdateInterface.updateFeatureSetView(this);
-		GUIUpdateInterface.updateFeatPrepColor(this);
-		
-		classChoice.setSelectedItem("SMO");
-		DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
-		DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
-		classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
-		PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()));
-		PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
-		GUIUpdateInterface.updateClassList(this);
-		GUIUpdateInterface.updateClassPrepColor(this);
-		DriverPreProcessTabClassifiers.tmpClassifier = null;
-
-//		PropUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-//		if (PropUtil.prop.getProperty("recentProbSet") == null) {
-//			PropUtil.setRecentProbSet();
-//		} else {
-//			String absPath = PropUtil.propFile.getAbsolutePath();
-//			String problemSetDir = absPath.substring(0, absPath.indexOf("anonymouth_prop")-1) + "\\problem_sets\\";
-//			PropUtil.load.setCurrentDirectory(new File(problemSetDir));
-//			PropUtil.load.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
-//		}
-//		
-//		int answer = 0;
-//		answer = PropUtil.load.showDialog(this, "Load Problem Set");
-//
-//		if (answer == JFileChooser.APPROVE_OPTION) {
-//			String path = PropUtil.load.getSelectedFile().getAbsolutePath();
-//			String filename = PropUtil.load.getSelectedFile().getName();
-//			//path = path.substring(path.indexOf("jsan_resources"));
-//
-//			PropUtil.setRecentProbSet(filename);
-//
-//			Logger.logln(NAME+"Trying to load problem set from "+path);
-//			try {
-//				ps = new ProblemSet(path);
-//				GUIUpdateInterface.updateProblemSet(this);
-//			} catch (Exception exc) {
-//				Logger.logln(NAME+"Failed loading "+path, LogOut.STDERR);
-//				Logger.logln(NAME+exc.toString(),LogOut.STDERR);
-//				JOptionPane.showMessageDialog(null,
-//						"Failed loading problem set from:\n"+path,
-//						"Load Problem Set Failure",
-//						JOptionPane.ERROR_MESSAGE);
-//			}
-//
-//		} else {
-//			Logger.logln(NAME+"Load problem set canceled");
-//		}
+		if (PropertiesUtil.prop.getProperty("recentProbSet") != null) {
+			String problemSetPath = PropertiesUtil.prop.getProperty("recentProbSet");
+			
+			PropertiesUtil.setRecentProbSet(problemSetPath);
+			Logger.logln(NAME+"Trying to load problem set at: " + problemSetPath);
+			
+			try {
+				ps = new ProblemSet(problemSetPath);
+				GUIUpdateInterface.updateProblemSet(this);
+			} catch (Exception exc) {
+				Logger.logln(NAME+"Failed loading "+problemSetPath, LogOut.STDERR);
+				Logger.logln(NAME+exc.toString(),LogOut.STDERR);
+				exc.printStackTrace();
+			}
+			
+			try {
+				if (PropertiesUtil.prop.getProperty("recentFeat") == null)
+					throw new Exception();
+				else {
+					featuresSetJComboBox.setSelectedItem(PropertiesUtil.prop.getProperty("recentFeat"));
+					PPSP.featuresSetJComboBox.setSelectedItem(PropertiesUtil.prop.getProperty("recentFeat"));
+					cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
+					GUIUpdateInterface.updateFeatureSetView(this);
+					GUIUpdateInterface.updateFeatPrepColor(this);
+				}
+			} catch (Exception exc) {
+				Logger.logln(NAME+"Failed loading recentFeat, not in prop file", LogOut.STDERR);
+				Logger.logln(NAME+exc.toString(),LogOut.STDERR);
+				featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
+				PPSP.featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
+				cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
+				GUIUpdateInterface.updateFeatureSetView(this);
+				GUIUpdateInterface.updateFeatPrepColor(this);
+			}
+			
+			try {
+				if (PropertiesUtil.prop.getProperty("recentClass") == null)
+					throw new Exception();
+				else {
+					classChoice.setSelectedItem(PropertiesUtil.prop.getProperty("recentClass"));
+					DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
+					DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
+					classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
+					PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()));
+					PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
+					GUIUpdateInterface.updateClassList(this);
+					GUIUpdateInterface.updateClassPrepColor(this);
+					DriverPreProcessTabClassifiers.tmpClassifier = null;
+				}
+			} catch (Exception exc) {
+				Logger.logln(NAME+"Failed loading recentClass, not in prop file", LogOut.STDERR);
+				Logger.logln(NAME+exc.toString(),LogOut.STDERR);
+				classChoice.setSelectedItem("SMO");
+				DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
+				DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
+				classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
+				PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()));
+				PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
+				GUIUpdateInterface.updateClassList(this);
+				GUIUpdateInterface.updateClassPrepColor(this);
+				DriverPreProcessTabClassifiers.tmpClassifier = null;
+			}
+		}
 	}
 
 	/**
@@ -863,7 +879,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	
 	public boolean mainDocReady()
 	{
-		if (inst.ps.hasTestDocs())
+		if (ps.hasTestDocs())
 			return true;
 		else
 			return false;
@@ -873,7 +889,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	{
 		try
 		{
-			if (!inst.ps.getTrainDocs(ProblemSet.getDummyAuthor()).isEmpty())
+			if (!ps.getTrainDocs(ProblemSet.getDummyAuthor()).isEmpty())
 				return true;
 			else
 				return false;
@@ -887,16 +903,15 @@ public class GUIMain extends javax.swing.JFrame  {
 		try
 		{
 			boolean result = true;
-			ProblemSet ps = inst.ps;
 			if (ps.getAuthors().size() == 0)
 				result = false;
 			else {
 				for (int i = 0; i < ps.getAuthors().size(); i++)
 				{
-					String author = (String)inst.ps.getAuthors().toArray()[i];
-					Set<String> authors = inst.ps.getAuthors();
+					String author = (String)ps.getAuthors().toArray()[i];
+					Set<String> authors = ps.getAuthors();
 					for (String curAuthor : authors) {
-						if (inst.ps.getTrainDocs(curAuthor).isEmpty()) {
+						if (ps.getTrainDocs(curAuthor).isEmpty()) {
 							result = false;
 							break;
 						}

@@ -97,6 +97,37 @@ public class PropertiesUtil {
 	}
 	
 	/**
+	 * Sets the currently selected feature so it's loaded up with the test doc, sample docs, etc.
+	 * @param feature - name of the currently selected feature in string form
+	 */
+	protected static void setRecentFeat(String feature) {
+		// saves the currently selected feature to the properties file
+		BufferedWriter writer;
+		try {
+			prop.setProperty("recentFeat", feature);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Sets the currently selected classifier so it's loaded up with the test doc, sample docs, etc.
+	 */
+	protected static void setRecentClass(String classifier) {
+		// saves the currently selected classifier to the properties file
+		BufferedWriter writer;
+		try {
+			prop.setProperty("recentClass", classifier);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * Sets the location of the documents tab
 	 * @param location - Should only use LEFT, TOP, or RIGHT
 	 */

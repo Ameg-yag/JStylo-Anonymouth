@@ -122,6 +122,8 @@ public class DriverPreProcessTabFeatures {
 				// update tab view
 				GUIUpdateInterface.updateFeatureSetView(main);
 				GUIUpdateInterface.updateFeatPrepColor(main);
+				
+				PropertiesUtil.setRecentFeat(main.featuresSetJComboBox.getSelectedItem().toString());
 			}
 		});
 	}
@@ -152,12 +154,12 @@ public class DriverPreProcessTabFeatures {
 
 				if (answer == JOptionPane.YES_OPTION) {
 					int selected = main.PPSP.featuresSetJComboBox.getSelectedIndex() - 1;
-					if (selected == -1) {
-						main.cfd = new CumulativeFeatureDriver();
-					} else {
+//					if (selected == -1) {
+//						main.cfd = new CumulativeFeatureDriver();
+//					} else {
 						main.cfd = main.presetCFDs.get(selected+1);
 						Logger.logln(NAME+"loaded preset feature set: "+main.cfd.getName());
-					}
+//					}
 					main.featuresSetJComboBox.setSelectedIndex(selected+1);
 					main.PPSP.featuresSetJComboBox.setSelectedIndex(selected+1);
 					// update tab view
@@ -166,6 +168,8 @@ public class DriverPreProcessTabFeatures {
 				} else {
 					Logger.logln(NAME+"Loading preset feature set canceled.");
 				}
+				
+				PropertiesUtil.setRecentFeat(main.featuresSetJComboBox.getSelectedItem().toString());
 			}
 		});
 
