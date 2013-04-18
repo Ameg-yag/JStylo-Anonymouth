@@ -90,21 +90,22 @@ public class ClassWizard extends javax.swing.JFrame {
 					descriptionPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
 					descriptionPanel.setPreferredSize(new Dimension(550,300));
 					descriptionPanel.setBorder(BorderFactory.createCompoundBorder(defaultBorder,BorderFactory.createEmptyBorder(10,10,10,10)));
-					descriptionJScrollPane = new JScrollPane(descriptionPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+					
 
 					if (options==null || options.length<=5) //if there are no options, make the description the main focus of the window
-						mainPanel.add(descriptionJScrollPane,BorderLayout.CENTER);
+						mainPanel.add(descriptionPanel,BorderLayout.CENTER);
 					else //otherwise the description is delegated to the top of the window
-						mainPanel.add(descriptionJScrollPane,BorderLayout.NORTH);
+						mainPanel.add(descriptionPanel,BorderLayout.NORTH);
 					
 					{
 						descriptionJTextArea = new JTextArea();
 						descriptionJTextArea.setText(analyzerDesc);
 						descriptionJTextArea.setEditable(false);
 						descriptionJTextArea.setLineWrap(true);
-						descriptionJTextArea.setWrapStyleWord(true);
-						descriptionJTextArea.setPreferredSize(new Dimension(500,300));
-						descriptionPanel.add(descriptionJTextArea,BorderLayout.CENTER);
+						descriptionJTextArea.setWrapStyleWord(true);						
+						descriptionJScrollPane = new JScrollPane(descriptionJTextArea,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+						descriptionJScrollPane.setPreferredSize(new Dimension(500,300));
+						descriptionPanel.add(descriptionJScrollPane,BorderLayout.CENTER);
 					}
 					{
 						summaryJLabel = new JLabel();
