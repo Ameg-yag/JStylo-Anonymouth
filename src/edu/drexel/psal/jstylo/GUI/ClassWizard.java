@@ -92,7 +92,7 @@ public class ClassWizard extends javax.swing.JFrame {
 					descriptionPanel.setBorder(BorderFactory.createCompoundBorder(defaultBorder,BorderFactory.createEmptyBorder(10,10,10,10)));
 					descriptionJScrollPane = new JScrollPane(descriptionPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-					if (options==null || options.length<=3) //if there are no options, make the description the main focus of the window
+					if (options==null || options.length<=5) //if there are no options, make the description the main focus of the window
 						mainPanel.add(descriptionJScrollPane,BorderLayout.CENTER);
 					else //otherwise the description is delegated to the top of the window
 						mainPanel.add(descriptionJScrollPane,BorderLayout.NORTH);
@@ -133,20 +133,17 @@ public class ClassWizard extends javax.swing.JFrame {
 					optionsPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 					optionsJScrollPane = new JScrollPane(optionsPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 					optionsJScrollPane.setBorder(defaultBorder);
+					Logger.logln("option length: "+options.length);
 					if (options!=null && options.length>0){
-						if (options.length==1){
-							optionsPanel.setPreferredSize(new Dimension(500,50));
+						if (options.length<=3){
+							optionsPanel.setPreferredSize(new Dimension(500,125));
 							mainPanel.add(optionsJScrollPane,BorderLayout.SOUTH);
 						}
-						else if (options.length==2){
-							optionsPanel.setPreferredSize(new Dimension(500,100));
+						else if (options.length<=5){
+							optionsPanel.setPreferredSize(new Dimension(500,200));
 							mainPanel.add(optionsJScrollPane,BorderLayout.SOUTH);
 						}
-						else if (options.length==3){
-							optionsPanel.setPreferredSize(new Dimension(500,150));
-							mainPanel.add(optionsJScrollPane,BorderLayout.SOUTH);
-						}
-						else{
+						else if (options.length>5){
 							optionsPanel.setPreferredSize(new Dimension(500,400));
 							mainPanel.add(optionsJScrollPane,BorderLayout.CENTER);
 						}
