@@ -290,7 +290,6 @@ public class FeatureWizard extends javax.swing.JFrame {
 							nameIntroJLabel.setBorder(BorderFactory.createCompoundBorder(
 									defaultBorder,BorderFactory.createEmptyBorder(cellPadding,cellPadding,cellPadding,cellPadding)));
 							nameIntroJLabel.setVerticalAlignment(JLabel.TOP);
-							//nameIntroJLabel.setFont(new Font("Verdana", 0, 12));
 							nameIntroJLabel.setText(
 									"<html><p>" +
 											"<font size=12pt><b>Creating a Feature</b></font><br>" +
