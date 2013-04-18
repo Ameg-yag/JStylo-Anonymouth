@@ -115,11 +115,7 @@ public class ClassWizard extends javax.swing.JFrame {
 								"Clicking the \"Apply Changes\" button will change the arg string and close the window.<br>"+
 								"Clicking the \"Cancel\" button will undo any changes.<br><br>" +
 								"NOTE: Due to the way weka classifiers are coded, we do not yet support the editing<br>"+
-								"&nbsp&nbsp&nbsp&nbsp&nbsp of arguments for all classifiers. You can still read the description and what each arg does, but note that<br>" +
-								"&nbsp&nbsp&nbsp&nbsp&nbsp the default args in the textfield may be incorrect, and that trying to save them may not go as planned.<br>" +
-								"<br>" +
-								"<b>Classifiers with known issues:</b><br>" +
-								"Multilayer Perceptron, NaiveBayes, J48, "+
+								"&nbsp&nbsp&nbsp&nbsp&nbsp of all arguments for all classifiers. Only arguments which can be edited reliably are listed.<br>" +
 								"<br></p></html>");
 						descriptionPanel.add(summaryJLabel,BorderLayout.NORTH);
 					}
@@ -128,7 +124,6 @@ public class ClassWizard extends javax.swing.JFrame {
 					// =============
 					// Options panel
 					// =============
-					
 						
 					optionsPanel = new JPanel(new GridLayout(0,1,0,0));
 					optionsPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
@@ -138,15 +133,18 @@ public class ClassWizard extends javax.swing.JFrame {
 					if (options!=null && options.length>0){
 						if (options.length<=3){
 							optionsPanel.setPreferredSize(new Dimension(500,125));
+							optionsJScrollPane.setPreferredSize(new Dimension(500,125));
 							mainPanel.add(optionsJScrollPane,BorderLayout.SOUTH);
 						}
 						else if (options.length<=5){
 							optionsPanel.setPreferredSize(new Dimension(500,200));
 							mainPanel.add(optionsJScrollPane,BorderLayout.SOUTH);
+							optionsJScrollPane.setPreferredSize(new Dimension(500,200));
 						}
 						else if (options.length>5){
-							optionsPanel.setPreferredSize(new Dimension(500,400));
+							optionsPanel.setPreferredSize(new Dimension(500,450));
 							mainPanel.add(optionsJScrollPane,BorderLayout.CENTER);
+							optionsJScrollPane.setPreferredSize(new Dimension(500,450));
 						}
 						
 						//loop through options, adding a new option-description pair for each one
@@ -182,7 +180,12 @@ public class ClassWizard extends javax.swing.JFrame {
 						// ============
 						if (options!=null && options.length!=0){
 							buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-							optionsPanel.add(buttonPanel);
+							buttonPanel.setPreferredSize(new Dimension(500,30));
+							
+							if (options.length<=5)
+								optionsPanel.add(buttonPanel);
+							else
+								mainPanel.add(buttonPanel,BorderLayout.SOUTH);
 							{
 								applyJButton = new JButton("Apply Changes");
 								buttonPanel.add(applyJButton);
