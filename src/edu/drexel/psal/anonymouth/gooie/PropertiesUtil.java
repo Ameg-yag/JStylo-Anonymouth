@@ -20,7 +20,7 @@ import com.jgaap.generics.Document;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.jstylo.generics.*;
 
-public class PropUtil {
+public class PropertiesUtil {
 	
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 
@@ -79,13 +79,14 @@ public class PropUtil {
 	}
 	
 	/**
-	 * Sets the previous problem set filename, so the user doesn't need to go searching for it. Must be in jsan_resources/problem_sets.
+	 * Sets the previous problem set filename, so the user doesn't need to go searching for it. 
 	 * @param filename - name of the file in string form (e.g. ps.xml)
 	 */
 	protected static void setRecentProbSet(String filename)
 	{
 		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
+		System.out.println(filename);
 		try {
 			prop.setProperty("recentProbSet", filename);
 			writer = new BufferedWriter(new FileWriter(propFileName));
@@ -173,12 +174,12 @@ public class PropUtil {
 	 * Sets the location of the clusters tab
 	 * @param location - Should only use LEFT, TOP, or RIGHT
 	 */
-	protected static void setAnonymityTabLocation(Location location)
+	protected static void setClustersTabLocation(Location location)
 	{
 		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
 		try {
-			prop.setProperty("anonymousTabLocation", "" + location.strRep);
+			prop.setProperty("clustersTabLocation", "" + location.strRep);
 			writer = new BufferedWriter(new FileWriter(propFileName));
 			prop.store(writer, "User Preferences");
 		} catch (IOException e1) {
@@ -189,19 +190,19 @@ public class PropUtil {
 	/**
 	 * Gets the location of the translations tab (default location also set here)
 	 */
-	protected static Location getAnonymityTabLocation()
+	protected static Location getClustersTabLocation()
 	{
 		String location = "";
 		try {
-			location = prop.getProperty("anonymousTabLocation");
+			location = prop.getProperty("clustersTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("anonymousTabLocation", DEFAULT_LOCATIONS[1]); // left
-				location = prop.getProperty("anonymousTabLocation");
+				prop.setProperty("clustersTabLocation", DEFAULT_LOCATIONS[1]); // left
+				location = prop.getProperty("clustersTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("anonymousTabLocation", DEFAULT_LOCATIONS[1]);
-			location = prop.getProperty("anonymousTabLocation");
+			prop.setProperty("clustersTabLocation", DEFAULT_LOCATIONS[1]);
+			location = prop.getProperty("clustersTabLocation");
 		}
 		return stringToLocation(location);
 	}
@@ -317,36 +318,41 @@ public class PropUtil {
 		return stringToLocation(location);
 	}
 	
-	protected static void setClustersTabLocation(Location location)
+	/**
+	 * Sets the location of the clusters tab
+	 * @param location - Should only use LEFT, TOP, or RIGHT
+	 */
+	protected static void setAnonymityTabLocation(Location location)
 	{
 		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
 		try {
-			prop.setProperty("clustersTabLocation", "" + location.strRep);
+			prop.setProperty("anonymousTabLocation", "" + location.strRep);
 			writer = new BufferedWriter(new FileWriter(propFileName));
 			prop.store(writer, "User Preferences");
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Gets the location of the translations tab (default location also set here)
 	 */
-	protected static Location getClustersTabLocation()
+	protected static Location getAnonymityTabLocation()
 	{
 		String location = "";
 		try {
-			location = prop.getProperty("clustersTabLocation");
+			location = prop.getProperty("anonymousTabLocation");
 			if (location == null)
 			{
-				prop.setProperty("clustersTabLocation", DEFAULT_LOCATIONS[1]); // left
-				location = prop.getProperty("clustersTabLocation");
+				prop.setProperty("anonymousTabLocation", DEFAULT_LOCATIONS[1]); // left
+				location = prop.getProperty("anonymousTabLocation");
 			}
 		} catch (NullPointerException e) {
-			prop.setProperty("clustersTabLocation", DEFAULT_LOCATIONS[1]);
-			location = prop.getProperty("clustersTabLocation");
+			prop.setProperty("anonymousTabLocation", DEFAULT_LOCATIONS[1]);
+			location = prop.getProperty("anonymousTabLocation");
 		}
 		return stringToLocation(location);
 	}
+
 }

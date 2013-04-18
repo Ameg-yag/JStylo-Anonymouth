@@ -44,6 +44,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	protected SparseReferences sentenceLevelFeaturesFound;
 
 	protected String untagged;
+	protected String untaggedWithEOSSubs = "";
 	protected ArrayList<Word> wordsInSentence;
 	protected ArrayList<String> translationNames = new ArrayList<String>();
 	protected ArrayList<TaggedSentence> translations = new ArrayList<TaggedSentence>();
@@ -54,7 +55,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	protected ArrayList<POV> pointOfView = new ArrayList<POV>(PROBABLE_MAX);
 	protected ArrayList<CONJ> conj = new ArrayList<CONJ>(PROBABLE_MAX);
 
-	private static final Pattern punctuationRegex=Pattern.compile("[.?!,\'\";:]{1}");
+	private static final Pattern punctuationRegex=Pattern.compile("[.?!,\'\";:]{1}"); //NOTE: sometimes you have "...","???", "?!?","!!!", etc. So, limiting this search to one of the characters is bad...
 	private static final Pattern specialCharsRegex=Pattern.compile("[~@#$%^&*-_=+><\\\\[\\\\]{}/\\|]+");
 	private static final Pattern digit=Pattern.compile("[\\d]{1,}");
 
@@ -82,6 +83,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	 * @param taggedSentence
 	 */
 	public TaggedSentence(TaggedSentence taggedSentence) {//TODO make sure this doesnt need new objects.
+		sentenceLevelFeaturesFound = new SparseReferences(10); // probably won't find more than 10 features in the sentence.
 		this.untagged=taggedSentence.untagged;
 		this.wordsInSentence=taggedSentence.wordsInSentence;
 
@@ -405,9 +407,21 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	public String getUntagged(){
 		return untagged;
 	}
+	
+	/**
+	 * if returnWithEOSSubs
+	 * @param returnWithEOSSubs 
+	 * @return
+	 */
+	public String getUntagged(boolean returnWithEOSSubs){
+		if (returnWithEOSSubs)
+			return untaggedWithEOSSubs;
+		else
+			return untagged;
+	}
 
 	public String toString(){
-		return "[ untagged: "+untagged+" ||| tagged: "+wordsInSentence.toString()+" ||| SparseReferences Object: "+getReferences().toString()+" ]";
+		return "[ untagged: <"+untagged+"> ||| tagged: "+wordsInSentence.toString()+" ||| SparseReferences Object: "+getReferences().toString()+" ]";
 		//||| tense: "+tense.toString()+" ||| point of view: "+pointOfView.toString()+" conjugation(s): "+conj.toString()+" ]";// ||| functionWords : "+functionWords.toString()+" ]";
 	}
 

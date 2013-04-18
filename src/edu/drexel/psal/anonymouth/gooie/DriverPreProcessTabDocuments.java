@@ -152,24 +152,24 @@ public class DriverPreProcessTabDocuments {
 					}
 					if (answer == 0) 
 					{
-						PropUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-						if (PropUtil.prop.getProperty("recentProbSet") != null)
+						PropertiesUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+						if (PropertiesUtil.prop.getProperty("recentProbSet") != null)
 						{
-							String absPath = PropUtil.propFile.getAbsolutePath();
+							String absPath = PropertiesUtil.propFile.getAbsolutePath();
 							String problemSetDir = absPath.substring(0, absPath.indexOf("anonymouth_prop")-1) + "\\problem_sets\\";
-							PropUtil.load.setCurrentDirectory(new File(problemSetDir));
-							PropUtil.load.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
+							PropertiesUtil.load.setCurrentDirectory(new File(problemSetDir));
+							PropertiesUtil.load.setSelectedFile(new File(PropertiesUtil.prop.getProperty("recentProbSet")));
 						}
-						answer = PropUtil.load.showDialog(main, "Load Problem Set");
+						answer = PropertiesUtil.load.showDialog(main, "Load Problem Set");
 						
 						if (answer == JFileChooser.APPROVE_OPTION) {
-							String path = PropUtil.load.getSelectedFile().getAbsolutePath();
-							String filename = PropUtil.load.getSelectedFile().getName();
+							String path = PropertiesUtil.load.getSelectedFile().getAbsolutePath();
+							//String filename = PropertiesUtil.load.getSelectedFile().getName();
 							//path = path.substring(path.indexOf("jsan_resources"));
 							
-							PropUtil.setRecentProbSet(filename);
+							PropertiesUtil.setRecentProbSet(path);
 							
-							Logger.logln(NAME+"Trying to load problem set " + filename);
+							Logger.logln(NAME+"Trying to load problem set at: " + path);
 							try {
 								main.ps = new ProblemSet(path);
 								GUIUpdateInterface.updateProblemSet(main);
@@ -201,17 +201,17 @@ public class DriverPreProcessTabDocuments {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln(NAME+"'Save Problem Set' button clicked on the documents tab.");
 				
-				PropUtil.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-				if (PropUtil.prop.getProperty("recentProbSet") != null)
-					PropUtil.save.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
-				int answer = PropUtil.save.showSaveDialog(main);
+				PropertiesUtil.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+				if (PropertiesUtil.prop.getProperty("recentProbSet") != null)
+					PropertiesUtil.save.setSelectedFile(new File(PropertiesUtil.prop.getProperty("recentProbSet")));
+				int answer = PropertiesUtil.save.showSaveDialog(main);
 				
 				if (answer == JFileChooser.APPROVE_OPTION) {
-					File f = PropUtil.save.getSelectedFile();
+					File f = PropertiesUtil.save.getSelectedFile();
 					String path = f.getAbsolutePath();
 					String filename = f.getName();
 					
-					PropUtil.setRecentProbSet(filename);
+					PropertiesUtil.setRecentProbSet(filename);
 					
 					if (!path.toLowerCase().endsWith(".xml"))
 						path += ".xml";
@@ -691,22 +691,20 @@ public class DriverPreProcessTabDocuments {
 							JOptionPane.YES_NO_CANCEL_OPTION);
 				}
 				if (answer == 0) {
-					PropUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-					if (PropUtil.prop.getProperty("recentProbSet") != null)
+					PropertiesUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+					if (PropertiesUtil.prop.getProperty("recentProbSet") != null)
 					{
-						String absPath = PropUtil.propFile.getAbsolutePath();
+						String absPath = PropertiesUtil.propFile.getAbsolutePath();
 						String problemSetDir = absPath.substring(0, absPath.indexOf("anonymouth_prop")-1) + "\\problem_sets\\";
-						PropUtil.load.setCurrentDirectory(new File(problemSetDir));
-						PropUtil.load.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
+						PropertiesUtil.load.setCurrentDirectory(new File(problemSetDir));
+						PropertiesUtil.load.setSelectedFile(new File(PropertiesUtil.prop.getProperty("recentProbSet")));
 					}
-					answer = PropUtil.load.showDialog(main, "Load Problem Set");
+					answer = PropertiesUtil.load.showDialog(main, "Load Problem Set");
 					
 					if (answer == JFileChooser.APPROVE_OPTION) {
-						String path = PropUtil.load.getSelectedFile().getAbsolutePath();
-						String filename = PropUtil.load.getSelectedFile().getName();
-						//path = path.substring(path.indexOf("jsan_resources"));
+						String path = PropertiesUtil.load.getSelectedFile().getAbsolutePath();
 						
-						PropUtil.setRecentProbSet(filename);
+						PropertiesUtil.setRecentProbSet(path);
 						
 						Logger.logln(NAME+"Trying to load problem set from "+path);
 						try {
@@ -736,17 +734,17 @@ public class DriverPreProcessTabDocuments {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln(NAME+"'Save Problem Set' button clicked on the documents tab.");
 				
-				PropUtil.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
-				if (PropUtil.prop.getProperty("recentProbSet") != null)
-					PropUtil.save.setSelectedFile(new File(PropUtil.prop.getProperty("recentProbSet")));
-				int answer = PropUtil.save.showSaveDialog(main);
+				PropertiesUtil.save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+				if (PropertiesUtil.prop.getProperty("recentProbSet") != null)
+					PropertiesUtil.save.setSelectedFile(new File(PropertiesUtil.prop.getProperty("recentProbSet")));
+				int answer = PropertiesUtil.save.showSaveDialog(main);
 				
 				if (answer == JFileChooser.APPROVE_OPTION) {
-					File f = PropUtil.save.getSelectedFile();
+					File f = PropertiesUtil.save.getSelectedFile();
 					String path = f.getAbsolutePath();
-					String filename = f.getName();
+					System.out.println(path);
 					
-					PropUtil.setRecentProbSet(filename);
+					PropertiesUtil.setRecentProbSet(path);
 					
 					if (!path.toLowerCase().endsWith(".xml"))
 						path += ".xml";

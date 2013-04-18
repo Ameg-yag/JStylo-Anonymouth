@@ -483,16 +483,16 @@ public class GUIMain extends javax.swing.JFrame  {
 		// properties file -----------------------------------
 		BufferedReader propReader = null;
 		
-		if (!PropUtil.propFile.exists())
+		if (!PropertiesUtil.propFile.exists())
 		{
-			try {PropUtil.propFile.createNewFile();} 
+			try {PropertiesUtil.propFile.createNewFile();} 
 			catch (IOException e1) {e1.printStackTrace();}
 		}
 		
-		try {propReader = new BufferedReader (new FileReader(PropUtil.propFileName));} 
+		try {propReader = new BufferedReader (new FileReader(PropertiesUtil.propFileName));} 
 		catch (FileNotFoundException e) {e.printStackTrace();}
 		
-		try {PropUtil.prop.load(propReader);}
+		try {PropertiesUtil.prop.load(propReader);}
 		catch (IOException e) {e.printStackTrace();}
 	}
 
@@ -676,29 +676,29 @@ public class GUIMain extends javax.swing.JFrame  {
 		panels.put("Clusters", clustersPanel);
 //		panels.put("Results", resultsPanel);
 		
-		ArrayList<PropUtil.Location> panelLocations = new ArrayList<PropUtil.Location>();
-		panelLocations.add(PropUtil.getPreProcessTabLocation());
-		panelLocations.add(PropUtil.getSuggestionsTabLocation());
-		panelLocations.add(PropUtil.getTranslationsTabLocation());
-		panelLocations.add(PropUtil.getDocumentsTabLocation());
-		panelLocations.add(PropUtil.getAnonymityTabLocation());
-		panelLocations.add(PropUtil.getClustersTabLocation());
-		panelLocations.add(PropUtil.getResultsTabLocation());
+		ArrayList<PropertiesUtil.Location> panelLocations = new ArrayList<PropertiesUtil.Location>();
+		panelLocations.add(PropertiesUtil.getPreProcessTabLocation());
+		panelLocations.add(PropertiesUtil.getSuggestionsTabLocation());
+		panelLocations.add(PropertiesUtil.getTranslationsTabLocation());
+		panelLocations.add(PropertiesUtil.getDocumentsTabLocation());
+		panelLocations.add(PropertiesUtil.getAnonymityTabLocation());
+		panelLocations.add(PropertiesUtil.getClustersTabLocation());
+		panelLocations.add(PropertiesUtil.getResultsTabLocation());
 		
 		// ----- form the column specifications
 		String columnString = "";
 		int columnNumber = 0;
-		if (panelLocations.contains(PropUtil.Location.LEFT))
+		if (panelLocations.contains(PropertiesUtil.Location.LEFT))
 		{
 			columnString = columnString.concat("[]");
 			columnNumber++;
 		}
-		if (panelLocations.contains(PropUtil.Location.TOP) || panelLocations.contains(PropUtil.Location.BOTTOM))
+		if (panelLocations.contains(PropertiesUtil.Location.TOP) || panelLocations.contains(PropertiesUtil.Location.BOTTOM))
 		{
 			columnString = columnString.concat("[grow, growprio 110, fill]");
 			columnNumber++;
 		}
-		if (panelLocations.contains(PropUtil.Location.RIGHT))
+		if (panelLocations.contains(PropertiesUtil.Location.RIGHT))
 		{
 			columnString = columnString.concat("[]");
 			columnNumber++;
@@ -706,11 +706,11 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 		// ----- form the row specifications
 		String rowString = "";
-		if (panelLocations.contains(PropUtil.Location.TOP))
+		if (panelLocations.contains(PropertiesUtil.Location.TOP))
 		{
 			rowString = rowString.concat("[grow, fill]");
 		}
-		if (panelLocations.contains(PropUtil.Location.BOTTOM))
+		if (panelLocations.contains(PropertiesUtil.Location.BOTTOM))
 		{
 			rowString = rowString.concat("[150:25%:]");
 		}
@@ -727,26 +727,26 @@ public class GUIMain extends javax.swing.JFrame  {
 		// ------ add all tabs to their correct tab panes
 		for (int i = 0; i < panels.size(); i++)
 		{
-			if (panelLocations.get(i) == PropUtil.Location.LEFT)
+			if (panelLocations.get(i) == PropertiesUtil.Location.LEFT)
 				leftTabPane.add(panelNames.get(i), panels.get(panelNames.get(i)));
-			else if (panelLocations.get(i) == PropUtil.Location.TOP)
+			else if (panelLocations.get(i) == PropertiesUtil.Location.TOP)
 				topTabPane.add(panelNames.get(i), panels.get(panelNames.get(i)));
-			else if (panelLocations.get(i) == PropUtil.Location.RIGHT)
+			else if (panelLocations.get(i) == PropertiesUtil.Location.RIGHT)
 				rightTabPane.add(panelNames.get(i), panels.get(panelNames.get(i)));
-			else if (panelLocations.get(i) == PropUtil.Location.BOTTOM)
+			else if (panelLocations.get(i) == PropertiesUtil.Location.BOTTOM)
 				bottomTabPane.add(panelNames.get(i), panels.get(panelNames.get(i)));
 			else
 				throw new Exception();
 		}
 		
 		// ------ add all tab panes, if they need to be added
-		if (panelLocations.contains(PropUtil.Location.LEFT))
+		if (panelLocations.contains(PropertiesUtil.Location.LEFT))
 			getContentPane().add(leftTabPane, "width 250!, spany");
-		if (panelLocations.contains(PropUtil.Location.TOP))
+		if (panelLocations.contains(PropertiesUtil.Location.TOP))
 			getContentPane().add(topTabPane, "width 600:100%:, grow");
-		if (panelLocations.contains(PropUtil.Location.RIGHT))
+		if (panelLocations.contains(PropertiesUtil.Location.RIGHT))
 			getContentPane().add(rightTabPane, "width ::353, spany"); // MUST be at LEAST 353 for Mac OS X. 
-		if (panelLocations.contains(PropUtil.Location.BOTTOM))
+		if (panelLocations.contains(PropertiesUtil.Location.BOTTOM))
 			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:");
 		
 		getContentPane().revalidate();
@@ -758,26 +758,26 @@ public class GUIMain extends javax.swing.JFrame  {
 	 */
 	public void fixLayouts()
 	{
-		PropUtil.Location clustersLocation = PropUtil.getClustersTabLocation();
-		if (clustersLocation == PropUtil.Location.LEFT || clustersLocation == PropUtil.Location.RIGHT)
+		PropertiesUtil.Location clustersLocation = PropertiesUtil.getClustersTabLocation();
+		if (clustersLocation == PropertiesUtil.Location.LEFT || clustersLocation == PropertiesUtil.Location.RIGHT)
 		{
 			clustersPanel.setLayout(new MigLayout(
 					"wrap, ins 0, gap 0 0",
 					"grow, fill",
 					"[][grow, fill][]"));
-
+			
 			clustersPanel.removeAll();
 			clustersPanel.add(clustersLabel);
 			clustersPanel.add(clusterScrollPane);
 			clustersPanel.add(featuresPanel, "h 250!");
 		}
-		else if (clustersLocation == PropUtil.Location.TOP)
+		else if (clustersLocation == PropertiesUtil.Location.TOP)
 		{
 			clustersPanel.setLayout(new MigLayout(
 					"wrap 2, fill, ins 0, gap 0",
 					"[70%][30%]",
 					"[][][grow, fill]"));
-
+			
 			clustersPanel.removeAll();
 			clustersPanel.add(clustersLabel, "grow, h " + titleHeight + "!");
 			clustersPanel.add(legendLabel, "grow, h " + titleHeight + "!");
@@ -786,8 +786,8 @@ public class GUIMain extends javax.swing.JFrame  {
 			clustersPanel.add(featuresPanel, "spany, grow");
 		}
 		
-		PropUtil.Location anonymityLocation = PropUtil.getAnonymityTabLocation();
-		if (anonymityLocation == PropUtil.Location.LEFT || anonymityLocation == PropUtil.Location.RIGHT)
+		PropertiesUtil.Location anonymityLocation = PropertiesUtil.getAnonymityTabLocation();
+		if (anonymityLocation == PropertiesUtil.Location.LEFT || anonymityLocation == PropertiesUtil.Location.RIGHT)
 		{
 			anonymityPanel.setLayout(new MigLayout(
 					"wrap, ins 0, gap 0 0",
@@ -801,7 +801,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
 			anonymityPanel.add(resultsMainPanel, "grow");
 		}
-		else if (anonymityLocation == PropUtil.Location.TOP)
+		else if (anonymityLocation == PropertiesUtil.Location.TOP)
 		{
 			anonymityPanel.setLayout(new MigLayout(
 					"wrap 2, fill, ins 0, gap 0",
@@ -1586,14 +1586,14 @@ public class GUIMain extends javax.swing.JFrame  {
 	
 	private JPanel createClustersTab() throws Exception
 	{
-		PropUtil.Location location = PropUtil.getClustersTabLocation();
+		PropertiesUtil.Location location = PropertiesUtil.getClustersTabLocation();
 		clustersPanel = new JPanel();
-		if (location == PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
+		if (location == PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
 			clustersPanel.setLayout(new MigLayout(
 					"wrap, ins 0",
 					"grow, fill",
 					"0[]0[grow, fill][]0"));
-		else if (location == PropUtil.Location.TOP)
+		else if (location == PropertiesUtil.Location.TOP)
 			clustersPanel.setLayout(new MigLayout(
 					"wrap 2, fill, ins 0, gap 0",
 					"[70%][30%]",
@@ -1696,14 +1696,14 @@ public class GUIMain extends javax.swing.JFrame  {
 				featuresPanel.add(subFeaturesListScrollPane, "grow");
 			}
 			
-			if (location== PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
+			if (location== PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
 			{
 				//clustersPanel.add(legendPanel);
 				clustersPanel.add(clustersLabel);
 				clustersPanel.add(clusterScrollPane);
 				clustersPanel.add(featuresPanel, "h 250!");
 			}
-			else if (location == PropUtil.Location.TOP)
+			else if (location == PropertiesUtil.Location.TOP)
 			{
 				clustersPanel.add(clustersLabel, "grow, h " + titleHeight + "!");
 				clustersPanel.add(legendLabel, "grow, h " + titleHeight + "!");
@@ -1719,14 +1719,14 @@ public class GUIMain extends javax.swing.JFrame  {
 	
 	private JPanel createAnonymityTab() throws Exception
 	{
-		PropUtil.Location location = PropUtil.getAnonymityTabLocation();
+		PropertiesUtil.Location location = PropertiesUtil.getAnonymityTabLocation();
 		anonymityPanel = new JPanel();
-		if (location == PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
+		if (location == PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
 			anonymityPanel.setLayout(new MigLayout(
 					"wrap, ins 0",
 					"grow, fill",
 					"0[]0[grow, fill][]0"));
-		else if (location == PropUtil.Location.TOP)
+		else if (location == PropertiesUtil.Location.TOP)
 			anonymityPanel.setLayout(new MigLayout(
 					"wrap 2, fill, ins 0, gap 0",
 					"[70%][30%]",
@@ -1768,7 +1768,7 @@ public class GUIMain extends javax.swing.JFrame  {
 				makeResultsTable();
 			}
 			
-			if (location== PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
+			if (location== PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
 			{
 				//anonymityPanel.add(legendPanel);
 				anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
@@ -1777,7 +1777,7 @@ public class GUIMain extends javax.swing.JFrame  {
 				anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
 				anonymityPanel.add(resultsMainPanel, "grow");
 			}
-			else if (location == PropUtil.Location.TOP)
+			else if (location == PropertiesUtil.Location.TOP)
 			{
 				anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
 				anonymityPanel.add(anonymityDrawingPanel, "h 515!");
