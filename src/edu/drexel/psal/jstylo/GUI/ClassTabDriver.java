@@ -133,10 +133,16 @@ public class ClassTabDriver {
 					 * 7) default args/reset button should be listed? (maybe not as just canceling and clicking again would suffice?)
 					 * 
 					 */
-					String[] s =  tmpAnalyzer.optionsDescription();
-					if (s!=null){
-						for (int i=0; i<s.length;i++)
-							Logger.logln("Option "+i+" desc:"+s[i]);
+					
+					
+					//Testing/assembling all components for the editor window
+					String tmpDesc = tmpAnalyzer.analyzerDescription();
+					Logger.logln("Analyzer/Classifier desc: "+tmpDesc);
+					
+					String[] tmpOptions =  tmpAnalyzer.optionsDescription();
+					if (tmpOptions!=null){
+						for (int i=0; i<tmpOptions.length;i++)
+							Logger.logln("Option "+i+" desc:"+tmpOptions[i]);
 					} else {
 						Logger.logln("No options for analyzer/classifier");
 					}

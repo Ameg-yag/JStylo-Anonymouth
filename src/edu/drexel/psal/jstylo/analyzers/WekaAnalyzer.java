@@ -270,38 +270,10 @@ public class WekaAnalyzer extends Analyzer {
 		return this.classifier.getOptions();
 	}
 	
-	/* =======
-	 * setters
-	 * =======
-	 */
-	
-	/**
-	 * Sets the underlying Weka classifier to the given one.
-	 * @param classifier
-	 * 		The Weka classifier to set to.
-	 */
-	public void setClassifier(Classifier classifier) {
-		this.classifier = classifier;
-	}
-	
 	@Override
 	public String getName(){
 		return classifier.getClass().getName();
 	}
-
-	@Override
-	public void setOptions(String[] ops){
-		try {
-			classifier.setOptions(ops);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	
-	
-	///TODO organize the below
 	
 	@Override
 	public String[] optionsDescription() {
@@ -318,11 +290,34 @@ public class WekaAnalyzer extends Analyzer {
 		
 		return optionsDesc;
 	}
-
+	
 	@Override
 	public String analyzerDescription() {
-		// TODO Auto-generated method stub
-		return null;
+	
+		return classifier.toString();
 	}
 	
+	/* =======
+	 * setters
+	 * =======
+	 */
+	
+	/**
+	 * Sets the underlying Weka classifier to the given one.
+	 * @param classifier
+	 * 		The Weka classifier to set to.
+	 */
+	public void setClassifier(Classifier classifier) {
+		this.classifier = classifier;
+	}
+
+	@Override
+	public void setOptions(String[] ops){
+		try {
+			classifier.setOptions(ops);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

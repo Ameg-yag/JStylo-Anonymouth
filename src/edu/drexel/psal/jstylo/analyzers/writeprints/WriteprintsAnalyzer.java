@@ -549,7 +549,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		for (int i = 0; i < numAuthors; i++) {
 			authorName = classAttribute.value(i);
 			authorData = new AuthorWPData(authorName);
-			Logger.logln("- " + authorName);
+			//Logger.logln("- " + authorName);
 			authorData.initFeatureMatrix(dataset1, averageFeatureVectors);
 			dataset1AuthorData.add(authorData);
 			authorData.initBasisAndWriteprintMatrices();
@@ -560,7 +560,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		for (int i = 0; i < numAuthors; i++) {
 			authorName = classAttribute.value(i);
 			authorData = new AuthorWPData(authorName);
-			Logger.logln("- " + authorName);
+			//Logger.logln("- " + authorName);
 			authorData.initFeatureMatrix(dataset2, averageFeatureVectors);
 			dataset2AuthorData.add(authorData);
 			authorData.initBasisAndWriteprintMatrices();
