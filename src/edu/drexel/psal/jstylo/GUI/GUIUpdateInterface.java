@@ -212,9 +212,7 @@ public class GUIUpdateInterface {
 	/**
 	 * Creates a panel with parameters and their values for the given event driver / canonicizer / culler.
 	 */
-	protected static JPanel getParamPanel(Parameterizable p) {	//FIXME this is a rather hacky solution for the layout of the featureExtractor config scrollpane.
-																	//TableLayout was being frustrating and other problems were more important, so I threw this
-																	//together as a slight improvement. Will come back to this once I get more important stuff out of the way
+	protected static JPanel getParamPanel(Parameterizable p) {
 		List<Pair<String,ParamTag>> params = FeatureDriver.getClassParams(p.getClass().getName());
 		
 		JPanel panel = new JPanel(new GridLayout(params.size(),2,1,1));
@@ -256,7 +254,7 @@ public class GUIUpdateInterface {
 		
 		model.removeAllElements();
 		for (Analyzer a: analyzers) {		
-			model.addElement(a.getName());	//TODO an instance of getClassifier and another instanceof	
+			model.addElement(a.getName());	
 		}
 	}
 }

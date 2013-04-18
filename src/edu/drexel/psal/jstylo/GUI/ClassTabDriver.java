@@ -136,9 +136,17 @@ public class ClassTabDriver {
 					
 					
 					//Testing/assembling all components for the editor window
+					
+					
+					//works for both
+					String tmpName = tmpAnalyzer.getName();
+					Logger.logln("Analyzer name: "+tmpName);
+					
+					//works for both
 					String tmpDesc = tmpAnalyzer.analyzerDescription();
 					Logger.logln("Analyzer/Classifier desc: "+tmpDesc);
 					
+					//works for both
 					String[] tmpOptions =  tmpAnalyzer.optionsDescription();
 					if (tmpOptions!=null){
 						for (int i=0; i<tmpOptions.length;i++)
