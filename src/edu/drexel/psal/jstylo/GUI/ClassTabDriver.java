@@ -118,44 +118,13 @@ public class ClassTabDriver {
 		main.classAvClassArgsJTextField.addMouseListener(new MouseListener(){
 
 			@Override
-			public void mouseClicked(MouseEvent arg0) { //TODO maybe just try to build my own analyzer editor, as this doesn't seem to be working out too well.
+			public void mouseClicked(MouseEvent arg0) {
 				if (tmpAnalyzer!=null){
 					Logger.logln("clicked in textfield with a classifier selected!");
 					
-					//====Recipe:
-					/*
-					 * 1) Interact-able pop-up window
-					 * 2) ability to return information back here
-					 * 3) should describe the analyzer (and classifier if there is one)
-					 * 4) should provide a text field, name label, and description for each argument
-					 * 5) changing the args and pressing "OK" should change the args here
-					 * 6) changing the args and pressing "cancel" should not change anything
-					 * 7) default args/reset button should be listed? (maybe not as just canceling and clicking again would suffice?)
-					 * 
-					 */
-					
 					ClassWizard cw = new ClassWizard(main,tmpAnalyzer);
 					cw.setVisible(true);
-					//Testing/assembling all components for the editor window
-					
-					//works for both
-					//String tmpName = tmpAnalyzer.getName();
-					//Logger.logln("Analyzer name: "+tmpName);
-					
-					//works for both
-					String tmpDesc = tmpAnalyzer.analyzerDescription();
-					Logger.logln("Analyzer/Classifier desc: "+tmpDesc);
-					
-					//works for both
-					//String[] tmpOptions =  tmpAnalyzer.optionsDescription();
-					//	if (tmpOptions!=null){
-						//	for (int i=0; i<tmpOptions.length;i++)
-							//Logger.logln("Option "+i+" desc:"+tmpOptions[i]);
-						//	} else {
-						//	Logger.logln("No options for analyzer/classifier");
-						//}
-					
-					
+			
 				} else {
 					Logger.logln("clicked in textfield without a classifier selected!");
 				}
@@ -399,7 +368,7 @@ public class ClassTabDriver {
 																//		as is, if at least one classifier in a package shows up first, that whole package will be
 																//		listed first. Just an idea.
 		// bayes
-		"weka.classifiers.bayes.BayesNet",
+		//"weka.classifiers.bayes.BayesNet",
 		"weka.classifiers.bayes.NaiveBayes",
 		"weka.classifiers.bayes.NaiveBayesMultinomial",
 		"weka.classifiers.bayes.NaiveBayesMultinomialUpdateable",
@@ -442,7 +411,7 @@ public class ClassTabDriver {
 		
 		for (Node n : loadedClassifiers){
 			String name = n.getName();
-			if (name.contains("weka")) break; //weka's in a wierd spot currently. TODO probably remove this later once everything's standardized. 
+			if (name.contains("weka")) break; //weka's in a weird spot currently. TODO probably remove this later once everything's standardized. 
 																//in the meantime, this prevents a second, empty, weka folder from being added.
 			String[] components = name.split("\\."); 
 			DefaultMutableTreeNode temp = new DefaultMutableTreeNode(components[0]);
@@ -465,7 +434,6 @@ public class ClassTabDriver {
 		String[] cNames = new String[loadedClasses.length+classNames.length];
 		int j=0;
 		for (String c : classNames){
-			//Logger.logln("wekaClasses: "+c);
 			cNames[j]=c;
 			j++;
 		}
@@ -534,7 +502,7 @@ public class ClassTabDriver {
 	 */
 	protected static String[] classifierGroups = new String[] {
 		"edu.drexel.psal.jstylo.analyzers -F AuthorWPdata.class -F SynonymBasedClassifier.class -F WekaAnalyzer.class",
-		"com.jgaap.classifiers",
+		//"com.jgaap.classifiers",
 		"weka.classifiers"
 	};
 	
@@ -667,7 +635,7 @@ public class ClassTabDriver {
 
 		for (Node current: modules){
 			populateNode(current,packagesToIgnore,filesToIgnore); //populates each node and all its subnodes
-			//Logger.logln("\nClassifier Tree for "+current.toString()); //TODO use this to see each tree ---I think it's pretty useful
+			//Logger.logln("\nClassifier Tree for "+current.toString()); // use this to see each tree ---I think it's pretty useful
 		}
 		
 		

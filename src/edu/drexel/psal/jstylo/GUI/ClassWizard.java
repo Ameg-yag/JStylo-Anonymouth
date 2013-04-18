@@ -48,10 +48,10 @@ public class ClassWizard extends javax.swing.JFrame {
 	protected JScrollPane descriptionJScrollPane; 
 	
 	//optionsPanel
-	protected ArrayList<JTextField> optionFields;
+	protected ArrayList<JTextField> optionFields; //is used by ClassWizardDriver to set the new option string
 	protected JScrollPane optionsJScrollPane;
 	/*
-	 * To be dynamically generated based on the size/number of arguments.
+	 * The rest of the components are to be dynamically generated based on the size/number of arguments.
 	 * for each argument there will be either a JLabel or JTextArea description, and a JTextfield in which to edit the arg
 	 */
 	
@@ -92,7 +92,7 @@ public class ClassWizard extends javax.swing.JFrame {
 					descriptionPanel.setBorder(BorderFactory.createCompoundBorder(defaultBorder,BorderFactory.createEmptyBorder(10,10,10,10)));
 					descriptionJScrollPane = new JScrollPane(descriptionPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-					if (options==null || options.length==0) //if there are no options, make the description the main focus of the window
+					if (options==null || options.length<=3) //if there are no options, make the description the main focus of the window
 						mainPanel.add(descriptionJScrollPane,BorderLayout.CENTER);
 					else //otherwise the description is delegated to the top of the window
 						mainPanel.add(descriptionJScrollPane,BorderLayout.NORTH);
@@ -134,8 +134,22 @@ public class ClassWizard extends javax.swing.JFrame {
 					optionsJScrollPane = new JScrollPane(optionsPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 					optionsJScrollPane.setBorder(defaultBorder);
 					if (options!=null && options.length>0){
-						optionsPanel.setPreferredSize(new Dimension(500,400));
-						mainPanel.add(optionsJScrollPane,BorderLayout.CENTER);
+						if (options.length==1){
+							optionsPanel.setPreferredSize(new Dimension(500,50));
+							mainPanel.add(optionsJScrollPane,BorderLayout.SOUTH);
+						}
+						else if (options.length==2){
+							optionsPanel.setPreferredSize(new Dimension(500,100));
+							mainPanel.add(optionsJScrollPane,BorderLayout.SOUTH);
+						}
+						else if (options.length==3){
+							optionsPanel.setPreferredSize(new Dimension(500,150));
+							mainPanel.add(optionsJScrollPane,BorderLayout.SOUTH);
+						}
+						else{
+							optionsPanel.setPreferredSize(new Dimension(500,400));
+							mainPanel.add(optionsJScrollPane,BorderLayout.CENTER);
+						}
 						
 						//loop through options, adding a new option-description pair for each one
 						for (int i=0; i<options.length/2;i++){
@@ -149,8 +163,7 @@ public class ClassWizard extends javax.swing.JFrame {
 							JTextField tempField = new JTextField(options[2*i+1]);
 							tempField.setPreferredSize(new Dimension(550,25));
 							
-							optionFields.add(tempField); //TODO not sure if necessary
-							
+							optionFields.add(tempField); 							
 							optionsPanel.add(tempLabel);
 							optionsPanel.add(tempField);
 						}
@@ -165,25 +178,28 @@ public class ClassWizard extends javax.swing.JFrame {
 						}
 					}
 						
-				}
-				{
-					// ============
-					// Button panel
-					// ============
-					buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-					mainPanel.add(buttonPanel,BorderLayout.SOUTH);
 					{
-						applyJButton = new JButton("Apply Changes");
-						buttonPanel.add(applyJButton);
-					}
-					{
-						cancelJButton = new JButton("Cancel");
-						buttonPanel.add(cancelJButton);
+						// ============
+						// Button panel
+						// ============
+						if (options!=null && options.length!=0){
+							buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+							optionsPanel.add(buttonPanel);
+							{
+								applyJButton = new JButton("Apply Changes");
+								buttonPanel.add(applyJButton);
+							}
+							{
+								cancelJButton = new JButton("Cancel");
+								buttonPanel.add(cancelJButton);
+							}
+						}
 					}
 				}
 			}
 			
-			ClassWizardDriver.initListeners(this);
+			if (options!=null && options.length!=0)
+				ClassWizardDriver.initListeners(this);
 			
 			pack();
 		} catch (Exception e){

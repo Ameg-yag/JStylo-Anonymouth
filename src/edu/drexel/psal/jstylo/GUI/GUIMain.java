@@ -60,7 +60,6 @@ public class GUIMain extends javax.swing.JFrame {
 	protected List<CumulativeFeatureDriver> presetCFDs;
 	protected WekaInstancesBuilder wib;
 	protected Analyzer analysisDriver;
-	//protected AnalyzerTypeEnum at = AnalyzerTypeEnum.WEKA_ANALYZER; // default
 	protected List<Analyzer> analyzers;
 	protected Thread analysisThread;
 	protected List<String> results;
@@ -951,7 +950,7 @@ public class GUIMain extends javax.swing.JFrame {
 								{
 									classAvClassArgsJLabel = new JLabel();
 									config.add(classAvClassArgsJLabel);
-									classAvClassArgsJLabel.setText("Classifier Arguments");
+									classAvClassArgsJLabel.setText("<html>Classifier Arguments&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp(Click text field to edit)</html>");
 									classAvClassArgsJLabel.setFont(defaultLabelFont);
 								}
 								{
