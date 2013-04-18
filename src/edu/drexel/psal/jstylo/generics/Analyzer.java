@@ -268,9 +268,6 @@ public abstract class Analyzer{
 	 * @return the arguments the analyzer has or null if it doesn't have any
 	 */
 	public String[] getOptions(){
-		if (options==null)
-			return new String[] {""}; //TODO maybe change this to null
-		else
 			return options;
 	}
 	
