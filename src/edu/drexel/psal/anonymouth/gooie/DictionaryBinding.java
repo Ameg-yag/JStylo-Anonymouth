@@ -1,6 +1,14 @@
 package edu.drexel.psal.anonymouth.gooie;
 
+import edu.drexel.psal.anonymouth.utils.POS;
 import edu.drexel.psal.jstylo.generics.Logger;
+/*
+import com.wintertree.wthes.CompressedThesaurus;
+import com.wintertree.wthes.LicenseKey;
+import com.wintertree.wthes.TextThesaurus;
+import com.wintertree.wthes.Thesaurus;
+import com.wintertree.wthes.ThesaurusSession;
+*/
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.WordNetDatabase;
 
@@ -15,18 +23,28 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 import javax.swing.JOptionPane;
 
 import com.jgaap.JGAAPConstants;
-
+/*
+import com.wintertree.wthes.CompressedThesaurus;
+import com.wintertree.wthes.LicenseKey;
+import com.wintertree.wthes.TextThesaurus;
+import com.wintertree.wthes.Thesaurus;
+import com.wintertree.wthes.ThesaurusSession;
+*/
 /**
  * Provides the support needed for the DictionaryConsole to function - hense, its name. 
  * @author Andrew W.E. McDonald
  *
  */
 public class DictionaryBinding {
+	
+	private final static String NAME = "( DictionaryBinding ) - ";
 
 	protected static boolean wordSynSetUpdated = false;
 	protected static String wordSynSetResult = "";
@@ -36,17 +54,19 @@ public class DictionaryBinding {
 	protected static boolean isFirstGramSearch = true;
 	protected static ArrayList<String> allWords = new ArrayList<String>();
 	
-	
+	public static void init(){
+		System.setProperty("wordnet.database.dir","./src"+JGAAPConstants.JGAAP_RESOURCE_PACKAGE+"wordnet");
+	}
 	public static void initDictListeners(final DictionaryConsole dc){
 		
-		System.setProperty("wordnet.database.dir","./src"+JGAAPConstants.JGAAP_RESOURCE_PACKAGE+"wordnet");
+		init();
 		
 		
 		dc.notFound.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Logger.logln("Dictionary's 'not found' button clicked");
+				Logger.logln(NAME+"Dictionary's 'not found' button clicked");
 				JOptionPane.showMessageDialog(null,
 						"If you entered a phrase, try an altered version if possible.\n" +
 						"If your word wasn't found, try using an on-line thesaurus,\n" +
@@ -68,7 +88,7 @@ public class DictionaryBinding {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				currentWord = dc.wordField.getText();
-				Logger.logln("preparing to search for user string: '"+currentWord+"' in dictionary.");
+				Logger.logln(NAME+"preparing to search for user string: '"+currentWord+"' in dictionary.");
 				if(currentWord.trim().equals("") == false){
 					wordSynSetResult = "";
 					WordNetDatabase wnd = WordNetDatabase.getFileInstance();
@@ -118,7 +138,7 @@ public class DictionaryBinding {
 			}
 			@Override
 			public void keyTyped(KeyEvent arg0) {
-				Logger.logln("User typing in word field");
+				Logger.logln(NAME+"User typing in word field");
 				dc.wordSearchButton.setSelected(true);
 				dc.gramSearchButton.setSelected(false);
 			}
@@ -133,7 +153,7 @@ public class DictionaryBinding {
 			}
 			@Override
 			public void keyTyped(KeyEvent e) {
-				Logger.logln("User typing in gram field.");
+				Logger.logln(NAME+"User typing in gram field.");
 				dc.gramSearchButton.setSelected(true);
 				dc.wordSearchButton.setSelected(false);
 			}
@@ -143,7 +163,7 @@ public class DictionaryBinding {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("Preparing to search for character grams");
+				Logger.logln(NAME+"Preparing to search for character grams");
 				String theGram = dc.gramField.getText();
 				if(theGram.trim().equals("") == false){
 				if(isFirstGramSearch == true){
@@ -170,9 +190,9 @@ public class DictionaryBinding {
 		dc.closeButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Logger.logln("Dictionary is being disposed of.. ");
+				Logger.logln(NAME+"Dictionary is being disposed of.. ");
 				dc.dispose();
-				EditorTabDriver.dictDead = true;
+				DriverDocumentsTab.dictDead = true;
 			}
 		});
 		
@@ -182,8 +202,8 @@ public class DictionaryBinding {
 			}
 			@Override
 			public void windowClosed(WindowEvent arg0) {
-				Logger.logln("Window close killed poor dictionary");
-				EditorTabDriver.dictDead = true;
+				Logger.logln(NAME+"Window close killed poor dictionary");
+				DriverDocumentsTab.dictDead = true;
 			}
 			@Override
 			public void windowClosing(WindowEvent arg0) {
@@ -205,7 +225,7 @@ public class DictionaryBinding {
 	}
 	
 	public static boolean readInAndScan(String nGram) throws IOException{
-		Logger.logln("reading in comprehensive word list");
+		Logger.logln(NAME+"reading in comprehensive word list");
 		FileReader fr = new FileReader(new File("./allWords.txt"));
 		BufferedReader buff = new BufferedReader(fr);
 		String temp;
@@ -224,7 +244,7 @@ public class DictionaryBinding {
 	}
 	
 	public static boolean scanAllWords(String nGram){
-		Logger.logln("Scanning all words for occurances of '"+nGram+"'");
+		Logger.logln(NAME+"Scanning all words for occurances of '"+nGram+"'");
 		int i = 0;
 		int max = allWords.size();
 		gramFindings = "";
@@ -236,5 +256,46 @@ public class DictionaryBinding {
 		}
 		return true;
 	}
+	
+	public static String[] getSynonyms(String wordToFind, String pos){
+		wordSynSetResult = "";
+		wordToFind=wordToFind.trim().toLowerCase();
+		WordNetDatabase wnd = WordNetDatabase.getFileInstance();
+		Synset[] testSet = wnd.getSynsets(wordToFind);
+		int synNumber =1;
+		int i;
+		String [] wfs;
+		for(i = 0; i< testSet.length; i++){
+			wfs = testSet[i].getWordForms();
+			
+			//String [] use = testSet[i].getUsageExamples();
+			int j;
+			for(j=0; j< wfs.length;j++){
+				try{
+					//wordSynSetResult = wordSynSetResult+"Synonym number ("+(j+1)+"): "+wfs[j]+"  => usage (if specified): "+use[j]+"\n";
+					if(!wordToFind.contains(wfs[j].toLowerCase())){
+						wordSynSetResult = wordSynSetResult+"("+synNumber+"): "+wfs[j]+"\n";
+						//Logger.logln(NAME+"Results for: "+wordToFind+"\n"+wordSynSetResult);
+						synNumber++;
+					}
+				}
+				catch(ArrayIndexOutOfBoundsException e){
+					e.printStackTrace();
+					Logger.logln(NAME+"Caught an exception...");					
+				}
+			}
+			//wordSynSetResult = wordSynSetResult+"\n";
+			return wfs;
+		}
+		return null;//BIG PROBLEM
+		
+	}
 
+	 public static void main(String args[]) {
+		 String [] temp=getSynonyms("walk", "verb");
+		 for(String s:temp){
+			 System.out.println(s);
+		 }
+	 }
+	
 }

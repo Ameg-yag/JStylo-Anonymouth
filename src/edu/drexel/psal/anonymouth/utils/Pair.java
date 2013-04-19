@@ -9,6 +9,7 @@ package edu.drexel.psal.anonymouth.utils;
  */
 public class Pair {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	public final String doc;
 	public final double value;
 	

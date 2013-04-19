@@ -37,6 +37,7 @@ import edu.drexel.psal.jstylo.generics.Logger;
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
 public class verboseConsole extends javax.swing.JFrame {
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	
 	private final PipedInputStream pin=new PipedInputStream(); 
 	private final PipedInputStream pin2=new PipedInputStream(); 
@@ -77,7 +78,7 @@ public class verboseConsole extends javax.swing.JFrame {
 	}
 	
 	private void initGUI() {
-		Logger.logln("Console initizalized");
+		Logger.logln(NAME+"Console initizalized");
 		try {
 			GroupLayout thisLayout = new GroupLayout((JComponent)getContentPane());
 			getContentPane().setLayout(thisLayout);

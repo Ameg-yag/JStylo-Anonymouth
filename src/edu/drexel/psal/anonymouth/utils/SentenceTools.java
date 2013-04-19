@@ -33,8 +33,13 @@ import edu.drexel.psal.jstylo.generics.Logger;
  * @author Andrew W.E. McDonald
  *
  */
-public class SentenceTools  {
+public class SentenceTools implements Serializable  {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5007508872576011005L;
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	private int currentStart = 0;
 	private int currentStop = 0;
 	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]){1}");
@@ -54,7 +59,8 @@ public class SentenceTools  {
 	private boolean mustAddToIndex = false;
 	private String[] notEndsOfSentence = {"Dr.","Mr.","Mrs.","Ms.","St.","vs.","U.S.","Sr.","Sgt.","R.N.","pt.","mt.","mts.","M.D.","Ltd.","Jr.","Lt.","Hon.","i.e.","e.x.","inc.",
 			"et al.","est.","ed.","D.C.","B.C.","B.S.","Ph.D.","B.A.","A.B.","A.D.","A.M.","P.M.","Ln.","fig.","p.","pp.","ref.","r.b.i.","V.P.","yr.","yrs.","etc.","..."};
-	//what if a name like F. Scott Fitzgerald
+	//what if a name like F. Scott Fitzgerald 
+			// ^^ To whoever said this, then we are in trouble. - AweM
 	
 	/**
 	 * Takes a text (one String representing an entire document), and breaks it up into sentences. Tries to find true ends of sentences: shouldn't break up sentences containing quoted sentences, 
@@ -153,7 +159,7 @@ public class SentenceTools  {
 			sents.add(safeString);
 			//System.out.println("start minus one: "+(currentStart-1)+" stop: "+currentStop);
 			if(currentStart < 0 || currentStop < 0){
-				Logger.logln("Something went really wrong making sentence tokens.");
+				Logger.logln(NAME+"Something went really wrong making sentence tokens.");
 				System.exit(0);
 			}
 			//System.out.println("The rest of the text: "+text.substring(currentStart));
@@ -202,7 +208,7 @@ public class SentenceTools  {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Logger.logln("ERROR! Could not load document: "+dirtyDoc.getTitle()+" (SentenceTools.removeUnicodeControlChars)");
+			Logger.logln("(SentenceTools) - ERROR! Could not load document: "+dirtyDoc.getTitle()+" (SentenceTools.removeUnicodeControlChars)");
 			return dirtyDoc;
 		}
 	}

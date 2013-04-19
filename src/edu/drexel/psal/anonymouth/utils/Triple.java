@@ -1,6 +1,6 @@
 package edu.drexel.psal.anonymouth.utils;
 
-import edu.drexel.psal.anonymouth.projectDev.FeatureList;
+import edu.drexel.psal.anonymouth.engine.FeatureList;
 
 /**
  *	Holds: string in braces, infogain, and featureName  
@@ -10,7 +10,8 @@ import edu.drexel.psal.anonymouth.projectDev.FeatureList;
  */
 public class Triple {
 	
-	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	protected String stringInBraces;
 	protected double percentChangeNeeded;
 	protected FeatureList featureName;

@@ -1,6 +1,8 @@
 package edu.drexel.psal.anonymouth.utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
@@ -11,9 +13,15 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
  * @author Andrew W.E. McDonald
  *
  */
-public class SparseReferences {
+public class SparseReferences implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2656940525259833825L;
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected ArrayList<Reference> references;
+	
 	
 	/**
 	 * constructor. 
@@ -21,6 +29,16 @@ public class SparseReferences {
 	 */
 	public SparseReferences(int initialSizeOfReferenceArrayList){
 		references = new ArrayList<Reference>(initialSizeOfReferenceArrayList);
+	}
+	
+	/**
+	 * Constructor for SparseReferences
+	 * @param sr
+	 */
+	public SparseReferences(SparseReferences sr){
+		references = new ArrayList<Reference>(sr.length());
+		for(Reference r: sr.references)
+			this.references.add(new Reference(r));
 	}
 	
 	
@@ -35,13 +53,13 @@ public class SparseReferences {
 		if(index >= 0){
 			Reference r = new Reference(index, value);
 			if(references.contains(r)){
-				Logger.logln("Cannot add duplicate references, addNewReference failed.",LogOut.STDERR);
+				Logger.logln(NAME+"Cannot add duplicate references, addNewReference failed.",LogOut.STDERR);
 				return false;
 			}
 			references.add(r);
 			return true;
 		}
-		Logger.logln("Cannot add Reference with 'index' less than zero",LogOut.STDERR);
+		Logger.logln(NAME+"Cannot add Reference with 'index' less than zero",LogOut.STDERR);
 		return false;
 	}
 	
@@ -54,13 +72,13 @@ public class SparseReferences {
 	public boolean addNewReference(Reference reference){
 		if(reference.index >= 0){
 			if(references.contains(reference)){
-				Logger.logln("Cannot add duplicate references, addNewReference failed.",LogOut.STDERR);
+				Logger.logln(NAME+"Cannot add duplicate references, addNewReference failed.",LogOut.STDERR);
 				return false;
 			}
 			references.add(new Reference(reference.index,reference.value));
 			return true;
 		}
-		Logger.logln("Cannot add Reference with 'index' less than zero",LogOut.STDERR);
+		Logger.logln(NAME+"Cannot add Reference with 'index' less than zero",LogOut.STDERR);
 		return false;
 	}
 	
@@ -74,7 +92,7 @@ public class SparseReferences {
 		for(Reference notThisEither:notThis.references){
 			if(references.contains(notThisEither)){
 				int thisIndex = references.indexOf(notThisEither);
-				references.add(thisIndex,references.get(thisIndex).merge(notThisEither));
+				references.add(thisIndex,references.remove(thisIndex).merge(notThisEither));
 			}
 			else{
 				references.add(notThisEither);
@@ -96,12 +114,14 @@ public class SparseReferences {
 	 * @return
 	 */
 	public SparseReferences leftMinusRight(SparseReferences sia){
+		//sia=references of old sentence
 		double tempValue;
 		int tempIndex;
 		int indexOfRef;
 		SparseReferences adjustmentReferences = new SparseReferences((sia.references.size()+this.references.size())); // absolute max size
 		Reference newRef;
 		ArrayList<Reference> cloneOfThis = (ArrayList<Reference>) this.references.clone();
+		Logger.logln(NAME+"compare these: "+this+" to "+cloneOfThis);
 		for(Reference r: sia.references){
 			if(cloneOfThis.contains(r)){
 				indexOfRef = cloneOfThis.indexOf(r);
@@ -109,15 +129,19 @@ public class SparseReferences {
 				tempIndex = r.index;
 				newRef = new Reference(tempIndex,tempValue);
 				cloneOfThis.remove(indexOfRef);
+				//Logger.logln(NAME+"");
 			}
 			else{// There are zero appearances of the feature in the new SparseReferences, so just multiply the number found in the old SparseReferences by -1 (all were removed)
 				newRef = new Reference(r.index,(-r.value));
+				Logger.logln(NAME+"Reference not in both lists");
 			}
+			//Logger.logln(NAME+"Left Minus Right addNewRef");
 			adjustmentReferences.addNewReference(newRef);
 		}
 		if(cloneOfThis.isEmpty() == false){ //there are still values in the clone which means new attributes / features were added. These all went from a count of zero to whatever their value is now. So, positive change
 			for(Reference r:cloneOfThis){
 				newRef = new Reference(r.index,r.value);
+				//Logger.logln(NAME+"Left Minus Right addNewRef new features added");
 				adjustmentReferences.addNewReference(newRef);
 			}
 		}
@@ -136,13 +160,49 @@ public class SparseReferences {
 		int numRefs = references.size();
 		for(i=0;i<numRefs;i++){
 			whatIsInside += references.get(i).toString();
-			if(i<numRefs-1) whatIsInside+= "\n";
+			if(i<numRefs-1) whatIsInside+= ",";
 		}	
 		whatIsInside +="]";
 		return whatIsInside;
 	}
 	
+	/**
+	 * defines two sparse reference objects to be equal if they contain the same reference objects.
+	 * @return
+	 * 	true if equal
+	 */
+	public boolean equals(Object obj){
+		boolean isEqual=false;
+		int i,refSize=references.size();
+		for(i=0;i<refSize;i++){
+			if(!((SparseReferences)obj).references.contains(references.get(i)))
+				return false;
+		}
+		return true;
+	}
 	
+	/*
+	 * generates a hashcode for Word, modulus 987643211 (an arbitrary large prime number) to mitigate risk of integer overflow. Multiplier is 31,
+	 * hash value starts at 7, and iteratively multiplies itself by the product of all preceding characters in 'word'.
+	 * @return
+	 * 	hashcode
+	 
+	public int hashCode(){
+		final int thePrime = 31;
+		final int arbitraryLargePrime = 987643211;
+		long longHash = 7;
+		int i = 0;
+		if(word != null){
+			char[] theWord = word.toCharArray();
+			int len = theWord.length;
+			for(i=0; i < len; i++){
+				longHash = longHash*theWord[i]*thePrime;
+				longHash = longHash % arbitraryLargePrime;// to eliminate wrap-around / overflow
+			}
+		}
+		int hash = (int)longHash;
+		return hash;
+	}*/
 	/**
 	 * returns the number of stored References 
 	 * @return

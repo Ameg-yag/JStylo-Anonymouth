@@ -14,6 +14,8 @@ import javax.swing.JTextArea;
  */
 public class ViewerTabGenerator {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	protected JScrollPane jScrollPane1;
 	protected JTextArea displayArea;
 	protected JPanel viewer;

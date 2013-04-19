@@ -2,6 +2,8 @@ package edu.drexel.psal.anonymouth.utils;
 
 import java.io.Serializable;
 
+import edu.drexel.psal.jstylo.generics.Logger;
+
 /**
  * Mapping between POS tags and their description, taken from the Penn Treebank Project
  * @author Andrew W.E. McDonald
@@ -9,6 +11,8 @@ import java.io.Serializable;
  */
 public class POS implements Serializable {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 	/**
 	 * Enumeration of the POS tags used by the Standford MaxentTagger /Penn Treebank. These are used as input to the method
 	 * 'tagToDescription'
@@ -63,6 +67,24 @@ public class POS implements Serializable {
 		
 		}
 		return tag.toString(); // This can't happen.
+	}
+	
+	public static String tagToString(String tag){
+		Logger.logln("(POS) - Tag: "+tag);
+		String pos="";
+		if(tag.startsWith("NN")){
+			return "noun";
+		}
+		else if(tag.startsWith("JJ")){
+			return "adj.";
+		}
+		else if(tag.startsWith("V")){
+			return "verb";
+		}
+		else if(tag.startsWith("RB")){
+			return "adv.";
+		}
+		return pos;		
 	}
 }
 

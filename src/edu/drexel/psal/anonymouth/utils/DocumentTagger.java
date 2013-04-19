@@ -5,11 +5,13 @@ import com.jgaap.generics.Document;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 /**
- * Parses documents.....
+ * Tags documents 
  * @author Andrew W.E. McDonald
  *
  */
 public class DocumentTagger {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	
 	public ArrayList<TaggedDocument> tagDocs(List<Document> docs, boolean loadIfExists) throws Exception{
 		String currentAuthor;
@@ -37,7 +39,7 @@ public class DocumentTagger {
 		*/
 			outMap.add(td);
 		}
-		Logger.logln("Document set tagged.");
+		Logger.logln(NAME+"Document set tagged.");
 		return outMap;
 	}
 }

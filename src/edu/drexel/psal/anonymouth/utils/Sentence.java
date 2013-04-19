@@ -7,6 +7,7 @@ package edu.drexel.psal.anonymouth.utils;
  */
 public class Sentence implements Comparable<Sentence>{
 		
+		private final String NAME = "( "+this.getClass().getName()+" ) - ";
 		protected String text;
 		protected int count = 0;
 		protected int absStart;

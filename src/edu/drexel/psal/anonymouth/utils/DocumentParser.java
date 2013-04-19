@@ -46,6 +46,9 @@ import edu.stanford.nlp.parser.ui.TreeJPanel;
  *
  */
 public class DocumentParser {
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
 /*	
 	
 	int numSentences;

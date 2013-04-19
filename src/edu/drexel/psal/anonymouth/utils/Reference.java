@@ -1,5 +1,8 @@
 package edu.drexel.psal.anonymouth.utils;
 
+import java.io.Serializable;
+
+import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
@@ -10,9 +13,13 @@ import edu.drexel.psal.jstylo.generics.Logger.LogOut;
  * @author Andrew W.E. McDonald
  *
  */
-public class Reference {
+public class Reference implements Serializable {
 
-	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5842100664246784998L;
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected int index;
 	protected double value;
 	
@@ -27,7 +34,16 @@ public class Reference {
 	}
 	
 	/**
-	 * Merges two Reference objects iff they have matching 'index' values
+	 * Constructor
+	 * @param r
+	 */
+	public Reference(Reference r){
+		this.index = r.index;
+		this.value = r.value;
+	}
+	
+	/**
+	 * Merges two Reference objects if they have matching 'index' values
 	 * @param ref
 	 * @return
 	 */
@@ -38,7 +54,7 @@ public class Reference {
 			return mergedRef;
 		}
 		else{
-			Logger.logln("Cannot merge two References with different index values",LogOut.STDERR);
+			Logger.logln(NAME+"Cannot merge two References with different index values",LogOut.STDERR);
 			return null;
 		}
 		
@@ -48,6 +64,7 @@ public class Reference {
 	 * Equals method to set two References equal to eachother if they hold the same 'index' (i.e. if they 'point' to the same attribute)
 	 */
 	public boolean equals(Object o){
+		//Logger.logln(NAME+"Using the Reference equals.");
 		if(index == ((Reference)o).index)
 			return true;
 		else
@@ -62,6 +79,7 @@ public class Reference {
 	 * 	hashcode
 	 */
 	public int hashCode(){
+		Logger.logln(NAME+"This is the hashcode being called",LogOut.STDERR);
 		final int thePrime = 31;
 		final int arbitraryLargePrime = 987643211;
 		long longHash = 7;
@@ -75,6 +93,6 @@ public class Reference {
 	 * returns a string: "[index => value]"
 	 */
 	public String toString(){
-		return "["+index+" => "+value+"]";
+		return "["+index+" => "+value+" percentChange: "+DataAnalyzer.topAttributes[index].getPercentChangeNeeded()+"]";
 	}
 }
