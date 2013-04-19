@@ -42,7 +42,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	/**
 	 * The prefix given to any author of a test document.
 	 */
-	public static final String TEST_AUTHOR_NAME_PREFIX = "_test_";
+	public static final String TEST_AUTHOR_NAME_PREFIX = "_test_"; 
 	
 	/**
 	 * The list of training author data, including feature, basis and writeprint matrices.
@@ -99,6 +99,9 @@ public class WriteprintsAnalyzer extends Analyzer {
 		
 		trainAuthorData.clear();
 		testAuthorData.clear();
+		//TODO if we get wierd results somewhere the two lines below might be the reason. Testing didn't reveal anything though
+		if (authors!=null)
+			authors.clear();
 		
 		// initialize features, basis and writeprint matrices
 		Attribute classAttribute = trainingSet.classAttribute();
@@ -113,7 +116,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 			if (authors==null)
 				authors = new ArrayList<String>();
 			authors.add(authorName);
-			Logger.logln("- " + authorName);
+			//Logger.logln("- " + authorName);
 			authorData.initFeatureMatrix(trainingSet, averageFeatureVectors);
 			trainAuthorData.add(authorData);
 			authorData.initBasisAndWriteprintMatrices();

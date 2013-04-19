@@ -44,6 +44,7 @@ public class ClassTabDriver {
 	protected static Analyzer tmpAnalyzer;
 	protected static Object tmpObject;
 	protected static String loadedClassifiers;
+	protected static ClassWizard cw;
 	
 	/**
 	 * Initialize all documents tab listeners.
@@ -112,7 +113,6 @@ public class ClassTabDriver {
 			}
 		});
 		
-		//TODO make a genericObjectEditor open up when the args are selected
 		// classAvClassArgsJTextField
 		// =========
 		main.classAvClassArgsJTextField.addMouseListener(new MouseListener(){
@@ -122,9 +122,10 @@ public class ClassTabDriver {
 				if (tmpAnalyzer!=null){
 					Logger.logln("clicked in textfield with a classifier selected!");
 					
-					ClassWizard cw = new ClassWizard(main,tmpAnalyzer);
+					cw = new ClassWizard(main,tmpAnalyzer);
 					cw.setVisible(true);
-			
+					
+					
 				} else {
 					Logger.logln("clicked in textfield without a classifier selected!");
 				}
@@ -183,7 +184,8 @@ public class ClassTabDriver {
 					boolean add = true;
 					for (int i=0; i<main.classJList.getModel().getSize();i++){
 						Logger.logln("Checking for duplicates...");
-						if (main.analyzers.get(i).getClass().toString().equals((tmpAnalyzer.getClass().toString()))){ //same classifier
+						if (main.analyzers.get(i).getName().toString().equals((tmpAnalyzer.getName().toString()))){ //same classifier
+							Logger.logln("already added: "+main.analyzers.get(i).getName().toString()+" attempting to add: "+tmpAnalyzer.getName().toString());
 							if(Arrays.equals(main.analyzers.get(i).getOptions(),(tmpAnalyzer.getOptions()))){ //same arguments
 								add=false; //so don't add
 							}
@@ -370,8 +372,8 @@ public class ClassTabDriver {
 		// bayes
 		//"weka.classifiers.bayes.BayesNet",
 		"weka.classifiers.bayes.NaiveBayes",
-		"weka.classifiers.bayes.NaiveBayesMultinomial",
-		"weka.classifiers.bayes.NaiveBayesMultinomialUpdateable",
+		//"weka.classifiers.bayes.NaiveBayesMultinomial",
+		//"weka.classifiers.bayes.NaiveBayesMultinomialUpdateable",
 		"weka.classifiers.bayes.NaiveBayesUpdateable",
 
 		// functions

@@ -27,6 +27,7 @@ public class ClassWizardDriver {
 				cw.tmpAnalyzer.setOptions(newOptions);
 				cw.parent.classAvClassArgsJTextField.setText(edu.drexel.psal.jstylo.GUI.ClassTabDriver.getOptionsStr(cw.tmpAnalyzer.getOptions()));
 				cw.dispose();
+				
 			}		
 		});
 		

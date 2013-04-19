@@ -802,7 +802,7 @@ public class AnalysisTabDriver {
 				for (int i=0; i<numClass; i++) {
 					a = main.analyzers.get(i);
 					content += "Running analysis with Analyzer "+(i+1)+" out of "+numClass+":\n" +
-							"> Classifier: "+a.getClass().getName()+"\n" +
+							"> Classifier: "+a.getName()+"\n" +
 							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
 					main.analysisDriver = a;
