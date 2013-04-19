@@ -99,7 +99,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		
 		trainAuthorData.clear();
 		testAuthorData.clear();
-		//TODO if we get wierd results somewhere the two lines below might be the reason. Testing didn't reveal anything though
+		//TODO if we get weird results somewhere the two lines below might be the reason. Testing didn't reveal anything though
 		if (authors!=null)
 			authors.clear();
 		
@@ -347,7 +347,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * @param correct number of instances tested correctly
 	 * @param total percentage correct
 	 * @param extractedAuthors Attribute containing all authors
-	 * @return
+	 * @return the output string to be appended to the JStylo content pane on the analysis tab.
 	 */
 	protected String resultsString(int[][] confusionMatrix,int count,int correct,double total,Attribute extractedAuthors){
 		Logger.logln("Building results string...");

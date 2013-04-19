@@ -950,7 +950,8 @@ public class GUIMain extends javax.swing.JFrame {
 								{
 									classAvClassArgsJLabel = new JLabel();
 									config.add(classAvClassArgsJLabel);
-									classAvClassArgsJLabel.setText("<html>Classifier Arguments&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp(Click text field to edit)</html>");
+									classAvClassArgsJLabel.setText("<html>Classifier Arguments&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" +
+											"<font size=2>(Click text field for details)</font></html>");
 									classAvClassArgsJLabel.setFont(defaultLabelFont);
 								}
 								{

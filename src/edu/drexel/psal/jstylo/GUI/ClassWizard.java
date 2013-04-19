@@ -21,7 +21,13 @@ import javax.swing.border.Border;
 
 import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
-
+/**
+ * 
+ * Created in ClassTabDriver, this popup will allow for the editing of a classifier's arguments, and will
+ * display basic information about that classifier to the user.
+ * 
+ * @author Travis Dutko
+ */
 public class ClassWizard extends javax.swing.JFrame {
 	private static final long serialVersionUID = 1L;
 	protected Font defaultLabelFont = new Font("Verdana",0,14); 
@@ -60,6 +66,11 @@ public class ClassWizard extends javax.swing.JFrame {
 	protected JButton applyJButton;
 	protected JButton cancelJButton;
 	
+	/**
+	 * ClassWizard does not have an empty/default constructor. It requires a parent and an Analyzer in order to function.
+	 * @param parent 
+	 * @param tmpAnalyzer the analyzer to be edited
+	 */
 	public ClassWizard(GUIMain parent,Analyzer tmpAnalyzer){
 		super(tmpAnalyzer.getName());
 		this.parent = parent;
@@ -73,6 +84,9 @@ public class ClassWizard extends javax.swing.JFrame {
 		
 	}
 	
+	/**
+	 * Window contents and format depends on how many options the classifier has
+	 */
 	protected void initGUI(){
 		setPreferredSize(new Dimension(600,800));	
 		
@@ -116,7 +130,7 @@ public class ClassWizard extends javax.swing.JFrame {
 								"To edit the arguments given to the classifier, simply change the values in the text field below.<br>" +
 								"Clicking the \"Apply Changes\" button will change the arg string and close the window.<br>"+
 								"Clicking the \"Cancel\" button will undo any changes.<br><br>" +
-								"NOTE: Due to the way weka classifiers are coded, we do not yet support the editing<br>"+
+								"NOTE: Due to the way some classifiers are coded, we do not yet support the editing<br>"+
 								"&nbsp&nbsp&nbsp&nbsp&nbsp of all arguments for all classifiers. Only arguments which can be edited reliably are listed.<br>" +
 								"<br></p></html>");
 						descriptionPanel.add(summaryJLabel,BorderLayout.NORTH);

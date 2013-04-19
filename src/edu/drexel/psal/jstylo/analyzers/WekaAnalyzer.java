@@ -276,16 +276,26 @@ public class WekaAnalyzer extends Analyzer {
 		return classifier;
 	}
 	
+	/**
+	 * Returns the weka classifier's args
+	 */
 	@Override
 	public String[] getOptions(){
 		return classifier.getOptions();
 	}
 	
+	/**
+	 * Returns the analyzer's classifier--so the classifier's name.
+	 */
 	@Override
 	public String getName(){
 		return classifier.getClass().getName();
 	}
 	
+	/**
+	 * Produces the string array of descriptions of each option the classifier has.
+	 * At the moment it only returns descriptions of arguments that are provided by the classifier's default getOptions() method.
+	 */
 	@Override
 	public String[] optionsDescription() {
 		String[] optionsDesc=null;
@@ -458,12 +468,14 @@ public class WekaAnalyzer extends Analyzer {
 		this.classifier = classifier;
 	}
 
+	/**
+	 * Sets the weka classifier's args.
+	 */
 	@Override
 	public void setOptions(String[] ops){
 		try {
 			classifier.setOptions(ops);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
