@@ -540,10 +540,11 @@ public class AnalysisTabDriver {
 		main.analysisApplyInfoGainJCheckBox.setEnabled(!lock);
 		main.infoGainValueJTextField.setEnabled(!lock);
 		
-		main.analysisKFoldJTextField.setEnabled(!lock);
-		main.analysisNThreadJTextField.setEnabled(!lock);
+		if (main.analysisTrainCVJRadioButton.isSelected())
+			main.analysisKFoldJTextField.setEnabled(!lock);	
 		main.analysisKFoldJLabel.setEnabled(!lock);
 		main.analysisNThreadJLabel.setEnabled(!lock);
+		main.analysisNThreadJTextField.setEnabled(!lock);
 		
 		main.analysisExportTrainToARFFJButton.setEnabled(!lock);
 		main.analysisExportTestToARFFJButton.setEnabled(!lock);
@@ -552,6 +553,7 @@ public class AnalysisTabDriver {
 
 		main.analysisRunJButton.setEnabled(!lock);
 		main.analysisStopJButton.setEnabled(lock);
+		main.analysisRemoveResultTabJButton.setEnabled(!lock);
 		
 		main.analysisSaveResultsJButton.setEnabled(!lock);
 		
