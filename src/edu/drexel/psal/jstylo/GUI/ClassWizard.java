@@ -41,6 +41,7 @@ public class ClassWizard extends javax.swing.JFrame {
 	protected JPanel descriptionPanel;
 	protected JPanel optionsPanel;
 	protected JPanel buttonPanel;
+	protected JPanel editorPanel;
 	
 	//description panel
 	protected JLabel summaryJLabel;
@@ -92,8 +93,9 @@ public class ClassWizard extends javax.swing.JFrame {
 					descriptionPanel.setBorder(BorderFactory.createCompoundBorder(defaultBorder,BorderFactory.createEmptyBorder(10,10,10,10)));
 					
 
-					if (options==null || options.length<=5) //if there are no options, make the description the main focus of the window
+					if (options==null || options.length<=5 || optionsDesc.length<=3){ //if there are no options, make the description the main focus of the window
 						mainPanel.add(descriptionPanel,BorderLayout.CENTER);
+					}
 					else //otherwise the description is delegated to the top of the window
 						mainPanel.add(descriptionPanel,BorderLayout.NORTH);
 					
@@ -124,33 +126,36 @@ public class ClassWizard extends javax.swing.JFrame {
 					// =============
 					// Options panel
 					// =============
-						
+					editorPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
+					
 					optionsPanel = new JPanel(new GridLayout(0,1,0,0));
 					optionsPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 					optionsJScrollPane = new JScrollPane(optionsPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 					optionsJScrollPane.setBorder(defaultBorder);
-					Logger.logln("option length: "+options.length);
-					if (options!=null && options.length>0){
-						if (options.length<=3){
-							optionsPanel.setPreferredSize(new Dimension(500,125));
+					
+					editorPanel.add(optionsJScrollPane,BorderLayout.CENTER);
+					
+					if (options!=null && options.length>0 && optionsDesc!=null && optionsDesc.length!=0){
+						if (options.length<=3 || optionsDesc.length<=2){
+							optionsPanel.setPreferredSize(new Dimension(500,150));
 							optionsJScrollPane.setPreferredSize(new Dimension(500,125));
-							mainPanel.add(optionsJScrollPane,BorderLayout.SOUTH);
+							mainPanel.add(editorPanel,BorderLayout.SOUTH);
 						}
-						else if (options.length<=5){
+						else if (options.length<=5 || optionsDesc.length<=3){
 							optionsPanel.setPreferredSize(new Dimension(500,200));
-							mainPanel.add(optionsJScrollPane,BorderLayout.SOUTH);
+							mainPanel.add(editorPanel,BorderLayout.SOUTH);
 							optionsJScrollPane.setPreferredSize(new Dimension(500,200));
 						}
 						else if (options.length>5){
 							optionsPanel.setPreferredSize(new Dimension(500,450));
-							mainPanel.add(optionsJScrollPane,BorderLayout.CENTER);
+							mainPanel.add(editorPanel,BorderLayout.CENTER);
 							optionsJScrollPane.setPreferredSize(new Dimension(500,450));
 						}
 						
 						//loop through options, adding a new option-description pair for each one
 						for (int i=0; i<options.length/2;i++){
 							
-							if (optionsDesc[i]==null)
+							if (optionsDesc==null || i>=optionsDesc.length || optionsDesc[i]==null)
 								break;
 							JTextField tempLabel = new JTextField("\n"+optionsDesc[i].trim().replaceAll("\\s+", " "));
 							tempLabel.setPreferredSize(new Dimension(550,50));
@@ -182,8 +187,8 @@ public class ClassWizard extends javax.swing.JFrame {
 							buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 							buttonPanel.setPreferredSize(new Dimension(500,30));
 							
-							if (options.length<=5)
-								optionsPanel.add(buttonPanel);
+							if (options.length<=5 || optionsDesc.length<=3)
+								editorPanel.add(buttonPanel,BorderLayout.SOUTH);
 							else
 								mainPanel.add(buttonPanel,BorderLayout.SOUTH);
 							{
