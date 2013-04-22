@@ -20,7 +20,7 @@ public class EOSCharacterTracker implements Serializable{
 	// Doing this allows us to break sentences only where we are sure we want to break them, and will allow the user more flexibility.
 	// as a side note, while realEOS[2] and replacementEOS[2] look very similar, they are not the same character.. this can be tested (which I did at the bottom of 'main', below) by asking Java if they are equal to eachother.
 	private char[] realEOS = {'.', '?', '!'};
-	private char[] replacementEOS = {'๏', 'ʔ', 'ǃ'};
+	private char[] replacementEOS = {'๏', 'ʔ', '˩'};
 	private ArrayList<EOS> eoses;
 
 	/**

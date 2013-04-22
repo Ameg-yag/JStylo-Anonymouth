@@ -1,6 +1,7 @@
 package edu.drexel.psal.anonymouth.engine;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,27 +15,16 @@ import edu.drexel.psal.jstylo.generics.Logger;
 public class Attribute {
 	
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
-	
 	private int indexNumber;
-	
 	private FeatureList genericName;
-	
 	private String concatGenNameAndStrInBraces;
-	
 	private String fullName;
-	
 	private double infoGain;
-	
 	private double[] clusters;
-	
 	private double targetValue;
-	
 	private int requiredDirectionOfChange; // 0 for no change, -1 to decrease, 1 to increase;
-	
 	private double targetCentroid;
-	
 	private double targetAvgAbsDev;
-	
 	private boolean calcHist;
 	
 	/**
@@ -42,36 +32,23 @@ public class Attribute {
 	 * the dash: "{-}" => "{'string'}"
 	 */
 	private String stringInBraces = "";
-	
 	private double authorAvg;
-	
 	private double authorStdDev;
-	
 	private double[] trainVals;
-	
 	private double trainMin;
-	
 	private double trainMax;
-	
 	private double[] authorVals;
-	
 	private double toModifyValue;
-	
 	private String trimmedAttrib;
-	
 	private double authorConfidence;
-	
 	//private ArrayList<Cluster> orderedClusters;
-	
 	private Cluster[] orderedClusters;
-	
 	private double targetClusterMin;
-	
 	private double targetClusterMax;
-	
 	private boolean hasReachedTargetFlag = false;
-	
 	private boolean directionSet = false;
+	private double baselinePercentChangeNeeded = 0; // only for this specific feature
+	private boolean haveSetBaselinePercentChangeNeeded = false;
 	
 	/**
 	 * Constructor for Attribute class.
@@ -418,11 +395,14 @@ public class Attribute {
 	
 	/**
 	 * returns the percent change needed for the feature contained by this Attribute. Signed, so a negative number indicates the feature needs to be removed, 
-	 * and vice versa. Percent change needed is calculated at the time of function call, so the returned value will always be the most recent.
+	 * and vice versa. Percent change needed is calculated at the time of function call, so the returned value will always be current. 
+	 * @param normalizeToBaseline if true, method will return the percent change that is needed normalized to the percent change that was needed initially (so, 100% is the greatest change you should see).
+	 * if false, method will return the absolute percent change needed, which does not normalize to the baseline (meaning if you have 5 'a' characters, and you need 15, then it would return 200%).
 	 * @return
 	 */
-	public double getPercentChangeNeeded(){
+	public double getPercentChangeNeeded(boolean normalizeToBaseline, boolean invertPercentage){
 		double temp = 0;
+		double perm = 0;
 		double minimumPercentChangeUnit = 0;
 		double halfOfMin;
 		double theModulus;
@@ -430,9 +410,10 @@ public class Attribute {
 			minimumPercentChangeUnit = ((100/toModifyValue)/100);
 			halfOfMin =minimumPercentChangeUnit / 2;
 			temp = (targetValue - toModifyValue)/toModifyValue;// signedness matters, don't take abs. value
+			System.out.println("	temp: "+temp);
 			theModulus = temp % minimumPercentChangeUnit;
 			if ((temp*requiredDirectionOfChange  < 0)  && (Math.abs(temp) <minimumPercentChangeUnit)  ) // if the required direction of change is not the same sign (or 0) as temp,
-				// and the percent change needed is less than a minimumPercentChangeUnit,  (i.e., if it wants to move you backward past the target value), temp = 0
+				// and the percent change needed is less than a minimumPercentChangeUnit,  (i.e., if it wants to move you backward past the target value after having already passed it), temp = 0
 				temp = 0;
 			else if ( (theModulus/2) < halfOfMin) //  otherwise, if percent change needed is less than halfway between a minimumPercentChangeUnit,
 				temp = temp - theModulus; // round down to the closest minimumPercentChangeUnit
@@ -444,9 +425,27 @@ public class Attribute {
 			temp = Math.ceil(this.targetValue); // if value doesnt exist in document, set percent change needed to the ceil value of the  target value (e.g. add 5 occurrences of 'if': 500%)
 			// XXX NOTE: I am rounding this up because if the feature doesn't exist, and it should be present, it seems that it would be
 			// fairly important to add. However, taking the actual percent change that it would need is impossible (div. by zero)...
-		return temp*100; 
+		if(!haveSetBaselinePercentChangeNeeded){
+			baselinePercentChangeNeeded = temp*100;
+			haveSetBaselinePercentChangeNeeded = true;
+		}
+		if(normalizeToBaseline){
+			perm = (((temp*100)-baselinePercentChangeNeeded)/baselinePercentChangeNeeded);
+			if(invertPercentage)
+				perm = 100 - perm;
+		}
+		else{
+			perm = temp;
+			if(invertPercentage)
+				perm = baselinePercentChangeNeeded - perm;
+		}
+		System.out.println("			% Change needed: "+perm);
+		return perm; 
 	}
 
+	public double getFeatureBaselinePercentChangeNeeded(){
+		return baselinePercentChangeNeeded;
+	}
 		
 	
 	

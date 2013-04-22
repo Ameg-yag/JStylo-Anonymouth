@@ -254,7 +254,6 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	 * @return
 	 */
 	public SparseReferences getOldToNewDeltas(TaggedSentence oldOne){
-		// urgent -- add support for sent level feats
 		SparseReferences oldRefs = oldOne.getReferences();
 		return this.getReferences().leftMinusRight(oldRefs); 	
 	}
@@ -273,11 +272,18 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 		double sentenceAnonymityIndex=0;
 		double numFeatures = sentenceLevelFeaturesFound.length();
 		int i;
+		Attribute currentAttrib;
+		int totalFeatureOccurrences = 0;
+		for (i = 0; i < numFeatures; i++)
+			totalFeatureOccurrences += sentenceLevelFeaturesFound.references.get(i).value;
+		if (totalFeatureOccurrences == 0)
+				totalFeatureOccurrences = 1; // can't divide by zero..
 		// Compute each "sentence level" feature's contribution to the anonymity index
 		for (i=0;i<numFeatures;i++){
 			Reference tempFeature = sentenceLevelFeaturesFound.references.get(i);
+			currentAttrib = DataAnalyzer.topAttributes[tempFeature.index];
 			double value=tempFeature.value;
-			sentenceAnonymityIndex += (value/numFeatures)*(DataAnalyzer.topAttributes[tempFeature.index].getInfoGain())*(DataAnalyzer.topAttributes[tempFeature.index].getPercentChangeNeeded());
+			sentenceAnonymityIndex += (value/totalFeatureOccurrences)*(currentAttrib.getInfoGain())*(currentAttrib.getPercentChangeNeeded(false,true));// for 'getPercentChangeNeeded', the first boolean says not to normalize the result to the baslinePercentChangeNeeded, and the second says to invert the percentage.
 		}
 		int numWords = wordsInSentence.size();
 		// then add the contribution of each individual word

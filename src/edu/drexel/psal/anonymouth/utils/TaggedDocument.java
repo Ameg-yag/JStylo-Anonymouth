@@ -473,7 +473,50 @@ public class TaggedDocument implements Serializable{
 			
 	}
 	
+	
 	/**
+	 * Calculates and returns the document's anonymity index.
+	 * @return
+	 */
+	public double getAnonymityIndex(){
+		double totalAI = 0;
+		int numSents = taggedSentences.size();
+		int i;
+		for (i = 0; i < numSents; i++){
+			totalAI += taggedSentences.get(i).getSentenceAnonymityIndex();
+		}
+		return totalAI;
+	}
+	
+	/**
+	 * Calculates and returns the anonymity index of the document if the all of the document's features (that are in 'topAttributes') are equal to their target values.
+	 * @return
+	 */
+	public double getTargetAnonymityIndex(){
+		int i;
+		int numAttribs = DataAnalyzer.topAttributes.length;
+		double totalFeatures = 0;
+		double anonIndex = 0;
+		Attribute tempAttrib;
+		for(i = 0; i < numAttribs; i++){
+			tempAttrib = DataAnalyzer.topAttributes[i];
+			if(tempAttrib.getFullName().contains("Percentage") || tempAttrib.getFullName().contains("Average"))
+				continue; // We don't want to add percentages into the mix of total features
+			totalFeatures += DataAnalyzer.topAttributes[i].getTargetValue();
+		}
+		for(i = 0; i < numAttribs; i++){
+			tempAttrib = DataAnalyzer.topAttributes[i];
+			if(tempAttrib.getFullName().contains("Percentage") || tempAttrib.getFullName().contains("Average"))
+				continue; // not really sure how to handle this...
+			anonIndex += (tempAttrib.getTargetValue()/totalFeatures)*(tempAttrib.getInfoGain());
+		}
+		return anonIndex;
+		
+	}
+	
+	/**
+	 * XXX XXX fixme XXX XXX 
+	 * 
 	 * Loops through all topAttribute Attributes in DataAnalyzer, and returns the average percent change needed. This is a first stab at some
 	 * way to deliver a general sense of the degree of anonymity achived at any given point. This method must be called before any changes are made to set 
 	 * a baseline percent change. That number is what everything from that point on gets compared (normalized) to. 
@@ -488,7 +531,7 @@ public class TaggedDocument implements Serializable{
 		int total_attribs = 0;
 		double total_percent_change = 0;
 		for (Attribute attrib : DataAnalyzer.topAttributes){
-			total_percent_change += Math.abs(attrib.getPercentChangeNeeded());
+			total_percent_change += Math.abs(attrib.getPercentChangeNeeded(false,false));
 			total_attribs ++;
 		}
 		double avg_percent_change = total_percent_change/total_attribs;

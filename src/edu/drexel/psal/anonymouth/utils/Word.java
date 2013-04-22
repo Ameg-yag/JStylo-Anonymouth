@@ -3,6 +3,7 @@ package edu.drexel.psal.anonymouth.utils;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.utils.POS.TheTags;
 import edu.drexel.psal.jstylo.generics.Logger;
@@ -73,10 +74,19 @@ public class Word implements Comparable<Word>, Serializable {
 	public double getAnonymityIndex(){
 		double anonymityIndex=0;
 		double numFeatures = wordLevelFeaturesFound.length();
-		for (int i=0;i<numFeatures;i++){
+		int i;
+		Attribute currentAttrib;
+		int totalFeatureOccurrences = 0;
+		for (i = 0; i < numFeatures; i++)
+			totalFeatureOccurrences += wordLevelFeaturesFound.references.get(i).value;
+		if (totalFeatureOccurrences == 0)
+				totalFeatureOccurrences = 1; // can't divide by zero..
+		for (i = 0;i<numFeatures;i++){
 			Reference tempFeature = wordLevelFeaturesFound.references.get(i);
+			currentAttrib = DataAnalyzer.topAttributes[tempFeature.index];
+
 			double value=tempFeature.value;
-			anonymityIndex += (value/numFeatures)*(DataAnalyzer.topAttributes[tempFeature.index].getInfoGain())*(DataAnalyzer.topAttributes[tempFeature.index].getPercentChangeNeeded());
+			anonymityIndex += (value/totalFeatureOccurrences)*(currentAttrib.getInfoGain())*(currentAttrib.getPercentChangeNeeded(false,true));// for 'getPercentChangeNeeded', the first boolean says not to normalize the result to the baslinePercentChangeNeeded, and the second says to invert the percentage.
 		}
 		return anonymityIndex;
 	}
