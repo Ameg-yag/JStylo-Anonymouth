@@ -240,7 +240,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	}
 	
 	@Override
-	public String runCrossValidation(Instances data, int folds,
+	public Evaluation runCrossValidation(Instances data, int folds,
 			long randSeed) {
 		Logger.logln(">>> runCrossValidation started");
 		// setup
@@ -336,7 +336,9 @@ public class WriteprintsAnalyzer extends Analyzer {
 		
 		
 		// Build and return results string
-		return resultsString(confusionMatrix,count,correct,total,extractedAuthors);
+		return null;
+		//TODO fix
+		//return resultsString(confusionMatrix,count,correct,total,extractedAuthors);
 	}
 	
 	/**
@@ -509,7 +511,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	/**
 	 * TODO
 	 */
-	public String runCrossValidation(Instances data, int folds, long randSeed,
+	public Evaluation runCrossValidation(Instances data, int folds, long randSeed,
 			int relaxFactor) {
 		return null;
 	}

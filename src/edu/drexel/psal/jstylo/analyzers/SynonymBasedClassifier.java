@@ -25,7 +25,7 @@ public class SynonymBasedClassifier extends Analyzer {
 	}
 
 	@Override
-	public String runCrossValidation(Instances data, int folds, long randSeed,
+	public Evaluation runCrossValidation(Instances data, int folds, long randSeed,
 			int relaxFactor) {
 		// TODO Auto-generated method stub
 		return null;
