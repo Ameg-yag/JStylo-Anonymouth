@@ -46,12 +46,13 @@ public class SentenceTools implements Serializable  {
 	private int currentStop = 0;
 	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]){1}");
 	private static final Pattern sentence_quote = Pattern.compile("[.?!]\"\\s+[A-Z]");
+	//private static final Pattern sentence_quote = Pattern.compile("([?!]+)|([.]{1})\\s+\"\\s+[A-Z]");
 	private static final String t_PERIOD_REPLACEMENT = ""; // XXX: Hopefully it is safe to assume no one sprinkles apple symbols in their paper
 	// The below three "permanent" replacments are to mark EOS characters in text that the user has told us are not actually ending a sentence. 
 	// DO NOT remove these... in order to get them back, you need to know the unicode code
-	public static final char p_PERIOD_REPLACEMENT ='๏';
-	public static final char p_EXCLAMATION_REPLACEMENT ='ǃ';
-	public static final char p_QUESTION_REPLACEMENT ='ʔ';
+	public static final String p_PERIOD_REPLACEMENT = "๏";
+	public static final String p_EXCLAMATION_REPLACEMENT ="˩";//"ǃ";
+	public static final String p_QUESTION_REPLACEMENT ="ʔ";
 	private static int MAX_SENTENCES = 500;
 	private int numSentences;
 	private boolean shouldInitialize = true;
@@ -64,7 +65,7 @@ public class SentenceTools implements Serializable  {
 	private int totalSentences = 0;
 	
 	private boolean mustAddToIndex = false;
-	private String[] notEndsOfSentence = {"Dr.","Mr.","Mrs.","Ms.","St.","vs.","U.S.","Sr.","Sgt.","R.N.","pt.","mt.","mts.","M.D.","Ltd.","Jr.","Lt.","Hon.","i.e.","e.x.","inc.",
+	private String[] notEndsOfSentence = {"Dr.","Mr.","Mrs.","Ms.","St.","vs.","U.S.","Sr.","Sgt.","R.N.","pt.","mt.","mts.","M.D.","Ltd.","Jr.","Lt.","Hon.","i.e.","e.x.","e.g.","inc.",
 			"et al.","est.","ed.","D.C.","B.C.","B.S.","Ph.D.","B.A.","A.B.","A.D.","A.M.","P.M.","Ln.","fig.","p.","pp.","ref.","r.b.i.","V.P.","yr.","yrs.","etc.","..."};
 	//what if a name like F. Scott Fitzgerald 
 			// ^^ To whoever said this: then, we are in trouble. - AweM
@@ -79,12 +80,15 @@ public class SentenceTools implements Serializable  {
 	public ArrayList<String> makeSentenceTokens(String text){
 		Scanner scan = new Scanner(System.in);
 		ArrayList<String> sents = new ArrayList<String>(MAX_SENTENCES);
-		boolean merge1=false, mergeFinal=false;
+		boolean mergeNext=false;
+		boolean mergeWithLast=false;
 		int currentStart = 1;
 		int currentStop = 0;
+		int currentEOSnum;
+		int numEOSes;
 		int lenText = text.length();
+		int quoteAtEnd;
 		String temp;
-		int openingQuoteIndex = 0;
 		int closingQuoteIndex = 0;
 		text = text.replaceAll("\u201C","\"");
 		text = text.replaceAll("\u201D","\"");
@@ -105,21 +109,23 @@ public class SentenceTools implements Serializable  {
 		boolean foundEOS = sent.find(currentStart); // xxx TODO xxx take this EOS character, and if not in quotes, swap it for a permanent replacement, and create and add an EOS to the calling TaggedDocument's eosTracker.
 		Matcher sentEnd;
 		int charNum = 0;
-		int lenString = 0;
+		int lenTemp = 0;
 		int lastQuoteAt = 0;
 		boolean foundQuote = false;
 		boolean isSentence;
 		boolean foundAtLeastOneEOS = foundEOS;
+		String currentEOS;
 		while (foundEOS == true){
 			System.out.println(sent.group(0));
+			currentEOS = sent.group(0);
 			currentStop = sent.end();
 			//System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
 			temp = text.substring(currentStart-1,currentStop);
 			//System.out.println(temp);
-			lenString = temp.length();
+			lenTemp = temp.length();
 			lastQuoteAt = 0;
 			foundQuote = false;
-			for(charNum =0; charNum <lenString; charNum++){
+			for(charNum =0; charNum < lenTemp; charNum++){
 				if(temp.charAt(charNum) == '\"'){
 					lastQuoteAt = charNum;
 					if(foundQuote == true){
@@ -138,35 +144,63 @@ public class SentenceTools implements Serializable  {
 				}
 				else{
 					currentStop +=1;
-					merge1=true;
+					mergeNext=true;// the EOS character we are looking for is not in this section of text (section being defined as a substring of 'text' between two EOS characters.)
 				}
 			}
 			safeString = text.substring(currentStart-1,currentStop);
 			
+			System.out.println("---------------");
+			System.out.println(safeString);
 
 			sentEnd = sentence_quote.matcher(safeString);	
 			isSentence = sentEnd.find();
 			//System.out.println("RESULT OF sentence_quote matching: "+isSentence);
+			quoteAtEnd = 0;
 			if(isSentence == true){ // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
 				// Then we want to split this up into two sentences (it's possible to have a sentence like this: He said, "Hello.")
 				//System.out.println("start: "+sentEnd.start()+" ... end: "+sentEnd.end());
 				currentStop = text.indexOf("\"",sentEnd.start()+currentStart)+1;
 				safeString = text.substring(currentStart-1,currentStop);
+				mergeWithLast = false;
+				quoteAtEnd = 1;
 			}
 			
-			System.out.println("---------------");
-			System.out.println(safeString);
-			safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
-			System.out.println(safeString);
-			if(mergeFinal){
-				mergeFinal=false;
+			if(mergeWithLast){
+				mergeWithLast=false;
 				String prev=sents.remove(sents.size()-1);
 				safeString=prev+safeString;
 			}
-			if (merge1){//makes the merge happen on the next pass through
-				merge1=false;
-				mergeFinal=true;
+			if (mergeNext){//makes he merge happen on the next pass through
+				mergeNext=false;
+				mergeWithLast=true;
 			}
+			/*
+			else{
+				numEOSes = currentEOS.length();
+				int startOfEOS = safeString.length() - numEOSes - quoteAtEnd; // quoteAtEnd will be '0' unless there is a quote after the EOS character(s)
+				for (currentEOSnum = 0; currentEOSnum < numEOSes; currentEOSnum++){
+					switch(currentEOS.charAt(currentEOSnum)){
+						case '.': 
+							safeString = safeString.substring(0, startOfEOS + currentEOSnum) + p_PERIOD_REPLACEMENT + safeString.substring(startOfEOS + currentEOSnum+1);
+							break;
+						case '?': 
+							safeString = safeString.substring(0, startOfEOS + currentEOSnum) + p_QUESTION_REPLACEMENT + safeString.substring(startOfEOS + currentEOSnum+1);
+							break;
+						case '!': 
+							safeString = safeString.substring(0, startOfEOS + currentEOSnum) + p_EXCLAMATION_REPLACEMENT + safeString.substring(startOfEOS + currentEOSnum+1);
+							break;
+					}
+				}
+			}
+			*/
+			
+			System.out.println(safeString);
+			safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
+			System.out.println(safeString);
+			
+			
+			
+		
 			System.out.println(safeString);
 			System.out.println("---------------");
 			sents.add(safeString);
@@ -183,11 +217,14 @@ public class SentenceTools implements Serializable  {
 			}
 			foundEOS = sent.find(currentStart);
 		}
+		
+		
 		if (!foundAtLeastOneEOS){
 			ArrayList<String> wrapper = new ArrayList<String>(1);
 			wrapper.add(text);
 			return wrapper;
 		}
+		
 		return sents;
 	}
 	
@@ -245,7 +282,8 @@ public class SentenceTools implements Serializable  {
 	*/
 	public static void main(String[] args) throws IOException{
 		SentenceTools ss = new SentenceTools();
-		String testText = "This is a test text. I said, \"this, is a test text.\", didn't you hear me? You said, \"I didn't hear you!\"... well, did you? Or, did you not!? I am hungry.";
+		//String testText = "This is a test text. I said, \"this, is a test text.\", didn't you hear me? You said, \"I didn't hear you!\"... well, did you? Or, did you not!? I am hungry.";
+		String testText = "This sentence, \"has many eos characters. However, they are mostly within a single quote. just to check! check what? Check that this whole quote will be treated as one sentence.\" But this, should not be in the first sentence. Nor should this!";
 		//String testText = "There are many issues with the\n concept of intelligence and the way it is tested in people. As stated by David Myers, intelligence is the �mental quality consisting of the ability. to learn from experience�, solve problems, and use knowledge �to adapt. to new situations� (2010). Is there really just one intelligence? According to many psychologists, there exists numerous intelligences. One such psychologist, Sternberg, believes there are three: Analytical Intelligence, Creative Intelligence, and Practical Intelligence. Analytical Intelligence is the intelligence assessed by intelligence tests which presents well-defined problems with set answers and predicts school grades reasonably well and to a lesser extent, job success! \n \tCreative Intelligence is demonstrated by the way one reacts to certain unforeseen situations in �new� ways. The last of the three is Practical intelligence which is the type of intelligence required for everyday tasks. This is what is used by business managers and the like to manage and motivate people, promote themselves, and delegate tasks efficiently. In contrast to this idea of 3 separate intelligences is the idea of just one intelligence started by Charles Spearman. He thought we had just one intelligence that he called �General Intelligence� which is many times shortened to just: �G�. This G factor was an underlying factor in all areas of our intelligence. Spearman was the one who also developed factor analysis which is a statistics method which allowed him to track different clusters of topics being tested in an intelligence test which showed that those who score higher in one area are more likely to score higher in another. This is the reason why he believed in this concept of G.";
 		//String testText = "Hello?, Dr., this! is my \"t!est?\"ing tex\"t?\".\nI need!? to. See if it \"correctly (i.e. nothing goes wrong) ... and finds the first, and every other sentence, etc.. These quotes are silly, and it is 1 A.m.! a.m.? just for testing purposes?\" No! Okay, yes. What? that isn't a \"real\" \"quote\".";
 		//testText = " Or maybe, he did understand, but had more to share with humanity before his inevitable death. Maybe still, he was forecasting his own suicide twenty-eight years before it happened. No matter what Hemingway might have felt at the time, the deep nothingness that he shows in 'A Clean Well-Lighted Place,' is a nothingness that pervades the story and becomes more apparent to the characters as they age as humans do not last forever. Ernest Hemingway wrote much about the struggle to cope with the nothingness in the world, but eventually succumbed to the nothingness that he wrote about.";

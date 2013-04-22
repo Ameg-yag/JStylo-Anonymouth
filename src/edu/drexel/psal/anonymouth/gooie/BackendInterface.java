@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -205,14 +206,8 @@ public class BackendInterface {
 					Logger.logln(NAME+" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
 					Logger.logln(NAME+wekaResults.toString());
 					makeResultsTable(wekaResults, main);
-					ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
-					
 					pw.stop();
-					main.anonymityDrawingPanel.updateAnonymityBar();
-					main.anonymityDescription.setText("About " +
-							Integer.toString(main.anonymityDrawingPanel.getAvgPercentChangeNeeded()) +
-							"% of your document needs to be changed for it to be 100% anonymous");
-					main.anonymityDrawingPanel.showPointer(true);
+					
 				}
 				else //This reprocesses
 				{
@@ -268,7 +263,7 @@ public class BackendInterface {
 				main.anonymityDrawingPanel.updateAnonymityBar();
 				main.anonymityDescription.setText("About " +
 						Integer.toString(main.anonymityDrawingPanel.getAvgPercentChangeNeeded()) +
-						"% of your document needs to be changed for it to be 100% anonymous");
+						"% of your document needs to be changed for it to be considered anonymous");
 				main.anonymityDrawingPanel.showPointer(true);
 				//eits.documentPane.setText(tempDoc);	
 				//cpb.setText("Waiting for Target Selection...");
@@ -316,6 +311,10 @@ public class BackendInterface {
 		}
 
 		public void run(){
+			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
+			//Scanner in = new Scanner(System.in);
+			//in.nextLine();
+				
 			pw.setText("Target Selected");
 //			TableCellRenderer renderer = new PredictionRenderer(main);
 //			main.resultsTable.setDefaultRenderer(Object.class, renderer);

@@ -50,7 +50,7 @@ import weka.core.Instances;
 public class DataAnalyzer{
 	
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
-	private int numFeaturesToReturn;
+	private int numFeaturesToReturn = ThePresident.MAX_FEATURES_TO_CONSIDER;
 	public static Attribute[] topAttributes;
 	public static int lengthTopAttributes;
 	private String[] importantAttribs;
@@ -92,14 +92,6 @@ public class DataAnalyzer{
 		return topAttributes;
 	}
 	
-	/**
-	 * Sets the number of features to return suggestions for
-	 * @param numFeaturesToReturn
-	 */
-	public void setNumFeaturesToReturn(int numFeaturesToReturn){
-		Logger.logln(NAME+"Numer of features to return: "+numFeaturesToReturn);
-		this.numFeaturesToReturn = numFeaturesToReturn;
-	}
 	
 	/**
 	 * takes average of each feature across all instances specified by "instancesArray" 

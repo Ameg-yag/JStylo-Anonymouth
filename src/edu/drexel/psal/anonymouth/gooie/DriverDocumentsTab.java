@@ -121,6 +121,7 @@ public class DriverDocumentsTab {
 	protected static TaggedDocument taggedDoc;
 	protected static int currentSentNum = -1;
 	protected static int lastSentNum = -1;
+	protected static int sentToTranslate = 0;
 	protected static int[] selectedSentIndexRange = new int[]{-2,-2}; 
 	protected static int[] lastSelectedSentIndexRange = new int[]{-3,-3};
 	protected static int lastCaretLocation = -1;
@@ -357,16 +358,15 @@ public class DriverDocumentsTab {
 					selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 					selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 					System.out.printf("Moving highlight to range %d-%d\n", selectionInfo[1], selectionInfo[2]);
-					main.documentPane.setText(taggedDoc.getUntaggedDocument(false));
+					//todo main.documentPane.setText(taggedDoc.getUntaggedDocument(false));
 					if(!inRange)
 						moveHighlight(main,selectedSentIndexRange,true);
 					else
 						moveHighlight(main,selectedSentIndexRange,false);
 					
-					//Commented by Andrew, uncomment to get translations back for testing
-					//"currentSentNum" used to be "i", but there is no local i variable. I'm assuming I'm
-					//supposed to pass the current sentence number.
-					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(currentSentNum));	
+					sentToTranslate = currentSentNum;
+					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
+									
 				}
 			}
 			
@@ -597,22 +597,17 @@ public class DriverDocumentsTab {
 						else
 							Logger.logln(NAME+"Repeat processing starting....");
 						
-						int wekaIsRunningAnswer = wekaIsRunning();
-						if(wekaIsRunningAnswer != -1)
-						{
-							charsInserted = 0; // this gets updated when the document is loaded.
-							charsRemoved = 0;	
-							main.documentPane.getHighlighter().removeAllHighlights();
-							highlightedObjects.clear();
-							TheOracle.resetColorIndex();
-							main.resultsTablePane.setOpaque(false);
-							main.resultsTable.setOpaque(false);
-							highlightedObjects.clear();
-							okayToSelectSuggestion = false;
-							wizard.setNumFeaturesToReturn(wekaIsRunningAnswer);
-							Logger.logln(NAME+"calling backendInterface for preTargetSelectionProcessing");
-							BackendInterface.preTargetSelectionProcessing(main,wizard,magician);
-						}
+						charsInserted = 0; // this gets updated when the document is loaded.
+						charsRemoved = 0;	
+						main.documentPane.getHighlighter().removeAllHighlights();
+						highlightedObjects.clear();
+						TheOracle.resetColorIndex();
+						main.resultsTablePane.setOpaque(false);
+						main.resultsTable.setOpaque(false);
+						highlightedObjects.clear();
+						okayToSelectSuggestion = false;
+						Logger.logln(NAME+"calling backendInterface for preTargetSelectionProcessing");
+						BackendInterface.preTargetSelectionProcessing(main,wizard,magician);
 					}
 				}
 			}
@@ -832,15 +827,6 @@ public class DriverDocumentsTab {
 //		});
 	}
 		
-		
-		public static int wekaIsRunning(){
-			if(isUsingNineFeatures == true)
-				return 9;
-			else{
-				numSuggestions = 200;
-				return numSuggestions;
-			}
-		}	
 			
 		public static int getSelection(JOptionPane oPane){
 			Object selectedValue = oPane.getValue();
