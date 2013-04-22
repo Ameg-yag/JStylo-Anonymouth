@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
@@ -15,8 +16,10 @@ import com.jgaap.generics.*;
 
 import weka.attributeSelection.InfoGainAttributeEval;
 import weka.classifiers.Evaluation;
+import weka.classifiers.functions.SMO;
 import weka.core.Attribute;
 import weka.core.Instances;
+import weka.core.converters.ArffLoader.ArffReader;
 import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.smu.tspell.wordnet.Synset;
@@ -100,6 +103,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		trainAuthorData.clear();
 		testAuthorData.clear();
 		//TODO if we get weird results somewhere the two lines below might be the reason. Testing didn't reveal anything though
+				//this was added because authors weren't being cleared between one classification and the next ie different presses of the "run analysis" button. 
 		if (authors!=null)
 			authors.clear();
 		
@@ -169,7 +173,6 @@ public class WriteprintsAnalyzer extends Analyzer {
 		// initialize synonym count mapping
 		Logger.logln("Initializing word synonym count");
 		Map<Integer,Integer> wordsSynCount = calcSynonymCount(trainingSet,numFeatures);
-		
 		
 		/* =======
 		 * TESTING
@@ -282,7 +285,88 @@ public class WriteprintsAnalyzer extends Analyzer {
 		double max;
 		String selected;
 		
-		for (int i = 0; i < folds; i ++) {
+		//TODO 
+		//initialize underlying evaluation object
+		Evaluation eval = null;
+		SMO smo = new SMO();
+		Instances allInstances = null;
+		Instances goodInstances = null;
+		Instances badInstances = null;
+		//start the ARFF string
+		String stub = "@RELATION <stub>\n" +
+					  "@ATTRIBUTE authors{";
+		
+		//Add all authors
+		for (int i=0; i<extractedAuthors.numValues();i++){
+			
+			if (extractedAuthors.value(i).split(" ").length==1)
+				stub+=extractedAuthors.value(i)+",";
+			else{
+				Logger.logln("name with a space");
+				String[] temp = extractedAuthors.value(i).split(" ");
+				String compressedName="";
+				for (String s:temp){
+					compressedName+=s+"-";
+				}
+				stub+=compressedName+",";
+			}
+		}
+		stub+="}\n";
+		stub+="@ATTRIBUTE value NUMERIC\n";
+		stub+="@DATA\n";
+		
+		//Add the correct author/data pair
+		for (int i=0; i<extractedAuthors.numValues();i++){
+			if (extractedAuthors.value(i).split(" ").length==1)
+				stub+=extractedAuthors.value(i)+","+i+"\n";
+			else{
+				String[] temp = extractedAuthors.value(i).split(" ");
+				String compressedName="";
+				for (String s:temp){
+					compressedName+=s+"-";
+				}
+				stub+=compressedName+","+i+"\n";
+			}
+		}
+		
+		//add the incorrect Author/data pairs
+		for (int i=0; i<extractedAuthors.numValues();i++){
+			for (int j=0; j<extractedAuthors.numValues();j++){
+				if (i!=j){
+					if (extractedAuthors.value(i).split(" ").length==1)
+						stub+=extractedAuthors.value(i)+","+j+"\n";
+					else{
+						String[] temp = extractedAuthors.value(i).split(" ");
+						String compressedName="";
+						for (String s:temp){
+							compressedName+=s+"-";
+						}
+						stub+=compressedName+","+j+"\n";
+					}
+				}
+			}
+		}
+		
+
+		
+		try{
+			StringReader sReader = new StringReader(stub);
+			ArffReader aReader = new ArffReader(sReader);
+			allInstances = aReader.getData();
+			allInstances.setClassIndex(allInstances.numAttributes()-1);
+			Logger.logln("allInstances.size: "+allInstances.numInstances());
+			
+			goodInstances = new Instances(allInstances,0,extractedAuthors.numValues()-1);
+			badInstances = new Instances(allInstances,extractedAuthors.numValues());
+			
+			//TODO not sure which "instances" to use for these things
+			smo.buildClassifier(allInstances);
+			eval = new Evaluation(allInstances);
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		
+		for (int i1 = 0; i1 < folds; i1 ++) {
 		//	Logger.logln("Running experiment " + (i + 1) + " out of " + folds);
 			
 			// initialize
@@ -290,14 +374,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 			test.delete();
 			
 			// prepare training set
-			for (int j = i; j < i + half; j++) {
+			for (int j = i1; j < i1 + half; j++) {
 				tmp = foldData[j % folds];
 				tmpSize = tmp.numInstances();
 				for (int k = 0; k < tmpSize; k++)
 					train.add(tmp.instance(k));
 			}
 			// prepare test set
-			for (int j = i + half; j < i + folds; j++) {
+			for (int j = i1 + half; j < i1 + folds; j++) {
 				tmp = foldData[j % folds];
 				tmpSize = tmp.numInstances();
 				for (int k = 0; k < tmpSize; k++)
@@ -318,10 +402,29 @@ public class WriteprintsAnalyzer extends Analyzer {
 					}
 				}
 			//	Logger.logln(testInstAuthor + ": " + selected);
-				if (testInstAuthor.equals(selected)){
-					success++;
-					correct++;
+				if (testInstAuthor.equals(selected)){ //TODO train it with a goodInstance
+					int correctIndex = extractedAuthors.indexOfValue(testInstAuthor);
+					Logger.logln("Attempting to add correctIndex at: "+(correctIndex*extractedAuthors.numValues()+correctIndex));
+					try {
+						eval.evaluateModelOnce(smo,allInstances.instance(correctIndex*extractedAuthors.numValues()+correctIndex));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}				
+				} else { //TODO train it with a bad instance
+					int correctIndex = extractedAuthors.indexOfValue(testInstAuthor);
+					int incorrectIndex = extractedAuthors.indexOfValue(selected);
+				/*	int slider=0;
+					if (incorrectIndex>correctIndex)
+						slider=1;
+					*/
+					try {
+						Logger.logln("Attempting to add incorrect instance at: "+(correctIndex*extractedAuthors.numValues()+incorrectIndex));
+						eval.evaluateModelOnce(smo,badInstances.instance(correctIndex*extractedAuthors.numValues()+incorrectIndex));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}	
 				}
+				
 				confusionMatrix[extractedAuthors.indexOfValue(selected)][extractedAuthors.indexOfValue(testInstAuthor)]++;
 				count++;
 			}
@@ -336,9 +439,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		
 		
 		// Build and return results string
-		return null;
-		//TODO fix
-		//return resultsString(confusionMatrix,count,correct,total,extractedAuthors);
+		return eval;
 	}
 	
 	/**

@@ -862,7 +862,7 @@ public class AnalysisTabDriver {
 					updateResultsView();
 					
 					// print out results
-					if (a instanceof WekaAnalyzer){
+					//if (a instanceof WekaAnalyzer){
 						Evaluation eval = (Evaluation) results;
 						content += eval.toSummaryString(false)+"\n";
 						try {
@@ -872,11 +872,11 @@ public class AnalysisTabDriver {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-					} else if (a instanceof WriteprintsAnalyzer){ //TODO fix writeprints analyzer and remove instanceof
+				/*	} else if (a instanceof WriteprintsAnalyzer){ //TODO fix writeprints analyzer and remove instanceof
 						
 						content+=(String) results;
 						
-					}
+					}*/
 						
 					updateResultsView();
 					
