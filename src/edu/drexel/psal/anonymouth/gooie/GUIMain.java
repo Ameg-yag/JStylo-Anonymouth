@@ -1526,6 +1526,7 @@ public class GUIMain extends javax.swing.JFrame  {
                 
                 documentScrollPane = new JScrollPane();
                 documentPane = new JTextPane();
+                documentPane.setDragEnabled(false);
                 documentPane.setText("This is where the latest version of your document will be.");
                 documentPane.setFont(normalFont);
                 documentPane.setEnabled(true);

@@ -48,9 +48,6 @@ public class TargetExtractor {
 	private boolean maxCentroidsFound = false;
 	private String featName;
 	
-	private int lenThisFeature;
-	private double[] thisFeature;
-	
 	/**
 	 * Constructor
 	 * @param numAuthors the number of authors (not including the user). This defines the starting number of centroids
@@ -62,13 +59,12 @@ public class TargetExtractor {
 		this.trainTitlesList = DocumentMagician.getTrainTitlesList();
 		this.numAuthors = numAuthors;
 		this.numMeans = numAuthors;
-		thisFeature = attrib.getTrainVals();
-		lenThisFeature = thisFeature.length;
+		double[] thisFeature = attrib.getTrainVals();
+		int lenThisFeature = thisFeature.length;
 		int i=0;
 		this.thePairs = new Pair[lenThisFeature];
 		for(i=0;i<lenThisFeature;i++){
 			thePairs[i] = new Pair(trainTitlesList.get(i),thisFeature[i]);
-			System.out.println("   thePairs[i].toString()(68):" + thePairs[i].pairToString());
 		}
 		this.min = attrib.getTrainMin();
 		this.max = attrib.getTrainMax();
@@ -96,11 +92,9 @@ public class TargetExtractor {
 		previousInitialization = new ArrayList<Integer>();
 		thisFeaturesClusters.clear();
 		int numFeatures = thePairs.length;
-//		System.out.println("   thePairs.length(96): " + thePairs.length);
 		MersenneTwisterFast mtfGen = new MersenneTwisterFast();
 		int firstPick = mtfGen.nextInt(numFeatures);
 		thisFeaturesClusters.add(0,new Cluster(thePairs[firstPick].value));
-		System.out.println("   thePairs[firstPick].value(100): " + thePairs[firstPick].value);
 		previousInitialization.add(firstPick);
 		int numClusters = thisFeaturesClusters.size();
 		int i =0;
@@ -206,7 +200,7 @@ public class TargetExtractor {
 	 * Initializes the clustering algorithm by evenly spacing 'numMeans' centroids between the features [min,max],
 	 * and assigns features to partitions based upon Euclidean distance from centroids (single dimension)
 	 */
-	public void initialize(){
+	public boolean initialize(){
 		Logger.logln(NAME+"Initializing Clustering, will call kPlusPlusPrep.");
 		kPlusPlusPrep();
 		Logger.logln(NAME+"kPlusPlusPrep seems to have done its job. Moving on.");
@@ -231,7 +225,7 @@ public class TargetExtractor {
 		double[] allCentroids = getAllCentroids();
 	
 		// Initialize cluster element sets based on distance from each centroid
-		System.out.println("   thePairs.length(231): " + thePairs.length);
+		//System.out.println(numPartitions+", "+thePairs.length);
 		double[][] differences = new double[numMeans][thePairs.length];
 		for(i=0;i<numMeans;i++){
 			double  tempCentroid = allCentroids[i];
@@ -255,15 +249,14 @@ public class TargetExtractor {
 			thisFeaturesClusters.get(partitionToGoTo).addElement(thePairs[i]);
 		}
 		Logger.logln(NAME+"Initial positions for elements found. Updating Centroids.");
-		updateCentroids();
-		
+		return updateCentroids();
 	}
 	
 	
 	/**
 	 * Updates the centroids to be the average of the values contained within their respective partitions. 
 	 */
-	public void updateCentroids(){
+	public boolean updateCentroids(){
 		Logger.logln(NAME+"Begin updating centroids.");
 		// update centroids to be the averages of their respective element lists
 		int i=0;
@@ -303,12 +296,7 @@ public class TargetExtractor {
 		}
 		// Once all centroids have been updated, re-organize
 		Logger.logln(NAME+"Updating centroids complete, will reOrganize");
-		
-		for(int p=0; p<lenThisFeature; p++){
-			System.out.println("   thePairs[p].toString()(68):" + thePairs[p].pairToString());
-		}
-		
-		reOrganize();
+		return reOrganize();
 	}
 	
 	public double[] getAllCentroids(){
@@ -324,7 +312,7 @@ public class TargetExtractor {
 	/**
 	 * Moves the features to their new nearest centroids
 	 */
-	public void reOrganize(){
+	public boolean reOrganize(){
 		Logger.logln(NAME+"Starting reOrganize");
 		// need to go through all elements, extract data, and check distance agains new centroids
 		// create list of all centroids
@@ -389,17 +377,12 @@ public class TargetExtractor {
 						//Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
 						//while(clusterIter.hasNext())
 						//	System.out.println(clusterIter.next().getElements().toString());
-						Logger.logln(NAME+"Cluster '"+i+"' has less than 3 elements. Will restart with '"+numMeans+"' means. Enter a character.");
+						Logger.logln(NAME+"Cluster '"+i+"' has less than 3 elements. Will restart with '"+numMeans+"' means.");
 						noProblems = false;
 						break;
 					}
 				}
 			}
-			
-//			for(int p=0; p<lenThisFeature; p++){
-//				System.out.println("   thePairs[p].toString()(68):" + thePairs[p].pairToString());
-//			}
-			
 			if(noProblems == true){
 				Logger.logln(NAME+"All is well, clustering complete.");
 				isFinished=true;
@@ -408,178 +391,19 @@ public class TargetExtractor {
 				//in.next();
 				noProblems = true;
 				thisFeaturesClusters.clear();
-				initialize();
+				//initialize();
+				return true;
 			}
 		}
 		else{
 			Logger.logln(NAME+"Updating Centroids... something moved");
-			updateCentroids();
+			return updateCentroids();
 		}
+		return false;
 		
 	}
 
-	/**
-	 * @deprecated
-	 * The best cluster to move the feature to is randomly chosen within a range based upon how populated other clusters are (the more populated the better), and the distance a cluster is from the user's sample average and std. devation,
-	 * basically. If a highly populated cluster (at lease the average number of elements per cluster, minus the average absolute deviation) that falls outside of the user's sample features norm is not found, 
-	 * the user's 'present value' (document to modify's value) is left untouched. The target value is then set to minus 1 (-1), and is later set to the present value of the feature.
-	 */
-	public void findOptimalCluster(){
-		// 1) the target location of the feature MUST lie outside of the range of (authorAverage +/- one standard deviation - 'mu' will be the multiplier.)
-		// 2) ... 
-		// 3) The target cluster must have at least (averageNumElementsPerCluster - averageAbsoluteDeviation) elements in it (in order to not move a feature to an 'outlier' location)
-		// 4) Once a suitable cluster has been found, randomly pick a location for the target value of the feature within the range ( centroid +/- average absolute deviation) to further minimize the possibility that many
-		// features will end up targeted to the exact location of the centroid, which would suggest JAM's involvement (even though this is highly unlikely to happen). 
-		// 5) In the case that one or more of these conditions cannot be met, the feature will be left as it is - as there would (probably) be little benefit from (and possibly some harm done by) 
-		// changing the feature's value.
-		int i=0;
-		double sum = 0;
-		double avgElementsPerCluster;
-		double clusterAvgAbsDev;
-		int minElements;
-		double muCheck;
-		double	tempClustCent;
-		double tempClustDev;
-		double clustMin;
-		double clustMax;
-		double[] potentialTarget = new double[3]; // potentialTarget[0] <=> cluster number , potentialTarget[1] <=> mu[cluster][0] (min), potentialTarget[2] <=> mu[cluster][1] (max)
-		int numClusters = thisFeaturesClusters.size();
-		double[][] mu = new double[numClusters][2]; // mu[clusterNumber][0] <=> coefficient of StdDev for minimums, mu[clusterNumber][1] <=> coefficient of StdDev for maximums ... both values must be greater than 2
-		int[] sizes = new int[numClusters];
-		
-		// collect sizes of all clusters
-		for(i=0;i<sizes.length;i++){
-			sizes[i] = thisFeaturesClusters.get(i).getElements().length;
-			sum += sizes[i]; 
-		}
-	
-		// find average cluster size
-		avgElementsPerCluster = sum/(sizes.length);
-		sum=0;
-		
-		// find cluster size average absolute deviation
-		for(i=0;i<sizes.length;i++)
-			sum+=Math.abs(sizes[i]-avgElementsPerCluster);
-		clusterAvgAbsDev = sum/(sizes.length);
-		
-		// find minimum number of elements allowed in the target cluster
-		minElements =(int) Math.ceil(avgElementsPerCluster-clusterAvgAbsDev);
-		
-		// calculate author min and max
-		authorMin = authorAvg-authorStdDev;
-		authorMax = authorAvg+authorStdDev;
-	
-		
-		// iterate through all clusters, if the cluster has less than the minimum number of elements, disregard it. Otherwise, save it, and calculate distance from 
-		for(i=0; i<numClusters;i++){
 
-			Cluster tempCluster = thisFeaturesClusters.get(i); 
-			
-			if (tempCluster.getElements().length < minElements){
-				mu[i][0]=0;
-				mu[i][1]=0;
-				continue; // disregard cluster - we dont think we like it.
-			}
-			tempClustCent = tempCluster.getCentroid();
-			tempClustDev =tempCluster.avgAbsDev();
-			clustMin = tempClustCent - tempClustDev;
-			clustMax = tempClustCent + tempClustDev;
-			
-		// for min: the min of the new cluster must either be mu*authorStdDev greater than author's average, or mu*authorStdDev less than authors min
-																	// AND
-		// for max: the max of the new cluster must either be mu*authorStdDev greater than author's max, or mu*authorStdDev less than author's average
-			// picture (example of one possible senario:
-			//  authMin->\/ authAvg \/<-authMax 
-			// 0---------<----|---->-<------|------>------100
-			//                        targetMin->^   targetAvg     ^<-targetMax
-			
-			
-			// {authorMin,authorMax} + (mu*authorStdDev) = {clustMin,clustMax}  => mu = ({clustMin,clustMax}-{authMin,authMax})/authorStdDev => abs(mu) must be greater than 2.00
-			// negative mu indicates cluster contains values less than authors values, and vice-versa
-			mu[i][0] = (clustMin-authorMin)/authorStdDev;
-			mu[i][1] = (clustMax-authorMax)/authorStdDev;
-				
-		}
-		
-		// THIS SPECIFIC STEP MAY ONLY BE FOR TESTING: set the target cluster to the cluster who's absolute mu[cluster][0] and mu[cluster][1] values are both greater than 2 
-		// TODO(START):The selection process SHOULD be randomized to decrease the possiblity that the the author's actual features/style could be guessed to be within a range.
-		boolean invalidInitializer= false;
-		if(Math.abs(mu[0][0]) > 2 && Math.abs(mu[0][1]) > 2){
-				potentialTarget[0]=0;
-				potentialTarget[1]=mu[0][0];
-				potentialTarget[2]=mu[0][1];
-		}
-		else{
-				potentialTarget[0]=0;
-				potentialTarget[1]=0;
-				potentialTarget[2]=0;
-				invalidInitializer = true;
-		}
-		for(i=1;i<numClusters;i++){
-			double muZero = mu[i][0];
-			double muOne = mu[i][1];
-			if(Math.abs(muZero) > 2 && Math.abs(muOne) > 2){
-				if((muZero*muOne)<(potentialTarget[1]*potentialTarget[2]) || invalidInitializer){
-					invalidInitializer = false;
-					potentialTarget[0]=i;
-					potentialTarget[1]=muZero;
-					potentialTarget[2]=muOne;
-				}
-			}
-		}
-		// TODO(END)
-		
-		MersenneTwisterFast mtfGen = new MersenneTwisterFast();
-		if (potentialTarget[1] != 0 && potentialTarget[2] != 0){
-			targetCluster = thisFeaturesClusters.get((int)potentialTarget[0]);
-			System.out.println("Target cluster is: "+targetCluster.getElements());
-			targetSet = true;
-			targetCent = targetCluster.getCentroid();
-			targetDev = targetCluster.avgAbsDev();
-			System.out.println("Min : Max =>"+(targetCent-targetDev)+" : "+(targetCent+targetDev));
-			targetValue = (targetCent-targetDev)+(mtfGen.nextDouble()*(2*targetDev)); // generate a random number between the minimum and maximum values of the target cluster as defined by 
-			// (targetCent-targetDev) <=> min, and (targetCent+targetDev) <=> (max)
-			//System.out.println("Target value: "+targetValue);
-		}	
-		else if (invalidInitializer == true){ // if invalidInitializer == true, and hasn't been set to false, that means that there is only one cluster, and it's values are (probably) zero. 
-			targetCluster = thisFeaturesClusters.get((int)potentialTarget[0]);
-			System.out.println("Target cluster is: "+Arrays.deepToString(targetCluster.getElements()));
-			targetCent = targetCluster.getCentroid();
-			targetDev = targetCluster.avgAbsDev();
-			System.out.println("Min:Max ->"+(targetCent-targetDev)+" : "+(targetCent+targetDev));
-			targetValue = (targetCent-targetDev)+(mtfGen.nextDouble()*(2*targetDev)); // generate a random number between the minimum and maximum values of the target cluster as defined by 
-			targetSet = true;
-			// (targetCent-targetDev) <=> min, and (targetCent+targetDev) <=> (max)
-			System.out.println("Target value: "+targetValue);
-		}
-		else
-			targetValue = -1;
-			
-	}
-	
-	
-	/**
-	 * @deprecated use @orderClustersByDistFromAuthor instead
-	 * returns the target value
-	 * @return
-	 */
-	public Double getTargetValue(){
-		findOptimalCluster();
-		return targetValue;
-	}
-	
-	/**
-	 * @deprecated
-	 * returns the centroid of the target cluster
-	 * @return
-	 */
-	public double getTargetCentroid(){
-		if(targetSet == true){
-			return targetCent;
-		}
-		else
-			return -1;
-	}
 	
 	/**
 	 * returns the average absolute deviation of the elements in the target cluster from the centroid
@@ -601,9 +425,10 @@ public class TargetExtractor {
 		Logger.logln(NAME+"Entered aMeansCluster");
 		thisFeaturesClusters = new ArrayList<Cluster>(numPartitions);
 		//System.out.println("Starting Clustering...");
-		initialize();	
+		boolean mustRestart = true;
+		while (mustRestart)
+			mustRestart = initialize();	
 		//System.out.println("Clusters Initialized");
-		updateCentroids();
 		//System.out.println("Algorithm running....");
 		double avgAbsDev;
 		ArrayList<String> holderForLogger = new ArrayList<String>();
