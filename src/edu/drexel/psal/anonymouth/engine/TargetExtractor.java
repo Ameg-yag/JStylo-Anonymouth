@@ -48,6 +48,9 @@ public class TargetExtractor {
 	private boolean maxCentroidsFound = false;
 	private String featName;
 	
+	private int lenThisFeature;
+	private double[] thisFeature;
+	
 	/**
 	 * Constructor
 	 * @param numAuthors the number of authors (not including the user). This defines the starting number of centroids
@@ -59,8 +62,8 @@ public class TargetExtractor {
 		this.trainTitlesList = DocumentMagician.getTrainTitlesList();
 		this.numAuthors = numAuthors;
 		this.numMeans = numAuthors;
-		double[] thisFeature = attrib.getTrainVals();
-		int lenThisFeature = thisFeature.length;
+		thisFeature = attrib.getTrainVals();
+		lenThisFeature = thisFeature.length;
 		int i=0;
 		this.thePairs = new Pair[lenThisFeature];
 		for(i=0;i<lenThisFeature;i++){
@@ -93,7 +96,7 @@ public class TargetExtractor {
 		previousInitialization = new ArrayList<Integer>();
 		thisFeaturesClusters.clear();
 		int numFeatures = thePairs.length;
-		System.out.println("   thePairs.length(96): " + thePairs.length);
+//		System.out.println("   thePairs.length(96): " + thePairs.length);
 		MersenneTwisterFast mtfGen = new MersenneTwisterFast();
 		int firstPick = mtfGen.nextInt(numFeatures);
 		thisFeaturesClusters.add(0,new Cluster(thePairs[firstPick].value));
@@ -300,6 +303,11 @@ public class TargetExtractor {
 		}
 		// Once all centroids have been updated, re-organize
 		Logger.logln(NAME+"Updating centroids complete, will reOrganize");
+		
+		for(int p=0; p<lenThisFeature; p++){
+			System.out.println("   thePairs[p].toString()(68):" + thePairs[p].pairToString());
+		}
+		
 		reOrganize();
 	}
 	
@@ -387,6 +395,11 @@ public class TargetExtractor {
 					}
 				}
 			}
+			
+//			for(int p=0; p<lenThisFeature; p++){
+//				System.out.println("   thePairs[p].toString()(68):" + thePairs[p].pairToString());
+//			}
+			
 			if(noProblems == true){
 				Logger.logln(NAME+"All is well, clustering complete.");
 				isFinished=true;

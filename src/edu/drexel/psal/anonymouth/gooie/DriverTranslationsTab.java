@@ -6,6 +6,8 @@ import java.util.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
@@ -21,9 +23,11 @@ public class DriverTranslationsTab
 	protected static JPanel[] finalPanels;
 	protected static JLabel[] languageLabels;
 	protected static JTextPane[] translationTextAreas;
+	protected static JButton[] translationButtons;
 	protected static int numTranslations;
 	protected static TaggedSentence current;
-	private static Image arrow;
+	private static ImageIcon arrow_up;
+	private static ImageIcon arrow_down;
 
 	/**
 	 * Displays the translations of the given sentence in the translations holder panel.
@@ -32,7 +36,8 @@ public class DriverTranslationsTab
 	public static void showTranslations(TaggedSentence sentence)
 	{
 		main = GUIMain.inst;
-		arrow = main.arrow;
+		arrow_up = main.arrow_up;
+		arrow_down = main.arrow_down;
 		
 		// remove all the current translations shown
 		main.translationsHolderPanel.removeAll();
@@ -58,6 +63,7 @@ public class DriverTranslationsTab
 		translationTextAreas = new JTextPane[numTranslations];// everySingleCluster.size()
 		languageLabels = new JLabel[numTranslations];
 		finalPanels = new JPanel[numTranslations];
+		translationButtons = new JButton[numTranslations];
 
 		// for each translation, initialize a title label, and a text area that will hold the translation
 		// then add those two to a final panel, which will be added to the translation list panel.
@@ -77,6 +83,12 @@ public class DriverTranslationsTab
 			translationTextAreas[i].setText(translations.get(i).getUntagged().trim());
 			translationTextAreas[i].setEditable(false);
 
+			translationButtons[i] = new JButton();
+			translationButtons[i].setIcon(arrow_up);
+			translationButtons[i].setSelectedIcon(arrow_down);
+			translationButtons[i].setBorderPainted(false);
+			translationButtons[i].setContentAreaFilled(false);
+			
 			// set up final panel, which will hold the previous two components
 			MigLayout layout = new MigLayout(
 					"wrap, ins 0",
@@ -84,6 +96,7 @@ public class DriverTranslationsTab
 					"[20]0[fill, grow]");
 			finalPanels[i] = new JPanel(layout);
 			finalPanels[i].add(languageLabels[i], "grow, h 20!");
+			finalPanels[i].add(translationButtons[i], "span 2");
 			finalPanels[i].add(translationTextAreas[i], "grow");
 
 			// add final panel to the translations list panel

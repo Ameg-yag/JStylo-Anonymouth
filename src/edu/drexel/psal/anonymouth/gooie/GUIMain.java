@@ -418,7 +418,8 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected static ImageIcon iconNO;
 	protected static ImageIcon iconFINISHED;
 	public static ImageIcon icon;
-	protected static Image arrow;
+	protected static ImageIcon arrow_up;
+	protected static ImageIcon arrow_down;
 	
 	protected JMenuBar menuBar;
 	protected JMenuItem settingsGeneralMenuItem;
@@ -452,7 +453,8 @@ public class GUIMain extends javax.swing.JFrame  {
 					icon = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png"),"logo");
 					iconNO = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_NO.png"), "my 'no' icon");
 					iconFINISHED = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_FINISHED.png"), "my 'finished' icon");
-					arrow = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"bar.png"));
+					arrow_up = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"arrow_up.png"), "arrow_up");
+					arrow_down = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"arrow_down.png"), "arrow_down");
 					//javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					System.err.println("Look-and-Feel error!");
