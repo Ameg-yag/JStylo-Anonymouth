@@ -337,6 +337,10 @@ public class DriverDocumentsTab {
 						//currentSentenceString = main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]+1);
 						System.out.println("currentSentenceString: "+currentSentenceString);
 					}
+					//UNCOMMENT
+//					else {
+//						main.GUITranslator.isSentenceChange(currentSentenceString);
+//					}
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
 					
@@ -359,8 +363,10 @@ public class DriverDocumentsTab {
 					else
 						moveHighlight(main,selectedSentIndexRange,false);
 					
-					//DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(i));
-									
+					//Commented by Andrew, uncomment to get translations back for testing
+					//"currentSentNum" used to be "i", but there is no local i variable. I'm assuming I'm
+					//supposed to pass the current sentence number.
+					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(currentSentNum));	
 				}
 			}
 			

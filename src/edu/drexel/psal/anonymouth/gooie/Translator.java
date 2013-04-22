@@ -12,6 +12,7 @@ import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 public class Translator implements Runnable
 {
 	private ArrayList<TaggedSentence> sentences = new ArrayList<TaggedSentence>(); // essentially the priority queue
+	private ArrayList<Long> timeStamps = new ArrayList<Long>(); 
 	private GUIMain main;
 	private int currentSentNum = 1;
 	private int currentLangNum = 1;
@@ -40,6 +41,14 @@ public class Translator implements Runnable
 //		main.translationsComboBox.setEnabled(b);
 		main.processButton.setEnabled(b);
 	}
+	
+	//UNCOMMENT
+//	public void isSentenceChange(String newSentence) {
+//		if (sentences.contains(newSentence))
+//			return;
+//		else
+//			load(sentences);
+//	}
 
 	/**
 	 * Loads sentences into the translation queue. Newly added sentences take priority. If translations arent running, it starts running.
@@ -47,13 +56,19 @@ public class Translator implements Runnable
 	 */
 	public void load(ArrayList<TaggedSentence> loaded) 
 	{
+//		if (sentences.size() == 0) {
+//			for (int i = 0; i < loaded.size(); i++) {
+//				timeStamps.add(new Long(0));
+//			}
+//		}
+		
 		// if there are no sentences currently being translated
 		if (sentences.size() == 0)
 		{
 			// add the given sentences to the queue
 			for (int i = 0; i < loaded.size(); i++)
 				sentences.add(loaded.get(i));
-
+			
 			// start a new thread to begin translation
 			Thread transThread = new Thread(this);
 			transThread.start(); // calls run below

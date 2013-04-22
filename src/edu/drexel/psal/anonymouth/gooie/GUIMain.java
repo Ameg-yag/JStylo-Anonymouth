@@ -14,6 +14,7 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,6 +43,7 @@ import edu.drexel.psal.anonymouth.gooie.DriverClustersTab.alignListRenderer;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.BevelBorder;
@@ -416,6 +418,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected static ImageIcon iconNO;
 	protected static ImageIcon iconFINISHED;
 	public static ImageIcon icon;
+	protected static Image arrow;
 	
 	protected JMenuBar menuBar;
 	protected JMenuItem settingsGeneralMenuItem;
@@ -449,6 +452,7 @@ public class GUIMain extends javax.swing.JFrame  {
 					icon = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png"),"logo");
 					iconNO = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_NO.png"), "my 'no' icon");
 					iconFINISHED = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_FINISHED.png"), "my 'finished' icon");
+					arrow = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"bar.png"));
 					//javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					System.err.println("Look-and-Feel error!");

@@ -1,8 +1,10 @@
 package edu.drexel.psal.anonymouth.gooie;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.util.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -10,6 +12,7 @@ import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 
+import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
 public class DriverTranslationsTab
@@ -20,6 +23,7 @@ public class DriverTranslationsTab
 	protected static JTextPane[] translationTextAreas;
 	protected static int numTranslations;
 	protected static TaggedSentence current;
+	private static Image arrow;
 
 	/**
 	 * Displays the translations of the given sentence in the translations holder panel.
@@ -28,7 +32,8 @@ public class DriverTranslationsTab
 	public static void showTranslations(TaggedSentence sentence)
 	{
 		main = GUIMain.inst;
-
+		arrow = main.arrow;
+		
 		// remove all the current translations shown
 		main.translationsHolderPanel.removeAll();
 

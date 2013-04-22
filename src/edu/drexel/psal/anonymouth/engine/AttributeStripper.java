@@ -3,6 +3,8 @@ package edu.drexel.psal.anonymouth.engine;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.drexel.psal.jstylo.generics.Logger;
+
 /**
  * Strips the undesirable 'extra' characters in the attribute's fullName (as taken from Weka's Instances object)
  * @author Andrew W.E. McDonald
@@ -24,15 +26,21 @@ public class AttributeStripper {
 	public static String strip(String input){
 		String output;
 		Matcher histTest = bracketPat.matcher(input);
-		//System.out.println("INPUT TO ATTRIBUTE STRIPPER: "+input);
+		System.out.println("INPUT TO ATTRIBUTE STRIPPER: "+input);
+		System.out.println(histTest.find());
 		if(histTest.find() == true){
 			Matcher m = someString.matcher(input);
 			m.find();
 			output = input.substring(m.start()+1,input.indexOf('}'));
 		}
-		else{
+		else {
+//			try {
 			output = input.substring(input.indexOf("'")+1,input.indexOf("{"));
+//			} catch (StringIndexOutOfBoundsException e) {
+//				Logger.logln("Attribute failed to fit with the indexing: " + input);
+//			}
 		}
+		System.out.println(output);
 		return output;
 	}
 

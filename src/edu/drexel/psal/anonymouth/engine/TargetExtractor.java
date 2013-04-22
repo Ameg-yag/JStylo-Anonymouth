@@ -65,6 +65,7 @@ public class TargetExtractor {
 		this.thePairs = new Pair[lenThisFeature];
 		for(i=0;i<lenThisFeature;i++){
 			thePairs[i] = new Pair(trainTitlesList.get(i),thisFeature[i]);
+			System.out.println("   thePairs[i].toString()(68):" + thePairs[i].pairToString());
 		}
 		this.min = attrib.getTrainMin();
 		this.max = attrib.getTrainMax();
@@ -92,9 +93,11 @@ public class TargetExtractor {
 		previousInitialization = new ArrayList<Integer>();
 		thisFeaturesClusters.clear();
 		int numFeatures = thePairs.length;
+		System.out.println("   thePairs.length(96): " + thePairs.length);
 		MersenneTwisterFast mtfGen = new MersenneTwisterFast();
 		int firstPick = mtfGen.nextInt(numFeatures);
 		thisFeaturesClusters.add(0,new Cluster(thePairs[firstPick].value));
+		System.out.println("   thePairs[firstPick].value(100): " + thePairs[firstPick].value);
 		previousInitialization.add(firstPick);
 		int numClusters = thisFeaturesClusters.size();
 		int i =0;
@@ -225,7 +228,7 @@ public class TargetExtractor {
 		double[] allCentroids = getAllCentroids();
 	
 		// Initialize cluster element sets based on distance from each centroid
-		//System.out.println(numPartitions+", "+thePairs.length);
+		System.out.println("   thePairs.length(231): " + thePairs.length);
 		double[][] differences = new double[numMeans][thePairs.length];
 		for(i=0;i<numMeans;i++){
 			double  tempCentroid = allCentroids[i];

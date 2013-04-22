@@ -5,11 +5,16 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
+import java.io.File;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 
 import net.miginfocom.swing.MigLayout;
@@ -27,13 +32,15 @@ public class AnonymityDrawingPanel extends JPanel {
 	
 	private static final long serialVersionUID = 1L;
 	private final int MINY = 50;
-//	private final int MAXY = 700;
-	private final int MAXY = 470;
+	private final int MAXY = 470; //700 without results part
 	private final String[] PERCENTTEXT = {"100%", "75%", "50%", "25%", "0%"};
 	private JLabel anonymous;
 	private JLabel notAnonymous;
 	private Boolean showPointer;
 	private static Pointer pointer;
+	protected Image bar;
+	protected Image barFull;
+	protected Image barEmpty;
 	
 	//Pointer to show the user how anonymous their document is on the scale.
 	/**
@@ -63,6 +70,7 @@ public class AnonymityDrawingPanel extends JPanel {
 		 * If the y value needs to be changed, call "setPercentage()" instead
 		 */
 		private void setValue() {
+//			System.out.println("   " + getRatio());
 			this.y = (int)(MAXY * getRatio() + MINY * getRatio() + getMaxPercentage() * (.5 - getRatio()));
 		}
 		
@@ -147,7 +155,18 @@ public class AnonymityDrawingPanel extends JPanel {
 		this.add(anonymous, "pos 68 15");
 		this.add(notAnonymous, "pos 52 485");
 		
+		try {
+			bar = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"bar.png"));
+			barFull = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"barFull.png"));
+			barEmpty = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"barEmpty.png"));
+		} catch (Exception e) {
+			System.err.println("Error loading anonymity bar pictures (See AnonymityDrawingPanel.java)");
+			e.printStackTrace();
+		}
+		
 		pointer = new Pointer();
+//		showPointer = true;
+//		pointer.setPercentage(75);
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -155,36 +174,37 @@ public class AnonymityDrawingPanel extends JPanel {
 		this.setBackground(Color.WHITE);
 		
 		Graphics2D g2d = (Graphics2D)g;
-		g2d.setStroke(new BasicStroke(7f));
+		g2d.setStroke(new BasicStroke(1f));
 		
-		//Paints the top and bottom lines
-		g2d.setColor(Color.GREEN);
-		g2d.drawLine((232 / 2) - 20 + 3, MINY, (232 / 2) + 20, MINY);
-		g2d.setColor(Color.RED);
-		g2d.drawLine((232 / 2) - 20 + 3, MAXY, (232 / 2) + 20, MAXY);
+		if (!showPointer)
+			g2d.drawImage(barEmpty, (232 / 2) - 50 + 3, MINY-5, null);
+		else if (pointer.getPercentage() >= 99)
+			g2d.drawImage(barFull, (232 / 2) - 50 + 3, MINY-5, null);
+		else
+			g2d.drawImage(bar, (232 / 2) - 50 + 3, MINY-5, null);
 		
 		Color startingColor = Color.GREEN;
 		Color endingColor = Color.RED;
 		
 		//Drawing gradient "intensity" line 647
-		for (int y = 0; y < MAXY - 53; y++) {
-			float ratio = (float) y / (float) (MAXY - 53);
-			int red = (int)(endingColor.getRed() * ratio + startingColor.getRed() * (1 - ratio));
-			int green = (int)(endingColor.getGreen() * ratio + startingColor.getGreen() * (1 - ratio));
-			int blue = (int)(endingColor.getBlue() * ratio + startingColor.getBlue() * (1 - ratio));
-			
-			Color stepColor = new Color(red, green, blue);
-			g2d.setColor(stepColor);
-			g2d.drawLine((232 / 2) + 2, y + 53, (232 / 2) + 2, y + 53);
+		if (showPointer) {
+			for (int y = MAXY; y > 58; y--) {
+				float ratio = (float) (y - 58) / (float) (MAXY - 58);
+				int red = (int)(endingColor.getRed() * ratio + startingColor.getRed() * (1 - ratio));
+				int green = (int)(endingColor.getGreen() * ratio + startingColor.getGreen() * (1 - ratio));
+				int blue = (int)(endingColor.getBlue() * ratio + startingColor.getBlue() * (1 - ratio));
+				
+				Color stepColor = new Color(red, green, blue);
+				g2d.setColor(stepColor);
+
+				if (y <= MAXY - pointer.getY() + 50)
+					break;
+				else
+					g2d.drawLine((232 / 2) - 32, y, (232 / 2) - 20, y);
+			}
 		}
 		
 		g2d.setColor(Color.BLACK);
-		
-		//Drawing the pointer
-		if (showPointer) {
-			g2d.drawPolygon(pointer.getTriX(), pointer.getTriY(), 3);
-			g2d.drawLine(pointer.getX(), pointer.getY(), pointer.getX() + 20, pointer.getY());
-		}
 		
 		Font percFont = new Font("Helvatica", Font.PLAIN, 14);
 		g2d.setFont(percFont);
@@ -192,7 +212,7 @@ public class AnonymityDrawingPanel extends JPanel {
 		
 		//Drawing Percentages
 		for (int i = 0 ; i < PERCENTTEXT.length; i++) {
-			g2d.drawString(PERCENTTEXT[i], 150, MINY + 8 + (((MAXY + MINY * 2) / PERCENTTEXT.length) * i - (i * 10)));
+			g2d.drawString(PERCENTTEXT[i], 130, MINY + 8 + (((MAXY + MINY * 2) / PERCENTTEXT.length) * i - (i * 9)));
 		}
 	}
 	
