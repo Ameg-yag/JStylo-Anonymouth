@@ -291,7 +291,9 @@ public class DriverDocumentsTab {
 			
 			@Override
 			public void caretUpdate(CaretEvent e) {
+//				System.out.println("HELLO");
 				if (taggedDoc != null){
+//					System.out.println("ENTERED IF")
 					startSelection = e.getDot();
 					endSelection = e.getMark();
 					currentCaretPosition = startSelection;
@@ -334,9 +336,9 @@ public class DriverDocumentsTab {
 							//moveHighlight(main,selectedSentIndexRange,false);
 							charsRemoved = 0;
 						}
-						System.out.printf("selectedSentIndexRange: %d - %d\n",selectedSentIndexRange[0], selectedSentIndexRange[1]);
+//						System.out.printf("selectedSentIndexRange: %d - %d\n",selectedSentIndexRange[0], selectedSentIndexRange[1]);
 						//currentSentenceString = main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]+1);
-						System.out.println("currentSentenceString: "+currentSentenceString);
+//						System.out.println("currentSentenceString: "+currentSentenceString);
 					}
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
@@ -353,19 +355,21 @@ public class DriverDocumentsTab {
 					}
 					selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 					selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
-					System.out.printf("Moving highlight to range %d-%d\n", selectionInfo[1], selectionInfo[2]);
+//					System.out.printf("Moving highlight to range %d-%d\n", selectionInfo[1], selectionInfo[2]);
 					//todo main.documentPane.setText(taggedDoc.getUntaggedDocument(false));
 					if(!inRange) {
 						//UNCOMMENT
 //						main.GUITranslator.isSentenceChange(currentSentenceString);
+//						doTranslations(main.GUITranslator.sentences, main);
 						moveHighlight(main,selectedSentIndexRange,true);
 					} else
 						moveHighlight(main,selectedSentIndexRange,false);
 					
-					System.out.printf("Current Sentence Number %d\n", currentSentNum);
-					System.out.println("Current sentence string " + currentSentenceString);
+//					System.out.printf("Current Sentence Number %d\n", currentSentNum);
+//					System.out.println("Current sentence string " + currentSentenceString);
 					sentToTranslate = currentSentNum;
-					System.out.println("taggedDoc.getSentenceNumber " + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged());
+//					System.out.println("taggedDoc.getSentenceNumber " + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged());
+//					System.out.println("SHOWING TRANSLATIONS");
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));			
 				}
 			}
