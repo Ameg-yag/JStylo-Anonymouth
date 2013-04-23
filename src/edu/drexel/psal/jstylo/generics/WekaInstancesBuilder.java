@@ -8,6 +8,7 @@ import weka.core.converters.CSVSaver;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.jgaap.generics.*;
 
@@ -16,6 +17,7 @@ import edu.drexel.psal.jstylo.eventDrivers.LetterCounterEventDriver;
 import edu.drexel.psal.jstylo.eventDrivers.SentenceCounterEventDriver;
 import edu.drexel.psal.jstylo.eventDrivers.SingleNumericEventDriver;
 import edu.drexel.psal.jstylo.eventDrivers.WordCounterEventDriver;
+import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
 /**
  * The WekaInstancesBuilder class is designed to parse a list of known event sets representing the training corpus
@@ -27,7 +29,12 @@ import edu.drexel.psal.jstylo.eventDrivers.WordCounterEventDriver;
  *
  */
 public class WekaInstancesBuilder {
-
+	
+	/**
+	 * Determines the number of threads to be used for features extraction.
+	 */
+	public int numCalcThreads = 8;
+	
 	/**
 	 * Determines whether to use a set of SparseInstance or Instance.
 	 */
@@ -36,7 +43,7 @@ public class WekaInstancesBuilder {
 	/**
 	 * Determines whether to include an attribute for document titles.
 	 */
-	private boolean hasDocNames;
+	private boolean hasDocTitles;
 	
 	/**
 	 * To hold last used cumulative feature driver.
@@ -172,6 +179,41 @@ public class WekaInstancesBuilder {
 	 * ==========
 	 */
 	
+	public static class CalcThread extends Thread {
+		
+		ArrayList<List<EventSet>> list = new ArrayList<List<EventSet>>();
+		int div;
+		int threadId;
+		int knownDocsSize;
+		List<Document> knownDocs;
+		CumulativeFeatureDriver cfd;
+		
+		public ArrayList<List<EventSet>> getList()
+		{
+			return list;
+		}
+		
+		public CalcThread(int div, int threadId, int knownDocsSize, List<Document> knownDocs, CumulativeFeatureDriver cfd)
+		{
+			this.div = div;
+			this.threadId = threadId;
+			this.knownDocsSize = knownDocsSize;
+			this.knownDocs = knownDocs;
+			this.cfd = cfd;
+		}
+		
+		@Override
+		public void run() {
+			for (int i = div * threadId; i < Math.min(knownDocsSize, div * (threadId + 1)); i++)
+				try {
+					list.add(cfd.createEventSets(knownDocs.get(i)));
+				} catch (Exception e) {
+					Logger.logln("Error extracting features!",LogOut.STDERR);
+					Logger.logln(e.getMessage(),LogOut.STDERR);
+				}
+		}
+	}
+	
 	/**
 	 * Prepares the training Weka Instances data: using the given cumulative feature driver, it extracts all features
 	 * from the training documents, builds the corresponding attribute list and saves the data into trainingSet.
@@ -189,10 +231,38 @@ public class WekaInstancesBuilder {
 		
 		// create event sets for known documents
 		known = new ArrayList<List<EventSet>>(knownDocs.size());
-		for (i=0; i<knownDocs.size(); i++){
-			
-			known.add(cfd.createEventSets(knownDocs.get(i)));
+		int knownDocsSize = knownDocs.size();
+		int numCalcThreadsToUse = 1;
+		if (numCalcThreads>knownDocsSize){
+			numCalcThreadsToUse=knownDocsSize;
+		} else {
+			numCalcThreadsToUse=numCalcThreads;
 		}
+		Logger.logln("Using N calc threads: "+numCalcThreads);
+	/*	int numCalcThreadsToUse = numCalcThreads > knownDocsSize ?
+				1 : numCalcThreads;*/
+		int div = knownDocsSize / numCalcThreadsToUse;
+		CalcThread[] calcThreads = new CalcThread[numCalcThreadsToUse];
+		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
+			calcThreads[thread] = new CalcThread(
+					div,
+					thread,
+					knownDocsSize,
+					knownDocs,
+					new CumulativeFeatureDriver(cfd));
+		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
+			calcThreads[thread].start();
+		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
+			calcThreads[thread].join();
+		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
+			known.addAll(calcThreads[thread].list);
+		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
+			calcThreads[thread] = null;
+		calcThreads = null;
+		
+//		for (i=0; i<knownDocs.size(); i++){
+//			known.add(cfd.createEventSets(knownDocs.get(i)));
+//		}
 
 		// apply event cullers
 		known = CumulativeEventCuller.cull(known, cfd);
@@ -203,7 +273,8 @@ public class WekaInstancesBuilder {
 		featureClassAttrsFirstIndex = new int[numOfFeatureClasses+1];
 
 		// initialize author name set
-		authors = new ArrayList<String>();
+		if (authors == null)
+			authors = new LinkedList<String>();
 		for (i=0; i<numOfVectors; i++) {
 			String author = known.get(i).get(0).getAuthor();
 			if (!authors.contains(author))
@@ -222,7 +293,7 @@ public class WekaInstancesBuilder {
 		Attribute authorNameAttribute = new Attribute("authorName", authorNames);
 		
 		// initialize document title attribute
-		if (hasDocNames)
+		if (hasDocTitles)
 			attributeList.addElement(new Attribute("title",(FastVector)null));
 		
 		// initialize list of lists of histograms
@@ -293,13 +364,17 @@ public class WekaInstancesBuilder {
 		trainingSet.setClass(authorNameAttribute);
 		
 		// initialize vector size (including authorName and title if required) and first indices of feature classes array
-		int vectorSize = (hasDocNames ? 1 : 0);
+		int vectorSize = (hasDocTitles ? 1 : 0);
 		for (i=0; i<numOfFeatureClasses; i++) {
 			featureClassAttrsFirstIndex[i] = vectorSize;
 			vectorSize += allEvents.get(i).size();
 		}
 		featureClassAttrsFirstIndex[i] = vectorSize;
 		vectorSize += 1; // one more for authorName
+		
+		// handle sparse instances removing first values of string attributes
+		if (hasDocTitles && isSparse)
+			trainingSet.attribute(0).addStringValue("_dummy_");
 		
 		// generate training instances
 		Instance inst;
@@ -309,11 +384,11 @@ public class WekaInstancesBuilder {
 			else inst = new Instance(vectorSize);
 			
 			// update document title
-			if (hasDocNames)
+			if (hasDocTitles)
 				inst.setValue((Attribute) attributeList.elementAt(0), knownDocs.get(i).getTitle());
 			
 			// update values
-			int index = (hasDocNames ? 1 : 0);
+			int index = (hasDocTitles ? 1 : 0);
 			for (j=0; j<numOfFeatureClasses; j++) {
 				Set<Event> events = allEvents.get(j);
 				
@@ -428,18 +503,40 @@ public class WekaInstancesBuilder {
 			if (N >= trainingSet.numAttributes() - 1) {
 				res += "The number of attributes to reduce to is not less than the current number of documents. Skipping...\n";
 				
-			} else if (N > 0) {
-				// get attributes to remove
-				int[] attrsToRemove = new int[infoArr.length-N];
-				for (int i=0; i<infoArr.length-N; i++) {
-					attrsToRemove[i] = (int)infoArr[i][1];
-				}
-				Arrays.sort(attrsToRemove);
+			} else if (N > 0) { //TD bugfix InfoGain
+								//the problem was twofold: 1) the Attributes were only being removed from the trainingSet
+															//this meant that testSet didn't line up properly, and caused errors down the line
+								//2) the incorrect features were being cut out. I've inclluded a fix--basically this entire chunk was rewritten.
+									//should work with any feature set and any N
 
-				// remove attributes
-				for (int i=attrsToRemove.length-1; i >= 0; i--)
-					trainingSet.deleteAttributeAt(attrsToRemove[i]);
+				//create an array with the value of infoArr's [i][1] this array will be shrunk and modified as needed
+				double[] tempArr = new double[infoArr.length];
+				for (int i=0; i<infoArr.length;i++){
+					tempArr[i]=infoArr[i][1];
+				}
 				
+				//for all the values we need to delete
+				for (int i=0; i < infoArr.length-N; i++){
+					//remove them from BOTH the trainingSet and testSet
+					trainingSet.deleteAttributeAt((int)tempArr[tempArr.length-1]);
+					testSet.deleteAttributeAt((int)tempArr[tempArr.length-1]);
+					
+					//Then shrink the array
+					double temp[] = new double[tempArr.length-1];
+					for (int k=0; k<temp.length;k++){
+						temp[k]=tempArr[k];
+					}			
+					//AND change the values 
+					for (int k=0; k<temp.length;k++){
+						if (temp[k]>tempArr[tempArr.length-1]){
+							temp[k]=temp[k]-1;
+						}
+					}						
+					//update array
+					tempArr=temp;
+				
+				}
+					
 				res += "Attributes reduced to top "+N+". The new list of attributes is:\n";
 				for (int i=0; i<N; i++) {
 					res += trainingSet.attribute(i)+"\n";
@@ -533,11 +630,11 @@ public class WekaInstancesBuilder {
 			else inst = new Instance(vectorSize);
 			
 			// update document title
-			if (hasDocNames)
+			if (hasDocTitles)
 				inst.setValue((Attribute) attributeList.elementAt(0), unknownDocs.get(i).getTitle());
 
 			// update values
-			int index = (hasDocNames ? 1 : 0);
+			int index = (hasDocTitles ? 1 : 0);
 			for (j=0; j<numOfFeatureClasses; j++) {
 				Set<Event> events = allEvents.get(j);
 
@@ -904,6 +1001,15 @@ public class WekaInstancesBuilder {
 	 * setters
 	 * =======
 	 */
+	
+	/**
+	 * Sets the number of calculation threads to use for feature extraction.
+	 * @param numCalcThreads number of calculation threads to use.
+	 */
+	public void setNumCalcThreads(int numCalcThreads)
+	{
+		this.numCalcThreads = numCalcThreads;
+	}
 
 	/**
 	 * Sets the Instances representation to sparse if given true, and standard otherwise.
@@ -927,6 +1033,14 @@ public class WekaInstancesBuilder {
 	 * getters
 	 * =======
 	 */
+	
+	/**
+	 * @return the number of calculation threads to use for feature extraction.
+	 */
+	public int getNumCalcThreads()
+	{
+		return numCalcThreads;
+	}
 	
 	/**
 	 * Returns true if the Instances representation is sparse, and false otherwise.
@@ -1001,7 +1115,7 @@ public class WekaInstancesBuilder {
 	 * 		True iff it is set to include document titles as an additional attribute.
 	 */
 	public boolean hasDocNames() {
-		return hasDocNames;
+		return hasDocTitles;
 	}
 
 	/**
@@ -1010,7 +1124,7 @@ public class WekaInstancesBuilder {
 	 * 		Indicates whether to include document titles.
 	 */
 	public void setHasDocNames(boolean hasDocNames) {
-		this.hasDocNames = hasDocNames;
+		this.hasDocTitles = hasDocNames;
 	}
 	
 	/**
@@ -1023,4 +1137,12 @@ public class WekaInstancesBuilder {
 		return dummy;
 	}
 	*/
+	
+	public void addAuthor(String author)
+	{
+		if (authors == null)
+			authors = new LinkedList<String>();
+		if (!authors.contains(author))
+			authors.add(author);
+	}
 }

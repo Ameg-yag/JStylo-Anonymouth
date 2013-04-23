@@ -8,6 +8,9 @@ import javax.swing.tree.DefaultTreeModel;
 import weka.classifiers.Classifier;
 
 import edu.drexel.psal.JSANConstants;
+import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
+import edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer;
+import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.CumulativeFeatureDriver;
 import edu.drexel.psal.jstylo.generics.FeatureDriver;
 import edu.drexel.psal.jstylo.generics.Logger;
@@ -31,7 +34,7 @@ public class GUIUpdateInterface {
 				"<html><p>" +
 				"<h3>JStylo</h3><br>" +
 				"Version "+version+"<br>" +
-				"Author: Ariel Stolerman<br>" +
+				"Authors: Ariel Stolerman and Travis Dutko<br>" +
 				"Privacy, Security and Automation Lab (PSAL)<br>" +
 				"Drexel University<br>" +
 				"<br>" +
@@ -156,7 +159,6 @@ public class GUIUpdateInterface {
 	protected static void updateFeatureView(GUIMain main, int selected) {
 		// clear all
 		clearFeatureView(main);
-		
 		// unselected
 		if (selected == -1)
 			return;
@@ -213,12 +215,22 @@ public class GUIUpdateInterface {
 	protected static JPanel getParamPanel(Parameterizable p) {
 		List<Pair<String,ParamTag>> params = FeatureDriver.getClassParams(p.getClass().getName());
 		
-		JPanel panel = new JPanel(new GridLayout(params.size(),2,5,5));
+		JPanel panel = new JPanel(new GridLayout(params.size(),2,1,1));
 		for (Pair<String,ParamTag> param: params) {
+			String temp;
 			JLabel name = new JLabel(param.getFirst()+": ");
 			name.setVerticalAlignment(JLabel.TOP);
 			panel.add(name);
-			JLabel value = new JLabel(p.getParameter(param.getFirst()));
+			temp = p.getParameter(param.getFirst());
+			if (temp.length()>40){
+				String tmp = "<HTML>"+temp.substring(0,24)+"<br>"+temp.substring(24,48)
+						+"<br>"+temp.substring(48)+"</HTML>";
+				temp=tmp;
+			} else if (temp.length()>24){
+				String tmp = "<HTML>"+temp.substring(0,12)+"<br>"+temp.substring(12)+"</HTML>";
+				temp=tmp;
+			}
+			JLabel value = new JLabel(temp);
 			value.setVerticalAlignment(JLabel.TOP);
 			panel.add(value);
 		}
@@ -238,11 +250,11 @@ public class GUIUpdateInterface {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected static void updateClassList(GUIMain main) {
 		DefaultComboBoxModel model = main.classSelClassJListModel;
-		List<Classifier> classifiers = main.classifiers;
+		List<Analyzer> analyzers = main.analyzers;
 		
 		model.removeAllElements();
-		for (Classifier c: classifiers) {
-			model.addElement(c.getClass().getName());
+		for (Analyzer a: analyzers) {		
+			model.addElement(a.getName());	
 		}
 	}
 }

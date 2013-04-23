@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.*;
+import java.util.Map.Entry;
 
 import Jama.Matrix;
 
@@ -13,8 +14,10 @@ import com.jgaap.JGAAPConstants;
 import com.jgaap.generics.*;
 
 import weka.attributeSelection.InfoGainAttributeEval;
+import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.Instances;
+import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.SynsetType;
@@ -39,7 +42,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	/**
 	 * The prefix given to any author of a test document.
 	 */
-	public static final String TEST_AUTHOR_NAME_PREFIX = "_test_";
+	public static final String TEST_AUTHOR_NAME_PREFIX = "_test_"; 
 	
 	/**
 	 * The list of training author data, including feature, basis and writeprint matrices.
@@ -86,16 +89,19 @@ public class WriteprintsAnalyzer extends Analyzer {
 	@Override
 	public Map<String,Map<String, Double>> classify(Instances trainingSet,
 			Instances testSet, List<Document> unknownDocs) {
-		log.println(">>> classify started");
+		Logger.logln(">>> classify started");
 		
 		/* ========
 		 * LEARNING
 		 * ========
 		 */
-		log.println("> Learning");
+		Logger.logln("> Learning");
 		
 		trainAuthorData.clear();
 		testAuthorData.clear();
+		//TODO if we get weird results somewhere the two lines below might be the reason. Testing didn't reveal anything though
+		if (authors!=null)
+			authors.clear();
 		
 		// initialize features, basis and writeprint matrices
 		Attribute classAttribute = trainingSet.classAttribute();
@@ -103,11 +109,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 		String authorName;
 		AuthorWPData authorData;
 		// training set
-		log.println("Initializing training authors data:");
+		Logger.logln("Initializing training authors data:");
 		for (int i = 0; i < numAuthors; i++) {
 			authorName = classAttribute.value(i);
 			authorData = new AuthorWPData(authorName);
-			log.println("- " + authorName);
+			if (authors==null)
+				authors = new ArrayList<String>();
+			authors.add(authorName);
+			//Logger.logln("- " + authorName);
 			authorData.initFeatureMatrix(trainingSet, averageFeatureVectors);
 			trainAuthorData.add(authorData);
 			authorData.initBasisAndWriteprintMatrices();
@@ -116,14 +125,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 		int numTestInstances = testSet.numInstances();
 		// train-test mode
 		if (unknownDocs != null) {
-			log.println("Initializing test authors data (author per test document):");
+			Logger.logln("Initializing test authors data (author per test document):");
 			for (int i = 0; i < numTestInstances; i++) {
 				authorName =
 						TEST_AUTHOR_NAME_PREFIX +
 						String.format("%03d", i) + "_" +
 						unknownDocs.get(i).getTitle();
 				authorData = new AuthorWPData(authorName);
-				log.println("- " + authorName);
+				Logger.logln("- " + authorName);
 				authorData.initFeatureMatrix(testSet, i, averageFeatureVectors);
 				testAuthorData.add(authorData);				
 				authorData.initBasisAndWriteprintMatrices();
@@ -131,11 +140,11 @@ public class WriteprintsAnalyzer extends Analyzer {
 		}
 		// CV mode
 		else {
-			log.println("Initializing test authors data (CV mode):");
+			Logger.logln("Initializing test authors data (CV mode):");
 			for (int i = 0; i < numAuthors; i++) {
 				authorName = classAttribute.value(i);
 				authorData = new AuthorWPData(authorName);
-				log.println("- " + authorName);
+				Logger.log("- " + authorName);
 				authorData.initFeatureMatrix(testSet, averageFeatureVectors);
 				testAuthorData.add(authorData);
 				authorData.initBasisAndWriteprintMatrices();
@@ -146,7 +155,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		results = new HashMap<String,Map<String,Double>>(trainAuthorData.size());
 		
 		// calculate information-gain over only training authors
-		log.println("Calculating information gain over training authors data");
+		Logger.logln("Calculating information gain over training authors data");
 		double[] IG = null;
 		int numFeatures = trainingSet.numAttributes() - 1;
 		try {
@@ -158,7 +167,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		}
 		
 		// initialize synonym count mapping
-		log.println("Initializing word synonym count");
+		Logger.logln("Initializing word synonym count");
 		Map<Integer,Integer> wordsSynCount = calcSynonymCount(trainingSet,numFeatures);
 		
 		
@@ -166,14 +175,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 		 * TESTING
 		 * =======
 		 */
-		log.println("> Testing");
+		Logger.logln("> Testing");
 		
 		Matrix testPattern, trainPattern;
 		double dist1, dist2, totalDist;
 		AuthorWPData testDataCopy, trainDataCopy;
 		for (AuthorWPData testData: testAuthorData) {
 			Map<String,Double> testRes = new HashMap<String,Double>();
-			log.println("Test author: " + testData.authorName);
+
 			for (AuthorWPData trainData: trainAuthorData) {
 				testDataCopy = testData.halfClone();
 				trainDataCopy = trainData.halfClone();
@@ -195,27 +204,62 @@ public class WriteprintsAnalyzer extends Analyzer {
 				dist2 = sumEuclideanDistance(trainPattern, testDataCopy.writeprint);
 				
 				// save the inverse to maintain the smallest distance as the best fit
-				totalDist = - (dist1 + dist2);
+				//ORIGINAL 
+				//totalDist = - (dist1 + dist2);
+				totalDist = 100 / (dist1 + dist2);
 				testRes.put(trainData.authorName, totalDist);
-				//log.println("- " + trainData.authorName + ": " + totalDist);
+				//Logger.logln("- " + trainData.authorName + ": " + totalDist+ " actual: "+testData.authorName);
 			}
 			results.put(testData.authorName,testRes);
 		}
-		log.println(">>> classify finished");
-		return results;
+		Logger.logln(">>> classify finished");
+		return normalize(results);
 	}
 
-	@Override
-	public String runCrossValidation(Instances data, int folds,
-			long randSeed) {
-		log.println(">>> runCrossValidation started");
+	public Map<String,Map<String,Double>> normalize(Map<String,Map<String,Double>> data){
+		Map<String,Map<String,Double>> normalizedResults=data;
 		
+		double totalValue=0;
+		
+		for (String testDoc : data.keySet()){//iterates over the test docs
+			Map<String,Double> dataSet = data.get(testDoc);
+			for (String potentialAuthor : dataSet.keySet()){ //then over potential authors
+				totalValue+=data.get(testDoc).get(potentialAuthor).doubleValue(); //and gets the total "value"
+			}
+		}
+		
+		//redo the iteration, normalizing results into a percentage of the total
+		for (String testDoc : data.keySet()){//iterates over the test docs
+			Map<String,Double> dataSet = data.get(testDoc);
+			for (String potentialAuthor : dataSet.keySet()){ //then over potential authors
+				normalizedResults.get(testDoc).put(potentialAuthor, data.get(testDoc).get(potentialAuthor).doubleValue()/totalValue);
+			}
+		}
+		
+		return normalizedResults;
+	}
+	
+	@Override
+	public Evaluation runCrossValidation(Instances data, int folds,
+			long randSeed) {
+		Logger.logln(">>> runCrossValidation started");
 		// setup
 		data.setClass(data.attribute("authorName"));
+		
 		Instances randData = new Instances(data);
 		Random rand = new Random(randSeed);
 		randData.randomize(rand);
 		randData.stratify(folds);
+		
+		Attribute extractedAuthors = data.instance(0).attribute(data.instance(0).classIndex());
+		//Logger.logln("extractedAuthors: "+extractedAuthors.toString());
+		int[][] confusionMatrix = new int[extractedAuthors.numValues()][extractedAuthors.numValues()];	//keeps track of what documents were predicted to be which author
+		//initialize confusion matrix
+		for (int i=0; i< extractedAuthors.numValues(); i++){
+			for (int j=0; j<extractedAuthors.numValues(); j++){
+				confusionMatrix[i][j]=0;
+			}
+		}
 		
 		// prepare folds
 		Instances[] foldData = new Instances[folds];
@@ -229,14 +273,17 @@ public class WriteprintsAnalyzer extends Analyzer {
 		Instances test = new Instances(data,0);
 		Instances tmp;
 		int tmpSize;
-		Map<String,Map<String,Double>> results;
+		Map<String,Map<String,Double>> results = null;
 		Map<String,Double> instResults;
-		double success;
+		int count = 0;
+		double success = 0;
+		int correct = 0;
 		double total = 0;
 		double max;
 		String selected;
+		
 		for (int i = 0; i < folds; i ++) {
-			log.println("Running experiment " + (i + 1) + " out of " + folds);
+		//	Logger.logln("Running experiment " + (i + 1) + " out of " + folds);
 			
 			// initialize
 			train.delete();
@@ -270,29 +317,207 @@ public class WriteprintsAnalyzer extends Analyzer {
 						selected = key;
 					}
 				}
-				log.println(testInstAuthor + ": " + selected);
-				if (testInstAuthor.equals(selected))
+			//	Logger.logln(testInstAuthor + ": " + selected);
+				if (testInstAuthor.equals(selected)){
 					success++;
+					correct++;
+				}
+				confusionMatrix[extractedAuthors.indexOfValue(selected)][extractedAuthors.indexOfValue(testInstAuthor)]++;
+				count++;
 			}
 			success = 100 * success / results.size();
-			log.printf("- Accuracy for experiment %d: %.2f\n", (i + 1), success);
+			//Logger.logln(String.format("- Accuracy for experiment %d: %.2f\n", (i + 1), success));
 			total += success;
 		}
 		total /= folds;
-		log.println("========================");
-		log.printf("Total Accuracy: %.2f\n", total);
-		log.println(">>> runCrossValidation finished");
+		Logger.logln("========================");
+		Logger.logln("Total Accuracy: " + total);
+		Logger.logln(">>> runCrossValidation finished");
+		
+		
+		// Build and return results string
 		return null;
+		//TODO fix
+		//return resultsString(confusionMatrix,count,correct,total,extractedAuthors);
 	}
+	
+	/**
+	 * Builds the result/output string and calculates statistics based on the classification
+	 * 
+	 * @param confusionMatrix matrix of which documents were credited to which authors
+	 * @param count number of instances
+	 * @param correct number of instances tested correctly
+	 * @param total percentage correct
+	 * @param extractedAuthors Attribute containing all authors
+	 * @return the output string to be appended to the JStylo content pane on the analysis tab.
+	 */
+	protected String resultsString(int[][] confusionMatrix,int count,int correct,double total,Attribute extractedAuthors){
+		Logger.logln("Building results string...");
+		String resultsString = "";
+		
+		//Summary section
+		resultsString=" === Summary === \n\n";															
+		resultsString+=String.format("Correctly Classified Instances          %d               %.4f%%\n",correct,total);
+		resultsString+=String.format("Incorrectly Classified Instances        %d               %.4f%%\n",count-correct,(100.0-total));
+		
+		//formulas I don't know how to calculate yet, will add them in once the abstraction is finished/mostly finished
+		resultsString+=String.format("Kappa statistic                         %.4f    (Not yet implemented)\n",0.0); 
+		resultsString+=String.format("Mean absolute error                     %.4f    (Not yet implemented)\n",0.0);
+		resultsString+=String.format("Root mean squared error                 %.4f    (Not yet implemented)\n",0.0);
+		resultsString+=String.format("Relative absolute error                 %.4f %%  (Not yet implemented)\n",0.0);
+		resultsString+=String.format("Root relative squared error             %.4f %%  (Not yet implemented)\n",0.0);  
+		 
+		
+		resultsString+=String.format("Total number of Instances               %d\n",count);
+		
+		//Building author labels (used to keep tables relatively even in size
+		String[] labels = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+		String[] authorLabels = new String[extractedAuthors.numValues()];
+		String labelString = "";
+		int authorCount = 0;
+		for (int i=0; i<extractedAuthors.numValues();i++){
+			String label = "";
+			if (i<26){
+				label=labels[i];
+			}else{
+				//not the most elegant solution, but it works well enough. will only produce labels like "aa","cccccc" and not "ababab"
+				//in most cases this probably isn't even necessary, and in those that it is, the table will probably be really distorted no matter what
+				for (int j=0; j<authorCount/26;j++){
+					label+=labels[j];
+				}
+			}
+			authorLabels[i]=label;
+			labelString+="  "+label;
+		}
+		
+		//Detailed Accuracy section
+		resultsString+=String.format("\n === Detailed Accuracy By Class === \n\n");
+		resultsString+=String.format("      TP Rate   FP Rate   Precision   Recall   F-Measure   ROC Area  Class\n");
+		for (int i = 0; i<extractedAuthors.numValues(); i++){
+			double trueP = truePositive(confusionMatrix,i,count);
+			double falseP = falsePositive(confusionMatrix,i,count);
+			double precision = precision(trueP,falseP);
+			double recall = trueP; 						//not sure about this one, TODO check with Ariel once everything's working
+			double fMeasure = fMeasure(precision,recall);
+			double AUROC = AUROC();						//same here
+			resultsString+=String.format("       %.3f     %.3f      %.3f      %.3f     %.3f       NYI      %s\n",trueP,falseP,precision,recall,fMeasure,extractedAuthors.value(i));
+		}
+		//TODO use arraylists or something to keep track of all trueP, falseP, etc. and then take a weighted average at the end.
+		
+		//Confusion Matrix
+		resultsString+="\n === Confusion Matrix ===\n\n";
+		resultsString+=labelString;
+		resultsString+="   <--classified as\n";
+		for (int i=0; i<confusionMatrix.length;i++){
+			for (int j=0; j<confusionMatrix.length;j++){
+				if (confusionMatrix[i][j]<10)
+					resultsString+="  "+confusionMatrix[i][j];
+				else
+					resultsString+=" "+confusionMatrix[i][j];
+			}
+			resultsString+=" |  "+authorLabels[i]+" = "+extractedAuthors.value(i)+"\n";
+		}
+		
+		return resultsString;
+	}
+	
+	/* ================
+	 * Statistics generation
+	 * ================
+	 */
+	/**
+	 * Calculates the truePositive rate for an author
+	 * 
+	 * @param confusionMatrix
+	 * @param index
+	 * @param count
+	 * @return true[index]/(true[index]+false[index]) where index is a row of the confusion matrix
+	 */
+	protected double truePositive(int[][] confusionMatrix,int index, int count){
+		
+		int correct = 0;
+		int incorrect = 0;
+		double answer = 0;
+		for (int i=0; i<confusionMatrix.length;i++){
+			if (index==i){
+				correct = confusionMatrix[index][i];
+			} else {
+				incorrect+= confusionMatrix[index][i];
+			}
+		}
+		
+		if (incorrect==0){
+			answer = 1.0; //got everything right
+		} else {
+			answer = (double)correct/((double)incorrect+(double)correct);
+		}
+		
+		return answer;
+	}
+	
+	/**
+	 * Calculates the falsePositive rate for an author
+	 * 
+	 * @param confusionMatrix
+	 * @param index
+	 * @param count
+	 * @return false[index]/(true[index]+false[index]) where index is a column of the confusion matrix
+	 */
+	protected double falsePositive(int[][] confusionMatrix,int index, int count){
+		
+		int correct = 0;
+		int incorrect = 0;
+		double answer = 0;
+		for (int i=0; i<confusionMatrix.length;i++){
+			if (index==i){
+				correct = confusionMatrix[i][index];
+			} else {
+				incorrect+= confusionMatrix[i][index];
+			}
+		}
+		
+		if (incorrect==0){
+			answer = 0.0; //got everything right
+		} else {
+			answer = (double)incorrect/((double)incorrect+(double)correct);
+		}		
+		return answer;
+	}
+	
+	
+	/**
+	 * Calculates the precision
+	 * 
+	 * @param truePositive number of correctly classified documents for this author
+	 * @param falsePositive number of documents incorrectly assigned to this author
+	 * @return truePositive/(truePositive+falsePositive)
+	 */
+	protected double precision(double truePositive,double falsePositive){
+		return truePositive/(truePositive+falsePositive);
+	}
+	
+	/**
+	 * Calculates the area under the Reciever Operating Characteristic (ROC) curve
+	 * TODO need to actually implement this
+	 * 
+	 * @return
+	 */
+	protected double AUROC(){
+		return 0.0;
+	}
+	
 	
 	@Override
 	/**
 	 * TODO
 	 */
-	public Object runCrossValidation(Instances data, int folds, long randSeed,
+	public Evaluation runCrossValidation(Instances data, int folds, long randSeed,
 			int relaxFactor) {
-		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	protected double fMeasure(double precision,double recall){
+		return (2.0*(precision*recall)/(precision+recall));
 	}
 	
 	/**
@@ -307,13 +532,13 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 */
 	public SortedMap<String, double[]> getCrossDatasetsDistances(
 			Instances dataset1, Instances dataset2) {
-		log.println(">>> getCrossDatasetsDistances started");
+		Logger.logln(">>> getCrossDatasetsDistances started");
 		
 		/* ========
 		 * LEARNING
 		 * ========
 		 */
-		log.println("> Learning");
+		Logger.logln("> Learning");
 		
 		List<AuthorWPData> dataset1AuthorData = new LinkedList<AuthorWPData>();
 		List<AuthorWPData> dataset2AuthorData = new LinkedList<AuthorWPData>();
@@ -325,22 +550,22 @@ public class WriteprintsAnalyzer extends Analyzer {
 		AuthorWPData authorData;
 		
 		// dataset1
-		log.println("Initializing dataset1 authors data:");
+		Logger.logln("Initializing dataset1 authors data:");
 		for (int i = 0; i < numAuthors; i++) {
 			authorName = classAttribute.value(i);
 			authorData = new AuthorWPData(authorName);
-			log.println("- " + authorName);
+			//Logger.logln("- " + authorName);
 			authorData.initFeatureMatrix(dataset1, averageFeatureVectors);
 			dataset1AuthorData.add(authorData);
 			authorData.initBasisAndWriteprintMatrices();
 		}
 		
 		// dataset2
-		log.println("Initializing dataset2 authors data:");
+		Logger.logln("Initializing dataset2 authors data:");
 		for (int i = 0; i < numAuthors; i++) {
 			authorName = classAttribute.value(i);
 			authorData = new AuthorWPData(authorName);
-			log.println("- " + authorName);
+			//Logger.logln("- " + authorName);
 			authorData.initFeatureMatrix(dataset2, averageFeatureVectors);
 			dataset2AuthorData.add(authorData);
 			authorData.initBasisAndWriteprintMatrices();
@@ -350,7 +575,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		SortedMap<String, double[]> results = new TreeMap<String,double[]>();
 		
 		// calculate information-gain
-		log.println("Calculating information gain over dataset1");
+		Logger.logln("Calculating information gain over dataset1");
 		double[] IG1 = null;
 		int numFeatures = dataset1.numAttributes() - 1;
 		try {
@@ -360,7 +585,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 			e.printStackTrace();
 			return null;
 		}
-		log.println("Calculating information gain over dataset1");
+		Logger.logln("Calculating information gain over dataset1");
 		double[] IG2 = null;
 		try {
 			IG2 = calcInfoGain(dataset2, numFeatures);
@@ -371,7 +596,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		}
 		
 		// initialize synonym count mapping
-		log.println("Initializing word synonym count");
+		Logger.logln("Initializing word synonym count");
 		Map<Integer,Integer> wordsSynCount =
 				calcSynonymCount(dataset1,numFeatures);
 		
@@ -380,7 +605,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		 * CALCULATING DISTANCES
 		 * =====================
 		 */
-		log.println("> Calculating distances");
+		Logger.logln("> Calculating distances");
 		
 		Matrix dataset1Pattern, dataset2Pattern;
 		double dist1, dist2, avgDist;
@@ -388,7 +613,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		double min = Double.MAX_VALUE;
 		String minAuthor = "";
 		for (AuthorWPData dataset1Data: dataset1AuthorData) {
-			log.println("dataset1 author: " + dataset1Data.authorName);
+			Logger.logln("dataset1 author: " + dataset1Data.authorName);
 			for (AuthorWPData dataset2Data: dataset2AuthorData)
 			{
 				//log.print("- dataset2 author: " + dataset2Data.authorName + ": ");
@@ -425,12 +650,12 @@ public class WriteprintsAnalyzer extends Analyzer {
 					min = avgDist;
 					minAuthor = dataset2Data.authorName;
 				}
-				//log.println(avgDist);
+				//Logger.logln(avgDist);
 			}
-			log.println("minimum distance author: " + minAuthor +
+			Logger.logln("minimum distance author: " + minAuthor +
 					", distance: " + min);
 		}
-		log.println(">>> getCrossDatasetsDistances finished");
+		Logger.logln(">>> getCrossDatasetsDistances finished");
 		return results;
 	}
 	
@@ -599,6 +824,26 @@ public class WriteprintsAnalyzer extends Analyzer {
 		return sum;
 	}
 	
+	//the analyzer itself is the heavy-lifter
+	@Override
+	public String getName(){
+		return "edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer";
+	}
+
+	//does not have args to describe
+	@Override
+	public String[] optionsDescription() {
+		return null;
+	}
+
+	//TODO add lengthy-ish description of what this analyzer does and its +/-
+	@Override
+	public String analyzerDescription() {
+		String description =
+				"Writeprints Analyzer\n"
+				;
+		return description;
+	}
 	
 	// ============================================================================================
 	// ============================================================================================
@@ -608,6 +853,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 * Main for testing.
 	 * @param args
 	 */
+	/*
 	public static void main(String[] args) throws Exception {
 		// initialize log
 		PrintStream logPS = new PrintStream(new File("./log/" + MultiplePrintStream.getLogFilename()));
@@ -616,9 +862,9 @@ public class WriteprintsAnalyzer extends Analyzer {
 		WriteprintsAnalyzer wa = new WriteprintsAnalyzer();
 		
 		//ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "drexel_1_train_test.xml");
-		//ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "drexel_1.xml");
+		ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "drexel_1.xml");
 		//ProblemSet ps = new ProblemSet(JSANConstants.JSAN_PROBLEMSETS_PREFIX + "amt.xml");
-		/*
+		
 		CumulativeFeatureDriver cfd =
 				new CumulativeFeatureDriver(JSANConstants.JSAN_FEATURESETS_PREFIX + "writeprints_feature_set_limited.xml");
 		WekaInstancesBuilder wib = new WekaInstancesBuilder(false);
@@ -643,20 +889,20 @@ public class WriteprintsAnalyzer extends Analyzer {
 		for (int i = total - 1; i >= numTrainDocs; i--)
 			trainingSet.delete(i);
 		System.out.println("done!");
-		
+	
 		Instances train = wib.getTrainingSet();
 		Instances test = wib.getTestSet();
-		WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_train.arff", train);
-		WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_test.arff", test);
-		System.exit(0);
-		*/
-		Instances train = new Instances(new FileReader(new File("d:/tmp/drexel_1_train.arff")));
+	//	WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_train.arff", train);
+		//WekaInstancesBuilder.writeSetToARFF("d:/tmp/drexel_1_tt_test.arff", test);
+		//System.exit(0);
+		
+		//Instances train = new Instances(new FileReader(new File("c:/tmp/drexel_1_train.arff")));
 		train.setClassIndex(train.numAttributes() - 1);
 		//Instances test = new Instances(new FileReader(new File("d:/tmp/drexel_1_tt_test.arff")));
 		//test.setClassIndex(test.numAttributes() - 1);
 		
 		// classify
-		/*
+		
 		System.out.println("classification");
 		Map<String,Map<String, Double>> res = wa.classify(train, test, ps.getTestDocs());
 		System.out.println("done!");
@@ -678,9 +924,9 @@ public class WriteprintsAnalyzer extends Analyzer {
 		}
 		success = 100 * success / res.size();
 		System.out.printf("Total accuracy: %.2f\n",success);
-		*/
 		
-		// cross-validation
+		
+		//cross-validation
 		wa.runCrossValidation(train, 10, 0);
-	}
+	}*/
 }

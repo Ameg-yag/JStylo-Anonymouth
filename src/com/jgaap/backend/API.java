@@ -55,7 +55,7 @@ public class API {
 
 	private static final API INSTANCE = new API();
 	
-	private API() {
+	public API() {
 		documents = new ArrayList<Document>();
 		language = new English();
 		eventDrivers = new ArrayList<EventDriver>();
@@ -213,6 +213,12 @@ public class API {
 			addCanonicizer(action, document);
 		}
 	}
+	
+	public void addCanonicizer(Canonicizer c) throws Exception {
+		for (Document document : documents) {
+			document.addCanonicizer(c);
+		}
+	}
 
 	/**
 	 * Adds the specified canonicizer to all Documents that have the DocType docType.
@@ -314,6 +320,10 @@ public class API {
 		eventDrivers.add(eventDriver);
 		return eventDriver;
 	}
+	
+	public void addEventDriver(EventDriver eventDriver) throws Exception {
+		eventDrivers.add(eventDriver);
+	}
 
 	/**
 	 * Removes the Event Driver reference from the system
@@ -403,6 +413,10 @@ public class API {
 		}
 		analysisDrivers.add(analysisDriver);
 		return analysisDriver;
+	}
+	
+	public void addAnalysisDriver(AnalysisDriver analysisDriver) throws Exception {
+		analysisDrivers.add(analysisDriver);
 	}
 
 	/**

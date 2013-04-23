@@ -153,7 +153,7 @@ public class FeaturesTabDriver {
 				*/
 				
 				if (answer == JOptionPane.YES_OPTION) {
-					JFileChooser load = new JFileChooser(new File(main.defaultLoadSaveDir));
+					JFileChooser load = new JFileChooser(new File("."));
 					load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
 					answer = load.showOpenDialog(main);
 					
@@ -189,7 +189,6 @@ public class FeaturesTabDriver {
 							main.featuresSetJComboBoxModel.addElement(cfd.getName());
 							main.featuresSetJComboBox.setSelectedIndex(main.featuresSetJComboBoxModel.getSize()-1);
 							GUIUpdateInterface.updateFeatureSetView(main);
-							main.defaultLoadSaveDir = (new File(path)).getParent();
 							
 						} catch (Exception exc) {
 							Logger.logln("Failed loading "+path, LogOut.STDERR);
@@ -214,7 +213,7 @@ public class FeaturesTabDriver {
 			public void actionPerformed(ActionEvent arg0) {
 				Logger.logln("'Save Feature Set...' button clicked in the features tab.");
 
-				JFileChooser save = new JFileChooser(new File(main.defaultLoadSaveDir));
+				JFileChooser save = new JFileChooser(new File("."));
 				save.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
 				int answer = save.showSaveDialog(main);
 
@@ -229,7 +228,6 @@ public class FeaturesTabDriver {
 						bw.flush();
 						bw.close();
 						Logger.log("Saved cumulative feature driver to "+path+":\n"+main.cfd.toXMLString());
-						main.defaultLoadSaveDir = (new File(path)).getParent();
 					} catch (IOException exc) {
 						Logger.logln("Failed opening "+path+" for writing",LogOut.STDERR);
 						Logger.logln(exc.toString(),LogOut.STDERR);

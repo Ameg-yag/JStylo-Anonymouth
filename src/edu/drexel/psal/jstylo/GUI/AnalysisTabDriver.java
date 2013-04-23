@@ -3,6 +3,7 @@ package edu.drexel.psal.jstylo.GUI;
 import edu.drexel.psal.jstylo.GUI.DocsTabDriver.ExtFilter;
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 import edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer;
+import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.AnalyzerTypeEnum;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.WekaInstancesBuilder;
@@ -31,6 +32,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import com.jgaap.generics.Document;
+import com.sun.corba.se.impl.io.TypeMismatchException;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -261,6 +263,38 @@ public class AnalysisTabDriver {
 			}
 		});
 		
+		//
+		// K-fold and N-thread text area toggling
+		// =====================================
+		main.analysisTrainCVJRadioButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				Logger.logln("K-Fold radio button selected");
+				
+				boolean selected = main.analysisTrainCVJRadioButton.isSelected();
+				if (selected){
+					main.analysisKFoldJTextField.setEnabled(true);
+					//main.analysisNThreadJTextField.setEnabled(true);
+				}			
+			}		
+		});
+		main.analysisClassTestDocsJRadioButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				Logger.logln("Test and Classify radio button selected");
+				
+				boolean selected = main.analysisClassTestDocsJRadioButton.isSelected();
+				if (selected){
+					main.analysisKFoldJTextField.setEnabled(false);
+					//main.analysisNThreadJTextField.setEnabled(false);
+				}			
+			}		
+		});
+		
 		// run analysis button
 		// ===================
 		
@@ -292,12 +326,49 @@ public class AnalysisTabDriver {
 							JOptionPane.ERROR_MESSAGE);
 					return;
 					
-				} else if (main.classifiers.isEmpty()) {
+				} else if (main.analyzers.isEmpty()) {
 					JOptionPane.showMessageDialog(main,
 							"No classifiers added.",
 							"Run Analysis Error",
 							JOptionPane.ERROR_MESSAGE);
 					return;
+				} else if (main.analysisTrainCVJRadioButton.isSelected()) { //makes sure K and N are in the appropriate range
+					int docCount = 0;
+					try{
+						String kfolds = main.analysisKFoldJTextField.getText();
+						String nthreads = main.analysisNThreadJTextField.getText();
+						
+						//find out how many documents there are
+						Enumeration<DefaultMutableTreeNode> authors = ((DefaultMutableTreeNode) main.trainCorpusJTree.getModel().getRoot()).children();
+						DefaultMutableTreeNode author;
+						while (authors.hasMoreElements()) {
+							author = authors.nextElement();
+							docCount+=author.getChildCount();
+						}
+							
+						if (Integer.parseInt(kfolds)<=1 || Integer.parseInt(kfolds)>docCount)
+								throw new TypeMismatchException();
+						
+						if (Integer.parseInt(nthreads)<1 || Integer.parseInt(nthreads)>50)
+							throw new TypeMismatchException();
+						
+						
+						
+					} catch (TypeMismatchException tme) {
+						JOptionPane.showMessageDialog(main,
+								"K and N do not have correct values. Both must be integers in the range:\n1<K<="
+										+docCount+"\n1<=N<=50",
+								"Run Analysis Error",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					} catch (NumberFormatException nme){
+						JOptionPane.showMessageDialog(main,
+								"K and N do not have correct values. Both must be integers in the range:\n1<K<="
+										+docCount+"\n1<=N<=50",
+								"Run Analysis Error",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
 				}
 				
 				// lock
@@ -305,6 +376,7 @@ public class AnalysisTabDriver {
 				
 				// start analysis thread
 				//main.at = AnalyzerTypeEnum.WRITEPRINTS_ANALYZER;
+				main.wib.numCalcThreads=Integer.parseInt(main.analysisNThreadJTextField.getText());
 				main.analysisThread = new Thread(new RunAnalysisThread(main));
 				main.analysisThread.start();
 			}
@@ -393,6 +465,29 @@ public class AnalysisTabDriver {
 			}
 		});
 		
+		
+		// remove results button
+		// =====================
+		main.analysisRemoveResultTabJButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+			
+				Logger.logln("'Remove Result Tab' button clicked on the analysis tab.");
+				int i = main.analysisResultsJTabbedPane.getSelectedIndex();
+				if (i != -1){
+					main.analysisResultsJTabbedPane.remove(i);
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"There are no tabs which can be removed.",
+							"Remove Result Tab Failure",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			
+		});
+		
+		
 		// about button
 		// ============
 		
@@ -445,6 +540,12 @@ public class AnalysisTabDriver {
 		main.analysisApplyInfoGainJCheckBox.setEnabled(!lock);
 		main.infoGainValueJTextField.setEnabled(!lock);
 		
+		if (main.analysisTrainCVJRadioButton.isSelected())
+			main.analysisKFoldJTextField.setEnabled(!lock);	
+		main.analysisKFoldJLabel.setEnabled(!lock);
+		main.analysisNThreadJLabel.setEnabled(!lock);
+		main.analysisNThreadJTextField.setEnabled(!lock);
+		
 		main.analysisExportTrainToARFFJButton.setEnabled(!lock);
 		main.analysisExportTestToARFFJButton.setEnabled(!lock);
 		main.analysisExportTrainToCSVJButton.setEnabled(!lock);
@@ -452,6 +553,7 @@ public class AnalysisTabDriver {
 
 		main.analysisRunJButton.setEnabled(!lock);
 		main.analysisStopJButton.setEnabled(lock);
+		main.analysisRemoveResultTabJButton.setEnabled(!lock);
 		
 		main.analysisSaveResultsJButton.setEnabled(!lock);
 		
@@ -541,9 +643,9 @@ public class AnalysisTabDriver {
 			content += "\n";
 			
 			// classifiers
-			content += "Classifiers used:\n";
-			for (Classifier c: main.classifiers) {
-				content += "> "+String.format("%-50s", c.getClass().getName())+"\t"+ClassTabDriver.getOptionsStr(c.getOptions())+"\n";
+			content += "Analyzers used:\n";
+			for (Analyzer a: main.analyzers) {
+				content += "> "+String.format("%-50s", a.getClass().getName())+"\t"+ClassTabDriver.getOptionsStr(a.getOptions())+"\n";
 			}
 
 			content +=
@@ -557,7 +659,9 @@ public class AnalysisTabDriver {
 			// ==================
 			
 			// pre-processing
-			if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER) {
+			//	TODO uncomment and fix this section note: uncommenting breaks both cross-val and classify/test
+		//	if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER) {
+			/*
 				Logger.logln("Applying analyzer feature-extraction pre-processing procedures...");
 				content += getTimestamp() + "Applying analyzer feature-extraction pre-processing procedures...\n";
 				
@@ -565,8 +669,9 @@ public class AnalysisTabDriver {
 				trainingDocs.addAll(testDocs);
 				testDocs = new ArrayList<Document>();
 				
-				content += getTimestamp() + "done!\n\n";
-			}
+				content += getTimestamp() + "done!\n\n";*/
+		//	}
+			
 			
 			// training set
 			Logger.logln("Extracting features from training corpus...");
@@ -634,9 +739,10 @@ public class AnalysisTabDriver {
 			}
 
 			// post processing
-			if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER &&
-					main.analysisClassTestDocsJRadioButton.isSelected()) {
-				
+			// TODO uncomment and fix this section note: uncommenting breaks both cross-val and classify/test
+		//	if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER &&
+		//			main.analysisClassTestDocsJRadioButton.isSelected()) {
+		/*		
 				Logger.logln("Applying analyzer feature-extraction post-processing procedures...");
 				content += getTimestamp() + "Applying analyzer feature-extraction post-processing procedures...\n";
 				
@@ -651,8 +757,8 @@ public class AnalysisTabDriver {
 				for (int i = total - 1; i >= numTrainDocs; i--)
 					trainingSet.delete(i);
 				
-				content += getTimestamp() + "done!\n\n";
-			}
+				content += getTimestamp() + "done!\n\n"; */
+		//	}
 			
 			
 			// running InfoGain
@@ -692,25 +798,26 @@ public class AnalysisTabDriver {
 				content += getTimestamp()+" Starting training and testing phase...\n";
 				content += "\n================================================================================\n\n";
 				
-				Classifier c;
+				Analyzer a;
 				Map<String,Map<String, Double>> results;
-				int numClass = main.classifiers.size();
+				int numClass = main.analyzers.size();
 				for (int i=0; i<numClass; i++) {
-					c = main.classifiers.get(i);
-					content += "Running analysis with classifier "+(i+1)+" out of "+numClass+":\n" +
-							"> Classifier: "+c.getClass().getName()+"\n" +
-							"> Options:    "+ClassTabDriver.getOptionsStr(c.getOptions())+"\n\n";
+					a = main.analyzers.get(i);
+					content += "Running analysis with Analyzer "+(i+1)+" out of "+numClass+":\n" +
+							"> Classifier: "+a.getName()+"\n" +
+							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
-					main.wad = new WekaAnalyzer(c);
+					main.analysisDriver = a;
+					
 					content += getTimestamp()+" Starting classification...\n";
-					Logger.log("Starting classification...");
+					Logger.log("Starting classification...\n");
 					updateResultsView();
 					
-					// classify
-					results = main.wad.classify(
+					results = main.analysisDriver.classify(
 							main.wib.getTrainingSet(),
 							main.wib.getTestSet(),
 							main.ps.getTestDocs());
+					
 					content += getTimestamp()+" done!\n\n";
 					Logger.logln("Done!");
 					updateResultsView();
@@ -720,7 +827,7 @@ public class AnalysisTabDriver {
 							"Results:\n" +
 							"========\n";
 					
-					content += main.wad.getLastStringResults();
+					content += main.analysisDriver.getLastStringResults();
 					updateResultsView();
 					
 				}
@@ -729,49 +836,50 @@ public class AnalysisTabDriver {
 				// Running cross-validation on training corpus
 				// ===========================================
 				
-				Logger.logln("Starting training 10-folds CV phase...");
+				Logger.logln("Starting training K-folds CV phase...");
 				
-				content += getTimestamp()+" Starting 10-folds cross-validation on training corpus phase...\n";
+				content += getTimestamp()+" Starting K-folds cross-validation on training corpus phase...\n";
 				content += "\n================================================================================\n\n";
 				
-				Classifier c;
-				int numClass = main.classifiers.size();
+				Analyzer a;
+				int numClass = main.analyzers.size();
 				for (int i=0; i<numClass; i++) {
-					c = main.classifiers.get(i);
+					a = (Analyzer) main.analyzers.get(i);
 					content += "Running analysis with classifier "+(i+1)+" out of "+numClass+":\n" +
-							"> Classifier: "+c.getClass().getName()+"\n" +
-							"> Options:    "+ClassTabDriver.getOptionsStr(c.getOptions())+"\n\n";
+							"> Classifier: "+a.getClass().getName()+"\n" +
+							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
-					main.wad = new WekaAnalyzer(c);
+					main.analysisDriver = a;
+					
 					content += getTimestamp()+" Starting cross validation...\n";
 					Logger.log("Starting cross validation...");
 					updateResultsView();
 					
 					// run
-					Object results = main.wad.runCrossValidation(main.wib.getTrainingSet(),10,0);
+					Object results = main.analysisDriver.runCrossValidation(main.wib.getTrainingSet(),Integer.parseInt(main.analysisKFoldJTextField.getText()),0);
 					content += getTimestamp()+" done!\n\n";
 					Logger.logln("Done!");
 					updateResultsView();
 					
 					// print out results
-					switch (main.at) {
-					case WEKA_ANALYZER:
+					if (a instanceof WekaAnalyzer){
 						Evaluation eval = (Evaluation) results;
 						content += eval.toSummaryString(false)+"\n";
 						try {
 							content +=
 									eval.toClassDetailsString()+"\n" +
-									eval.toMatrixString()+"\n" ;
+										eval.toMatrixString()+"\n" ;
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-						break;
-					case WRITEPRINTS_ANALYZER:
-						String strResults = (String) results;
-						content += strResults + "\n";
-						break;
+					} else if (a instanceof WriteprintsAnalyzer){ //TODO fix writeprints analyzer and remove instanceof
+						
+						content+=(String) results;
+						
 					}
+						
 					updateResultsView();
+					
 				}
 				
 			}

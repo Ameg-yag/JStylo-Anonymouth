@@ -2,6 +2,7 @@ package edu.drexel.psal.jstylo.generics;
 
 import java.util.*;
 
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.*;
 
@@ -13,7 +14,7 @@ import com.jgaap.generics.*;
  * 
  * @author Ariel Stolerman
  */
-public abstract class Analyzer {
+public abstract class Analyzer{
 	
 	/* ======
 	 * fields
@@ -40,6 +41,10 @@ public abstract class Analyzer {
 	 */
 	protected List<String> authors;
 	
+	/**
+	 * Array of options.
+	 */
+	protected String[] options;
 	
 	/* ============
 	 * constructors
@@ -85,7 +90,7 @@ public abstract class Analyzer {
 	 * 		Some object containing the cross validation results (e.g. Evaluation for Weka
 	 * 		classifiers CV results), or null if failed running.		
 	 */
-	public abstract Object runCrossValidation(Instances data, int folds, long randSeed);
+	public abstract Evaluation runCrossValidation(Instances data, int folds, long randSeed);
 	
 	
 	/**
@@ -105,7 +110,7 @@ public abstract class Analyzer {
 	 * 		Some object containing the cross validation results (e.g. Evaluation for Weka
 	 * 		classifiers CV results), or null if failed running.		
 	 */
-	public abstract Object runCrossValidation(Instances data, int folds, long randSeed, int relaxFactor);
+	public abstract Evaluation runCrossValidation(Instances data, int folds, long randSeed, int relaxFactor);
 	
 	/* =======
 	 * getters
@@ -130,6 +135,7 @@ public abstract class Analyzer {
 		
 		for (String author: actualAuthors)
 			f.format(" %-14s |",author);
+
 		res += f.toString()+"\n";
 		for (int i=0; i<actualAuthors.size(); i++)
 			res += "-----------------";
@@ -138,11 +144,13 @@ public abstract class Analyzer {
 		for (String testDocTitle: results.keySet()) {
 			f = new Formatter();
 			f.format("%-14s |", testDocTitle);
-			Map<String,Double> currRes = results.get(testDocTitle);
+
+			Map<String,Double> currRes = results.get(testDocTitle);	
 			
 			String resAuthor = "";
 			double maxProb = 0, oldMaxProb;
-			for (String author: currRes.keySet()) {
+
+			for (String author: currRes.keySet()) { 
 				oldMaxProb = maxProb;
 				maxProb = Math.max(maxProb, currRes.get(author).doubleValue());
 				if (maxProb > oldMaxProb)
@@ -150,11 +158,14 @@ public abstract class Analyzer {
 			}
 			
 			for (String author: actualAuthors) {
+				
 				char c;
 				if (author.equals(resAuthor))
 					c = '+';
 				else c = ' ';
+
 				f.format(" %2.6f %c     |",currRes.get(author).doubleValue(),c);
+				
 			}
 			res += f.toString()+"\n";
 		}
@@ -191,12 +202,13 @@ public abstract class Analyzer {
 
 			// get the highest probability of all authors for current document
 			maxProb = 0;
-			currRes = results.get(i).values().iterator();
+			currRes = results.get(unknownDocs.get(i).getTitle()).values().iterator();
 			for (;currRes.hasNext();)
 				maxProb = Math.max(maxProb, currRes.next());
 			
 			// increase rightly classified count by 1 when true
-			rightClassifications += (results.get(i).get(currAuthor) == maxProb) ? 1 : 0;
+			rightClassifications += (results.get(unknownDocs.get(i).getTitle())
+					.get(currAuthor) == maxProb) ? 1 : 0;
 		}
 		
 		return ((double) rightClassifications)/numOfInstances;
@@ -250,4 +262,47 @@ public abstract class Analyzer {
 	public Map<String,Map<String, Double>> getLastResults() {
 		return results;
 	}
+	
+	/**
+	 * Returns an array containing each of the analyzer's/classifier's options
+	 * @return the arguments the analyzer has or null if it doesn't have any
+	 */
+	public String[] getOptions(){
+			return options;
+	}
+	
+	/**
+	 * Sets the option string
+	 * @param ops array of strings (the arguments) for the analyzer/classifier
+	 */
+	public void setOptions(String[] ops){
+		options = ops;
+	}
+	
+	/**
+	 * An array of 1-2 sentences per index describing each option the analyzer has.
+	 * @return a description corresponding to each option the analyzer/classifier has
+	 */
+	public abstract String[] optionsDescription();
+	
+	/**
+	 * A string describing the analyzer. Should be formatted and ready for display.
+	 * @return the string describing how the analyzer/classifier functions and its benefits/drawbacks
+	 */
+	public abstract String analyzerDescription();
+	
+	/**
+	 * Describes the underlying classifier (if there is one)
+	 * @return returns the analyzer's driving classifier if it has one, otherwise returns null.
+	 */
+	public Classifier getClassifier() {
+		return null;
+	}
+	
+	/**
+	 * Returns the name of whatever is doing the "heavy lifting" in terms of classification
+	 * @return the name of the analyzer/classifier being used
+	 */
+	public abstract String getName();
+	
 }

@@ -53,6 +53,26 @@ public class CumulativeFeatureDriver {
 	public CumulativeFeatureDriver() {
 		features = new ArrayList<FeatureDriver>();
 	}
+	
+	/**
+	 * Copy constructor.
+	 * @param other to copy.
+	 */
+	public CumulativeFeatureDriver(CumulativeFeatureDriver other) throws Exception
+	{
+		String path = "tmp.xml";
+		File xml = new File(path);
+		PrintWriter pw = new PrintWriter(xml);
+		pw.print(other.toXMLString());
+		pw.flush();
+		pw.close();
+		XMLParser parser = new XMLParser(path);
+		CumulativeFeatureDriver generated = parser.cfd;
+		this.name = generated.name;
+		this.description = generated.description;
+		this.features = generated.features;
+		xml.delete();
+	}
 
 	/**
 	 * Creates a new cumulative feature driver, with the given list of feature drivers.
@@ -77,6 +97,8 @@ public class CumulativeFeatureDriver {
 		this.description = generated.description;
 		this.features = generated.features;
 	}
+	
+	
 		
 	
 	/* ==========
@@ -96,7 +118,9 @@ public class CumulativeFeatureDriver {
 		List<EventSet> esl = new ArrayList<EventSet>();
 		for (int i=0; i<features.size(); i++) {
 			EventDriver ed = features.get(i).getUnderlyingEventDriver();
-			Document currDoc = new Document(doc.getFilePath(),doc.getAuthor(),doc.getTitle());
+			Document currDoc = doc instanceof StringDocument ?
+					new StringDocument((StringDocument) doc) :
+					new Document(doc.getFilePath(),doc.getAuthor(),doc.getTitle());
 			
 			// apply canonicizers
 			try {
@@ -416,14 +440,16 @@ public class CumulativeFeatureDriver {
 			sp.parse(filename, this);
 		}
 		
-		/**
+		/*
 		 * Returns the generated cumulative feature driver.
 		 * @return
 		 * 		The generated cumulative feature driver.
 		 */
+		/*
 		public CumulativeFeatureDriver getCumulativeFeatureDriver() {
 			return cfd;
 		}
+		*/
 		
 		// event handlers
 		

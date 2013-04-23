@@ -2,6 +2,7 @@ package edu.drexel.psal.jstylo.analyzers.writeprints;
 
 import java.util.*;
 
+import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.MultiplePrintStream;
 
 import weka.core.*;
@@ -173,7 +174,7 @@ public class AuthorWPData {
 	 */
 	public void initBasisAndWriteprintMatrices() {
 		int numInstances = featureMatrix.getRowDimension();
-		//int numFeatures = featureMatrix.getColumnDimension();
+		int numFeatures = featureMatrix.getColumnDimension();
 		
 		/* (1) calculate the covariance matrix */
 		

@@ -139,16 +139,21 @@
 		<norm value="NONE"/>
 		<factor value="1.0"/>
 	</feature>
-	<feature name="special characters" calc_hist="true">
+	<feature name="Special Characters" calc_hist="true">
 		<description value="Frequencies of special characters, e.g. ~, @ etc."/>
-		<event-driver class="edu.drexel.psal.jstylo.eventDrivers.SpecialCharsEventDriver">
+		<event-driver class="edu.drexel.psal.jstylo.eventDrivers.ListEventDriver">
+			<param name="sort" value="false"/>
+			<param name="whiteList" value="true"/>
+			<param name="keepLexiconInMem" value="false"/>
+			<param name="underlyingEvents" value="Words"/>
+			<param name="filename" value="edu/drexel/psal/resources/writeprints_special_chars.txt"/>
 		</event-driver>
 		<canonicizers>
 		</canonicizers>
 		<cullers>
 		</cullers>
-		<norm value="CHARS_IN_DOC"/>
-		<factor value="100.0"/>
+		<norm value="NONE"/>
+		<factor value="1.0"/>
 	</feature>
 	<feature name="function words" calc_hist="true">
 		<description value="Most frequent out of 512 common function words, used by Koppel et al. in Koppel, 2005."/>
@@ -173,16 +178,21 @@
 		<norm value="WORDS_IN_DOC"/>
 		<factor value="100.0"/>
 	</feature>
-	<feature name="punctuation" calc_hist="true">
+	<feature name="Punctuation" calc_hist="true">
 		<description value="Punctuation symbols like . , ! etc."/>
-		<event-driver class="edu.drexel.psal.jstylo.eventDrivers.PunctuationEventDriver">
+		<event-driver class="edu.drexel.psal.jstylo.eventDrivers.ListEventDriver">
+			<param name="sort" value="false"/>
+			<param name="whiteList" value="true"/>
+			<param name="keepLexiconInMem" value="false"/>
+			<param name="underlyingEvents" value="Characters"/>
+			<param name="filename" value="edu/drexel/psal/resources/writeprints_punctuation.txt"/>
 		</event-driver>
 		<canonicizers>
 		</canonicizers>
 		<cullers>
 		</cullers>
-		<norm value="CHARS_IN_DOC"/>
-		<factor value="100.0"/>
+		<norm value="NONE"/>
+		<factor value="1.0"/>
 	</feature>
 	<feature name="POS Tags" calc_hist="true">
 		<description value="Part-Of-Speech tags extracted by the Stanford POS Maxent Tagger."/>

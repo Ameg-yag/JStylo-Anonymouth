@@ -1,5 +1,6 @@
 package edu.drexel.psal.jstylo.GUI;
 
+import java.awt.Component;
 import java.awt.event.*;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -267,30 +268,87 @@ public class DocsTabDriver {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln("'Add Author...' button clicked under the 'Training Corpus' section on the documents tab.");
 
-				String answer = JOptionPane.showInputDialog(null,
-						"Enter new author name:",
+				String ans = JOptionPane.showInputDialog(null,
+						"Enter new author name or press ok without entering anything\nto select an author folder to read documents from.",
 						"",
 						JOptionPane.OK_CANCEL_OPTION);
-				if (answer == null) {
+				if (ans == null) {
 					Logger.logln("Aborted adding new author");
 				}
-				else if (answer.isEmpty()) {
+				else if (ans.isEmpty()) { 
+					
+					Logger.logln("No author name entered, attempting to load from folder...");
+
+					JFileChooser open = new JFileChooser(new File(main.defaultLoadSaveDir));
+					open.setMultiSelectionEnabled(true);
+					open.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+					int answer = open.showOpenDialog(main);
+
+					if (answer == JFileChooser.APPROVE_OPTION) {
+						File[] authors = open.getSelectedFiles();
+						Logger.logln("Trying to load training documents");
+						
+						String path = null;
+						String skipList = "";
+						ArrayList<String> allTrainDocPaths = new ArrayList<String>();
+						ArrayList<String> allTestDocPaths = new ArrayList<String>();
+						
+						for (Document doc: main.ps.getAllTrainDocs())
+							allTrainDocPaths.add(doc.getFilePath()); 
+						for (Document doc: main.ps.getTestDocs())
+							allTestDocPaths.add(doc.getFilePath()); 
+						for (File dir: authors) {	//for each directory selected
+							for (File file: dir.listFiles()){ //for each file in that directory
+								path = file.getAbsolutePath();
+								if (allTrainDocPaths.contains(path)) { //make sure that the file isn't already in the training set
+									skipList += "\n"+path+" - already contained for author "+dir.getName(); 
+									continue;
+								}
+								if (allTestDocPaths.contains(path)) { //make sure that the file isn't in the test set
+									skipList += "\n"+path+" - already contained as a test document";
+									continue;
+								}
+								
+								main.ps.addTrainDoc(dir.getName(), new Document(path,"dummy",file.getName()));
+							}
+						}
+						if (path != null) //change default directory
+							main.defaultLoadSaveDir = ((new File(path)).getParentFile()).getParent();
+
+						if (!skipList.equals("")) { //if there was at least one file that was already present in one of the sets already, inform the user of which one it was
+							JOptionPane.showMessageDialog(null,
+									"Skipped the following documents:"+skipList,
+									"Add Training Documents",
+									JOptionPane.WARNING_MESSAGE);
+							Logger.logln("skipped the following training documents:"+skipList);
+						}
+
+						GUIUpdateInterface.updateTrainDocTree(main);
+						GUIUpdateInterface.clearDocPreview(main);
+
+					} else {
+						Logger.logln("Load training documents canceled");
+					}
+						
+					/* old stuff
 					JOptionPane.showMessageDialog(null,
 							"New author name must be a non-empty string.",
 							"Add New Author Error",
 							JOptionPane.ERROR_MESSAGE);
 					Logger.logln("tried to add new author with an empty string", LogOut.STDERR);
+					*/
+					
 				} else {
-					if (main.ps.getAuthorMap().keySet().contains(answer)) {
+					if (main.ps.getAuthorMap().keySet().contains(ans)) {
 						JOptionPane.showMessageDialog(null,
-								"Author \""+answer+"\" already exists.",
+								"Author \""+ans+"\" already exists.",
 								"Add New Author Error",
 								JOptionPane.ERROR_MESSAGE);
-						Logger.logln("tried to add author that already exists: "+answer, LogOut.STDERR);
+						Logger.logln("tried to add author that already exists: "+ans, LogOut.STDERR);
 					} else {
-						main.ps.addTrainDocs(answer, new ArrayList<Document>());
+						main.ps.addTrainDocs(ans, new ArrayList<Document>());
 						GUIUpdateInterface.updateTrainDocTree(main);
-						Logger.logln("Added new author: "+answer);
+						Logger.logln("Added new author: "+ans);
 					}
 				}
 			}
