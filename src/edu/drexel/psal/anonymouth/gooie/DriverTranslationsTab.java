@@ -40,6 +40,7 @@ public class DriverTranslationsTab implements ActionListener
 	 */
 	public static void showTranslations(TaggedSentence sentence)
 	{
+		System.out.println("OUTPUT: " + sentence.getUntagged());
 		main = GUIMain.inst;
 		DriverTranslationsTab inst = new DriverTranslationsTab();
 		arrow_up = main.arrow_up;
@@ -79,6 +80,7 @@ public class DriverTranslationsTab implements ActionListener
 			// set up title label
 			languageLabels[i] = new JLabel(translationNames.get(i));
 			translationsMap.put(translationNames.get(i), translations.get(i).getUntagged().trim());
+			System.out.println("OUTPUT: " + translationNames.get(i));
 			languageLabels[i].setFont(main.titleFont);
 			languageLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
 			languageLabels[i].setBorder(main.rlborder);
