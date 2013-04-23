@@ -40,7 +40,6 @@ public class DriverTranslationsTab implements ActionListener
 	 */
 	public static void showTranslations(TaggedSentence sentence)
 	{
-		System.out.println("OUTPUT: " + sentence.getUntagged());
 		main = GUIMain.inst;
 		DriverTranslationsTab inst = new DriverTranslationsTab();
 		arrow_up = main.arrow_up;
@@ -73,6 +72,9 @@ public class DriverTranslationsTab implements ActionListener
 		finalPanels = new JPanel[numTranslations];
 		translationButtons = new JButton[numTranslations];
 
+		System.out.println("OUTPUT: " + sentence.getUntagged());
+		System.out.println("OUTPUT: " + numTranslations);
+		
 		// for each translation, initialize a title label, and a text area that will hold the translation
 		// then add those two to a final panel, which will be added to the translation list panel.
 		for (int i = 0; i < numTranslations; i++)
