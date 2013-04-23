@@ -57,6 +57,7 @@ public class GramMatcher {
 		for(i=0; i < numTokes; i++){
 			tokeLen = split[i].length();
 			totalBigramLen += tokeLen;
+				
 			tokens[i] = split[i].substring(1,tokeLen-1);
 			if(i != numTokesMinusOne)
 				totalBigramLen += 1; // add a space to the count 

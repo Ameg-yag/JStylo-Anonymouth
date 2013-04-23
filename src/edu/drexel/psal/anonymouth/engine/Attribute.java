@@ -26,6 +26,7 @@ public class Attribute {
 	private double targetCentroid;
 	private double targetAvgAbsDev;
 	private boolean calcHist;
+	private boolean partOfSpeech;
 	
 	/**
 	 * this is only set IF calcHist == true. In that case, the actual 'feature' is the string in the braces that replaces
@@ -61,6 +62,12 @@ public class Attribute {
 		this.fullName = fullName;
 		this.stringInBraces = stringInBraces;
 		this.calcHist = calcHist;
+		
+		if (fullName.contains("POS"))
+			partOfSpeech = true;
+		else
+			partOfSpeech = false;
+
 		Logger.logln(NAME+"Attribute created for feature: "+fullName);
 		setGenericName();
 	}
@@ -480,7 +487,7 @@ public class Attribute {
 		
 	}
 
-
-	
-
+	public Boolean isPartofSpeech() {
+		return partOfSpeech;
+	}
 }

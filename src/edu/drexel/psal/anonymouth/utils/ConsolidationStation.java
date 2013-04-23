@@ -134,8 +134,11 @@ public class ConsolidationStation {
 		int numFound = 0;
 		GramMatcher gm = new GramMatcher();
 		for(int i=0;i<attribLen;i++){
+			
 			String stringInBrace=DataAnalyzer.topAttributes[i].getStringInBraces();
-			if(!stringInBrace.equals("") && stringInBrace.charAt(0) == '('){// if the string in braces begins with an opening parenthesis, it is a word or POS bigram or trigram feature
+			Attribute curAttribute = DataAnalyzer.topAttributes[i];
+			
+			if(!stringInBrace.equals("") && stringInBrace.charAt(0) == '(' && !curAttribute.isPartofSpeech()) {// if the string in braces begins with an opening parenthesis, it is a word or POS bigram or trigram feature
 				//System.out.printf("Finding feature number '%d':  '%s' in sentence, '%s'\n",i,stringInBrace,sent.getUntagged());
 				// Check the number of open parentheses -- if (1), continue, if (2), it's a bigram, if (3) it's a trigram
 				int numOpenParens =0;
