@@ -508,7 +508,7 @@ public class TaggedDocument implements Serializable{
 			tempAttrib = DataAnalyzer.topAttributes[i];
 			if(tempAttrib.getFullName().contains("Percentage") || tempAttrib.getFullName().contains("Average"))
 				continue; // not really sure how to handle this...
-			anonIndex += (tempAttrib.getTargetValue()/totalFeatures)*(tempAttrib.getInfoGain());
+			anonIndex += (tempAttrib.getTargetValue()/totalFeatures)*(tempAttrib.getInfoGain()*(Math.abs(tempAttrib.getFeatureBaselinePercentChangeNeeded())));
 		}
 		return anonIndex;
 		
@@ -531,7 +531,7 @@ public class TaggedDocument implements Serializable{
 		int total_attribs = 0;
 		double total_percent_change = 0;
 		for (Attribute attrib : DataAnalyzer.topAttributes){
-			total_percent_change += Math.abs(attrib.getPercentChangeNeeded(false,false));
+			total_percent_change += attrib.getPercentChangeNeeded(false,false,true);
 			total_attribs ++;
 		}
 		double avg_percent_change = total_percent_change/total_attribs;

@@ -405,9 +405,11 @@ public class Attribute {
 	 * and vice versa. Percent change needed is calculated at the time of function call, so the returned value will always be current. 
 	 * @param normalizeToBaseline if true, method will return the percent change that is needed normalized to the percent change that was needed initially (so, 100% is the greatest change you should see).
 	 * if false, method will return the absolute percent change needed, which does not normalize to the baseline (meaning if you have 5 'a' characters, and you need 15, then it would return 200%).
+	 * @param invertPercentage
+	 * @param takeAbsVal
 	 * @return
 	 */
-	public double getPercentChangeNeeded(boolean normalizeToBaseline, boolean invertPercentage){
+	public double getPercentChangeNeeded(boolean normalizeToBaseline, boolean invertPercentage, boolean takeAbsVal){
 		double temp = 0;
 		double perm = 0;
 		double minimumPercentChangeUnit = 0;
@@ -447,7 +449,10 @@ public class Attribute {
 				perm = baselinePercentChangeNeeded - perm;
 		}
 		System.out.println("			% Change needed: "+perm);
-		return perm; 
+		if(takeAbsVal)
+			return Math.abs(perm); 
+		else
+			return perm;
 	}
 
 	public double getFeatureBaselinePercentChangeNeeded(){

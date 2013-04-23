@@ -86,7 +86,8 @@ public class Word implements Comparable<Word>, Serializable {
 			currentAttrib = DataAnalyzer.topAttributes[tempFeature.index];
 
 			double value=tempFeature.value;
-			anonymityIndex += (value/totalFeatureOccurrences)*(currentAttrib.getInfoGain())*(currentAttrib.getPercentChangeNeeded(false,true));// for 'getPercentChangeNeeded', the first boolean says not to normalize the result to the baslinePercentChangeNeeded, and the second says to invert the percentage.
+			anonymityIndex += (value/totalFeatureOccurrences)*(currentAttrib.getInfoGain())*(currentAttrib.getPercentChangeNeeded(false,true,true));// for 'getPercentChangeNeeded', the first boolean says not to normalize the result to the baslinePercentChangeNeeded, the second says to invert the percentage, and the third says to take the absolute value (ignore direction of change)
+			
 		}
 		return anonymityIndex;
 	}
