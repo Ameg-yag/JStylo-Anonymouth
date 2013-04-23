@@ -226,8 +226,10 @@ public class AnonymityDrawingPanel extends JPanel {
 	 * for the first time) so that the arrow may move accordingly
 	 */
 	public void updateAnonymityBar() {
-		System.out.println((int)(ConsolidationStation.toModifyTaggedDocs.get(0).getAvgPercentChangeNeeded(false) + .5));
-		pointer.setPercentage((int)(ConsolidationStation.toModifyTaggedDocs.get(0).getAvgPercentChangeNeeded(false) + .5));
+		pointer.setMaxPercentage((int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5));
+		pointer.setPercentage((int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5));
+		System.out.println("MAXPERCENTAGE: " + (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5));
+		System.out.println("PERCENTAGE: " + (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5));
 		repaint();
 	}
 	

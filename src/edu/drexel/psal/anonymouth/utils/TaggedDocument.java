@@ -482,8 +482,10 @@ public class TaggedDocument implements Serializable{
 		double totalAI = 0;
 		int numSents = taggedSentences.size();
 		int i;
+		System.out.println("NUMSENTS: " + numSents);
 		for (i = 0; i < numSents; i++){
 			totalAI += taggedSentences.get(i).getSentenceAnonymityIndex();
+			System.out.println("TOTALAI: " + totalAI);
 		}
 		return totalAI;
 	}
