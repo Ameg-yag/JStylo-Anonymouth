@@ -497,20 +497,20 @@ public class TaggedDocument implements Serializable{
 	public double getTargetAnonymityIndex(){
 		int i;
 		int numAttribs = DataAnalyzer.topAttributes.length;
-		double totalFeatures = 0;
+//		double totalFeatures = 0;
 		double anonIndex = 0;
 		Attribute tempAttrib;
-		for(i = 0; i < numAttribs; i++){
-			tempAttrib = DataAnalyzer.topAttributes[i];
-			if(tempAttrib.getFullName().contains("Percentage") || tempAttrib.getFullName().contains("Average"))
-				continue; // We don't want to add percentages into the mix of total features
-			totalFeatures += DataAnalyzer.topAttributes[i].getTargetValue();
-		}
+//		for(i = 0; i < numAttribs; i++){
+//			tempAttrib = DataAnalyzer.topAttributes[i];
+//			if(tempAttrib.getFullName().contains("Percentage") || tempAttrib.getFullName().contains("Average"))
+//				continue; // We don't want to add percentages into the mix of total features
+//			totalFeatures += DataAnalyzer.topAttributes[i].getTargetValue();
+//		}
 		for(i = 0; i < numAttribs; i++){
 			tempAttrib = DataAnalyzer.topAttributes[i];
 			if(tempAttrib.getFullName().contains("Percentage") || tempAttrib.getFullName().contains("Average"))
 				continue; // not really sure how to handle this...
-			anonIndex += (tempAttrib.getTargetValue()/totalFeatures)*(tempAttrib.getInfoGain()*(Math.abs(tempAttrib.getFeatureBaselinePercentChangeNeeded())));
+			anonIndex += (tempAttrib.getTargetValue())*(tempAttrib.getInfoGain()*(Math.abs(tempAttrib.getFeatureBaselinePercentChangeNeeded())));
 		}
 		return anonIndex;
 		

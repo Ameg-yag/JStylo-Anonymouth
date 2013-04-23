@@ -338,10 +338,6 @@ public class DriverDocumentsTab {
 						//currentSentenceString = main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]+1);
 						System.out.println("currentSentenceString: "+currentSentenceString);
 					}
-					//UNCOMMENT
-//					else {
-//						main.GUITranslator.isSentenceChange(currentSentenceString);
-//					}
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
 					
@@ -359,17 +355,20 @@ public class DriverDocumentsTab {
 					selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 					System.out.printf("Moving highlight to range %d-%d\n", selectionInfo[1], selectionInfo[2]);
 					//todo main.documentPane.setText(taggedDoc.getUntaggedDocument(false));
-					if(!inRange)
+					if(!inRange) {
+						//UNCOMMENT
+//						main.GUITranslator.isSentenceChange(currentSentenceString);
 						moveHighlight(main,selectedSentIndexRange,true);
-					else
+					} else
 						moveHighlight(main,selectedSentIndexRange,false);
 					
+					System.out.printf("Current Sentence Number %d\n", currentSentNum);
+					System.out.println("Current sentence string " + currentSentenceString);
 					sentToTranslate = currentSentNum;
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 									
 				}
 			}
-			
 		});
 		
 		

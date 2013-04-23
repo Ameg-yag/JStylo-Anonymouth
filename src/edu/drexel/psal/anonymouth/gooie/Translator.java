@@ -43,12 +43,12 @@ public class Translator implements Runnable
 	}
 	
 	//UNCOMMENT
-//	public void isSentenceChange(String newSentence) {
-//		if (sentences.contains(newSentence))
-//			return;
-//		else
-//			load(sentences);
-//	}
+	public void isSentenceChange(String newSentence) {
+		if (sentences.contains(newSentence))
+			return;
+		else
+			load(sentences);
+	}
 
 	/**
 	 * Loads sentences into the translation queue. Newly added sentences take priority. If translations arent running, it starts running.
