@@ -38,7 +38,8 @@ public class ThePresident {
 	public static boolean SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = true; // TODO: put in "options"
 	public static boolean SAVE_TAGGED_DOCUMENTS = true; // TODO: put in "options
 	public static int MAX_FEATURES_TO_CONSIDER = 1000; // todo: put in 'options', and figure out an optimal number (maybe based upon info gain, total #, etc.)... basically, when the processing time outweighs the benefit, that should be our cutoff.
-
+	// test
+	
 	/*
 	public void getDockImage(String name){
 		try{

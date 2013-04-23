@@ -33,7 +33,7 @@ public class WekaInstancesBuilder {
 	/**
 	 * Determines the number of threads to be used for features extraction.
 	 */
-	public int numCalcThreads = 8;
+	public int numCalcThreads = 4;
 	
 	/**
 	 * Determines whether to use a set of SparseInstance or Instance.
