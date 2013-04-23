@@ -365,8 +365,8 @@ public class DriverDocumentsTab {
 					System.out.printf("Current Sentence Number %d\n", currentSentNum);
 					System.out.println("Current sentence string " + currentSentenceString);
 					sentToTranslate = currentSentNum;
-					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
-									
+					System.out.println("taggedDoc.getSentenceNumber " + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged());
+					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));			
 				}
 			}
 		});
