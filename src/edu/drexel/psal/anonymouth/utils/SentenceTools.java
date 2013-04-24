@@ -86,6 +86,7 @@ public class SentenceTools implements Serializable  {
 		int currentStop = 0;
 		int currentEOSnum;
 		int numEOSes;
+		String safeString_subbedEOS;
 		int lenText = text.length();
 		int quoteAtEnd;
 		String temp;
@@ -170,40 +171,39 @@ public class SentenceTools implements Serializable  {
 				String prev=sents.remove(sents.size()-1);
 				safeString=prev+safeString;
 			}
+			safeString_subbedEOS = safeString;
 			if (mergeNext){//makes he merge happen on the next pass through
 				mergeNext=false;
 				mergeWithLast=true;
 			}
-			/*
 			else{
 				numEOSes = currentEOS.length();
 				int startOfEOS = safeString.length() - numEOSes - quoteAtEnd; // quoteAtEnd will be '0' unless there is a quote after the EOS character(s)
 				for (currentEOSnum = 0; currentEOSnum < numEOSes; currentEOSnum++){
 					switch(currentEOS.charAt(currentEOSnum)){
 						case '.': 
-							safeString = safeString.substring(0, startOfEOS + currentEOSnum) + p_PERIOD_REPLACEMENT + safeString.substring(startOfEOS + currentEOSnum+1);
+							safeString_subbedEOS = safeString_subbedEOS.substring(0, startOfEOS + currentEOSnum) + p_PERIOD_REPLACEMENT + safeString_subbedEOS.substring(startOfEOS + currentEOSnum+1);
 							break;
 						case '?': 
-							safeString = safeString.substring(0, startOfEOS + currentEOSnum) + p_QUESTION_REPLACEMENT + safeString.substring(startOfEOS + currentEOSnum+1);
+							safeString_subbedEOS = safeString_subbedEOS.substring(0, startOfEOS + currentEOSnum) + p_QUESTION_REPLACEMENT + safeString_subbedEOS.substring(startOfEOS + currentEOSnum+1);
 							break;
 						case '!': 
-							safeString = safeString.substring(0, startOfEOS + currentEOSnum) + p_EXCLAMATION_REPLACEMENT + safeString.substring(startOfEOS + currentEOSnum+1);
+							safeString_subbedEOS = safeString_subbedEOS.substring(0, startOfEOS + currentEOSnum) + p_EXCLAMATION_REPLACEMENT + safeString_subbedEOS.substring(startOfEOS + currentEOSnum+1);
 							break;
 					}
 				}
 			}
-			*/
 			
-			System.out.println(safeString);
+			
+			System.out.println("Actual: "+safeString);
+			System.out.println("SubbedEOS: "+safeString_subbedEOS);
 			safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
+			safeString_subbedEOS = safeString_subbedEOS.replaceAll(t_PERIOD_REPLACEMENT,".");
 			System.out.println(safeString);
-			
-			
-			
 		
-			System.out.println(safeString);
 			System.out.println("---------------");
 			sents.add(safeString);
+			//// xxx xxx xxx return the safeString_subbedEOS too!!!!
 			//System.out.println("start minus one: "+(currentStart-1)+" stop: "+currentStop);
 			if(currentStart < 0 || currentStop < 0){
 				Logger.logln(NAME+"Something went really wrong making sentence tokens.");
