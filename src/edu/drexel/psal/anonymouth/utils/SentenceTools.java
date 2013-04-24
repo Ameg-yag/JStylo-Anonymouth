@@ -80,12 +80,11 @@ public class SentenceTools implements Serializable  {
 	public ArrayList<String> makeSentenceTokens(String text){
 		Scanner scan = new Scanner(System.in);
 		ArrayList<String> sents = new ArrayList<String>(MAX_SENTENCES);
+		ArrayList<String[]> finalSents = new ArrayList<String[]>(MAX_SENTENCES);
 		boolean mergeNext=false;
 		boolean mergeWithLast=false;
 		int currentStart = 1;
 		int currentStop = 0;
-		int currentEOSnum;
-		int numEOSes;
 		String safeString_subbedEOS;
 		int lenText = text.length();
 		int quoteAtEnd;
@@ -171,35 +170,19 @@ public class SentenceTools implements Serializable  {
 				String prev=sents.remove(sents.size()-1);
 				safeString=prev+safeString;
 			}
-			safeString_subbedEOS = safeString;
 			if (mergeNext){//makes he merge happen on the next pass through
 				mergeNext=false;
 				mergeWithLast=true;
 			}
 			else{
-				numEOSes = currentEOS.length();
-				int startOfEOS = safeString.length() - numEOSes - quoteAtEnd; // quoteAtEnd will be '0' unless there is a quote after the EOS character(s)
-				for (currentEOSnum = 0; currentEOSnum < numEOSes; currentEOSnum++){
-					switch(currentEOS.charAt(currentEOSnum)){
-						case '.': 
-							safeString_subbedEOS = safeString_subbedEOS.substring(0, startOfEOS + currentEOSnum) + p_PERIOD_REPLACEMENT + safeString_subbedEOS.substring(startOfEOS + currentEOSnum+1);
-							break;
-						case '?': 
-							safeString_subbedEOS = safeString_subbedEOS.substring(0, startOfEOS + currentEOSnum) + p_QUESTION_REPLACEMENT + safeString_subbedEOS.substring(startOfEOS + currentEOSnum+1);
-							break;
-						case '!': 
-							safeString_subbedEOS = safeString_subbedEOS.substring(0, startOfEOS + currentEOSnum) + p_EXCLAMATION_REPLACEMENT + safeString_subbedEOS.substring(startOfEOS + currentEOSnum+1);
-							break;
-					}
-				}
+				safeString_subbedEOS = subOutEOSChars(currentEOS, safeString, quoteAtEnd);
+				System.out.println("Actual: "+safeString);
+				System.out.println("SubbedEOS: "+safeString_subbedEOS);
+				safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
+				safeString_subbedEOS = safeString_subbedEOS.replaceAll(t_PERIOD_REPLACEMENT,".");
+				System.out.println(safeString);
+				finalSents.add(new String[]{safeString, safeString_subbedEOS});
 			}
-			
-			
-			System.out.println("Actual: "+safeString);
-			System.out.println("SubbedEOS: "+safeString_subbedEOS);
-			safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
-			safeString_subbedEOS = safeString_subbedEOS.replaceAll(t_PERIOD_REPLACEMENT,".");
-			System.out.println(safeString);
 		
 			System.out.println("---------------");
 			sents.add(safeString);
@@ -225,7 +208,35 @@ public class SentenceTools implements Serializable  {
 			return wrapper;
 		}
 		
+		//return finalSents;
 		return sents;
+	}
+	
+	/**
+	 * Substitutes the '.','?', and '!' (and any combination of any number of '?' and/or '!') characters at the END of a sentence.
+	 * @param currentEOS
+	 * @param needsSubbing
+	 * @param quoteAtEnd
+	 * @return
+	 * 	a version of the string with the EOS characters replaced. 
+	 */
+	public String subOutEOSChars(String currentEOS, String needsSubbing, int quoteAtEnd){
+		int numEOSes = currentEOS.length();
+		int startOfEOS = needsSubbing.length() - numEOSes - quoteAtEnd; // quoteAtEnd will be '0' unless there is a quote after the EOS character(s)
+		for (int currentEOSnum = 0; currentEOSnum < numEOSes; currentEOSnum++){
+			switch(currentEOS.charAt(currentEOSnum)){
+				case '.': 
+					needsSubbing = needsSubbing.substring(0, startOfEOS + currentEOSnum) + p_PERIOD_REPLACEMENT + needsSubbing.substring(startOfEOS + currentEOSnum+1);
+					break;
+				case '?': 
+					needsSubbing = needsSubbing.substring(0, startOfEOS + currentEOSnum) + p_QUESTION_REPLACEMENT + needsSubbing.substring(startOfEOS + currentEOSnum+1);
+					break;
+				case '!': 
+					needsSubbing = needsSubbing.substring(0, startOfEOS + currentEOSnum) + p_EXCLAMATION_REPLACEMENT + needsSubbing.substring(startOfEOS + currentEOSnum+1);
+					break;
+			}
+		}			
+		return needsSubbing;
 	}
 	
 	public static int getSentNumb(){

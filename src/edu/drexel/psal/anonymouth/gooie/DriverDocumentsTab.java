@@ -129,7 +129,7 @@ public class DriverDocumentsTab {
 	protected static int charsRemoved = -1;
 	protected static String currentSentenceString = "";
 	protected static Object currentHighlight = null;
-	protected static int documentRefreshed = 0;
+	protected static int ignoreNumActions = 0;
 	
 	
 	protected static void signalTargetsSelected(GUIMain main, boolean goodToGo){
@@ -197,9 +197,9 @@ public class DriverDocumentsTab {
 	 */
 	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith){
 			taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
+			ignoreNumActions = 2;
 			System.out.println("FIND ME: " + taggedDoc.getUntaggedDocument());
 			main.documentPane.setText(taggedDoc.getUntaggedDocument());
-			documentRefreshed = 2;
 			System.out.println("FIND ME: " + main.documentPane.getText());
 	}
 	
@@ -307,8 +307,9 @@ public class DriverDocumentsTab {
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				System.out.println("FIND ME2: " + main.documentPane.getText().length());
-				System.out.println("DOCUMENTREFRESHED: " + documentRefreshed);
-				if (taggedDoc != null && documentRefreshed <= 0) {
+				if (ignoreNumActions > 0)
+					ignoreNumActions--;
+				else if (taggedDoc != null) {
 					startSelection = e.getDot();
 					endSelection = e.getMark();
 					currentCaretPosition = startSelection;
@@ -384,8 +385,7 @@ public class DriverDocumentsTab {
 					sentToTranslate = currentSentNum;
 					System.out.println("OUTPUT2: \"" + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged() + "\"   \"" + sentToTranslate + "\"");
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));			
-				} else
-					documentRefreshed -= 1;
+				}
 			}
 		});
 		
