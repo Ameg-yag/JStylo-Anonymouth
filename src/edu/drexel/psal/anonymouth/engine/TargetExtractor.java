@@ -111,6 +111,8 @@ public class TargetExtractor {
 		boolean notFound = true;
 		boolean tooManyTries = false;
 		Set<Double> skipSet = new HashSet<Double>();
+		int numOfLoops = 0;
+		
 		for(i=0;i<numMeans-1;i++){
 			for(j=0;j<numFeatures;j++){
 				currentValue = thePairs[j].value;
@@ -141,6 +143,8 @@ public class TargetExtractor {
 			ArrayList<Double> badRandomsTesting = new ArrayList<Double>();
 			double thisProb = 0;
 			while(notFound == true){
+				numOfLoops += 1;
+//				System.out.println("LOOPING: " + numOfLoops);
 				randomChoice = mtfGen.nextDouble(true,true);
 				thisProb = 0;
 				for(k=0;k<numFeatures;k++){
@@ -154,7 +158,7 @@ public class TargetExtractor {
 					}
 				}
 				if(notFound == true){	
-					if(skipSet.size() > 10000){
+					if(skipSet.size() > 10000 || numOfLoops > 1000){
 						Logger.logln(NAME+"kPlusPlusPrep reached 10k tries.");
 						tooManyTries = true;
 						break;
