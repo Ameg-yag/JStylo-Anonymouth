@@ -187,6 +187,17 @@ public class DriverDocumentsTab {
 //		main.editorHelpTabPane.setEnabled(b);
 	}
 	
+	/**
+	 * Removes the sentence at index sentenceNumberToRemove in the current TaggedDocument, and replaces it with the sentenceToReplaceWith.
+	 * Then, converts the updated TaggedDocument to a string, and puts the new version in the editor window.
+	 * @param main
+	 * @param sentenceNumberToRemove
+	 * @param sentenceToReplaceWith
+	 */
+	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith){
+			taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
+			main.documentPane.setText(taggedDoc.getUntaggedDocument(false));
+	}
 	
 	/**
 	 * resets the highlight to a new start and end.
