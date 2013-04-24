@@ -745,7 +745,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 	@Override
 	public String analyzerDescription() {
 		String description =
-				"Writeprints Analyzer\n"
+				"Writeprints Analyzer\n" +
+				"An experimental analyzer that is not fully completed, but has multiple usable functionalities.\n" +
+				"\n" +
+				"This classifier can run cross validation and test/classification.\n" +
+				"However, it can not run cross validation with a relaxation factor.\n'" +
+				"At this time, WriteprintsAnalyzer does not accept any args.\n" +
+				"Performance has not yet been optimized.\n" +
+				"\n"
 				;
 		return description;
 	}
