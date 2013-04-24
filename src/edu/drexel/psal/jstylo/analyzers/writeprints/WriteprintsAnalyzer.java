@@ -413,7 +413,12 @@ public class WriteprintsAnalyzer extends Analyzer {
 	 */
 	public Evaluation runCrossValidation(Instances data, int folds, long randSeed,
 			int relaxFactor) {
-		return null;
+		if (relaxFactor==1)
+			return runCrossValidation(data,folds,randSeed);
+		else {
+			Logger.logln("runCrossValidation with relaxation factor not yet implemented for writeprints Analyzer.");
+			return null;
+		}
 	}
 	
 	protected double fMeasure(double precision,double recall){

@@ -276,6 +276,7 @@ public class AnalysisTabDriver {
 				boolean selected = main.analysisTrainCVJRadioButton.isSelected();
 				if (selected){
 					main.analysisKFoldJTextField.setEnabled(true);
+					main.analysisRelaxJTextField.setEnabled(true);
 				}			
 			}		
 		});
@@ -289,6 +290,7 @@ public class AnalysisTabDriver {
 				boolean selected = main.analysisClassTestDocsJRadioButton.isSelected();
 				if (selected){
 					main.analysisKFoldJTextField.setEnabled(false);
+					main.analysisRelaxJTextField.setEnabled(false);
 				}			
 			}		
 		});
@@ -538,8 +540,11 @@ public class AnalysisTabDriver {
 		main.analysisApplyInfoGainJCheckBox.setEnabled(!lock);
 		main.infoGainValueJTextField.setEnabled(!lock);
 		
-		if (main.analysisTrainCVJRadioButton.isSelected())
-			main.analysisKFoldJTextField.setEnabled(!lock);	
+		if (main.analysisTrainCVJRadioButton.isSelected()){
+			main.analysisKFoldJTextField.setEnabled(!lock);
+			main.analysisRelaxJTextField.setEnabled(!lock);
+		}
+		main.analysisRelaxJLabel.setEnabled(!lock);
 		main.analysisKFoldJLabel.setEnabled(!lock);
 		main.analysisNThreadJLabel.setEnabled(!lock);
 		main.analysisNThreadJTextField.setEnabled(!lock);
@@ -854,9 +859,16 @@ public class AnalysisTabDriver {
 					updateResultsView();
 					
 					// run
-					Object results = main.analysisDriver.runCrossValidation(main.wib.getTrainingSet(),Integer.parseInt(main.analysisKFoldJTextField.getText()),0);
+					//TODO change this to take relax evals
+					Object results = main.analysisDriver.runCrossValidation(main.wib.getTrainingSet(),Integer.parseInt(main.analysisKFoldJTextField.getText()),0,Integer.parseInt(main.analysisRelaxJTextField.getText())); 
+										
 					content += getTimestamp()+" done!\n\n";
 					Logger.logln("Done!");
+					updateResultsView();
+					
+					if (results==null){
+						content+="Classifier not working for this feature set, relaxation factor, or similar variable. Please stop the analysis.";
+					}
 					updateResultsView();
 					
 					// print out results

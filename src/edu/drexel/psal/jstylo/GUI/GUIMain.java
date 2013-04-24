@@ -209,6 +209,8 @@ public class GUIMain extends javax.swing.JFrame {
 	protected JPanel analysisTrainCVJPanel;
 	protected JPanel analysisTrainCVoptionsJPanel;
 	protected JTextPane analysisInstructionPane;
+	protected JLabel analysisRelaxJLabel;
+	protected JTextField analysisRelaxJTextField;
 	
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -1053,9 +1055,7 @@ public class GUIMain extends javax.swing.JFrame {
 				{
 					// header
 					// ======
-					
-					//JPanel header = new JPanel(new GridLayout(5,3,cellPadding,cellPadding));
-					//JPanel header = new JPanel(new GridLayout(3,3,cellPadding,cellPadding));
+
 					JPanel topPanel = new JPanel(new BorderLayout());
 					JPanel header = new JPanel(new GridLayout(1,3,cellPadding,cellPadding));
 					topPanel.add(header,BorderLayout.CENTER);
@@ -1162,18 +1162,25 @@ public class GUIMain extends javax.swing.JFrame {
 								analysisTrainCVJRadioButton.setText("Run K-fold cross validation on training corpus");
 							}
 							{
-								analysisTrainCVoptionsJPanel = new JPanel(new FlowLayout());
+								analysisTrainCVoptionsJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 								analysisTrainCVJPanel.add(analysisTrainCVoptionsJPanel,BorderLayout.SOUTH);
 								{
 									analysisKFoldJTextField = new JTextField("10");
 									analysisKFoldJTextField.setPreferredSize(new Dimension(25,20));
-									analysisKFoldJLabel = new JLabel("Use K Folds: ");
+									analysisKFoldJLabel = new JLabel("K Folds: ");
 									analysisKFoldJTextField.setToolTipText("The number of groups to split the documents into. Must be larger then one and can't be larger then the number of documents you have." );
+									
+									analysisRelaxJLabel = new JLabel("     Relaxation Factor: ");
+									analysisRelaxJTextField=new JTextField("1");
+									analysisRelaxJTextField.setPreferredSize(new Dimension(25,20));
+									analysisRelaxJTextField.setToolTipText("Sets the relaxation factor. If an answer is in the top <relax factor> of predictions, it will be counted as correct.");
 									
 									analysisTrainCVoptionsJPanel.add(analysisKFoldJLabel);
 									analysisTrainCVoptionsJPanel.add(analysisKFoldJTextField);
-									//analysisTrainCVoptionsJPanel.add(analysisNThreadJLabel);
-									//analysisTrainCVoptionsJPanel.add(analysisNThreadJTextField);
+									
+									analysisTrainCVoptionsJPanel.add(analysisRelaxJLabel);
+									analysisTrainCVoptionsJPanel.add(analysisRelaxJTextField);
+									
 								}
 							}
 						}
