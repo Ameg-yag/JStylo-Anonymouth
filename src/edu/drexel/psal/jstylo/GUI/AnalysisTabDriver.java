@@ -862,20 +862,14 @@ public class AnalysisTabDriver {
 					updateResultsView();
 					
 					// print out results
-					if (a instanceof WekaAnalyzer){
-						Evaluation eval = (Evaluation) results;
-						content += eval.toSummaryString(false)+"\n";
-						try {
-							content +=
-									eval.toClassDetailsString()+"\n" +
-										eval.toMatrixString()+"\n" ;
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					} else if (a instanceof WriteprintsAnalyzer){ //TODO fix writeprints analyzer and remove instanceof
-						
-						content+=(String) results;
-						
+					Evaluation eval = (Evaluation) results;
+					content += eval.toSummaryString(false)+"\n";
+					try {
+						content +=
+								eval.toClassDetailsString()+"\n" +
+									eval.toMatrixString()+"\n" ;
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 						
 					updateResultsView();

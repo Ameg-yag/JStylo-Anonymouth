@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
@@ -15,8 +16,10 @@ import com.jgaap.generics.*;
 
 import weka.attributeSelection.InfoGainAttributeEval;
 import weka.classifiers.Evaluation;
+import weka.classifiers.functions.SMO;
 import weka.core.Attribute;
 import weka.core.Instances;
+import weka.core.converters.ArffLoader.ArffReader;
 import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.smu.tspell.wordnet.Synset;
@@ -89,7 +92,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	@Override
 	public Map<String,Map<String, Double>> classify(Instances trainingSet,
 			Instances testSet, List<Document> unknownDocs) {
-		Logger.logln(">>> classify started");
+		//Logger.logln(">>> classify started");
 		
 		/* ========
 		 * LEARNING
@@ -100,6 +103,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		trainAuthorData.clear();
 		testAuthorData.clear();
 		//TODO if we get weird results somewhere the two lines below might be the reason. Testing didn't reveal anything though
+				//this was added because authors weren't being cleared between one classification and the next ie different presses of the "run analysis" button. 
 		if (authors!=null)
 			authors.clear();
 		
@@ -170,7 +174,6 @@ public class WriteprintsAnalyzer extends Analyzer {
 		Logger.logln("Initializing word synonym count");
 		Map<Integer,Integer> wordsSynCount = calcSynonymCount(trainingSet,numFeatures);
 		
-		
 		/* =======
 		 * TESTING
 		 * =======
@@ -212,7 +215,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 			}
 			results.put(testData.authorName,testRes);
 		}
-		Logger.logln(">>> classify finished");
+		//Logger.logln(">>> classify finished");
 		return normalize(results);
 	}
 
@@ -242,7 +245,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	@Override
 	public Evaluation runCrossValidation(Instances data, int folds,
 			long randSeed) {
-		Logger.logln(">>> runCrossValidation started");
+		///Logger.logln(">>> runCrossValidation started");
 		// setup
 		data.setClass(data.attribute("authorName"));
 		
@@ -282,7 +285,80 @@ public class WriteprintsAnalyzer extends Analyzer {
 		double max;
 		String selected;
 		
-		for (int i = 0; i < folds; i ++) {
+		//TODO 
+		//initialize underlying evaluation object
+		Evaluation eval = null;
+		SMO smo = new SMO();
+		Instances allInstances = null;
+		Instances goodInstances = null;
+		Instances badInstances = null;
+		//start the ARFF string
+		String stub = "@RELATION <stub>\n";
+		stub+="@ATTRIBUTE value {";
+		for (int i=0; i<extractedAuthors.numValues();i++){
+			stub+=i+",";
+		}
+		stub=stub.substring(0,stub.length()-1); //removes the extra comma
+		stub+="}\n";
+		stub+=  "@ATTRIBUTE authors {";
+		
+		//Add all authors
+		for (int i=0; i<extractedAuthors.numValues();i++){
+			
+			if (extractedAuthors.value(i).split(" ").length==1)
+				stub+=extractedAuthors.value(i)+",";
+			else{
+				//Logger.logln("name with a space");
+				String[] temp = extractedAuthors.value(i).split(" ");
+				String compressedName="";
+				for (String s:temp){
+					compressedName+=s;
+				}
+				stub+=compressedName+",";
+			}
+		}
+		stub=stub.substring(0,stub.length()-1); //removes the extra comma
+		stub+="}\n";
+
+		stub+="@DATA\n";
+		
+		//Add the correct author/data pair
+		for (int i=0; i<extractedAuthors.numValues();i++){
+	 
+			stub+=i+","+extractedAuthors.value(i)+"\n";
+		}
+		
+		//add the incorrect Author/data pairs
+		for (int i=0; i<extractedAuthors.numValues();i++){
+			for (int j=0; j<extractedAuthors.numValues();j++){
+				if (i!=j){
+					stub+=j+","+extractedAuthors.value(i)+"\n";
+				}
+			}
+		}
+		
+
+		
+		try{
+			StringReader sReader = new StringReader(stub);
+			ArffReader aReader = new ArffReader(sReader);
+			allInstances = aReader.getData();
+			allInstances.setClassIndex(allInstances.numAttributes()-1);
+			Logger.logln("allInstances.size: "+allInstances.numInstances());
+			
+			goodInstances = new Instances(allInstances,0,extractedAuthors.numValues());
+			badInstances = new Instances(allInstances,extractedAuthors.numValues());
+			
+			smo.buildClassifier(goodInstances);
+			String[] ops = {"-M"};
+			//smo.setOptions(ops);
+			eval = new Evaluation(allInstances);
+			
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		
+		for (int i1 = 0; i1 < folds; i1 ++) {
 		//	Logger.logln("Running experiment " + (i + 1) + " out of " + folds);
 			
 			// initialize
@@ -290,14 +366,14 @@ public class WriteprintsAnalyzer extends Analyzer {
 			test.delete();
 			
 			// prepare training set
-			for (int j = i; j < i + half; j++) {
+			for (int j = i1; j < i1 + half; j++) {
 				tmp = foldData[j % folds];
 				tmpSize = tmp.numInstances();
 				for (int k = 0; k < tmpSize; k++)
 					train.add(tmp.instance(k));
 			}
 			// prepare test set
-			for (int j = i + half; j < i + folds; j++) {
+			for (int j = i1 + half; j < i1 + folds; j++) {
 				tmp = foldData[j % folds];
 				tmpSize = tmp.numInstances();
 				for (int k = 0; k < tmpSize; k++)
@@ -317,11 +393,44 @@ public class WriteprintsAnalyzer extends Analyzer {
 						selected = key;
 					}
 				}
-			//	Logger.logln(testInstAuthor + ": " + selected);
+
 				if (testInstAuthor.equals(selected)){
-					success++;
-					correct++;
+					int correctIndex = extractedAuthors.indexOfValue(testInstAuthor);
+					
+					try {
+						//Logger.logln("Attempting to add correct instance at: "+correctIndex);
+						//Logger.logln("\t "+"correctAuthor: "+testInstAuthor+" guess: "+selected);
+						eval.evaluateModelOnce(smo,goodInstances.instance(correctIndex));
+						//Logger.logln(eval.toMatrixString());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}				
+					
+					
+					
+				} else { //TODO train it with a bad instance
+					int correctIndex = extractedAuthors.indexOfValue(testInstAuthor);
+					int incorrectIndex = extractedAuthors.indexOfValue(selected);
+
+					try {
+
+						//Logger.logln("Attempting to add incorrect instance at: "+(correctIndex*extractedAuthors.numValues()+incorrectIndex));
+						//Logger.logln("\t "+"correctAuthor: "+testInstAuthor+" guess: "+selected);
+						int index = extractedAuthors.numValues()-1; //moves the index past the good instances
+						index+=extractedAuthors.numValues()*correctIndex; //moves to the correct "row"
+						index+=incorrectIndex; //moves to correct "column"
+						index-=correctIndex; //adjusts for the fact that there are numAuthors-1 cells per row in the bad instances part of the instance list					
+						if (incorrectIndex<correctIndex)
+							index+=1;
+						
+						eval.evaluateModelOnce(smo,allInstances.instance(index));
+						//Logger.logln(eval.toMatrixString());
+						
+					} catch (Exception e) {
+						e.printStackTrace();
+					}	
 				}
+				
 				confusionMatrix[extractedAuthors.indexOfValue(selected)][extractedAuthors.indexOfValue(testInstAuthor)]++;
 				count++;
 			}
@@ -330,15 +439,13 @@ public class WriteprintsAnalyzer extends Analyzer {
 			total += success;
 		}
 		total /= folds;
-		Logger.logln("========================");
-		Logger.logln("Total Accuracy: " + total);
-		Logger.logln(">>> runCrossValidation finished");
+	//	Logger.logln("========================");
+	//	Logger.logln("Total Accuracy: " + total);
+	//	Logger.logln(">>> runCrossValidation finished");
 		
 		
 		// Build and return results string
-		return null;
-		//TODO fix
-		//return resultsString(confusionMatrix,count,correct,total,extractedAuthors);
+		return eval;
 	}
 	
 	/**
