@@ -112,8 +112,8 @@ public class DriverTranslationsTab implements ActionListener
 			finalPanels[i] = new JPanel(layout);
 			finalPanels[i].setBackground(Color.LIGHT_GRAY);
 			finalPanels[i].add(languageLabels[i], "grow, h 20!, north");
-			finalPanels[i].add(translationButtons[i], "west, wmax 50, wmin 50");
-			finalPanels[i].add(translationTextAreas[i], "east, wmin 263");
+			finalPanels[i].add(translationButtons[i], "west, wmax 25, wmin 25"); //50
+			finalPanels[i].add(translationTextAreas[i], "east, wmin 288"); //263
 
 			// add final panel to the translations list panel
 			main.translationsHolderPanel.add(finalPanels[i], "grow");
@@ -184,6 +184,6 @@ public class DriverTranslationsTab implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		//Andrew's making method for this
-		DriverDocumentsTab.taggedDoc.removeAndReplace(DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).toString());
+		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).toString());
 	}	
 }

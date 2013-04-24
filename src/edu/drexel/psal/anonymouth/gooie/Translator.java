@@ -74,17 +74,17 @@ public class Translator implements Runnable
 			transThread.start(); // calls run below
 		}
 		// if there are sentences in the queue already
-//		else
-//		{
-//			//
-//			for (int i = 0; i < loaded.size(); i++)
-//			{
-//				if (currentSentNum + i == sentences.size()) // the + i makes the statement account for the loaded sentences that have been added.
-//					sentences.add(loaded.get(i));
-//				else
-//					sentences.add(currentSentNum, loaded.get(i)); // adds it directly after the sentence currently being processed
-//			}
-//		}
+		else
+		{
+			//
+			for (int i = 0; i < loaded.size(); i++)
+			{
+				if (currentSentNum + i == sentences.size()) // the + i makes the statement account for the loaded sentences that have been added.
+					sentences.add(loaded.get(i));
+				else
+					sentences.add(currentSentNum, loaded.get(i)); // adds it directly after the sentence currently being processed
+			}
+		}
 	}
 
 	@Override

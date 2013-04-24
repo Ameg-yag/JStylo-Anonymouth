@@ -129,6 +129,7 @@ public class DriverDocumentsTab {
 	protected static int charsRemoved = -1;
 	protected static String currentSentenceString = "";
 	protected static Object currentHighlight = null;
+	protected static int documentRefreshed = 0;
 	
 	
 	protected static void signalTargetsSelected(GUIMain main, boolean goodToGo){
@@ -196,7 +197,10 @@ public class DriverDocumentsTab {
 	 */
 	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith){
 			taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
-			main.documentPane.setText(taggedDoc.getUntaggedDocument(false));
+			System.out.println("FIND ME: " + taggedDoc.getUntaggedDocument());
+			main.documentPane.setText(taggedDoc.getUntaggedDocument());
+			documentRefreshed = 2;
+			System.out.println("FIND ME: " + main.documentPane.getText());
 	}
 	
 	/**
@@ -302,7 +306,9 @@ public class DriverDocumentsTab {
 			
 			@Override
 			public void caretUpdate(CaretEvent e) {
-				if (taggedDoc != null){
+				System.out.println("FIND ME2: " + main.documentPane.getText().length());
+				System.out.println("DOCUMENTREFRESHED: " + documentRefreshed);
+				if (taggedDoc != null && documentRefreshed <= 0) {
 					startSelection = e.getDot();
 					endSelection = e.getMark();
 					currentCaretPosition = startSelection;
@@ -345,9 +351,6 @@ public class DriverDocumentsTab {
 							//moveHighlight(main,selectedSentIndexRange,false);
 							charsRemoved = 0;
 						}
-//						System.out.printf("selectedSentIndexRange: %d - %d\n",selectedSentIndexRange[0], selectedSentIndexRange[1]);
-						//currentSentenceString = main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]+1);
-//						System.out.println("currentSentenceString: "+currentSentenceString);
 					}
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
@@ -360,34 +363,29 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.documentPane.getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
 						System.out.println("TEST: \"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged() + "\" and \"" + currentSentenceString + "\"");
+						
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
-							taggedDoc.removeAndReplace(lastSentNum, currentSentenceString);
+							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString);
 							System.out.println("THIS RAN");
 						}
+						
 						System.out.println("OUTPUT1: " + "\"" + lastSentNum + "\"   \"" + currentSentenceString + "\"");
 						selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 					}
 					selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 					selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
-//					System.out.printf("Moving highlight to range %d-%d\n", selectionInfo[1], selectionInfo[2]);
 					//todo main.documentPane.setText(taggedDoc.getUntaggedDocument(false));
 					if(!inRange) {
-						//UNCOMMENT
-//						main.GUITranslator.isSentenceChange(currentSentenceString);
-//						doTranslations(main.GUITranslator.sentences, main);
 						moveHighlight(main,selectedSentIndexRange,true);
 					} else
 						moveHighlight(main,selectedSentIndexRange,false);
 					
-//					System.out.printf("Current Sentence Number %d\n", currentSentNum);
-//					System.out.println("Current sentence string " + currentSentenceString);
 					sentToTranslate = currentSentNum;
-//					System.out.println("taggedDoc.getSentenceNumber " + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged());
-//					System.out.println("SHOWING TRANSLATIONS");
 					System.out.println("OUTPUT2: \"" + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged() + "\"   \"" + sentToTranslate + "\"");
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));			
-				}
+				} else
+					documentRefreshed -= 1;
 			}
 		});
 		
