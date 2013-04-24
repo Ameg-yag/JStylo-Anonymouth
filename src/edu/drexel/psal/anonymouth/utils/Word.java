@@ -76,11 +76,11 @@ public class Word implements Comparable<Word>, Serializable {
 		double numFeatures = wordLevelFeaturesFound.length();
 		int i;
 		Attribute currentAttrib;
-		int totalFeatureOccurrences = 0;
-		for (i = 0; i < numFeatures; i++)
-			totalFeatureOccurrences += wordLevelFeaturesFound.references.get(i).value;
-		if (totalFeatureOccurrences == 0)
-				totalFeatureOccurrences = 1; // can't divide by zero..
+//		int totalFeatureOccurrences = 0;
+//		for (i = 0; i < numFeatures; i++)
+//			totalFeatureOccurrences += wordLevelFeaturesFound.references.get(i).value;
+//		if (totalFeatureOccurrences == 0)
+//				totalFeatureOccurrences = 1; // can't divide by zero..
 		for (i = 0;i<numFeatures;i++){
 			Reference tempFeature = wordLevelFeaturesFound.references.get(i);
 			currentAttrib = DataAnalyzer.topAttributes[tempFeature.index];

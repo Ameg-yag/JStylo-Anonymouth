@@ -274,10 +274,10 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 		int i;
 		Attribute currentAttrib;
 		int totalFeatureOccurrences = 0;
-		for (i = 0; i < numFeatures; i++)
-			totalFeatureOccurrences += sentenceLevelFeaturesFound.references.get(i).value;
-		if (totalFeatureOccurrences == 0)
-				totalFeatureOccurrences = 1; // can't divide by zero..
+//		for (i = 0; i < numFeatures; i++)
+//			totalFeatureOccurrences += sentenceLevelFeaturesFound.references.get(i).value;
+//		if (totalFeatureOccurrences == 0)
+//				totalFeatureOccurrences = 1; // can't divide by zero..
 		// Compute each "sentence level" feature's contribution to the anonymity index
 		for (i=0;i<numFeatures;i++){
 			Reference tempFeature = sentenceLevelFeaturesFound.references.get(i);
