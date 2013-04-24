@@ -92,7 +92,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	@Override
 	public Map<String,Map<String, Double>> classify(Instances trainingSet,
 			Instances testSet, List<Document> unknownDocs) {
-		//Logger.logln(">>> classify started");
+		Logger.logln(">>> classify started");
 		
 		/* ========
 		 * LEARNING
@@ -215,7 +215,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 			}
 			results.put(testData.authorName,testRes);
 		}
-		//Logger.logln(">>> classify finished");
+		Logger.logln(">>> classify finished");
 		return normalize(results);
 	}
 
@@ -245,7 +245,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 	@Override
 	public Evaluation runCrossValidation(Instances data, int folds,
 			long randSeed) {
-		///Logger.logln(">>> runCrossValidation started");
+		Logger.logln(">>> runCrossValidation started");
 		// setup
 		data.setClass(data.attribute("authorName"));
 		
@@ -255,14 +255,6 @@ public class WriteprintsAnalyzer extends Analyzer {
 		randData.stratify(folds);
 		
 		Attribute extractedAuthors = data.instance(0).attribute(data.instance(0).classIndex());
-		//Logger.logln("extractedAuthors: "+extractedAuthors.toString());
-		int[][] confusionMatrix = new int[extractedAuthors.numValues()][extractedAuthors.numValues()];	//keeps track of what documents were predicted to be which author
-		//initialize confusion matrix
-		for (int i=0; i< extractedAuthors.numValues(); i++){
-			for (int j=0; j<extractedAuthors.numValues(); j++){
-				confusionMatrix[i][j]=0;
-			}
-		}
 		
 		// prepare folds
 		Instances[] foldData = new Instances[folds];
@@ -278,20 +270,15 @@ public class WriteprintsAnalyzer extends Analyzer {
 		int tmpSize;
 		Map<String,Map<String,Double>> results = null;
 		Map<String,Double> instResults;
-		int count = 0;
-		double success = 0;
-		int correct = 0;
-		double total = 0;
 		double max;
 		String selected;
 		
-		//TODO 
 		//initialize underlying evaluation object
 		Evaluation eval = null;
 		SMO smo = new SMO();
 		Instances allInstances = null;
 		Instances goodInstances = null;
-		Instances badInstances = null;
+		
 		//start the ARFF string
 		String stub = "@RELATION <stub>\n";
 		stub+="@ATTRIBUTE value {";
@@ -304,18 +291,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		
 		//Add all authors
 		for (int i=0; i<extractedAuthors.numValues();i++){
-			
-			if (extractedAuthors.value(i).split(" ").length==1)
-				stub+=extractedAuthors.value(i)+",";
-			else{
-				//Logger.logln("name with a space");
-				String[] temp = extractedAuthors.value(i).split(" ");
-				String compressedName="";
-				for (String s:temp){
-					compressedName+=s;
-				}
-				stub+=compressedName+",";
-			}
+			stub+=extractedAuthors.value(i)+",";
 		}
 		stub=stub.substring(0,stub.length()-1); //removes the extra comma
 		stub+="}\n";
@@ -337,43 +313,37 @@ public class WriteprintsAnalyzer extends Analyzer {
 			}
 		}
 		
-
-		
 		try{
 			StringReader sReader = new StringReader(stub);
 			ArffReader aReader = new ArffReader(sReader);
 			allInstances = aReader.getData();
 			allInstances.setClassIndex(allInstances.numAttributes()-1);
-			Logger.logln("allInstances.size: "+allInstances.numInstances());
 			
 			goodInstances = new Instances(allInstances,0,extractedAuthors.numValues());
-			badInstances = new Instances(allInstances,extractedAuthors.numValues());
 			
 			smo.buildClassifier(goodInstances);
-			String[] ops = {"-M"};
-			//smo.setOptions(ops);
 			eval = new Evaluation(allInstances);
 			
 		} catch (Exception e){
 			e.printStackTrace();
 		}
 		
-		for (int i1 = 0; i1 < folds; i1 ++) {
-		//	Logger.logln("Running experiment " + (i + 1) + " out of " + folds);
+		for (int i = 0; i < folds; i ++) {
+			Logger.logln("Running experiment " + (i + 1) + " out of " + folds);
 			
 			// initialize
 			train.delete();
 			test.delete();
 			
 			// prepare training set
-			for (int j = i1; j < i1 + half; j++) {
+			for (int j = i; j < i + half; j++) {
 				tmp = foldData[j % folds];
 				tmpSize = tmp.numInstances();
 				for (int k = 0; k < tmpSize; k++)
 					train.add(tmp.instance(k));
 			}
 			// prepare test set
-			for (int j = i1 + half; j < i1 + folds; j++) {
+			for (int j = i + half; j < i + folds; j++) {
 				tmp = foldData[j % folds];
 				tmpSize = tmp.numInstances();
 				for (int k = 0; k < tmpSize; k++)
@@ -382,7 +352,6 @@ public class WriteprintsAnalyzer extends Analyzer {
 			
 			// classify
 			results = classify(train, test, null);
-			success = 0;
 			selected = null;
 			for (String testInstAuthor: results.keySet()) {
 				max = Double.NEGATIVE_INFINITY;
@@ -394,7 +363,9 @@ public class WriteprintsAnalyzer extends Analyzer {
 					}
 				}
 
-				if (testInstAuthor.equals(selected)){
+				/* Loggers below are useful for watching the classification step-by-step*/
+				
+				if (testInstAuthor.equals(selected)){ //train the eval with a food instance
 					int correctIndex = extractedAuthors.indexOfValue(testInstAuthor);
 					
 					try {
@@ -404,11 +375,9 @@ public class WriteprintsAnalyzer extends Analyzer {
 						//Logger.logln(eval.toMatrixString());
 					} catch (Exception e) {
 						e.printStackTrace();
-					}				
-					
-					
-					
-				} else { //TODO train it with a bad instance
+					}								
+									
+				} else { //train it with a bad instance
 					int correctIndex = extractedAuthors.indexOfValue(testInstAuthor);
 					int incorrectIndex = extractedAuthors.indexOfValue(selected);
 
@@ -416,6 +385,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 
 						//Logger.logln("Attempting to add incorrect instance at: "+(correctIndex*extractedAuthors.numValues()+incorrectIndex));
 						//Logger.logln("\t "+"correctAuthor: "+testInstAuthor+" guess: "+selected);
+						
 						int index = extractedAuthors.numValues()-1; //moves the index past the good instances
 						index+=extractedAuthors.numValues()*correctIndex; //moves to the correct "row"
 						index+=incorrectIndex; //moves to correct "column"
@@ -429,188 +399,11 @@ public class WriteprintsAnalyzer extends Analyzer {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}	
-				}
-				
-				confusionMatrix[extractedAuthors.indexOfValue(selected)][extractedAuthors.indexOfValue(testInstAuthor)]++;
-				count++;
+				}		
 			}
-			success = 100 * success / results.size();
-			//Logger.logln(String.format("- Accuracy for experiment %d: %.2f\n", (i + 1), success));
-			total += success;
-		}
-		total /= folds;
-	//	Logger.logln("========================");
-	//	Logger.logln("Total Accuracy: " + total);
-	//	Logger.logln(">>> runCrossValidation finished");
-		
-		
+		}			
 		// Build and return results string
 		return eval;
-	}
-	
-	/**
-	 * Builds the result/output string and calculates statistics based on the classification
-	 * 
-	 * @param confusionMatrix matrix of which documents were credited to which authors
-	 * @param count number of instances
-	 * @param correct number of instances tested correctly
-	 * @param total percentage correct
-	 * @param extractedAuthors Attribute containing all authors
-	 * @return the output string to be appended to the JStylo content pane on the analysis tab.
-	 */
-	protected String resultsString(int[][] confusionMatrix,int count,int correct,double total,Attribute extractedAuthors){
-		Logger.logln("Building results string...");
-		String resultsString = "";
-		
-		//Summary section
-		resultsString=" === Summary === \n\n";															
-		resultsString+=String.format("Correctly Classified Instances          %d               %.4f%%\n",correct,total);
-		resultsString+=String.format("Incorrectly Classified Instances        %d               %.4f%%\n",count-correct,(100.0-total));
-		
-		//formulas I don't know how to calculate yet, will add them in once the abstraction is finished/mostly finished
-		resultsString+=String.format("Kappa statistic                         %.4f    (Not yet implemented)\n",0.0); 
-		resultsString+=String.format("Mean absolute error                     %.4f    (Not yet implemented)\n",0.0);
-		resultsString+=String.format("Root mean squared error                 %.4f    (Not yet implemented)\n",0.0);
-		resultsString+=String.format("Relative absolute error                 %.4f %%  (Not yet implemented)\n",0.0);
-		resultsString+=String.format("Root relative squared error             %.4f %%  (Not yet implemented)\n",0.0);  
-		 
-		
-		resultsString+=String.format("Total number of Instances               %d\n",count);
-		
-		//Building author labels (used to keep tables relatively even in size
-		String[] labels = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
-		String[] authorLabels = new String[extractedAuthors.numValues()];
-		String labelString = "";
-		int authorCount = 0;
-		for (int i=0; i<extractedAuthors.numValues();i++){
-			String label = "";
-			if (i<26){
-				label=labels[i];
-			}else{
-				//not the most elegant solution, but it works well enough. will only produce labels like "aa","cccccc" and not "ababab"
-				//in most cases this probably isn't even necessary, and in those that it is, the table will probably be really distorted no matter what
-				for (int j=0; j<authorCount/26;j++){
-					label+=labels[j];
-				}
-			}
-			authorLabels[i]=label;
-			labelString+="  "+label;
-		}
-		
-		//Detailed Accuracy section
-		resultsString+=String.format("\n === Detailed Accuracy By Class === \n\n");
-		resultsString+=String.format("      TP Rate   FP Rate   Precision   Recall   F-Measure   ROC Area  Class\n");
-		for (int i = 0; i<extractedAuthors.numValues(); i++){
-			double trueP = truePositive(confusionMatrix,i,count);
-			double falseP = falsePositive(confusionMatrix,i,count);
-			double precision = precision(trueP,falseP);
-			double recall = trueP; 						//not sure about this one, TODO check with Ariel once everything's working
-			double fMeasure = fMeasure(precision,recall);
-			double AUROC = AUROC();						//same here
-			resultsString+=String.format("       %.3f     %.3f      %.3f      %.3f     %.3f       NYI      %s\n",trueP,falseP,precision,recall,fMeasure,extractedAuthors.value(i));
-		}
-		//TODO use arraylists or something to keep track of all trueP, falseP, etc. and then take a weighted average at the end.
-		
-		//Confusion Matrix
-		resultsString+="\n === Confusion Matrix ===\n\n";
-		resultsString+=labelString;
-		resultsString+="   <--classified as\n";
-		for (int i=0; i<confusionMatrix.length;i++){
-			for (int j=0; j<confusionMatrix.length;j++){
-				if (confusionMatrix[i][j]<10)
-					resultsString+="  "+confusionMatrix[i][j];
-				else
-					resultsString+=" "+confusionMatrix[i][j];
-			}
-			resultsString+=" |  "+authorLabels[i]+" = "+extractedAuthors.value(i)+"\n";
-		}
-		
-		return resultsString;
-	}
-	
-	/* ================
-	 * Statistics generation
-	 * ================
-	 */
-	/**
-	 * Calculates the truePositive rate for an author
-	 * 
-	 * @param confusionMatrix
-	 * @param index
-	 * @param count
-	 * @return true[index]/(true[index]+false[index]) where index is a row of the confusion matrix
-	 */
-	protected double truePositive(int[][] confusionMatrix,int index, int count){
-		
-		int correct = 0;
-		int incorrect = 0;
-		double answer = 0;
-		for (int i=0; i<confusionMatrix.length;i++){
-			if (index==i){
-				correct = confusionMatrix[index][i];
-			} else {
-				incorrect+= confusionMatrix[index][i];
-			}
-		}
-		
-		if (incorrect==0){
-			answer = 1.0; //got everything right
-		} else {
-			answer = (double)correct/((double)incorrect+(double)correct);
-		}
-		
-		return answer;
-	}
-	
-	/**
-	 * Calculates the falsePositive rate for an author
-	 * 
-	 * @param confusionMatrix
-	 * @param index
-	 * @param count
-	 * @return false[index]/(true[index]+false[index]) where index is a column of the confusion matrix
-	 */
-	protected double falsePositive(int[][] confusionMatrix,int index, int count){
-		
-		int correct = 0;
-		int incorrect = 0;
-		double answer = 0;
-		for (int i=0; i<confusionMatrix.length;i++){
-			if (index==i){
-				correct = confusionMatrix[i][index];
-			} else {
-				incorrect+= confusionMatrix[i][index];
-			}
-		}
-		
-		if (incorrect==0){
-			answer = 0.0; //got everything right
-		} else {
-			answer = (double)incorrect/((double)incorrect+(double)correct);
-		}		
-		return answer;
-	}
-	
-	
-	/**
-	 * Calculates the precision
-	 * 
-	 * @param truePositive number of correctly classified documents for this author
-	 * @param falsePositive number of documents incorrectly assigned to this author
-	 * @return truePositive/(truePositive+falsePositive)
-	 */
-	protected double precision(double truePositive,double falsePositive){
-		return truePositive/(truePositive+falsePositive);
-	}
-	
-	/**
-	 * Calculates the area under the Reciever Operating Characteristic (ROC) curve
-	 * TODO need to actually implement this
-	 * 
-	 * @return
-	 */
-	protected double AUROC(){
-		return 0.0;
 	}
 	
 	
@@ -931,7 +724,7 @@ public class WriteprintsAnalyzer extends Analyzer {
 		return sum;
 	}
 	
-	//the analyzer itself is the heavy-lifter
+	//In this case, the analyzer itself is doing the heavy lifting
 	@Override
 	public String getName(){
 		return "edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer";

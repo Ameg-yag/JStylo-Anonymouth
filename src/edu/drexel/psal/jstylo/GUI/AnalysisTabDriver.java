@@ -276,7 +276,6 @@ public class AnalysisTabDriver {
 				boolean selected = main.analysisTrainCVJRadioButton.isSelected();
 				if (selected){
 					main.analysisKFoldJTextField.setEnabled(true);
-					//main.analysisNThreadJTextField.setEnabled(true);
 				}			
 			}		
 		});
@@ -290,7 +289,6 @@ public class AnalysisTabDriver {
 				boolean selected = main.analysisClassTestDocsJRadioButton.isSelected();
 				if (selected){
 					main.analysisKFoldJTextField.setEnabled(false);
-					//main.analysisNThreadJTextField.setEnabled(false);
 				}			
 			}		
 		});
@@ -375,8 +373,8 @@ public class AnalysisTabDriver {
 				lockUnlock(main, true);
 				
 				// start analysis thread
-				//main.at = AnalyzerTypeEnum.WRITEPRINTS_ANALYZER;
-				main.wib.numCalcThreads=Integer.parseInt(main.analysisNThreadJTextField.getText());
+				//Logger.logln("CalcuThread value in field: "+Integer.parseInt(main.analysisNThreadJTextField.getText()));
+				main.wib.setNumCalcThreads(Integer.parseInt(main.analysisNThreadJTextField.getText()));
 				main.analysisThread = new Thread(new RunAnalysisThread(main));
 				main.analysisThread.start();
 			}

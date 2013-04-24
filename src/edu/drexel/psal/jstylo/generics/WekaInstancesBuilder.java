@@ -33,7 +33,7 @@ public class WekaInstancesBuilder {
 	/**
 	 * Determines the number of threads to be used for features extraction.
 	 */
-	public int numCalcThreads = 8;
+	public int numCalcThreads = 4;
 	
 	/**
 	 * Determines whether to use a set of SparseInstance or Instance.
@@ -232,16 +232,20 @@ public class WekaInstancesBuilder {
 		// create event sets for known documents
 		known = new ArrayList<List<EventSet>>(knownDocs.size());
 		int knownDocsSize = knownDocs.size();
+		
 		int numCalcThreadsToUse = 1;
+		
+		//TODO have it read numCalcThreads from file here
+		
 		if (numCalcThreads>knownDocsSize){
 			numCalcThreadsToUse=knownDocsSize;
-		} else {
+		} else if (numCalcThreads>1){
 			numCalcThreadsToUse=numCalcThreads;
 		}
-		Logger.logln("Using N calc threads: "+numCalcThreads);
-	/*	int numCalcThreadsToUse = numCalcThreads > knownDocsSize ?
-				1 : numCalcThreads;*/
+		
+		Logger.logln("Using N calc threads: "+numCalcThreadsToUse);
 		int div = knownDocsSize / numCalcThreadsToUse;
+		
 		CalcThread[] calcThreads = new CalcThread[numCalcThreadsToUse];
 		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
 			calcThreads[thread] = new CalcThread(
@@ -1006,7 +1010,7 @@ public class WekaInstancesBuilder {
 	 * Sets the number of calculation threads to use for feature extraction.
 	 * @param numCalcThreads number of calculation threads to use.
 	 */
-	public void setNumCalcThreads(int numCalcThreads)
+	public void setNumCalcThreads(int numCalcThreads)		//TODO perhaps here have it write to file what the calc thread is
 	{
 		this.numCalcThreads = numCalcThreads;
 	}
