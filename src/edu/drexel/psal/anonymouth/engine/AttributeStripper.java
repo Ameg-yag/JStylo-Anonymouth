@@ -24,23 +24,19 @@ public class AttributeStripper {
 	 *  stripped input string
 	 */
 	public static String strip(String input){
-		String output;
+		String output = "";
 		Matcher histTest = bracketPat.matcher(input);
-		System.out.println("INPUT TO ATTRIBUTE STRIPPER: "+input);
-		System.out.println(histTest.find());
-		if(histTest.find() == true){
+
+		if(histTest.find() == true) {
 			Matcher m = someString.matcher(input);
 			m.find();
 			output = input.substring(m.start()+1,input.indexOf('}'));
 		}
 		else {
-//			try {
-			output = input.substring(input.indexOf("'")+1,input.indexOf("{"));
-//			} catch (StringIndexOutOfBoundsException e) {
-//				Logger.logln("Attribute failed to fit with the indexing: " + input);
-//			}
+			if (!input.contains("authorName"))
+				output = input.substring(input.indexOf("'")+1,input.indexOf("{"));
 		}
-		System.out.println(output);
+
 		return output;
 	}
 

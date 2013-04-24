@@ -291,9 +291,7 @@ public class DriverDocumentsTab {
 			
 			@Override
 			public void caretUpdate(CaretEvent e) {
-//				System.out.println("HELLO");
 				if (taggedDoc != null){
-//					System.out.println("ENTERED IF")
 					startSelection = e.getDot();
 					endSelection = e.getMark();
 					currentCaretPosition = startSelection;
@@ -343,6 +341,7 @@ public class DriverDocumentsTab {
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
 					
+					//LEFT OFF HERE
 					lastSentNum = currentSentNum;
 					currentSentNum = selectionInfo[0];
 					
