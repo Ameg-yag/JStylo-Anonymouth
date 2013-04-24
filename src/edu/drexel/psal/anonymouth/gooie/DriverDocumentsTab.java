@@ -348,8 +348,13 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.documentPane.getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
-						taggedDoc.removeAndReplace(lastSentNum, currentSentenceString);
-						System.out.println("OUTPUT1: " + lastSentNum + "   " + currentSentenceString);
+						System.out.println("TEST: \"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged() + "\" and \"" + currentSentenceString + "\"");
+						//If the sentence didn't change, we don't have to remove and replace it
+						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
+							taggedDoc.removeAndReplace(lastSentNum, currentSentenceString);
+							System.out.println("THIS RAN");
+						}
+						System.out.println("OUTPUT1: " + "\"" + lastSentNum + "\"   \"" + currentSentenceString + "\"");
 						selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 					}
 					selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
@@ -369,7 +374,7 @@ public class DriverDocumentsTab {
 					sentToTranslate = currentSentNum;
 //					System.out.println("taggedDoc.getSentenceNumber " + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged());
 //					System.out.println("SHOWING TRANSLATIONS");
-					System.out.println("OUTPUT2: " + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged() + "   " + sentToTranslate);
+					System.out.println("OUTPUT2: \"" + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged() + "\"   \"" + sentToTranslate + "\"");
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));			
 				}
 			}
