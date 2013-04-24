@@ -658,24 +658,6 @@ public class AnalysisTabDriver {
 			
 			contentJTextArea.setText(content);
 
-			// feature extraction
-			// ==================
-			
-			// pre-processing
-			//	TODO uncomment and fix this section note: uncommenting breaks both cross-val and classify/test
-		//	if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER) {
-			/*
-				Logger.logln("Applying analyzer feature-extraction pre-processing procedures...");
-				content += getTimestamp() + "Applying analyzer feature-extraction pre-processing procedures...\n";
-				
-				// move all test documents to be training documents
-				trainingDocs.addAll(testDocs);
-				testDocs = new ArrayList<Document>();
-				
-				content += getTimestamp() + "done!\n\n";*/
-		//	}
-			
-			
 			// training set
 			Logger.logln("Extracting features from training corpus...");
 			
@@ -740,29 +722,6 @@ public class AnalysisTabDriver {
 					updateResultsView();
 				}
 			}
-
-			// post processing
-			// TODO uncomment and fix this section note: uncommenting breaks both cross-val and classify/test
-		//	if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER &&
-		//			main.analysisClassTestDocsJRadioButton.isSelected()) {
-		/*		
-				Logger.logln("Applying analyzer feature-extraction post-processing procedures...");
-				content += getTimestamp() + "Applying analyzer feature-extraction post-processing procedures...\n";
-				
-				// put test instances back in the test set
-				Instances trainingSet = main.wib.getTrainingSet();
-				Instances testSet = new Instances(
-						trainingSet,
-						numTrainDocs,
-						numTestDocs);
-				main.wib.setTestSet(testSet);
-				int total = numTrainDocs + numTestDocs;
-				for (int i = total - 1; i >= numTrainDocs; i--)
-					trainingSet.delete(i);
-				
-				content += getTimestamp() + "done!\n\n"; */
-		//	}
-			
 			
 			// running InfoGain
 			// ================
@@ -859,7 +818,6 @@ public class AnalysisTabDriver {
 					updateResultsView();
 					
 					// run
-					//TODO change this to take relax evals
 					Object results = main.analysisDriver.runCrossValidation(main.wib.getTrainingSet(),Integer.parseInt(main.analysisKFoldJTextField.getText()),0,Integer.parseInt(main.analysisRelaxJTextField.getText())); 
 										
 					content += getTimestamp()+" done!\n\n";

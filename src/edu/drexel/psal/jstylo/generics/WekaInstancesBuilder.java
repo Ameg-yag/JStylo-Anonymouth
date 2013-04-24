@@ -235,7 +235,7 @@ public class WekaInstancesBuilder {
 		
 		int numCalcThreadsToUse = 1;
 		
-		//TODO have it read numCalcThreads from file here
+		numCalcThreads = getNumCalcThreads();
 		
 		if (numCalcThreads>knownDocsSize){
 			numCalcThreadsToUse=knownDocsSize;
@@ -1043,7 +1043,7 @@ public class WekaInstancesBuilder {
 	 */
 	public int getNumCalcThreads()
 	{
-		return numCalcThreads;
+		return numCalcThreads;	//TODO have it read from the file here
 	}
 	
 	/**
