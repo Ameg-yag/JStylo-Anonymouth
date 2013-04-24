@@ -616,30 +616,28 @@ public class GUIMain extends javax.swing.JFrame  {
 				ps = new ProblemSet(problemSetPath);
 				GUIUpdateInterface.updateProblemSet(this);
 			} catch (Exception exc) {
-				Logger.logln(NAME+"Failed loading "+problemSetPath, LogOut.STDERR);
-				Logger.logln(NAME+exc.toString(),LogOut.STDERR);
-				exc.printStackTrace();
+				Logger.logln(NAME+"Failed loading problemSet path \""+problemSetPath+"\"", LogOut.STDOUT);
 			}
 		}
-		
-		if (PropertiesUtil.prop.getProperty("recentFeat").toString().equals("null")) {
-			Logger.logln(NAME+"RecentFeat not set, default value used", LogOut.STDOUT);
-			featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
-			PPSP.featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
-			cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
-			GUIUpdateInterface.updateFeatureSetView(this);
-			GUIUpdateInterface.updateFeatPrepColor(this);
-		} else {
+
+		try {
 			featuresSetJComboBox.setSelectedItem(PropertiesUtil.prop.getProperty("recentFeat"));
 			PPSP.featuresSetJComboBox.setSelectedItem(PropertiesUtil.prop.getProperty("recentFeat"));
 			cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
 			GUIUpdateInterface.updateFeatureSetView(this);
 			GUIUpdateInterface.updateFeatPrepColor(this);
+		} catch (Exception e) {
+			PropertiesUtil.setRecentFeat("WritePrints (Limited)");
+			Logger.logln(NAME+"RecentFeat not set, default value \"WritePrints (Limited)\" used", LogOut.STDOUT);
+			featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
+			PPSP.featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
+			cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
+			GUIUpdateInterface.updateFeatureSetView(this);
+			GUIUpdateInterface.updateFeatPrepColor(this);
 		}
 
-		if (PropertiesUtil.prop.getProperty("recentClass").toString().equals("null")) {
-			Logger.logln(NAME+"RecentClass not set, default value used", LogOut.STDOUT);
-			classChoice.setSelectedItem("SMO");
+		try {
+			classChoice.setSelectedItem(PropertiesUtil.prop.getProperty("recentClass"));
 			DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
 			DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
 			classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
@@ -648,8 +646,10 @@ public class GUIMain extends javax.swing.JFrame  {
 			GUIUpdateInterface.updateClassList(this);
 			GUIUpdateInterface.updateClassPrepColor(this);
 			DriverPreProcessTabClassifiers.tmpClassifier = null;
-		} else {
-			classChoice.setSelectedItem(PropertiesUtil.prop.getProperty("recentClass"));
+		} catch (Exception e) {
+			PropertiesUtil.setRecentClass("SMO");
+			Logger.logln(NAME+"RecentClass not set, default value used", LogOut.STDOUT);
+			classChoice.setSelectedItem("SMO");
 			DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
 			DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
 			classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);

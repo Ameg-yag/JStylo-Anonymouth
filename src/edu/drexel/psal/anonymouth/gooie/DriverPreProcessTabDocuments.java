@@ -172,7 +172,7 @@ public class DriverPreProcessTabDocuments {
 							Logger.logln(NAME+"Trying to load problem set at: " + path);
 							try {
 								main.ps = new ProblemSet(path);
-								main.classComboBox.setSelectedItem(PropertiesUtil.prop.getProperty("recentClass"));
+								main.classChoice.setSelectedItem(PropertiesUtil.prop.getProperty("recentClass"));
 								main.featuresSetJComboBox.setSelectedItem(PropertiesUtil.prop.getProperty("recentFeat"));
 								GUIUpdateInterface.updateProblemSet(main);
 							} catch (Exception exc) {

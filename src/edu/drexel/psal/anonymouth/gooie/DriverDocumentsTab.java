@@ -341,7 +341,6 @@ public class DriverDocumentsTab {
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
 					
-					//LEFT OFF HERE
 					lastSentNum = currentSentNum;
 					currentSentNum = selectionInfo[0];
 					
@@ -350,6 +349,7 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.documentPane.getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
 						taggedDoc.removeAndReplace(lastSentNum, currentSentenceString);
+						System.out.println("OUTPUT1: " + lastSentNum + "   " + currentSentenceString);
 						selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 					}
 					selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
@@ -369,6 +369,7 @@ public class DriverDocumentsTab {
 					sentToTranslate = currentSentNum;
 //					System.out.println("taggedDoc.getSentenceNumber " + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged());
 //					System.out.println("SHOWING TRANSLATIONS");
+					System.out.println("OUTPUT2: " + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged() + "   " + sentToTranslate);
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));			
 				}
 			}
