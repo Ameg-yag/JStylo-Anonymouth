@@ -71,9 +71,6 @@ public class DriverTranslationsTab implements ActionListener
 		languageLabels = new JLabel[numTranslations];
 		finalPanels = new JPanel[numTranslations];
 		translationButtons = new JButton[numTranslations];
-
-		System.out.println("OUTPUT: " + sentence.getUntagged());
-		System.out.println("OUTPUT: " + numTranslations);
 		
 		// for each translation, initialize a title label, and a text area that will hold the translation
 		// then add those two to a final panel, which will be added to the translation list panel.
@@ -82,7 +79,6 @@ public class DriverTranslationsTab implements ActionListener
 			// set up title label
 			languageLabels[i] = new JLabel(translationNames.get(i));
 			translationsMap.put(translationNames.get(i), translations.get(i).getUntagged().trim());
-			System.out.println("OUTPUT: " + translationNames.get(i));
 			languageLabels[i].setFont(main.titleFont);
 			languageLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
 			languageLabels[i].setBorder(main.rlborder);
@@ -107,16 +103,16 @@ public class DriverTranslationsTab implements ActionListener
 			// set up final panel, which will hold the previous two components
 			MigLayout layout = new MigLayout(
 					"wrap, ins 0",
-					"fill, grow",
-					"[20]0[fill, grow]");
+					"",
+					"");
 			finalPanels[i] = new JPanel(layout);
-			finalPanels[i].setBackground(Color.LIGHT_GRAY);
+//			finalPanels[i].setBackground(Color.LIGHT_GRAY);
 			finalPanels[i].add(languageLabels[i], "grow, h 20!, north");
 			finalPanels[i].add(translationButtons[i], "west, wmax 25, wmin 25"); //50
-			finalPanels[i].add(translationTextAreas[i], "east, wmin 288"); //263
+			finalPanels[i].add(translationTextAreas[i], "east, wmin 288, wmax 288"); //263 //288
 
 			// add final panel to the translations list panel
-			main.translationsHolderPanel.add(finalPanels[i], "grow");
+			main.translationsHolderPanel.add(finalPanels[i], "");
 		}	
 		// revalidates and repaints so the GUI updates
 		main.translationsHolderPanel.revalidate();

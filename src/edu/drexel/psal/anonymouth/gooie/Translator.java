@@ -14,6 +14,7 @@ public class Translator implements Runnable
 	private ArrayList<TaggedSentence> sentences = new ArrayList<TaggedSentence>(); // essentially the priority queue
 	private ArrayList<Long> timeStamps = new ArrayList<Long>(); 
 	private GUIMain main;
+	private boolean firstRun = true;
 	private int currentSentNum = 1;
 	private int currentLangNum = 1;
 
@@ -63,8 +64,11 @@ public class Translator implements Runnable
 //		}
 		
 		// if there are no sentences currently being translated
-		if (sentences.size() == 0)
+		System.out.println("DEBUGGING: OUTSIDE ELSE");
+		if (firstRun)
 		{
+			System.out.println("DEBUGGING: FIRST RUN");
+			firstRun = false;
 			// add the given sentences to the queue
 			for (int i = 0; i < loaded.size(); i++)
 				sentences.add(loaded.get(i));
@@ -76,13 +80,16 @@ public class Translator implements Runnable
 		// if there are sentences in the queue already
 		else
 		{
+			System.out.println("DEBUGGING: PASSED ELSE " + loaded.size());
 			//
 			for (int i = 0; i < loaded.size(); i++)
 			{
+				System.out.println("DEBUGGING: IN FOR LOOP");
 				if (currentSentNum + i == sentences.size()) // the + i makes the statement account for the loaded sentences that have been added.
 					sentences.add(loaded.get(i));
-				else
+				else {
 					sentences.add(currentSentNum, loaded.get(i)); // adds it directly after the sentence currently being processed
+				}
 			}
 		}
 	}

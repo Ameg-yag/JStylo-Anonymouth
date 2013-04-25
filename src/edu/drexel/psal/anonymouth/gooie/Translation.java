@@ -20,23 +20,24 @@ public class Translation {
 	/*
 	 * ALTERNATE CLIENT ID/SECRET COMBOS (NEW / UNUSED) 
 	 * 
-	 * private final static String CLIENT_SECRET = "sheetal57";
-	 * private final static String CLIENT_SECRET = "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=";
-	 * 
-	 * private final static String CLIENT_SECRET = ""drexel2";
-	 * private final static String CLIENT_SECRET = "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=";
-	 * 
+	 * -
 	 * 
 	 * NO GOOD FOR 04/2013 (BUT GOOD AFTER):
 	 * 
-	 * private final static String CLIENT_SECRET = "drexel1";
+	 * private final static String CLIENT_ID = "drexel1";
+	 * private final static String CLIENT_SECRET = "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=";
+	 * 
+	 * private final static String CLIENT_ID = "drexel4";
+	 * private final static String CLIENT_SECRET = "F5Hw32MSQoTygwLu6YMpHYx9zV3TQVQxqsIIybVCI1Y=";
+	 * 
+	 * private final static String CLIENT_ID = "sheetal57";
 	 * private final static String CLIENT_SECRET = "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=";
 	 * 
 	 */
 	
-	// Current GOOD CLIENT ID / SECRET COMBO:
-	private final static String CLIENT_ID = "drexel4";
-	private final static String CLIENT_SECRET = "F5Hw32MSQoTygwLu6YMpHYx9zV3TQVQxqsIIybVCI1Y=";
+	// Current GOOD CLIENT ID / SECRET COMBO: 
+	private final static String CLIENT_ID = "drexel2";
+	private final static String CLIENT_SECRET = "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=";
 	
 	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,

@@ -258,14 +258,7 @@ public class BackendInterface {
 				Logger.logln(NAME+"INTREP: "+DriverClustersTab.getIntRep()[trueIndex]);//added this.
 				DriverDocumentsTab.wizard.setSelectedTargets();
 				DriverDocumentsTab.signalTargetsSelected(main, true);
-				
-//				pw.stop();
-				System.out.println("EXECUTED: Pre");
-//				main.anonymityDrawingPanel.updateAnonymityBar();
-//				main.anonymityDescription.setText("About " +
-//						Integer.toString(main.anonymityDrawingPanel.getAvgPercentChangeNeeded()) +
-//						"% of your document needs to be changed for it to be considered anonymous");
-//				main.anonymityDrawingPanel.showPointer(true);
+
 				//eits.documentPane.setText(tempDoc);	
 				//cpb.setText("Waiting for Target Selection...");
 				}
@@ -346,13 +339,16 @@ public class BackendInterface {
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
 
 			pw.stop();
-			System.out.println("EXECUTED: Post");
-			
 			main.anonymityDrawingPanel.updateAnonymityBar();
 			main.anonymityDescription.setText("About " +
 					Integer.toString(main.anonymityDrawingPanel.getAvgPercentChangeNeeded()) +
 					"% of your document needs to be changed for it to be considered anonymous");
 			main.anonymityDrawingPanel.showPointer(true);
+			
+			int[] selectedSentIndexRange = new int[2];
+			selectedSentIndexRange[0] = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0)[1];
+			selectedSentIndexRange[1] = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0)[2];
+			DriverDocumentsTab.moveHighlight(main, selectedSentIndexRange, true);
 			
 			//Andrew had this commented out, I commented it back in for testing
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
