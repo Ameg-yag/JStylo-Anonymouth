@@ -1124,8 +1124,11 @@ public class GUIMain extends javax.swing.JFrame {
 							}
 						}
 						{
+							int numCalcThreads = WekaInstancesBuilder.getNumCalcThreads();
+							
+							
 							JPanel analysisNPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-							analysisNThreadJTextField = new JTextField("4");	//TODO maybe have this read from file?
+							analysisNThreadJTextField = new JTextField(""+numCalcThreads);
 							analysisNThreadJTextField.setColumns(5);
 							analysisNThreadJTextField.setToolTipText("The number of processing threads to use.\n" +
 									" With a more powerful computer, a higher number will speed up the program.");

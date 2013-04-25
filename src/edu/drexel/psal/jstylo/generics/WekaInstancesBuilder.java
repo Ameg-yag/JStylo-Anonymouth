@@ -1015,7 +1015,7 @@ public class WekaInstancesBuilder {
 	 * Sets the number of calculation threads to use for feature extraction.
 	 * @param numCalcThreads number of calculation threads to use.
 	 */
-	public void setNumCalcThreads(int numCalcThreads)		//TODO perhaps here have it write to file what the calc thread is
+	public void setNumCalcThreads(int numCalcThreads)
 	{
 		this.numCalcThreads = numCalcThreads;
 		
@@ -1030,10 +1030,47 @@ public class WekaInstancesBuilder {
 		File jProps = new File(path+"\\jsan_resources\\JStylo_prop.prop");
 		
 		if (jProps.exists()){ //write numCalcThreads to the file
+	
+			try {
+				ArrayList<String> contents = new ArrayList<String>();
+				FileReader fileReader = new FileReader(jProps);
+				BufferedReader reader = new BufferedReader(fileReader);
+				
+				//read the file into memory and update the numCalcThreads variable
+				String nextLine = reader.readLine();
+				while (nextLine!=null){
+					String temp = nextLine;
+					
+					if (temp.contains("numCalcThreads")){
+						temp="numCalcThreads="+numCalcThreads;
+					}
+					contents.add(temp);
+					nextLine = reader.readLine();
+				}
+				reader.close();
+				
+				//Write to the file
+				FileWriter cleaner = new FileWriter(jProps,false);
+				cleaner.write("");
+				cleaner.close();
+				
+				FileWriter writer = new FileWriter(jProps,true);
+				for(String s:contents){
+					writer.write(s+"\n");
+				}
+				writer.close();
+				
+			} catch (FileNotFoundException e) {
+				Logger.logln("Failed to read properties file! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
+				e.printStackTrace();
+				generateDefaultPropsFile();
+			} catch (IOException e) {
+				Logger.logln("Prop file empty! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
+				e.printStackTrace();
+				generateDefaultPropsFile();
+			}
 			
-			//TODO fill this in
-			
-		}else { //otherwise make a new props file
+		} else { //otherwise make a new props file
 			generateDefaultPropsFile();
 		}
 		
@@ -1065,9 +1102,9 @@ public class WekaInstancesBuilder {
 	/**
 	 * @return the number of calculation threads to use for feature extraction.
 	 */
-	public int getNumCalcThreads()
+	public static int getNumCalcThreads()
 	{
-		int nct=1;
+		int nct=4; //default is 4
 		String path=null;
 		
 		try {
@@ -1084,6 +1121,7 @@ public class WekaInstancesBuilder {
 				FileReader fileReader = new FileReader(jProps);
 				BufferedReader reader = new BufferedReader(fileReader);
 				
+				//read the file and save the variable when it is found if for some reason it's not in the file, it'll default to 4
 				String nextLine = reader.readLine();
 				while (nextLine!=null){
 					if (nextLine.contains("numCalcThreads")){
@@ -1093,6 +1131,8 @@ public class WekaInstancesBuilder {
 					}
 					nextLine = reader.readLine();
 				}
+				
+				reader.close();
 				
 			} catch (FileNotFoundException e) {
 				Logger.logln("Failed to read properties file! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
@@ -1108,14 +1148,47 @@ public class WekaInstancesBuilder {
 		} else { //if it doesn't exist, create it and give it the calc thread value
 			
 			generateDefaultPropsFile();
-			nct = numCalcThreads;
 		}
 		
 		return nct;
 	}
 	
-	public void generateDefaultPropsFile(){
-		//TODO provide the default config file for JStylo here.
+	public static void generateDefaultPropsFile(){
+		
+		String path=null;
+		
+		try {
+			path = new File(".").getCanonicalPath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		File jProps = new File(path+"\\jsan_resources\\JStylo_prop.prop");
+		
+		try {
+			String[] contents = {"#JStylo Preferences","#Properties File Version: .1","numCalcThreads=4"};
+			
+			//Write to the file
+			FileWriter cleaner = new FileWriter(jProps,false);
+			cleaner.write("");
+			cleaner.close();
+			
+			FileWriter writer = new FileWriter(jProps,true);
+			for(String s:contents){
+				writer.write(s+"\n");
+			}
+			writer.close();
+			
+		} catch (FileNotFoundException e) {
+			Logger.logln("Failed to read properties file! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
+			e.printStackTrace();
+			generateDefaultPropsFile();
+		} catch (IOException e) {
+			Logger.logln("Prop file empty! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
+			e.printStackTrace();
+			generateDefaultPropsFile();
+		}
+		
 	}
 	
 	/**
