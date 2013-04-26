@@ -419,7 +419,6 @@ public class Attribute {
 			minimumPercentChangeUnit = ((100/toModifyValue)/100);
 			halfOfMin =minimumPercentChangeUnit / 2;
 			temp = (targetValue - toModifyValue)/toModifyValue;// signedness matters, don't take abs. value
-			System.out.println("	temp: "+temp);
 			theModulus = temp % minimumPercentChangeUnit;
 			if ((temp*requiredDirectionOfChange  < 0)  && (Math.abs(temp) <minimumPercentChangeUnit)  ) // if the required direction of change is not the same sign (or 0) as temp,
 				// and the percent change needed is less than a minimumPercentChangeUnit,  (i.e., if it wants to move you backward past the target value after having already passed it), temp = 0
@@ -448,7 +447,6 @@ public class Attribute {
 			if(invertPercentage)
 				perm = baselinePercentChangeNeeded - perm;
 		}
-		System.out.println("			% Change needed: "+perm);
 		if(takeAbsVal)
 			return Math.abs(perm); 
 		else
