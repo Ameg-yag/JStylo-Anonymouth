@@ -510,6 +510,7 @@ public class DriverDocumentsTab {
 					main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
 					System.out.println("DEBUGGING:     main.documentPane.getCaretPosition = " + main.documentPane.getCaretPosition());
 					
+					
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 					
 					int[] selectedSentIndexRange = new int[2];

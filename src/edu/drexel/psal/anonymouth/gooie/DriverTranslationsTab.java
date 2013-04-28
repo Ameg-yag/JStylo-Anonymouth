@@ -108,8 +108,8 @@ public class DriverTranslationsTab implements ActionListener
 			finalPanels[i] = new JPanel(layout);
 //			finalPanels[i].setBackground(Color.LIGHT_GRAY);
 			finalPanels[i].add(languageLabels[i], "grow, h 20!, north");
-			finalPanels[i].add(translationButtons[i], "west, wmax 25, wmin 25"); //50
-			finalPanels[i].add(translationTextAreas[i], "east, wmin 288, wmax 288"); //263 //288
+			finalPanels[i].add(translationButtons[i], "west, wmax 30, wmin 30"); //50 //25
+			finalPanels[i].add(translationTextAreas[i], "east, wmin 283, wmax 283"); //263 //288
 
 			// add final panel to the translations list panel
 			main.translationsHolderPanel.add(finalPanels[i], "");

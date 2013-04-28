@@ -61,8 +61,7 @@ public class AnonymityDrawingPanel extends JPanel {
 			triX = new int[3];
 			triY = new int[3];
 			
-			setMaxPercentage(100); //default percentage is 100%
-			setPercentage(50); //default percentage is 50%
+			setPercentages(50, 100); //default percentage is 50% out of 100%
 		}
 		
 		/**
@@ -72,6 +71,7 @@ public class AnonymityDrawingPanel extends JPanel {
 		private void setValue() {
 //			System.out.println("   " + getRatio());
 			this.y = (int)(MAXY * getRatio() + MINY * getRatio() + getMaxPercentage() * (.5 - getRatio()));
+//			this.y = (int)(MAXY * getRatio() + MINY * getRatio());
 		}
 		
 		public int getY() {
@@ -86,31 +86,35 @@ public class AnonymityDrawingPanel extends JPanel {
 		 * Sets the new anonymity percentage, the panel must be repainted for changes to be seen.
 		 * @param perc must be integer representation of percentage (e.g., 50 for 50% instead of .5)
 		 */
-		public void setPercentage(int perc) {
-			if (perc >= 0 && perc <= getMaxPercentage()) {
-				curPercent = perc;
-				setRatio(getPercentage(), getMaxPercentage());
+		public void setPercentages(int percentage, int maxPercentage) {
+			System.out.println("DEBUG: Before, percentage = " + percentage + " and maxPercentage = " + maxPercentage);
+			if (maxPercentage >= 0 && percentage >= 0 && percentage <= maxPercentage) {
+				System.out.println("DEBUG: HELLO!!! " + percentage + " / " + maxPercentage);
+				setRatio(percentage, maxPercentage);
+				System.out.println("DEBUG: HELLO!!! " + getRatio());
+				curPercent = (int)(getRatio() * 100);
+				maxPercent = 100;
+				
 				setValue();
 				updateTriangle();
 			}
+			
+			System.out.println("DEBUG: max percentage = " + getMaxPercentage());
+			System.out.println("DEBUG: percentage = " + getPercentage());
+			System.out.println("DEBUG: y = " + getY());
+			System.out.println("DEBUG: ratio = " + getRatio());
 		}
 		
 		public int getPercentage() {
 			return curPercent;
 		}
 		
-		public void setMaxPercentage(int perc) {
-			if (perc >= 0) {
-				maxPercent = perc;
-			}
-		}
-		
 		public int getMaxPercentage() {
 			return maxPercent;
 		}
 		
-		private void setRatio(int curPercent, int maxPercent) {
-			ratio = (double)getPercentage() / (double)getMaxPercentage();
+		private void setRatio(int percentage, int maxPercentage) {
+			ratio = (double)percentage / (double)maxPercentage;
 		}
 		
 		public double getRatio() {
@@ -165,8 +169,8 @@ public class AnonymityDrawingPanel extends JPanel {
 		}
 		
 		pointer = new Pointer();
-//		showPointer = true;
-//		pointer.setPercentage(75);
+		showPointer = true;
+		pointer.setPercentages(75, 100);
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -226,10 +230,9 @@ public class AnonymityDrawingPanel extends JPanel {
 	 * for the first time) so that the arrow may move accordingly
 	 */
 	public void updateAnonymityBar() {
-		pointer.setMaxPercentage((int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5));
-		pointer.setPercentage((int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5));
-		System.out.println("MAXPERCENTAGE: " + (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5));
-		System.out.println("PERCENTAGE: " + (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5));
+		pointer.setPercentages((int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5), (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5));
+		System.out.println("TargetAnonymityIndex: " + (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5));
+		System.out.println("AnonymityIndex: " + (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5));
 		repaint();
 	}
 	
@@ -237,6 +240,6 @@ public class AnonymityDrawingPanel extends JPanel {
 	 * Created for a quick and easy way to get the percent that the pointer uses for use in the text description below the bar
 	 */
 	public int getAvgPercentChangeNeeded() {
-		return pointer.getPercentage();
+		return 100 - pointer.getPercentage();
 	}
 }
