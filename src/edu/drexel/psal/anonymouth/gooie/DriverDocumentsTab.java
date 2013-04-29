@@ -243,6 +243,7 @@ public class DriverDocumentsTab {
 	 * @param end
 	 */
 	protected static void moveHighlight(final GUIMain main, int[] bounds, boolean deleteCurrent){
+		System.out.println("Moving highlight...");
 		if (deleteCurrent){
 			main.documentPane.getHighlighter().removeAllHighlights();
 	        try {
@@ -412,7 +413,7 @@ public class DriverDocumentsTab {
 						
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
-							System.out.println("DEBUGGING: sentences not the same, \"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged() + "\" \"" + currentSentenceString + "\"");
+							System.out.println("DEBUGGING: sentences not the same, \n<" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged() + ">\n<" + currentSentenceString + ">");
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 							setSelectionInfoAndHighlight = false;
 						

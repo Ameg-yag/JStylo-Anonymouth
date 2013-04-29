@@ -346,7 +346,7 @@ public class BackendInterface {
 			main.anonymityDrawingPanel.showPointer(true);
 			
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
-			
+			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument());//must re-set the document after processing (do deal 
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0);
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
