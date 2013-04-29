@@ -345,6 +345,7 @@ public class BackendInterface {
 					"% of your document needs to be changed for it to be considered anonymous");
 			main.anonymityDrawingPanel.showPointer(true);
 			
+			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0);
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
@@ -364,10 +365,14 @@ public class BackendInterface {
 			DocumentTagger docTagger = new DocumentTagger();
 			ArrayList<List<Document>> allDocs = magician.getDocumentSets();
 			try{
+				/*
+				 * NOTE: This next line locks up the rest of the method until it's done. Do NOT put anything that needs to be updated
+				 * Immediately after control returns to the GUI from processing after this, it will not be run until every every process here
+				 * is done (It takes a long time)
+				 */
 				ConsolidationStation.otherSampleTaggedDocs = docTagger.tagDocs(allDocs.get(0),loadIfExists);
 				ConsolidationStation.authorSampleTaggedDocs = docTagger.tagDocs(allDocs.get(1),loadIfExists);
 				ConsolidationStation.setAllDocsTagged(true);
-				
 			}
 			catch(Exception e){
 				Logger.logln(NAME+"Oops something bad happened with the tagging of documents...");
@@ -376,7 +381,6 @@ public class BackendInterface {
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
 			//main.editorProgressBar.setIndeterminate(false);	
-			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.documentPane.setEnabled(true);
             main.documentPane.setEditable(true);
 //			main.nextSentenceButton.doClick();
@@ -506,7 +510,12 @@ public class BackendInterface {
 			int precision = 100;
 			tempVal = Math.floor(tempVal*precision+.5)/precision;	
 			predictions[i] = tempVal;
-			predMap.put(predictions[i], authors[i]);
+			
+			if (authors[i].equals("~* you *~")) {
+				System.out.println("PASSED!!!");
+				predMap.put(predictions[i], "You");
+			} else
+				predMap.put(predictions[i], authors[i]);
 		}
 		
 		Arrays.sort(predictions);

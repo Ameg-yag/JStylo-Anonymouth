@@ -101,6 +101,10 @@ public class ThePresident {
 
 				}
 			});
+			
+//			app.setPreferencesHandler() {
+//				
+//			}
 
 			app.requestForeground(true);
 		}

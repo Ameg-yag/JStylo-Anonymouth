@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterJob;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -11,6 +13,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.*;
 
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
@@ -33,6 +37,12 @@ public class DriverMenu {
 	private final static String NAME = "( DriverMenu ) - ";
 
 	protected static ActionListener generalListener;
+	protected static ActionListener saveProblemSetListener;
+	protected static ActionListener loadProblemSetListener;
+	protected static ActionListener saveTestDocListener;
+	protected static ActionListener saveAsTestDocListener;
+	protected static ActionListener aboutListener;
+//	protected static ActionListener printMenuItemListener;
 	
 	protected static void initListeners(final GUIMain main)
 	{
@@ -45,5 +55,82 @@ public class DriverMenu {
 			}
         };
         main.settingsGeneralMenuItem.addActionListener(generalListener);
+        
+        saveProblemSetListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		DriverPreProcessTabDocuments.saveProblemSetAL.actionPerformed(e);
+        	}
+        };
+        main.fileSaveProblemSetMenuItem.addActionListener(saveProblemSetListener);
+        
+        loadProblemSetListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		DriverPreProcessTabDocuments.loadProblemSetAL.actionPerformed(e);
+        	}
+        };
+        main.fileLoadProblemSetMenuItem.addActionListener(loadProblemSetListener);
+        
+        saveTestDocListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		Logger.logln(NAME+"Save document button clicked.");
+
+        		String path = main.ps.getTestDocs().get(0).getFilePath();
+        		File f = new File(path);
+        		
+        		try {
+        			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+        			bw.write(main.documentPane.getText());
+        			bw.flush();
+        			bw.close();
+        			Logger.log("Saved contents of document to "+path);
+        		} catch (IOException exc) {
+        			Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
+        			Logger.logln(NAME+exc.toString(),LogOut.STDERR);
+        			JOptionPane.showMessageDialog(null,
+        					"Failed saving contents of current tab into:\n"+path,
+        					"Save Problem Set Failure",
+        					JOptionPane.ERROR_MESSAGE);
+        		}
+        	}
+        };
+        main.fileSaveTestDocMenuItem.addActionListener(saveTestDocListener);
+
+        saveAsTestDocListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		DriverDocumentsTab.saveAsTestDoc.actionPerformed(e);
+        	}
+        };
+        main.fileSaveAsTestDocMenuItem.addActionListener(saveAsTestDocListener);
+        
+        aboutListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		JOptionPane.showMessageDialog(null, 
+						"Anonymouth\nVersion 0.0.3\nAuthor: Andrew W.E. McDonald\nDrexel University, PSAL, Dr. Rachel Greenstadt - P.I.",
+						"About Anonymouth",
+						JOptionPane.INFORMATION_MESSAGE,
+						ThePresident.LOGO);
+        	}
+        };
+        main.helpAboutMenuItem.addActionListener(aboutListener);
+        
+        /*
+        printMenuItemListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		PrinterJob job = PrinterJob.getPrinterJob();
+        		PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+        		PageFormat pf = job.pageDialog(aset);
+        		job.setPrintable(new PrintDialogExample(), pf);
+        		boolean ok = job.printDialog(aset);
+        		
+        	}
+        };
+        main.filePrintMenuItem.addActionListener(printMenuItemListener);
+        */
 	}
 }

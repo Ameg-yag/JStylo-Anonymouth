@@ -281,6 +281,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		protected JPanel progressPanel;
 		protected JLabel translationsProgressLabel;
 		protected JProgressBar translationsProgressBar;
+		protected JTextPane notTranslated;
 	
 	protected JPanel informationPanel;
 		protected JLabel sentenceEditorLabel;
@@ -336,7 +337,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 //		protected JButton dictButton;
 //		protected JButton appendSentenceButton;
-//		protected JButton saveButton;
+		protected JButton saveButton;
 		protected JButton processButton;
 //		protected JButton nextSentenceButton;
 //		protected JButton prevSentenceButton;
@@ -426,6 +427,12 @@ public class GUIMain extends javax.swing.JFrame  {
 	
 	protected JMenuBar menuBar;
 	protected JMenuItem settingsGeneralMenuItem;
+	protected JMenuItem fileSaveProblemSetMenuItem;
+	protected JMenuItem fileLoadProblemSetMenuItem;
+	protected JMenuItem fileSaveTestDocMenuItem;
+	protected JMenuItem fileSaveAsTestDocMenuItem;
+	protected JMenuItem helpAboutMenuItem;
+//	protected JMenuItem filePrintMenuItem;
 	
 	// random useful variables
 	protected static Border rlborder = BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder());
@@ -526,14 +533,24 @@ public class GUIMain extends javax.swing.JFrame  {
 			JMenu settingsTabTranslationsMenu = new JMenu("Translations");
 			JMenu settingsTabDocumentsMenu = new JMenu("Documents");
 			JMenu settingsTabResultsMenu = new JMenu("Results");
-			JMenuItem filePrintMenuItem = new JMenuItem("Print...");
-			JMenuItem helpAboutMenuItem = new JMenuItem("About Anonymouth");
+			fileSaveProblemSetMenuItem = new JMenuItem("Save Problem Set");
+			fileLoadProblemSetMenuItem = new JMenuItem("Load Problem Set");
+			fileSaveTestDocMenuItem = new JMenuItem("Save");
+			fileSaveAsTestDocMenuItem = new JMenuItem("Save As...");
+//			filePrintMenuItem = new JMenuItem("Print...");
+			helpAboutMenuItem = new JMenuItem("About Anonymouth");
 			
 			menuBar.add(fileMenu);
 			menuBar.add(settingsMenu);
 			menuBar.add(helpMenu);
 			
-			fileMenu.add(filePrintMenuItem);
+			fileMenu.add(fileSaveProblemSetMenuItem);
+			fileMenu.add(fileLoadProblemSetMenuItem);
+			fileMenu.add(new JSeparator());
+			fileMenu.add(fileSaveTestDocMenuItem);
+			fileMenu.add(fileSaveAsTestDocMenuItem);
+//			fileMenu.add(new JSeparator());
+//			fileMenu.add(filePrintMenuItem);
 			
 			// ================== HAVE TO ADD ACTION LISTENERS TO THESE BUT NEED TO FIGURE OUT BEST WAY TO DO SO
 			
@@ -609,10 +626,10 @@ public class GUIMain extends javax.swing.JFrame  {
 	 * @throws Exception - if any of these values are not found in the prop file, we instead set them to the defaults
 	 */
 	protected void setDefaultValues() throws Exception {
-		if (PropertiesUtil.prop.getProperty("recentProbSet") != null) {
+		if (PropertiesUtil.getProbSet() != null) {
 			String problemSetPath = PropertiesUtil.prop.getProperty("recentProbSet");
 			
-			PropertiesUtil.setRecentProbSet(problemSetPath);
+			PropertiesUtil.setProbSet(problemSetPath);
 			Logger.logln(NAME+"Trying to load problem set at: " + problemSetPath);
 			
 			try {
@@ -623,45 +640,21 @@ public class GUIMain extends javax.swing.JFrame  {
 			}
 		}
 
-		try {
-			featuresSetJComboBox.setSelectedItem(PropertiesUtil.prop.getProperty("recentFeat"));
-			PPSP.featuresSetJComboBox.setSelectedItem(PropertiesUtil.prop.getProperty("recentFeat"));
-			cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
-			GUIUpdateInterface.updateFeatureSetView(this);
-			GUIUpdateInterface.updateFeatPrepColor(this);
-		} catch (Exception e) {
-			PropertiesUtil.setRecentFeat("WritePrints (Limited)");
-			Logger.logln(NAME+"RecentFeat not set, default value \"WritePrints (Limited)\" used", LogOut.STDOUT);
-			featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
-			PPSP.featuresSetJComboBox.setSelectedItem("WritePrints (Limited)");
-			cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
-			GUIUpdateInterface.updateFeatureSetView(this);
-			GUIUpdateInterface.updateFeatPrepColor(this);
-		}
-
-		try {
-			classChoice.setSelectedItem(PropertiesUtil.prop.getProperty("recentClass"));
-			DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
-			DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
-			classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
-			PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()));
-			PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
-			GUIUpdateInterface.updateClassList(this);
-			GUIUpdateInterface.updateClassPrepColor(this);
-			DriverPreProcessTabClassifiers.tmpClassifier = null;
-		} catch (Exception e) {
-			PropertiesUtil.setRecentClass("SMO");
-			Logger.logln(NAME+"RecentClass not set, default value used", LogOut.STDOUT);
-			classChoice.setSelectedItem("SMO");
-			DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
-			DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
-			classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
-			PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()));
-			PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
-			GUIUpdateInterface.updateClassList(this);
-			GUIUpdateInterface.updateClassPrepColor(this);
-			DriverPreProcessTabClassifiers.tmpClassifier = null;
-		}
+		featuresSetJComboBox.setSelectedItem(PropertiesUtil.getFeature());
+		PPSP.featuresSetJComboBox.setSelectedItem(PropertiesUtil.getFeature());
+		cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
+		GUIUpdateInterface.updateFeatureSetView(this);
+		GUIUpdateInterface.updateFeatPrepColor(this);
+		
+		classChoice.setSelectedItem(PropertiesUtil.getClassifier());
+		DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
+		DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
+		classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
+		PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()));
+		PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
+		GUIUpdateInterface.updateClassList(this);
+		GUIUpdateInterface.updateClassPrepColor(this);
+		DriverPreProcessTabClassifiers.tmpClassifier = null;
 	}
 
 	/**
@@ -756,7 +749,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 		// ------ add all tab panes, if they need to be added
 		if (panelLocations.contains(PropertiesUtil.Location.LEFT))
-			getContentPane().add(leftTabPane, "width 250!, spany");
+			getContentPane().add(leftTabPane, "width 200!, spany");
 		if (panelLocations.contains(PropertiesUtil.Location.TOP))
 			getContentPane().add(topTabPane, "width 600:100%:, grow");
 		if (panelLocations.contains(PropertiesUtil.Location.RIGHT))
@@ -812,7 +805,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			anonymityPanel.removeAll();
 			anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
 			anonymityPanel.add(anonymityDrawingPanel, "h 515!");
-			anonymityPanel.add(anonymityDescription, "h 70!");
+			anonymityPanel.add(anonymityDescription, "h 90!");
 			anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
 			anonymityPanel.add(resultsMainPanel, "grow");
 		}
@@ -1386,6 +1379,19 @@ public class GUIMain extends javax.swing.JFrame  {
 					"wrap, ins 0, gap 0",
 					"grow, fill",
 					""));
+			
+//			JLabel notTranslated = new JLabel("Sentence has not been translated yet, please\nwait or work on already translated sentences.");
+//			notTranslated.setPreferredSize(new Dimension(400, 300));
+//			translationsHolderPanel.add(notTranslated, "north, wmax 310, wmin 310");
+			
+			notTranslated = new JTextPane();
+			notTranslated.setText("Please process your document to recieve translation suggestions.");
+			notTranslated.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
+			notTranslated.setDragEnabled(false);
+			notTranslated.setEditable(false);
+			notTranslated.setFocusable(false);
+			translationsHolderPanel.add(notTranslated);
+			
 			translationsScrollPane = new JScrollPane(translationsHolderPanel);
 			translationsScrollPane.setOpaque(true);
 			
@@ -1558,8 +1564,8 @@ public class GUIMain extends javax.swing.JFrame  {
 //                	dictButton = new JButton("Synonym Dictionary");
 //                	dictButton.setToolTipText("Phrase and Synonym Dictionary.");
 //                	
-//                	saveButton = new JButton("Save To File");
-//                	saveButton.setToolTipText("Saves what is in the document view to it's source file.");
+                	saveButton = new JButton("Save As...");
+                	saveButton.setToolTipText("Saves the modified document above to a new file.");
 //                	
                 	processButton = new JButton("Process");
                 	processButton.setToolTipText("Processes the document.");
@@ -1591,7 +1597,8 @@ public class GUIMain extends javax.swing.JFrame  {
                 documentsPanel.add(documentLabel, "grow, h " + titleHeight + "!");
                 //documentsPanel.add(processButton, "grow");
                 documentsPanel.add(documentScrollPane, "grow");
-                documentsPanel.add(processButton, "right");
+                documentsPanel.add(processButton, "right, split");
+                documentsPanel.add(saveButton, "right");
             	//documentsPanel.add(documentOptionsPanel, "grow");
 			}
             tabMade = true;
