@@ -219,6 +219,10 @@ public class WekaAnalyzer extends Analyzer {
 	@Override
 	public Evaluation runCrossValidation(Instances data, int folds, long randSeed,
 			int relaxFactor) {
+		
+		if (relaxFactor==1)
+			return runCrossValidation(data,folds,randSeed);
+		
 		// setup
 		data.setClass(data.attribute("authorName"));
 		Instances randData = new Instances(data);

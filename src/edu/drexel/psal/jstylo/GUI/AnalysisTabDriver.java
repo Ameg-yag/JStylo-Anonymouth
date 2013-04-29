@@ -275,8 +275,8 @@ public class AnalysisTabDriver {
 				
 				boolean selected = main.analysisTrainCVJRadioButton.isSelected();
 				if (selected){
-					main.analysisKFoldJTextField.setEnabled(true);
-					//main.analysisNThreadJTextField.setEnabled(true);
+					main.analysisKFoldJTextField.setEnabled(true);					
+					main.analysisRelaxJTextField.setEnabled(true);
 				}			
 			}		
 		});
@@ -290,7 +290,7 @@ public class AnalysisTabDriver {
 				boolean selected = main.analysisClassTestDocsJRadioButton.isSelected();
 				if (selected){
 					main.analysisKFoldJTextField.setEnabled(false);
-					//main.analysisNThreadJTextField.setEnabled(false);
+					main.analysisRelaxJTextField.setEnabled(false);
 				}			
 			}		
 		});
@@ -375,8 +375,8 @@ public class AnalysisTabDriver {
 				lockUnlock(main, true);
 				
 				// start analysis thread
-				//main.at = AnalyzerTypeEnum.WRITEPRINTS_ANALYZER;
-				main.wib.numCalcThreads=Integer.parseInt(main.analysisNThreadJTextField.getText());
+				//Logger.logln("CalcuThread value in field: "+Integer.parseInt(main.analysisNThreadJTextField.getText()));
+				main.wib.setNumCalcThreads(Integer.parseInt(main.analysisNThreadJTextField.getText()));
 				main.analysisThread = new Thread(new RunAnalysisThread(main));
 				main.analysisThread.start();
 			}
@@ -540,8 +540,11 @@ public class AnalysisTabDriver {
 		main.analysisApplyInfoGainJCheckBox.setEnabled(!lock);
 		main.infoGainValueJTextField.setEnabled(!lock);
 		
-		if (main.analysisTrainCVJRadioButton.isSelected())
-			main.analysisKFoldJTextField.setEnabled(!lock);	
+		if (main.analysisTrainCVJRadioButton.isSelected()){
+			main.analysisKFoldJTextField.setEnabled(!lock);
+			main.analysisRelaxJTextField.setEnabled(!lock);
+		}
+		main.analysisRelaxJLabel.setEnabled(!lock);
 		main.analysisKFoldJLabel.setEnabled(!lock);
 		main.analysisNThreadJLabel.setEnabled(!lock);
 		main.analysisNThreadJTextField.setEnabled(!lock);
@@ -655,24 +658,6 @@ public class AnalysisTabDriver {
 			
 			contentJTextArea.setText(content);
 
-			// feature extraction
-			// ==================
-			
-			// pre-processing
-			//	TODO uncomment and fix this section note: uncommenting breaks both cross-val and classify/test
-		//	if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER) {
-			/*
-				Logger.logln("Applying analyzer feature-extraction pre-processing procedures...");
-				content += getTimestamp() + "Applying analyzer feature-extraction pre-processing procedures...\n";
-				
-				// move all test documents to be training documents
-				trainingDocs.addAll(testDocs);
-				testDocs = new ArrayList<Document>();
-				
-				content += getTimestamp() + "done!\n\n";*/
-		//	}
-			
-			
 			// training set
 			Logger.logln("Extracting features from training corpus...");
 			
@@ -737,29 +722,6 @@ public class AnalysisTabDriver {
 					updateResultsView();
 				}
 			}
-
-			// post processing
-			// TODO uncomment and fix this section note: uncommenting breaks both cross-val and classify/test
-		//	if (main.at == AnalyzerTypeEnum.WRITEPRINTS_ANALYZER &&
-		//			main.analysisClassTestDocsJRadioButton.isSelected()) {
-		/*		
-				Logger.logln("Applying analyzer feature-extraction post-processing procedures...");
-				content += getTimestamp() + "Applying analyzer feature-extraction post-processing procedures...\n";
-				
-				// put test instances back in the test set
-				Instances trainingSet = main.wib.getTrainingSet();
-				Instances testSet = new Instances(
-						trainingSet,
-						numTrainDocs,
-						numTestDocs);
-				main.wib.setTestSet(testSet);
-				int total = numTrainDocs + numTestDocs;
-				for (int i = total - 1; i >= numTrainDocs; i--)
-					trainingSet.delete(i);
-				
-				content += getTimestamp() + "done!\n\n"; */
-		//	}
-			
 			
 			// running InfoGain
 			// ================
@@ -846,7 +808,7 @@ public class AnalysisTabDriver {
 				for (int i=0; i<numClass; i++) {
 					a = (Analyzer) main.analyzers.get(i);
 					content += "Running analysis with classifier "+(i+1)+" out of "+numClass+":\n" +
-							"> Classifier: "+a.getClass().getName()+"\n" +
+							"> Classifier: "+a.getName()+"\n" +
 							"> Options:    "+ClassTabDriver.getOptionsStr(a.getOptions())+"\n\n";
 					
 					main.analysisDriver = a;
@@ -856,13 +818,19 @@ public class AnalysisTabDriver {
 					updateResultsView();
 					
 					// run
-					Object results = main.analysisDriver.runCrossValidation(main.wib.getTrainingSet(),Integer.parseInt(main.analysisKFoldJTextField.getText()),0);
+					Object results = main.analysisDriver.runCrossValidation(main.wib.getTrainingSet(),Integer.parseInt(main.analysisKFoldJTextField.getText()),0,Integer.parseInt(main.analysisRelaxJTextField.getText())); 
+										
 					content += getTimestamp()+" done!\n\n";
 					Logger.logln("Done!");
 					updateResultsView();
 					
+					if (results==null){
+						content+="Classifier not working for this feature set, relaxation factor, or similar variable. Please stop the analysis.";
+					}
+					updateResultsView();
+					
 					// print out results
-					if (a instanceof WekaAnalyzer){
+					//if (a instanceof WekaAnalyzer){
 						Evaluation eval = (Evaluation) results;
 						content += eval.toSummaryString(false)+"\n";
 						try {
@@ -872,11 +840,19 @@ public class AnalysisTabDriver {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-					} else if (a instanceof WriteprintsAnalyzer){ //TODO fix writeprints analyzer and remove instanceof
+				/*	} else if (a instanceof WriteprintsAnalyzer){ //TODO fix writeprints analyzer and remove instanceof
 						
 						content+=(String) results;
 						
-					}
+					Evaluation eval = (Evaluation) results;
+					content += eval.toSummaryString(false)+"\n";
+					try {
+						content +=
+								eval.toClassDetailsString()+"\n" +
+									eval.toMatrixString()+"\n" ;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}*/
 						
 					updateResultsView();
 					
