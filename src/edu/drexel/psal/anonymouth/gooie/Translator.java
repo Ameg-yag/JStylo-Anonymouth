@@ -12,11 +12,12 @@ import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 public class Translator implements Runnable
 {
 	private ArrayList<TaggedSentence> sentences = new ArrayList<TaggedSentence>(); // essentially the priority queue
-	private ArrayList<Long> timeStamps = new ArrayList<Long>(); 
+	private ArrayList<Long> timeStamps = new ArrayList<Long>();
 	private GUIMain main;
 	private boolean firstRun = true;
 	private int currentSentNum = 1;
 	private int currentLangNum = 1;
+	public static ArrayList<String> translatedSentences = new ArrayList<String>(); 
 
 	/**
 	 * Class that handles the 2-way translation of a given sentence. It starts a new thread so the main thread
@@ -110,6 +111,7 @@ public class Translator implements Runnable
 		// translate all languages for each sentence, sorting the list based on anon index after each translation
 		while (!sentences.isEmpty() && currentSentNum <= sentences.size())
 		{
+			translatedSentences.add(sentences.get(currentSentNum-1).getUntagged());
 			// if the sentence that is about to be translated already has translations, get rid of them
 			if (sentences.get(currentSentNum-1).hasTranslations())
 			{

@@ -52,16 +52,10 @@ public class AnonymityDrawingPanel extends JPanel {
 		private int y;
 		private int maxPercent;
 		private int curPercent;
-		private int[] triX;
-		private int[] triY;
 		private double ratio;
 		
 		public Pointer() {
 			y = MAXY + MINY;
-			triX = new int[3];
-			triY = new int[3];
-			
-			setPercentages(50, 100); //default percentage is 50% out of 100%
 		}
 		
 		/**
@@ -69,9 +63,7 @@ public class AnonymityDrawingPanel extends JPanel {
 		 * If the y value needs to be changed, call "setPercentage()" instead
 		 */
 		private void setValue() {
-//			System.out.println("   " + getRatio());
 			this.y = (int)(MAXY * getRatio() + MINY * getRatio() + getMaxPercentage() * (.5 - getRatio()));
-//			this.y = (int)(MAXY * getRatio() + MINY * getRatio());
 		}
 		
 		public int getY() {
@@ -87,22 +79,13 @@ public class AnonymityDrawingPanel extends JPanel {
 		 * @param perc must be integer representation of percentage (e.g., 50 for 50% instead of .5)
 		 */
 		public void setPercentages(int percentage, int maxPercentage) {
-			System.out.println("DEBUG: Before, percentage = " + percentage + " and maxPercentage = " + maxPercentage);
 			if (maxPercentage >= 0 && percentage >= 0 && percentage <= maxPercentage) {
-				System.out.println("DEBUG: HELLO!!! " + percentage + " / " + maxPercentage);
 				setRatio(percentage, maxPercentage);
-				System.out.println("DEBUG: HELLO!!! " + getRatio());
 				curPercent = (int)(getRatio() * 100);
 				maxPercent = 100;
 				
 				setValue();
-				updateTriangle();
 			}
-			
-			System.out.println("DEBUG: max percentage = " + getMaxPercentage());
-			System.out.println("DEBUG: percentage = " + getPercentage());
-			System.out.println("DEBUG: y = " + getY());
-			System.out.println("DEBUG: ratio = " + getRatio());
 		}
 		
 		public int getPercentage() {
@@ -120,30 +103,6 @@ public class AnonymityDrawingPanel extends JPanel {
 		public double getRatio() {
 			return ratio;
 		}
-		
-		public int[] getTriX() {
-			return triX;
-		}
-		
-		public int[] getTriY() {
-			return triY;
-		}
-		
-		/**
-		 * Updates and moves the triangle part of the arrow
-		 */
-		public void updateTriangle() {
-			triX = new int[3];
-			triY = new int[3];
-			
-			triX[0] = getX() + 30;
-			triX[1] = getX() + 25;
-			triX[2] = getX() + 25;
-			
-			triY[0] = getY();
-			triY[1] = getY() - 5;
-			triY[2] = getY() + 5;
-		}
 	}
 	
 	public AnonymityDrawingPanel() {
@@ -156,8 +115,8 @@ public class AnonymityDrawingPanel extends JPanel {
 		
 		anonymous.setFont(new Font("Helvatica", Font.BOLD, 16));
 		notAnonymous.setFont(new Font("Helvatica", Font.BOLD, 16));
-		this.add(anonymous, "pos 68 15");
-		this.add(notAnonymous, "pos 52 485");
+		this.add(anonymous, "pos 40 15");
+		this.add(notAnonymous, "pos 24 485");
 		
 		try {
 			bar = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"bar.png"));
@@ -169,8 +128,6 @@ public class AnonymityDrawingPanel extends JPanel {
 		}
 		
 		pointer = new Pointer();
-		showPointer = true;
-		pointer.setPercentages(75, 100);
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -181,11 +138,11 @@ public class AnonymityDrawingPanel extends JPanel {
 		g2d.setStroke(new BasicStroke(1f));
 		
 		if (!showPointer)
-			g2d.drawImage(barEmpty, (232 / 2) - 50 + 3, MINY-5, null);
+			g2d.drawImage(barEmpty, (232 / 2) - 100 + 3, MINY-5, null);
 		else if (pointer.getPercentage() >= 99)
-			g2d.drawImage(barFull, (232 / 2) - 50 + 3, MINY-5, null);
+			g2d.drawImage(barFull, (232 / 2) - 100 + 3, MINY-5, null);
 		else
-			g2d.drawImage(bar, (232 / 2) - 50 + 3, MINY-5, null);
+			g2d.drawImage(bar, (232 / 2) - 100 + 3, MINY-5, null);
 		
 		Color startingColor = Color.GREEN;
 		Color endingColor = Color.RED;
@@ -204,7 +161,7 @@ public class AnonymityDrawingPanel extends JPanel {
 				if (y <= MAXY - pointer.getY() + 50)
 					break;
 				else
-					g2d.drawLine((232 / 2) - 32, y, (232 / 2) - 20, y);
+					g2d.drawLine((232 / 2) - 82, y, (232 / 2) - 32, y);
 			}
 		}
 		
@@ -216,7 +173,7 @@ public class AnonymityDrawingPanel extends JPanel {
 		
 		//Drawing Percentages
 		for (int i = 0 ; i < PERCENTTEXT.length; i++) {
-			g2d.drawString(PERCENTTEXT[i], 130, MINY + 8 + (((MAXY + MINY * 2) / PERCENTTEXT.length) * i - (i * 9)));
+			g2d.drawString(PERCENTTEXT[i], 120, MINY + 8 + (((MAXY + MINY * 2) / PERCENTTEXT.length) * i - (i * 9)));
 		}
 	}
 	
@@ -240,6 +197,6 @@ public class AnonymityDrawingPanel extends JPanel {
 	 * Created for a quick and easy way to get the percent that the pointer uses for use in the text description below the bar
 	 */
 	public int getAvgPercentChangeNeeded() {
-		return 100 - pointer.getPercentage();
+		return pointer.getPercentage();
 	}
 }

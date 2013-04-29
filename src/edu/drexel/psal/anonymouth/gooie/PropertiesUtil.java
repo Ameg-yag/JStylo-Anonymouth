@@ -22,13 +22,16 @@ import edu.drexel.psal.jstylo.generics.*;
 
 public class PropertiesUtil {
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private static final String NAME = "( PropertiesUtil ) - ";
 
 	protected static String propFileName = "jsan_resources/anonymouth_prop.prop";
 	protected static File propFile = new File(propFileName);
 	protected static Properties prop = new Properties();
 	protected static JFileChooser load = new JFileChooser();
 	protected static JFileChooser save = new JFileChooser();
+	protected static String defaultClass = "SMO";
+	protected static String defaultFeat = "Writeprints (Limited)";
+	protected static String defaultProbSet = "";
 	private static String[] DEFAULT_LOCATIONS = new String[]{"top","left","right","bottom"};
 	
 	public static enum Location // just so you cant mess up the input to methods by spelling stuff wrong
@@ -79,28 +82,46 @@ public class PropertiesUtil {
 	}
 	
 	/**
-	 * Sets the previous problem set filename, so the user doesn't need to go searching for it. 
-	 * @param filename - name of the file in string form (e.g. ps.xml)
+	 * Sets the default problem set path.
+	 * @param probSet - path to the default problem set.
 	 */
-	protected static void setRecentProbSet(String filename)
+	protected static void setProbSet(String probSet)
 	{
-		// saves the path of the file chosen in the properties file
 		BufferedWriter writer;
-		System.out.println(filename);
 		try {
-			prop.setProperty("recentProbSet", filename);
+			prop.setProperty("recentProbSet", probSet);
 			writer = new BufferedWriter(new FileWriter(propFileName));
 			prop.store(writer, "User Preferences");
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.logln(NAME+"Failed setting problem set \""+probSet+"\"", LogOut.STDERR);
 		}
 	}
 	
 	/**
-	 * Sets the currently selected feature so it's loaded up with the test doc, sample docs, etc.
-	 * @param feature - name of the currently selected feature in string form
+	 * Gets the path to the default problem set.
+	 * @return probSet - path to the default problem set.
 	 */
-	protected static void setRecentFeat(String feature) {
+	protected static String getProbSet() {
+		String probSet = "";
+		try {
+			probSet = prop.getProperty("recentProbSet");
+			if (probSet == null) {
+				prop.setProperty("recentProbSet", defaultProbSet);
+				probSet = prop.getProperty("recentProbSet");
+			}
+		} catch (NullPointerException e) {
+			prop.setProperty("recentProbSet", defaultProbSet);
+			probSet = prop.getProperty("recentProbSet");
+		}
+		
+		return probSet;
+	}
+	
+	/**
+	 * Sets the default feature that will load up on start up
+	 * @param feature - name of the desired feature
+	 */
+	protected static void setFeature(String feature) {
 		// saves the currently selected feature to the properties file
 		BufferedWriter writer;
 		try {
@@ -113,9 +134,31 @@ public class PropertiesUtil {
 	}
 	
 	/**
-	 * Sets the currently selected classifier so it's loaded up with the test doc, sample docs, etc.
+	 * Gets the default feature.
+	 * @return feature - name of the default feature.
 	 */
-	protected static void setRecentClass(String classifier) {
+	protected static String getFeature() {
+		String feature = "";
+		try {
+			feature = prop.getProperty("recentFeat");
+			if (feature == null) {
+				prop.setProperty("recentFeat", defaultFeat);
+				feature = prop.getProperty("recentFeat");
+			}
+		} catch (NullPointerException e) {
+			Logger.logln(NAME+"RecentFeat not set, default value \"" + defaultFeat + "\" used", LogOut.STDOUT);
+			prop.setProperty("recentFeat", defaultFeat);
+			feature = prop.getProperty("recentFeat", defaultFeat);
+		}
+		
+		return feature;
+	}
+	
+	/**
+	 * Sets the default classifier that will load up on start up.
+	 * @param classifier - name of the desired classifier
+	 */
+	protected static void setClassifier(String classifier) {
 		// saves the currently selected classifier to the properties file
 		BufferedWriter writer;
 		try {
@@ -125,6 +168,27 @@ public class PropertiesUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Gets the default classifier
+	 * @return classifier - nname of the default classifier.
+	 */
+	protected static String getClassifier() {
+		String classifier = "";
+		try {
+			classifier = prop.getProperty("recentClass");
+			if (classifier == null) {
+				prop.setProperty("recentClass", defaultClass);
+				classifier = prop.getProperty("recentClass");
+			}
+		} catch (NullPointerException e) {
+			Logger.logln(NAME+"RecentClass not set, default value \"" + defaultClass + "\" used", LogOut.STDOUT);
+			prop.setProperty("recentClass", defaultClass);
+			classifier = prop.getProperty("recentClass", defaultClass);
+		}
+		
+		return classifier;
 	}
 	
 	/**

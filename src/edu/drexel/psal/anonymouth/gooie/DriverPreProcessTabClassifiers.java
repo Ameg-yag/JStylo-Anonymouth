@@ -147,7 +147,7 @@ public class DriverPreProcessTabClassifiers {
 					tmpClassifier = null;
 					main.PPSP.classJTree.clearSelection();
 					
-					PropertiesUtil.setRecentClass(main.classChoice.getSelectedItem().toString());
+					PropertiesUtil.setClassifier(main.classChoice.getSelectedItem().toString());
 				}
 			}
 		});
@@ -515,7 +515,7 @@ public class DriverPreProcessTabClassifiers {
 					tmpClassifier = null;
 					main.PPSP.classJTree.clearSelection();
 					
-					PropertiesUtil.setRecentClass(main.classChoice.getSelectedItem().toString());
+					PropertiesUtil.setClassifier(main.classChoice.getSelectedItem().toString());
 				}
 			}
 		});

@@ -123,7 +123,7 @@ public class DriverPreProcessTabFeatures {
 				GUIUpdateInterface.updateFeatureSetView(main);
 				GUIUpdateInterface.updateFeatPrepColor(main);
 				
-				PropertiesUtil.setRecentFeat(main.featuresSetJComboBox.getSelectedItem().toString());
+				PropertiesUtil.setFeature(main.featuresSetJComboBox.getSelectedItem().toString());
 			}
 		});
 	}
@@ -169,7 +169,7 @@ public class DriverPreProcessTabFeatures {
 					Logger.logln(NAME+"Loading preset feature set canceled.");
 				}
 				
-				PropertiesUtil.setRecentFeat(main.featuresSetJComboBox.getSelectedItem().toString());
+				PropertiesUtil.setFeature(main.featuresSetJComboBox.getSelectedItem().toString());
 			}
 		});
 

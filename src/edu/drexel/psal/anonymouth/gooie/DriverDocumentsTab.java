@@ -12,6 +12,9 @@ import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 import edu.drexel.psal.jstylo.generics.Logger;
+import edu.drexel.psal.jstylo.generics.Logger.LogOut;
+
+import edu.drexel.psal.jstylo.GUI.DocsTabDriver.ExtFilter;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -20,10 +23,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -132,6 +140,8 @@ public class DriverDocumentsTab {
 	protected static int ignoreNumActions = 0;
 	protected static int caretPositionPriorToCharInsert = 0;
 	
+	protected static ActionListener saveAsTestDoc;
+	
 	
 	protected static void signalTargetsSelected(GUIMain main, boolean goodToGo){
 		if(goodToGo == true)
@@ -184,7 +194,10 @@ public class DriverDocumentsTab {
 //		main.restoreSentenceButton.setEnabled(b);
 //		main.SaveChangesButton.setEnabled(b);
 //		main.copyToSentenceButton.setEnabled(b);
-//		main.saveButton.setEnabled(b);
+		main.saveButton.setEnabled(b);
+		main.fileSaveTestDocMenuItem.setEnabled(b);
+		main.fileSaveAsTestDocMenuItem.setEnabled(b);
+		
 //		main.dictButton.setEnabled(b);
 //		main.editorHelpTabPane.setEnabled(b);
 	}
@@ -489,7 +502,7 @@ public class DriverDocumentsTab {
 				System.out.println("DEBUGGING: documentPane insertUpdate fired");
 				
 				charsInserted = e.getLength();
-				System.out.println("DEBUGGING: charsInserted = " + charsInserted + " and document length = " + taggedDoc.getUntaggedDocument().length());
+//				System.out.println("DEBUGGING: charsInserted = " + charsInserted + " and document length = " + taggedDoc.getUntaggedDocument().length());
 				
 				if (charsInserted == taggedDoc.getUntaggedDocument().length()) {
 					charsInserted = 0;
@@ -510,7 +523,6 @@ public class DriverDocumentsTab {
 					main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
 					System.out.println("DEBUGGING:     main.documentPane.getCaretPosition = " + main.documentPane.getCaretPosition());
 					
-					
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 					
 					int[] selectedSentIndexRange = new int[2];
@@ -527,7 +539,7 @@ public class DriverDocumentsTab {
 				System.out.println("DEBUGGING: documentPane removeUpdate fired");
 				
 				charsInserted = e.getLength();
-				System.out.println("DEBUGGING: charsInserted = " + charsInserted + " and document length = " + taggedDoc.getUntaggedDocument().length());
+//				System.out.println("DEBUGGING: charsInserted = " + charsInserted + " and document length = " + taggedDoc.getUntaggedDocument().length());
 			}
 
 			@Override
@@ -843,41 +855,41 @@ public class DriverDocumentsTab {
 //			
 //		});
 		
-//		main.saveButton.addActionListener(new ActionListener()
-//		{
-//
-//			@Override
-//			public void actionPerformed(ActionEvent e) 
-//			{
-//				Logger.logln(NAME+"Save document button clicked.");
-//				JFileChooser save = new JFileChooser();
-//				save.addChoosableFileFilter(new ExtFilter("txt files (*.txt)", "txt"));
-//				int answer = save.showSaveDialog(main);
-//				
-//				if (answer == JFileChooser.APPROVE_OPTION) {
-//					File f = save.getSelectedFile();
-//					String path = f.getAbsolutePath();
-//					if (!path.toLowerCase().endsWith(".txt"))
-//						path += ".txt";
-//					try {
-//						BufferedWriter bw = new BufferedWriter(new FileWriter(path));
-//						bw.write(main.documentPane.getText());
-//						bw.flush();
-//						bw.close();
-//						Logger.log("Saved contents of current tab to "+path);
-//					} catch (IOException exc) {
-//						Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
-//						Logger.logln(NAME+exc.toString(),LogOut.STDERR);
-//						JOptionPane.showMessageDialog(null,
-//								"Failed saving contents of current tab into:\n"+path,
-//								"Save Problem Set Failure",
-//								JOptionPane.ERROR_MESSAGE);
-//					}
-//				} 
-//				else
-//		            Logger.logln(NAME+"Save contents of current tab canceled");
-//			}
-//		});
+		saveAsTestDoc = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				Logger.logln(NAME+"Save As document button clicked.");
+				JFileChooser save = new JFileChooser();
+				save.setSelectedFile(new File("anonymizedDoc.txt"));
+				save.addChoosableFileFilter(new ExtFilter("txt files (*.txt)", "txt"));
+				int answer = save.showSaveDialog(main);
+				
+				if (answer == JFileChooser.APPROVE_OPTION) {
+					File f = save.getSelectedFile();
+					String path = f.getAbsolutePath();
+					if (!path.toLowerCase().endsWith(".txt"))
+						path += ".txt";
+					try {
+						BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+						bw.write(main.documentPane.getText());
+						bw.flush();
+						bw.close();
+						Logger.log("Saved contents of current tab to "+path);
+					} catch (IOException exc) {
+						Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
+						Logger.logln(NAME+exc.toString(),LogOut.STDERR);
+						JOptionPane.showMessageDialog(null,
+								"Failed saving contents of current tab into:\n"+path,
+								"Save Problem Set Failure",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				} 
+				else
+		            Logger.logln(NAME+"Save As contents of current tab canceled");
+			}
+		};
+		main.saveButton.addActionListener(saveAsTestDoc);
 	}
 		
 			

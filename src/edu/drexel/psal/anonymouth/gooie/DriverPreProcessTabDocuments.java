@@ -167,7 +167,7 @@ public class DriverPreProcessTabDocuments {
 							//String filename = PropertiesUtil.load.getSelectedFile().getName();
 							//path = path.substring(path.indexOf("jsan_resources"));
 							
-							PropertiesUtil.setRecentProbSet(path);
+							PropertiesUtil.setProbSet(path);
 							
 							Logger.logln(NAME+"Trying to load problem set at: " + path);
 							try {
@@ -217,8 +217,8 @@ public class DriverPreProcessTabDocuments {
 					File f = PropertiesUtil.save.getSelectedFile();
 					String path = f.getAbsolutePath();
 					String filename = f.getName();
-					
-					PropertiesUtil.setRecentProbSet(PropertiesUtil.save.getSelectedFile().getAbsolutePath());
+
+					PropertiesUtil.setProbSet(PropertiesUtil.save.getSelectedFile().getAbsolutePath());
 					
 					if (!path.toLowerCase().endsWith(".xml"))
 						path += ".xml";
@@ -340,6 +340,7 @@ public class DriverPreProcessTabDocuments {
 						
 						GUIUpdateInterface.updateTestDocTable(main);
 						GUIUpdateInterface.clearDocPreview(main);
+						System.out.println("Should have cleared");
 					} 
 					else 
 					{
@@ -557,17 +558,24 @@ public class DriverPreProcessTabDocuments {
 				Logger.logln(NAME+"'Remove Document(s)/Author(s)' button clicked under the 'Training Corpus' section on the documents tab.");
 				
 				boolean removingAuthor = false;
+				boolean removingAll = false;
 				int docCounter = 0;
 				TreePath[] paths = main.trainCorpusJTree.getSelectionPaths();
 				List<DefaultMutableTreeNode> selectedDocs = new ArrayList<DefaultMutableTreeNode>();
 				
 				if (paths != null) {
-					if (paths[0].getPath().length == 2) {
+					if (paths[0].getPath().length == 1) { //Deleting everything
+						removingAll = true;
+						DefaultMutableTreeNode root = (DefaultMutableTreeNode)paths[0].getPath()[0];
+						Enumeration<DefaultMutableTreeNode> authors = root.children();
+						while (authors.hasMoreElements())
+							selectedDocs.add(authors.nextElement());
+					} else if (paths[0].getPath().length == 2) { //Deleting author and all their documents
 						removingAuthor = true;
 						for (TreePath path: paths)
 							if (path.getPath().length == 2)
 								selectedDocs.add((DefaultMutableTreeNode)path.getPath()[1]);
-					} else {
+					} else if (paths[0].getPath().length == 3) { //Deleting document(s)
 						for (TreePath path: paths)
 							if (path.getPath().length == 3) {
 								selectedDocs.add((DefaultMutableTreeNode)path.getPath()[2]);
@@ -584,23 +592,29 @@ public class DriverPreProcessTabDocuments {
 							JOptionPane.WARNING_MESSAGE);
 				} else {
 					int answer = 0;
+					
 					if (removingAuthor) {
 						answer = JOptionPane.showConfirmDialog(null,
 								"Are you sure you want to remove the selected author and all their documents?",
 								"Remove Training Document's Author Confirmation",
 								JOptionPane.YES_NO_OPTION);
+					} else if (removingAll) {
+						answer = JOptionPane.showConfirmDialog(null,
+								"Are you sure you want to remove all authors and documents?",
+								"Remove Training Document's Author Confirmation",
+								JOptionPane.YES_NO_OPTION);
 					}
-//					} else {
-//						answer = JOptionPane.showConfirmDialog(null,
-//								"Are you sure you want to remove the selected training documents?",
-//								"Remove Training Documents Confirmation",
-//								JOptionPane.YES_NO_OPTION);
-//					}
 
 					String msg;
 					if (answer == 0) {
-						if (removingAuthor) {
-							msg = "Removed authors:\n";
+						if (removingAll) {
+							msg = "Removed all:\n";
+							for (DefaultMutableTreeNode authors: selectedDocs) {
+								main.ps.removeAuthor(authors.toString());
+								msg += "\t\t> " + authors.toString() + "\n";
+							}
+						} else if (removingAuthor) {
+							msg = "Removed author:\n";
 							for (DefaultMutableTreeNode author: selectedDocs) {
 								main.ps.removeAuthor(author.toString());
 								msg += "\t\t> "+author.toString()+"\n";
@@ -711,7 +725,7 @@ public class DriverPreProcessTabDocuments {
 					if (answer == JFileChooser.APPROVE_OPTION) {
 						String path = PropertiesUtil.load.getSelectedFile().getAbsolutePath();
 						
-						PropertiesUtil.setRecentProbSet(path);
+						PropertiesUtil.setProbSet(path);
 						
 						Logger.logln(NAME+"Trying to load problem set from "+path);
 						try {
@@ -751,7 +765,7 @@ public class DriverPreProcessTabDocuments {
 					String path = f.getAbsolutePath();
 					System.out.println(path);
 					
-					PropertiesUtil.setRecentProbSet(path);
+					PropertiesUtil.setProbSet(path);
 					
 					if (!path.toLowerCase().endsWith(".xml"))
 						path += ".xml";
@@ -1270,17 +1284,24 @@ public class DriverPreProcessTabDocuments {
 						Logger.logln(NAME+"'Remove Document(s)/Author(s)' button clicked under the 'Training Corpus' section on the documents tab.");
 						
 						boolean removingAuthor = false;
+						boolean removingAll = false;
 						int docCounter = 0;
 						TreePath[] paths = main.PPSP.trainCorpusJTree.getSelectionPaths();
 						List<DefaultMutableTreeNode> selectedDocs = new ArrayList<DefaultMutableTreeNode>();
 						
 						if (paths != null) {
-							if (paths[0].getPath().length == 2) {
+							if (paths[0].getPath().length == 1) { //Deleting everything
+								removingAll = true;
+								DefaultMutableTreeNode root = (DefaultMutableTreeNode)paths[0].getPath()[0];
+								Enumeration<DefaultMutableTreeNode> authors = root.children();
+								while (authors.hasMoreElements())
+									selectedDocs.add(authors.nextElement());
+							} else if (paths[0].getPath().length == 2) { //Deleting author and all their documents
 								removingAuthor = true;
 								for (TreePath path: paths)
 									if (path.getPath().length == 2)
 										selectedDocs.add((DefaultMutableTreeNode)path.getPath()[1]);
-							} else {
+							} else if (paths[0].getPath().length == 3) { //Deleting document(s)
 								for (TreePath path: paths)
 									if (path.getPath().length == 3) {
 										selectedDocs.add((DefaultMutableTreeNode)path.getPath()[2]);
@@ -1296,23 +1317,30 @@ public class DriverPreProcessTabDocuments {
 									"Remove Training Documents Failure",
 									JOptionPane.WARNING_MESSAGE);
 						} else {
-							System.out.println("Progressing forward");
 							int answer = 0;
-							if (removingAuthor)
+							
+							if (removingAuthor) {
 								answer = JOptionPane.showConfirmDialog(null,
 										"Are you sure you want to remove the selected author and all their documents?",
 										"Remove Training Document's Author Confirmation",
 										JOptionPane.YES_NO_OPTION);
-//							else
-//								answer = JOptionPane.showConfirmDialog(null,
-//										"Are you sure you want to remove the selected training documents?",
-//										"Remove Training Documents Confirmation",
-//										JOptionPane.YES_NO_OPTION);
+							} else if (removingAll) {
+								answer = JOptionPane.showConfirmDialog(null,
+										"Are you sure you want to remove all authors and documents?",
+										"Remove Training Document's Author Confirmation",
+										JOptionPane.YES_NO_OPTION);
+							}
 
 							String msg;
 							if (answer == 0) {
-								if (removingAuthor) {
-									msg = "Removed authors:\n";
+								if (removingAll) {
+									msg = "Removed all:\n";
+									for (DefaultMutableTreeNode authors: selectedDocs) {
+										main.ps.removeAuthor(authors.toString());
+										msg += "\t\t> " + authors.toString() + "\n";
+									}
+								} else if (removingAuthor) {
+									msg = "Removed author:\n";
 									for (DefaultMutableTreeNode author: selectedDocs) {
 										main.ps.removeAuthor(author.toString());
 										msg += "\t\t> "+author.toString()+"\n";

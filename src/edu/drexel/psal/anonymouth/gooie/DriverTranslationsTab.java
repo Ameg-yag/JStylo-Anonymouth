@@ -1,6 +1,7 @@
 package edu.drexel.psal.anonymouth.gooie;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -42,78 +43,85 @@ public class DriverTranslationsTab implements ActionListener
 	{
 		main = GUIMain.inst;
 		DriverTranslationsTab inst = new DriverTranslationsTab();
-		arrow_up = main.arrow_up;
-		arrow_down = main.arrow_down;
-
+		
 		// remove all the current translations shown
 		main.translationsHolderPanel.removeAll();
-
-		current = sentence;
-
-		//		ArrayList<TaggedSentence> taggedSentences = DriverDocumentsTab.taggedDoc.getTaggedSentences();
-		//		for (TaggedSentence tSent: taggedSentences)
-		//		{
-		//			if (tSent.getUntagged().trim().equals(sentence))
-		//			{
-		//				current = tSent;
-		//				break;
-		//			}
-		//		}
-
-		// retrieve the translation information
-		ArrayList<String> translationNames = current.getTranslationNames();
-		ArrayList<TaggedSentence> translations = current.getTranslations();
-		translationsMap = new HashMap();
-		numTranslations = translations.size();
-
-		// initialize the GUI components
-		translationTextAreas = new JTextPane[numTranslations];// everySingleCluster.size()
-		languageLabels = new JLabel[numTranslations];
-		finalPanels = new JPanel[numTranslations];
-		translationButtons = new JButton[numTranslations];
 		
-		// for each translation, initialize a title label, and a text area that will hold the translation
-		// then add those two to a final panel, which will be added to the translation list panel.
-		for (int i = 0; i < numTranslations; i++)
-		{
-			// set up title label
-			languageLabels[i] = new JLabel(translationNames.get(i));
-			translationsMap.put(translationNames.get(i), translations.get(i).getUntagged().trim());
-			languageLabels[i].setFont(main.titleFont);
-			languageLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
-			languageLabels[i].setBorder(main.rlborder);
-			languageLabels[i].setOpaque(true);
-			languageLabels[i].setBackground(main.tan);
+		if (Translator.translatedSentences.contains(sentence.getUntagged())) {
+			arrow_up = main.arrow_up;
+			arrow_down = main.arrow_down;
 
-			// set up translation text area
-			translationTextAreas[i] = new JTextPane();
-			translationTextAreas[i].setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(2,3,2,3)));
-			translationTextAreas[i].setText(translations.get(i).getUntagged().trim());
-			translationTextAreas[i].setEditable(false);
+			current = sentence;
 
-			translationButtons[i] = new JButton();
-			translationButtons[i].setIcon(arrow_up);
-			translationButtons[i].setPressedIcon(arrow_down);
-			translationButtons[i].setToolTipText("Click to replace selected sentence with this translation");
-			translationButtons[i].setBorderPainted(false);
-			translationButtons[i].setContentAreaFilled(false);
-			translationButtons[i].setActionCommand(translationNames.get(i));
-			translationButtons[i].addActionListener(inst);
+			//		ArrayList<TaggedSentence> taggedSentences = DriverDocumentsTab.taggedDoc.getTaggedSentences();
+			//		for (TaggedSentence tSent: taggedSentences)
+			//		{
+			//			if (tSent.getUntagged().trim().equals(sentence))
+			//			{
+			//				current = tSent;
+			//				break;
+			//			}
+			//		}
 
-			// set up final panel, which will hold the previous two components
-			MigLayout layout = new MigLayout(
-					"wrap, ins 0",
-					"",
-					"");
-			finalPanels[i] = new JPanel(layout);
-//			finalPanels[i].setBackground(Color.LIGHT_GRAY);
-			finalPanels[i].add(languageLabels[i], "grow, h 20!, north");
-			finalPanels[i].add(translationButtons[i], "west, wmax 30, wmin 30"); //50 //25
-			finalPanels[i].add(translationTextAreas[i], "east, wmin 283, wmax 283"); //263 //288
+			// retrieve the translation information
+			ArrayList<String> translationNames = current.getTranslationNames();
+			ArrayList<TaggedSentence> translations = current.getTranslations();
+			translationsMap = new HashMap();
+			numTranslations = translations.size();
 
-			// add final panel to the translations list panel
-			main.translationsHolderPanel.add(finalPanels[i], "");
-		}	
+			// initialize the GUI components
+			translationTextAreas = new JTextPane[numTranslations];// everySingleCluster.size()
+			languageLabels = new JLabel[numTranslations];
+			finalPanels = new JPanel[numTranslations];
+			translationButtons = new JButton[numTranslations];
+			
+			// for each translation, initialize a title label, and a text area that will hold the translation
+			// then add those two to a final panel, which will be added to the translation list panel.
+			for (int i = 0; i < numTranslations; i++)
+			{
+				// set up title label
+				languageLabels[i] = new JLabel(translationNames.get(i));
+				translationsMap.put(translationNames.get(i), translations.get(i).getUntagged().trim());
+				languageLabels[i].setFont(main.titleFont);
+				languageLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
+				languageLabels[i].setBorder(main.rlborder);
+				languageLabels[i].setOpaque(true);
+				languageLabels[i].setBackground(main.tan);
+
+				// set up translation text area
+				translationTextAreas[i] = new JTextPane();
+				translationTextAreas[i].setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
+				translationTextAreas[i].setText(translations.get(i).getUntagged().trim());
+				translationTextAreas[i].setEditable(false);
+
+				translationButtons[i] = new JButton();
+				translationButtons[i].setIcon(arrow_up);
+				translationButtons[i].setPressedIcon(arrow_down);
+				translationButtons[i].setToolTipText("Click to replace selected sentence with this translation");
+				translationButtons[i].setBorderPainted(false);
+				translationButtons[i].setContentAreaFilled(false);
+				translationButtons[i].setActionCommand(translationNames.get(i));
+				translationButtons[i].addActionListener(inst);
+
+				// set up final panel, which will hold the previous two components
+				MigLayout layout = new MigLayout(
+						"wrap, ins 0",
+						"",
+						"");
+				finalPanels[i] = new JPanel(layout);
+//				finalPanels[i].setBackground(Color.LIGHT_GRAY);
+				finalPanels[i].add(languageLabels[i], "grow, h 20!, north");
+				finalPanels[i].add(translationButtons[i], "west, wmax 30, wmin 30"); //50 //25
+				finalPanels[i].add(translationTextAreas[i], "east, wmin 283, wmax 283"); //263 //288
+
+				// add final panel to the translations list panel
+				main.translationsHolderPanel.add(finalPanels[i], "");
+			}
+		} else {
+			main.notTranslated.setText("Sentence has not been translated yet, please wait or work on already translated sentences.");
+			main.translationsHolderPanel.add(main.notTranslated, "");
+		}
+			
 		// revalidates and repaints so the GUI updates
 		main.translationsHolderPanel.revalidate();
 		main.translationsHolderPanel.repaint();
