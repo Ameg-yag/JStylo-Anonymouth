@@ -196,31 +196,32 @@ public class DriverDocumentsTab {
 	 * @param main
 	 * @param sentenceNumberToRemove
 	 * @param sentenceToReplaceWith
+	 * @param shouldUpdate if true, it replaces the text in the JTextPane (documentPane) with the text in the TaggedDocument (taggedDoc).
 	 */
-	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith){
+	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith, boolean shouldUpdate){
 			System.out.println("num to remove: "+sentenceNumberToRemove+" and replacing with "+sentenceToReplaceWith);
-			Scanner in = new Scanner(System.in);
-			in.nextLine();
+			//Scanner in = new Scanner(System.in);
+			//in.nextLine();
 			taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
-			ignoreNumActions = 2;
-			main.documentPane.setText(taggedDoc.getUntaggedDocument());
 			//main.documentPane.getCaret().setDot(currentCaretPosition);
 			//main.documentPane.setCaretPosition(currentCaretPosition);
+		/*	
+			try {
+				//System.out.printf("removing from '%d' to '%d' and then inserting at '%d'\n",selectedSentIndexRange[0],selectedSentIndexRange[1],selectedSentIndexRange[0]);
+				main.documentPane.getStyledDocument().remove(selectedSentIndexRange[0], selectedSentIndexRange[0]);
+				main.documentPane.getStyledDocument().insertString(selectedSentIndexRange[0], sentenceToReplaceWith, null);
+			} catch (BadLocationException e) {
+				System.out.println(NAME+"Error modifying document");
+			}
+		*/
+			if (shouldUpdate){
+				ignoreNumActions = 2;
+				main.documentPane.setText(taggedDoc.getUntaggedDocument());
+			}
 			int[] selectionInfo = calculateIndicesOfSelectedSentence(sentenceNumberToRemove);
 			selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 			selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 			moveHighlight(main,selectedSentIndexRange,true);
-			
-			/*
-			try {
-				//System.out.printf("removing from '%d' to '%d' and then inserting at '%d'\n",selectedSentIndexRange[0],selectedSentIndexRange[1],selectedSentIndexRange[0]);
-				//main.documentPane.getDocument().remove(selectedSentIndexRange[0], selectedSentIndexRange[0]);
-				main.documentPane.getDocument().insertString(selectedSentIndexRange[0], sentenceToReplaceWith, null);
-			} catch (BadLocationException e) {
-				System.out.println(NAME+"Error modifying document");
-				e.printStackTrace();
-			}
-			*/
 	}
 	
 	/**
@@ -332,12 +333,9 @@ public class DriverDocumentsTab {
 				if (ignoreNumActions > 0){
 					charsInserted = 0;
 					charsRemoved = 0;
-					caretPositionPriorToCharInsert = currentCaretPosition;
+					//caretPositionPriorToCharInsert = currentCaretPosition;
 					ignoreNumActions--;
 				}
-				else if (isLocked){
-					return;
-				}	
 				else if (taggedDoc != null) { //main.documentPane.getText().length() != 0
 					boolean setSelectionInfoAndHighlight = true;
 					startSelection = e.getDot();
@@ -402,26 +400,15 @@ public class DriverDocumentsTab {
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
 							System.out.println("DEBUGGING: sentences not the same, \"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged() + "\" \"" + currentSentenceString + "\"");
-							//removeReplaceAndUpdate(main, lastSentNum, currentSentenceString);
-							//setSelectionInfoAndHighlight = false;
-							
-							//taggedDoc.removeAndReplace(lastSentNum, currentSentenceString);
-							main.documentPane.setText(taggedDoc.getUntaggedDocument());
-							try {
-								main.documentPane.getDocument().remove(selectedSentIndexRange[0],selectedSentIndexRange[1]);
-								main.documentPane.getDocument().insertString(selectedSentIndexRange[0], currentSentenceString, null);
-							} catch (BadLocationException e1) {
-								// NOTE Auto-generated catch block
-								e1.printStackTrace();
-							}
-							//main.documentPane.getCaret().setDot(currentCaretPosition);
-							//main.documentPane.setCaretPosition(currentCaretPosition);
-							selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
+							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
+							setSelectionInfoAndHighlight = false;
+						
+						//	selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 						}
 						
-						//selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 					}
 					if(setSelectionInfoAndHighlight){
+						selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 						selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 						selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 						

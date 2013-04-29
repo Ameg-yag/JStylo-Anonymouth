@@ -1518,8 +1518,7 @@ public class GUIMain extends javax.swing.JFrame  {
                 documentLabel.setBorder(rlborder);
                 
                 documentScrollPane = new JScrollPane();
-                theDocument = new DefaultStyledDocument();
-                documentPane = new JTextPane(theDocument);
+                documentPane = new JTextPane();
                 documentPane.setDragEnabled(false);
                 documentPane.setText("This is where the latest version of your document will be.");
                 documentPane.setFont(normalFont);
