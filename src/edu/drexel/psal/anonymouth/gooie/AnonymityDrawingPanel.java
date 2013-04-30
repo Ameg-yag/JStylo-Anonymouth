@@ -128,6 +128,8 @@ public class AnonymityDrawingPanel extends JPanel {
 		}
 		
 		pointer = new Pointer();
+		pointer.setPercentages(75, 100);
+		showPointer(true);
 	}
 	
 	public void paintComponent(Graphics g) {
@@ -138,11 +140,11 @@ public class AnonymityDrawingPanel extends JPanel {
 		g2d.setStroke(new BasicStroke(1f));
 		
 		if (!showPointer)
-			g2d.drawImage(barEmpty, (232 / 2) - 100 + 3, MINY-5, null);
+			g2d.drawImage(barEmpty, (232 / 2) - 90 + 3, MINY-5, null);
 		else if (pointer.getPercentage() >= 99)
-			g2d.drawImage(barFull, (232 / 2) - 100 + 3, MINY-5, null);
+			g2d.drawImage(barFull, (232 / 2) - 90 + 3, MINY-5, null);
 		else
-			g2d.drawImage(bar, (232 / 2) - 100 + 3, MINY-5, null);
+			g2d.drawImage(bar, (232 / 2) - 90 + 3, MINY-5, null);
 		
 		Color startingColor = Color.GREEN;
 		Color endingColor = Color.RED;
@@ -161,7 +163,7 @@ public class AnonymityDrawingPanel extends JPanel {
 				if (y <= MAXY - pointer.getY() + 50)
 					break;
 				else
-					g2d.drawLine((232 / 2) - 82, y, (232 / 2) - 32, y);
+					g2d.drawLine((232 / 2) - 72, y, (232 / 2) - 42, y);
 			}
 		}
 		
@@ -173,7 +175,7 @@ public class AnonymityDrawingPanel extends JPanel {
 		
 		//Drawing Percentages
 		for (int i = 0 ; i < PERCENTTEXT.length; i++) {
-			g2d.drawString(PERCENTTEXT[i], 120, MINY + 8 + (((MAXY + MINY * 2) / PERCENTTEXT.length) * i - (i * 9)));
+			g2d.drawString(PERCENTTEXT[i], 110, MINY + 8 + (((MAXY + MINY * 2) / PERCENTTEXT.length) * i - (i * 9)));
 		}
 	}
 	
@@ -197,6 +199,6 @@ public class AnonymityDrawingPanel extends JPanel {
 	 * Created for a quick and easy way to get the percent that the pointer uses for use in the text description below the bar
 	 */
 	public int getAvgPercentChangeNeeded() {
-		return pointer.getPercentage();
+		return 100 - pointer.getPercentage();
 	}
 }

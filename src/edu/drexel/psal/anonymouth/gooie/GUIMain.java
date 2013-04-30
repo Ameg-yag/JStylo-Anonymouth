@@ -468,7 +468,30 @@ public class GUIMain extends javax.swing.JFrame  {
 				}
 				inst = new GUIMain();
 				GUITranslator = new Translator(inst);
+				
+//				WindowListener exitListener = new WindowListener() {
+//					@Override
+//		            public void windowClosing(WindowEvent e) {
+//		                int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?", "Exit Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+//		                if (confirm == 0) {
+//		                   System.exit(0);
+//		                }
+//		            }
+//					@Override
+//					public void windowActivated(WindowEvent arg0) {}
+//					@Override
+//					public void windowClosed(WindowEvent arg0) {}
+//					@Override
+//					public void windowDeactivated(WindowEvent arg0) {}
+//					@Override
+//					public void windowDeiconified(WindowEvent arg0) {}
+//					@Override
+//					public void windowIconified(WindowEvent arg0) {}
+//					@Override
+//					public void windowOpened(WindowEvent arg0) {}
+//				};
 				inst.setDefaultCloseOperation(EXIT_ON_CLOSE);
+//				inst.addWindowListener(exitListener);
 			
 				inst.setLocationRelativeTo(null);
 				inst.setVisible(true);
@@ -520,6 +543,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			menuBar = new JMenuBar();
 			JMenu fileMenu = new JMenu("File");
+			
 			JMenu settingsMenu = new JMenu("Settings");
 			JMenu helpMenu = new JMenu("Help");
 //			JMenu settingsTabMenu = new JMenu("Tabs");
@@ -538,7 +562,12 @@ public class GUIMain extends javax.swing.JFrame  {
 			helpAboutMenuItem = new JMenuItem("About Anonymouth");
 			
 			menuBar.add(fileMenu);
-			menuBar.add(settingsMenu);
+			
+			String OS = System.getProperty("os.name").toLowerCase();
+			if (!OS.contains("mac")) {
+				menuBar.add(settingsMenu);
+				settingsMenu.add(settingsGeneralMenuItem);
+			}
 			menuBar.add(helpMenu);
 			
 			fileMenu.add(fileSaveProblemSetMenuItem);
@@ -551,7 +580,6 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			// ================== HAVE TO ADD ACTION LISTENERS TO THESE BUT NEED TO FIGURE OUT BEST WAY TO DO SO
 			
-			settingsMenu.add(settingsGeneralMenuItem);
 //			settingsMenu.add(settingsTabMenu);
 //				settingsTabMenu.add(settingsTabClustersMenu);
 //					settingsTabClustersMenu.add(new JMenuItem("Left"));
