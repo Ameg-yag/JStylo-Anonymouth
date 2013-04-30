@@ -1,67 +1,27 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.*;
 
 import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
-import edu.drexel.psal.jstylo.generics.Logger.LogOut;
-import edu.drexel.psal.anonymouth.gooie.Translation;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
-import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 
 import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.*;
-import javax.swing.tree.*;
 
 import net.miginfocom.swing.MigLayout;
 
-import com.jgaap.generics.Document;
-
-import weka.classifiers.*;
-
-import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
-
 public class GeneralSettingsFrame extends JDialog {	
-	
+
+	private static final long serialVersionUID = 1L;
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 
 	protected GUIMain main;
@@ -76,49 +36,46 @@ public class GeneralSettingsFrame extends JDialog {
 	protected JComboBox<String> classComboBox;
 	protected JComboBox<String> featComboBox;
 	protected JButton selectProbSet;
-	protected JTextPane probSetTextPane;
+	protected JTextArea probSetTextPane;
+	protected JScrollPane probSetScrollPane;
 	protected JCheckBox autoSave;
 	protected JCheckBox warnQuit;
 	
-	public GeneralSettingsFrame(GUIMain main)
-	{
-		super(main, "General Settings", Dialog.ModalityType.APPLICATION_MODAL);
+	//Advanced tab
+	protected JPanel advanced;
+	protected JLabel maxFeatures;
+	protected JSlider maxFeaturesSlider;
+	protected JLabel note;
+	protected JLabel numOfThreads;
+	protected JSlider numOfThreadsSlider;
+	protected JLabel note2;
+	protected JButton reset;
+	
+	public GeneralSettingsFrame(GUIMain main) {
+		super(main, "Preferences", Dialog.ModalityType.APPLICATION_MODAL);
 		init(main);
 		setVisible(false);
 	}
 	
-	private void init(final GUIMain main)
-	{
+	private void init(final GUIMain main) {
 		this.main = main;
 		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
 		initTabs();
 
 		this.add(tabbedPane);
-		this.setSize(new Dimension(500, 500));
+		this.setSize(new Dimension(500, 325));
+		this.setResizable(false);
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 	}
 	
-	public void openWindow()
-	{
+	public void openWindow() {
 		this.setVisible(true);
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
-
-//		prevPreprocessLocation = PropertiesUtil.getPreProcessTabLocation();
-//		prevSuggestionsLocation = PropertiesUtil.getSuggestionsTabLocation();
-//		prevTranslationsLocation = PropertiesUtil.getTranslationsTabLocation();
-//		prevClustersLocation = PropertiesUtil.getAnonymityTabLocation();
 	}
 	
 	public void closeWindow() {
         WindowEvent wev = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
         Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
-	}
-	
-	private void showPanel(JPanel panel) {
-//		mainPanel.removeAll();
-//		mainPanel.add(panel);
-//		mainPanel.revalidate();
-//		mainPanel.repaint();
 	}
 	
 	/**
@@ -130,177 +87,251 @@ public class GeneralSettingsFrame extends JDialog {
 		//================================ Tabs Location Panel =========================================
 		//==========================================================================================
 		tabbedPane = new JTabbedPane();
-		
 		general = new JPanel();
-		MigLayout tabLocationsLayout = new MigLayout(
-				"wrap",
-				"grow, fill",
-				"[30][grow, fill]");
-		general.setLayout(tabLocationsLayout);
-		{	
+		advanced = new JPanel();
 
-			JPanel generalMainPanel = new JPanel();
-			generalMainPanel.setLayout(new MigLayout());
-			{
-				defaultClassifier = new JLabel("Set Default Classifier");
-				classComboBox = new JComboBox<String>();
-				for (int i = 0; i < main.classChoice.getItemCount(); i++)
-					classComboBox.addItem(main.classChoice.getItemAt(i).toString());
-				classComboBox.setSelectedItem(PropertiesUtil.getClassifier());
-				
-				defaultFeature = new JLabel("Set Default Feature");
-				featComboBox = new JComboBox<String>();
-				for (int i = 0; i < main.featuresSetJComboBox.getItemCount(); i++)
-					featComboBox.addItem(main.featuresSetJComboBox.getItemAt(i).toString());
-				featComboBox.setSelectedItem(PropertiesUtil.getFeature());
-				
-				defaultProbSet = new JLabel("Set Default Problem Set");
-				selectProbSet = new JButton("Select");
-				probSetTextPane = new JTextPane();
-				probSetTextPane.setEditable(false);
-				probSetTextPane.setText(PropertiesUtil.getProbSet());
-				
-				autoSave = new JCheckBox();
-				autoSave.setText("Auto-Save anonymized documents upon exit");
-				
-				warnQuit = new JCheckBox();
-				warnQuit.setText("Warn about unsaved changes upon exit");
-				
-				generalMainPanel.add(defaultClassifier, "wrap");
-				generalMainPanel.add(classComboBox, "wrap");
-				generalMainPanel.add(defaultFeature, "wrap");
-				generalMainPanel.add(featComboBox, "wrap");
-				generalMainPanel.add(defaultProbSet, "wrap");
-				generalMainPanel.add(selectProbSet);
-				generalMainPanel.add(probSetTextPane, "wrap");
-				generalMainPanel.add(autoSave, "wrap");
-				generalMainPanel.add(warnQuit, "wrap");
-				
-			}
-			general.add(generalMainPanel);
+		MigLayout generalLayout = new MigLayout();
+		
+		general.setLayout(generalLayout);
+		{
+			defaultClassifier = new JLabel("Set Default Classifier:");
+			classComboBox = new JComboBox<String>();
+			for (int i = 0; i < main.classChoice.getItemCount(); i++)
+				classComboBox.addItem(main.classChoice.getItemAt(i).toString());
+			classComboBox.setSelectedItem(PropertiesUtil.getClassifier());
 
-//			initListeners();
+			defaultFeature = new JLabel("Set Default Feature:");
+			featComboBox = new JComboBox<String>();
+			for (int i = 0; i < main.featuresSetJComboBox.getItemCount(); i++)
+				featComboBox.addItem(main.featuresSetJComboBox.getItemAt(i).toString());
+			featComboBox.setSelectedItem(PropertiesUtil.getFeature());
+
+			defaultProbSet = new JLabel("Set Default Problem Set:");
+			selectProbSet = new JButton("Select");
+			probSetTextPane = new JTextArea();
+			probSetTextPane.setEditable(false);
+			probSetTextPane.setText(PropertiesUtil.getProbSet());
+			probSetTextPane.setWrapStyleWord(false);
+			probSetScrollPane = new JScrollPane(probSetTextPane);
+			probSetScrollPane.setPreferredSize(new Dimension(420, 20));
+			probSetScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+			probSetScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			
+			autoSave = new JCheckBox();
+			autoSave.setText("Auto-Save anonymized documents upon exit");
+			if (PropertiesUtil.getAutoSave() == true)
+				autoSave.setSelected(true);
+
+			warnQuit = new JCheckBox();
+			warnQuit.setText("Warn about unsaved changes upon exit");
+			if (PropertiesUtil.getWarnQuit() == true)
+				warnQuit.setSelected(true);
+
+			general.add(defaultClassifier, "wrap");
+			general.add(classComboBox, "wrap");
+			general.add(defaultFeature, "wrap");
+			general.add(featComboBox, "wrap");
+			general.add(defaultProbSet, "wrap");
+			general.add(selectProbSet, "split 2");
+			general.add(probSetScrollPane, "wrap");
+			
+			JSeparator test = new JSeparator(JSeparator.HORIZONTAL);
+			test.setPreferredSize(new Dimension(484, 15));
+			general.add(test, "alignx 50%, wrap");
+			general.add(autoSave, "wrap");
+			general.add(warnQuit);
 		}
 		
-		tabbedPane.add(general);
+		MigLayout advancedLayout = new MigLayout();
+		advanced.setLayout(advancedLayout);
+		{
+			maxFeatures = new JLabel("Maximum Features Used = " + PropertiesUtil.getMaximumFeatures());
+			maxFeaturesSlider = new JSlider();
+			maxFeaturesSlider.setPreferredSize(new Dimension(300, 20));
+			maxFeaturesSlider.setMajorTickSpacing(1);
+			maxFeaturesSlider.setMinorTickSpacing(1);
+			maxFeaturesSlider.setMaximum(1000);
+			maxFeaturesSlider.setMinimum(200);
+			maxFeaturesSlider.setSnapToTicks(true);
+			maxFeaturesSlider.setValue(PropertiesUtil.getMaximumFeatures());
+			maxFeaturesSlider.setOrientation(SwingConstants.HORIZONTAL);
+			
+			note = new JLabel("Note: The recommended number is 1000 for best results");
+			note.setForeground(Color.GRAY);
+			
+			numOfThreads = new JLabel("Number of Threads for Features Extraction = " + PropertiesUtil.getThreadCount());
+			
+			numOfThreadsSlider = new JSlider();
+			numOfThreadsSlider.setPreferredSize(new Dimension(300, 20));
+			numOfThreadsSlider.setMajorTickSpacing(1);
+			numOfThreadsSlider.setMaximum(8);
+			numOfThreadsSlider.setMinimum(1);
+			numOfThreadsSlider.setMinorTickSpacing(1);
+			numOfThreadsSlider.setOrientation(SwingConstants.HORIZONTAL);
+			numOfThreadsSlider.setSnapToTicks(true);
+			numOfThreadsSlider.setValue(PropertiesUtil.getThreadCount());
+			
+			note2 = new JLabel("Note: The recommended number of threads to use is 4");
+			note2.setForeground(Color.GRAY);
+			
+			reset = new JButton("Reset Preferences");
+			reset.setToolTipText("Reset all user preferences back to their default values");
+			
+			advanced.add(maxFeatures, "wrap");
+			advanced.add(maxFeaturesSlider, "alignx 50%, wrap");
+			advanced.add(note, "alignx 50%, wrap");
+			advanced.add(numOfThreads, "wrap");
+			advanced.add(numOfThreadsSlider, "alignx 50%, wrap");
+			advanced.add(note2, "alignx 50%, wrap");
+			
+			JSeparator test = new JSeparator(JSeparator.HORIZONTAL);
+			test.setPreferredSize(new Dimension(484, 30));
+			advanced.add(test, "gaptop 30, alignx 50%, wrap");
+			advanced.add(reset, "gaptop 10, alignx 50%");
+		}
+
+		initListeners();
+		tabbedPane.add("General", general);
+		tabbedPane.add("Advanced", advanced);
+	}
+	
+	public void initListeners() {
+		ActionListener classifierListener;
+		ActionListener featureListener;
+		ActionListener probSetListener;
+		ActionListener autoSaveListener;
+		ActionListener warnQuitListener;
+		ChangeListener maxFeaturesListener;
+		ChangeListener numOfThreadsListener;
+		ActionListener resetListener;
+		
+		classifierListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				PropertiesUtil.setClassifier(classComboBox.getSelectedItem().toString());
+			}
+		};
+		classComboBox.addActionListener(classifierListener);
+		
+		featureListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				PropertiesUtil.setFeature(featComboBox.getSelectedItem().toString());
+			}
+		};
+		featComboBox.addActionListener(featureListener);
+		
+		probSetListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					Logger.logln(NAME+"'Select' Problem Set button clicked on the Preferences window");
+
+					int answer = 0;
+					
+					PropertiesUtil.load.addChoosableFileFilter(new ExtFilter("XML files (*.xml)", "xml"));
+					if (PropertiesUtil.getProbSet() != null) {
+						String absPath = PropertiesUtil.propFile.getAbsolutePath();
+						String problemSetDir = absPath.substring(0, absPath.indexOf("anonymouth_prop")-1) + "\\problem_sets\\";
+						PropertiesUtil.load.setCurrentDirectory(new File(problemSetDir));
+						PropertiesUtil.load.setSelectedFile(new File(PropertiesUtil.prop.getProperty("recentProbSet")));
+					}
+					
+					answer = PropertiesUtil.load.showDialog(main, "Load Problem Set");
+
+					if (answer == JFileChooser.APPROVE_OPTION) {
+						String path = PropertiesUtil.load.getSelectedFile().getAbsolutePath();
+						PropertiesUtil.setProbSet(path);
+						
+						probSetTextPane.setText(path);
+					} else {
+						Logger.logln(NAME+"Set default problem set canceled");
+					}
+				} catch (NullPointerException arg)
+				{
+					arg.printStackTrace();
+				}
+			}
+		};
+		selectProbSet.addActionListener(probSetListener);
+		
+		autoSaveListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Logger.logln(NAME+"Auto-save checkbox clicked");
+				
+				if (autoSave.isSelected())
+					PropertiesUtil.setAutoSave(true);
+				else
+					PropertiesUtil.setAutoSave(false);
+			}
+		};
+		autoSave.addActionListener(autoSaveListener);
+		
+		warnQuitListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Logger.logln(NAME+"Warn on quit checkbox clicked");
+				
+				if (warnQuit.isSelected())
+					PropertiesUtil.setWarnQuit(true);
+				else
+					PropertiesUtil.setWarnQuit(false);
+			}
+		};
+		warnQuit.addActionListener(warnQuitListener);
+		
+		maxFeaturesListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				PropertiesUtil.setMaximumFeatures(maxFeaturesSlider.getValue());
+				maxFeatures.setText("Maximum Features Used = " + PropertiesUtil.getMaximumFeatures());
+			}	
+		};
+		maxFeaturesSlider.addChangeListener(maxFeaturesListener);
+		
+		numOfThreadsListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				PropertiesUtil.setThreadCount(numOfThreadsSlider.getValue());
+				numOfThreads.setText("Number of Threads for Features Extraction = " + PropertiesUtil.getThreadCount());
+			}
+		};
+		numOfThreadsSlider.addChangeListener(numOfThreadsListener);
+		
+		resetListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Logger.logln(NAME+"Reset button clicked");
+				
+				int answer = 0;
+				
+				answer = JOptionPane.showConfirmDialog(null,
+						"Are you sure you want to reset all preferences?\nThis will override your changes.",
+						"Reset Preferences",
+						JOptionPane.WARNING_MESSAGE,
+						JOptionPane.YES_NO_CANCEL_OPTION);
+				
+				if (answer == 0) {
+					try {
+						Logger.logln(NAME+"Reset progressing...");
+						PropertiesUtil.reset();
+						numOfThreadsSlider.setValue(PropertiesUtil.getThreadCount());
+						maxFeaturesSlider.setValue(PropertiesUtil.getMaximumFeatures());
+						warnQuit.setSelected(PropertiesUtil.getWarnQuit());
+						autoSave.setSelected(PropertiesUtil.getAutoSave());
+						probSetTextPane.setText(PropertiesUtil.getProbSet());
+						featComboBox.setSelectedItem(PropertiesUtil.getFeature());
+						classComboBox.setSelectedItem(PropertiesUtil.getClassifier());
+						Logger.logln(NAME+"Reset complete");
+					} catch (Exception e) {
+						Logger.logln(NAME+"Error occurred during reset");
+					}
+				} else {
+					Logger.logln(NAME+"User cancelled reset");
+				}
+			}
+		};
+		reset.addActionListener(resetListener);
 	}
 }
-	
-//	public static void initListeners()
-//	{
-//		ActionListener documentsAL;
-//		ActionListener resultsAL;
-//		ActionListener preprocessAL;
-//		ActionListener suggestionsAL;
-//		ActionListener translationsAL;
-//		ActionListener clustersAL;
-//		
-//		documentsAL = new ActionListener()
-//		{
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) 
-//			{
-//				String item = (String)documentsLocationComboBox.getSelectedItem();
-//				if (item == "Left")
-//					PropertiesUtil.setDocumentsTabLocation(PropertiesUtil.Location.LEFT);
-//				if (item == "Top")
-//					PropertiesUtil.setDocumentsTabLocation(PropertiesUtil.Location.TOP);
-//				if (item == "Right")
-//					PropertiesUtil.setDocumentsTabLocation(PropertiesUtil.Location.RIGHT);
-//				if (item == "Bottom")
-//					PropertiesUtil.setDocumentsTabLocation(PropertiesUtil.Location.BOTTOM);
-//			}
-//		};
-//		documentsLocationComboBox.addActionListener(documentsAL);
-//		
-//		resultsAL = new ActionListener()
-//		{
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) 
-//			{
-//				String item = (String)resultsLocationComboBox.getSelectedItem();
-//				if (item == "Left")
-//					PropertiesUtil.setResultsTabLocation(PropertiesUtil.Location.LEFT);
-//				if (item == "Top")
-//					PropertiesUtil.setResultsTabLocation(PropertiesUtil.Location.TOP);
-//				if (item == "Right")
-//					PropertiesUtil.setResultsTabLocation(PropertiesUtil.Location.RIGHT);
-//				if (item == "Bottom")
-//					PropertiesUtil.setResultsTabLocation(PropertiesUtil.Location.BOTTOM);
-//			}
-//		};
-//		resultsLocationComboBox.addActionListener(resultsAL);
-//		
-//		preprocessAL = new ActionListener()
-//		{
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) 
-//			{
-//				String item = (String)preprocessLocationComboBox.getSelectedItem();
-//				if (item == "Left")
-//					PropertiesUtil.setPreProcessTabLocation(PropertiesUtil.Location.LEFT);
-//				if (item == "Top")
-//					PropertiesUtil.setPreProcessTabLocation(PropertiesUtil.Location.TOP);
-//				if (item == "Right")
-//					PropertiesUtil.setPreProcessTabLocation(PropertiesUtil.Location.RIGHT);
-//				if (item == "Bottom")
-//					PropertiesUtil.setPreProcessTabLocation(PropertiesUtil.Location.BOTTOM);
-//			}
-//		};
-//		preprocessLocationComboBox.addActionListener(preprocessAL);
-//		
-//		suggestionsAL = new ActionListener()
-//		{
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) 
-//			{
-//				String item = (String)suggestionsLocationComboBox.getSelectedItem();
-//				if (item == "Left")
-//					PropertiesUtil.setSuggestionsTabLocation(PropertiesUtil.Location.LEFT);
-//				if (item == "Top")
-//					PropertiesUtil.setSuggestionsTabLocation(PropertiesUtil.Location.TOP);
-//				if (item == "Right")
-//					PropertiesUtil.setSuggestionsTabLocation(PropertiesUtil.Location.RIGHT);
-//				if (item == "Bottom")
-//					PropertiesUtil.setSuggestionsTabLocation(PropertiesUtil.Location.BOTTOM);
-//			}
-//		};
-//		suggestionsLocationComboBox.addActionListener(suggestionsAL);
-//		
-//		translationsAL = new ActionListener()
-//		{
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) 
-//			{
-//				String item = (String)translationsLocationComboBox.getSelectedItem();
-//				if (item == "Left")
-//					PropertiesUtil.setTranslationsTabLocation(PropertiesUtil.Location.LEFT);
-//				if (item == "Top")
-//					PropertiesUtil.setTranslationsTabLocation(PropertiesUtil.Location.TOP);
-//				if (item == "Right")
-//					PropertiesUtil.setTranslationsTabLocation(PropertiesUtil.Location.RIGHT);
-//				if (item == "Bottom")
-//					PropertiesUtil.setTranslationsTabLocation(PropertiesUtil.Location.BOTTOM);
-//			}
-//		};
-//		translationsLocationComboBox.addActionListener(translationsAL);
-//		
-//		clustersAL = new ActionListener()
-//		{
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) 
-//			{
-//				String item = (String)clustersLocationComboBox.getSelectedItem();
-//				if (item == "Left")
-//					PropertiesUtil.setAnonymityTabLocation(PropertiesUtil.Location.LEFT);
-//				if (item == "Top")
-//					PropertiesUtil.setAnonymityTabLocation(PropertiesUtil.Location.TOP);
-//				if (item == "Right")
-//					PropertiesUtil.setAnonymityTabLocation(PropertiesUtil.Location.RIGHT);
-//				if (item == "Bottom")
-//					PropertiesUtil.setAnonymityTabLocation(PropertiesUtil.Location.BOTTOM);
-//			}
-//		};
-//		clustersLocationComboBox.addActionListener(clustersAL);
-//	}
-//}

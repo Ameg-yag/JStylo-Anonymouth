@@ -189,5 +189,6 @@ public class DriverTranslationsTab implements ActionListener
 	public void actionPerformed(ActionEvent e) {
 		//Andrew's making method for this
 		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).toString());
+		main.anonymityDrawingPanel.updateAnonymityBar();
 	}	
 }

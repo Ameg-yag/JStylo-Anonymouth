@@ -16,7 +16,9 @@ import javax.swing.JOptionPane;
 
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.AppEvent.AboutEvent;
+import com.apple.eawt.AppEvent.PreferencesEvent;
 import com.apple.eawt.Application;
+import com.apple.eawt.PreferencesHandler;
 
 /**
  * ThePresident sets up the Application and System fields/preferences prior to calling 'GUIMain'
@@ -35,9 +37,9 @@ public class ThePresident {
 	public static String SER_DIR = "./.serialized_objects/";
 	public static String GRAMMAR_DIR = "grammar_data/";//TODO: put in "options"
 	//public static boolean SHOULD_KEEP_TEMP_CLEAN_DOCS = false; // TODO : put in "options" XXX not used!!
-	public static boolean SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = true; // TODO: put in "options"
+	public static boolean SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = PropertiesUtil.getAutoSave(); // TODO: put in "options"
 	public static boolean SAVE_TAGGED_DOCUMENTS = true; // TODO: put in "options
-	public static int MAX_FEATURES_TO_CONSIDER = 1000; // todo: put in 'options', and figure out an optimal number (maybe based upon info gain, total #, etc.)... basically, when the processing time outweighs the benefit, that should be our cutoff.
+	public static int MAX_FEATURES_TO_CONSIDER = PropertiesUtil.getMaximumFeatures(); // todo: put in 'options', and figure out an optimal number (maybe based upon info gain, total #, etc.)... basically, when the processing time outweighs the benefit, that should be our cutoff.
 	// test
 	
 	/*
@@ -102,9 +104,12 @@ public class ThePresident {
 				}
 			});
 			
-//			app.setPreferencesHandler() {
-//				
-//			}
+			app.setPreferencesHandler(new PreferencesHandler() {
+				@Override
+				public void handlePreferences(PreferencesEvent arg0) {
+					GUIMain.GSP.openWindow();
+				}
+			});
 
 			app.requestForeground(true);
 		}
@@ -119,6 +124,7 @@ public class ThePresident {
 //		if(tempName != null)
 //			sessionName = tempName;
 		//System.out.println(tempName+" "+sessionName);
+		
 		File log_dir = new File(LOG_DIR); // create log directory if it doesn't exist.
 		if (!log_dir.exists()){
 			System.out.println(leader.NAME+"Creating directory for DocumentMagician to write to...");

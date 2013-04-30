@@ -125,8 +125,12 @@ public class DriverPreProcessTabClassifiers {
 					
 					try {
 						//tmpClassifier.setOptions(main.classAvClassArgsJTextField.getText().split(" "));
+						System.out.println("TEST: tmpClassifier.getOption() = " + tmpClassifier.getOptions());
+						System.out.println("TEST: getOptionsStr(tmpClassifier.getOptions()) = " + getOptionsStr(tmpClassifier.getOptions()));
+						System.out.println("TEST: getOptionsStr(tmpClassifier.getOptions()).split(\" \") = " + getOptionsStr(tmpClassifier.getOptions()).split(" "));
 						tmpClassifier.setOptions(getOptionsStr(tmpClassifier.getOptions()).split(" "));
 					} catch (Exception e1) {
+						e1.printStackTrace();
 						Logger.logln(NAME+"Invalid options given for classifier.",LogOut.STDERR);
 						JOptionPane.showMessageDialog(main,
 								"The classifier arguments entered are invalid.\n"+

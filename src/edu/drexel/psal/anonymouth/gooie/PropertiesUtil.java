@@ -30,8 +30,12 @@ public class PropertiesUtil {
 	protected static JFileChooser load = new JFileChooser();
 	protected static JFileChooser save = new JFileChooser();
 	protected static String defaultClass = "SMO";
-	protected static String defaultFeat = "Writeprints (Limited)";
+	protected static String defaultFeat = "WritePrints (Limited)";
 	protected static String defaultProbSet = "";
+	protected static Boolean defaultAutoSave = true;
+	protected static Boolean defaultWarnQuit = true;
+	protected static int defaultThreads = 4;
+	protected static int defaultFeatures = 1000;
 	private static String[] DEFAULT_LOCATIONS = new String[]{"top","left","right","bottom"};
 	
 	public static enum Location // just so you cant mess up the input to methods by spelling stuff wrong
@@ -82,7 +86,170 @@ public class PropertiesUtil {
 	}
 	
 	/**
-	 * Sets the default problem set path.
+	 * Resets all values in the prop file to their default values, thereby erasing all the user's changes.
+	 */
+	protected static void reset() {
+		setThreadCount(defaultThreads);
+		setMaximumFeatures(defaultFeatures);
+		setWarnQuit(defaultWarnQuit);
+		setAutoSave(defaultAutoSave);
+		setProbSet(defaultProbSet);
+		setFeature(defaultFeat);
+		setClassifier(defaultClass);
+	}
+	
+	/**
+	 * Sets the user's thread count preference.
+	 * @param threads - the maximum number of threads the user wants used
+	 */
+	protected static void setThreadCount(int threads) {
+		BufferedWriter writer;
+		try {
+			prop.setProperty("numOfThreads", Integer.toString(threads));
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (Exception e) {
+			Logger.logln(NAME + "Failed setting thread count", LogOut.STDERR);
+		}
+	}
+	
+	/**
+	 * Gets the user's preferred thread count
+	 * @return 
+	 */
+	protected static int getThreadCount() {
+		String threads = "";
+		try {
+			threads = prop.getProperty("numOfThreads");
+			if (threads == null) {
+				prop.setProperty("numOfThreads", Integer.toString(defaultThreads));
+				threads = prop.getProperty("numOfThreads");
+			}
+		} catch (NullPointerException e) {
+			prop.setProperty("numOfThreads", Integer.toString(defaultThreads));
+			threads = prop.getProperty("numOfThreads");
+		}
+		
+		return Integer.parseInt(threads);
+	}
+	
+	/**
+	 * Sets the user's feature count preference.
+	 * @param max - the maximum number of features the user wants used
+	 */
+	protected static void setMaximumFeatures(int max) {
+		BufferedWriter writer;
+		try {
+			prop.setProperty("maxFeatures", Integer.toString(max));
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+			
+			ThePresident.MAX_FEATURES_TO_CONSIDER = max;
+		} catch (Exception e) {
+			Logger.logln(NAME + "Failed setting maximum features", LogOut.STDERR);
+		}
+	}
+	
+	/**
+	 * Gets the user's preferred feature count.
+	 * @return
+	 */
+	protected static int getMaximumFeatures() {
+		String max = "";
+		try {
+			max = prop.getProperty("maxFeatures");
+			if (max == null) {
+				prop.setProperty("maxFeatures", Integer.toString(defaultFeatures));
+				max = prop.getProperty("maxFeatures");
+			}
+		} catch (NullPointerException e) {
+			prop.setProperty("maxFeatures", Integer.toString(defaultFeatures));
+			max = prop.getProperty("maxFeatures");
+		}
+		
+		return Integer.parseInt(max);
+	}
+	
+	/**
+	 * Sets the user's preference on having a warning upon exit.
+	 * @param b - whether or not the user wants to be warned upon exit of unsaved changes
+	 */
+	protected static void setWarnQuit(Boolean b) {
+		BufferedWriter writer;
+		try {
+			prop.setProperty("warnQuit", b.toString());
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (Exception e) {
+			Logger.logln(NAME+"Failed setting warn on quit", LogOut.STDERR);
+		}
+	}
+	
+	/**
+	 * Gets the user's warn on quit preference
+	 * @return
+	 */
+	protected static Boolean getWarnQuit() {
+		String warnQuit = "";
+		try {
+			warnQuit = prop.getProperty("warnQuit");
+			if (warnQuit == null) {
+				prop.setProperty("warnQuit", defaultWarnQuit.toString());
+				warnQuit = prop.getProperty("warnQuit");
+			}
+		} catch (NullPointerException e) {
+			prop.setProperty("warnQuit", defaultWarnQuit.toString());
+			warnQuit = prop.getProperty("warnQuit");
+		}
+		
+		if (warnQuit.equals("true"))
+			return true;
+		else
+			return false;
+	}
+	
+	/**
+	 * Sets the user's preference on auto-saving
+	 * @param b - whether or not the user wants their document to be auto-saved
+	 */
+	protected static void setAutoSave(Boolean b) {
+		BufferedWriter writer;
+		try {
+			prop.setProperty("autoSave", b.toString());
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+			
+			ThePresident.SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = b;
+		} catch (Exception e) {
+			Logger.logln(NAME+"Failed setting auto save", LogOut.STDERR);
+		}
+	}
+	
+	/**
+	 * Gets the user's preference on auto-saving
+	 * @return
+	 */
+	protected static Boolean getAutoSave() {
+		String autoSave = "";
+		try {
+			autoSave = prop.getProperty("autoSave");
+			if (autoSave == null) {
+				prop.setProperty("autoSave", defaultAutoSave.toString());
+				autoSave = prop.getProperty("autoSave");
+			}
+		} catch (NullPointerException e) {
+				prop.setProperty("autoSave", defaultAutoSave.toString());
+				autoSave = prop.getProperty("autoSave");
+		}
+		
+		if (autoSave.equals("true"))
+			return true;
+		else
+			return false;
+	}
+	
+	/**
+	 * Sets the user's preference of problem set path.
 	 * @param probSet - path to the default problem set.
 	 */
 	protected static void setProbSet(String probSet)
@@ -118,8 +285,8 @@ public class PropertiesUtil {
 	}
 	
 	/**
-	 * Sets the default feature that will load up on start up
-	 * @param feature - name of the desired feature
+	 * Sets the user's feature preference that will load up on start up.
+	 * @param feature - name of the desired feature.
 	 */
 	protected static void setFeature(String feature) {
 		// saves the currently selected feature to the properties file
@@ -134,7 +301,7 @@ public class PropertiesUtil {
 	}
 	
 	/**
-	 * Gets the default feature.
+	 * Gets the user's feature preference.
 	 * @return feature - name of the default feature.
 	 */
 	protected static String getFeature() {
@@ -155,7 +322,7 @@ public class PropertiesUtil {
 	}
 	
 	/**
-	 * Sets the default classifier that will load up on start up.
+	 * Sets the user's classifier preference that will load up on start up.
 	 * @param classifier - name of the desired classifier
 	 */
 	protected static void setClassifier(String classifier) {
@@ -171,8 +338,8 @@ public class PropertiesUtil {
 	}
 	
 	/**
-	 * Gets the default classifier
-	 * @return classifier - nname of the default classifier.
+	 * Gets the user's classifier preference.
+	 * @return classifier - name of the default classifier.
 	 */
 	protected static String getClassifier() {
 		String classifier = "";
@@ -449,5 +616,4 @@ public class PropertiesUtil {
 		}
 		return stringToLocation(location);
 	}
-
 }

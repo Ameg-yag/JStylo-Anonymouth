@@ -131,7 +131,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected List<String> results;
 	
 	protected PreProcessSettingsFrame PPSP;
-	protected GeneralSettingsFrame GSP;
+	protected static GeneralSettingsFrame GSP;
 
 	protected String defaultTrainDocsTreeName = "Authors"; 
 	protected Font defaultLabelFont = new Font("Verdana",0,16);
@@ -522,14 +522,14 @@ public class GUIMain extends javax.swing.JFrame  {
 			JMenu fileMenu = new JMenu("File");
 			JMenu settingsMenu = new JMenu("Settings");
 			JMenu helpMenu = new JMenu("Help");
-			JMenu settingsTabMenu = new JMenu("Tabs");
-			settingsGeneralMenuItem = new JMenuItem("General...");
-			JMenu settingsTabClustersMenu = new JMenu("Clusters");
-			JMenu settingsTabPreprocessMenu = new JMenu("Pre-Process");
-			JMenu settingsTabSuggestionsMenu = new JMenu("Suggestions");
-			JMenu settingsTabTranslationsMenu = new JMenu("Translations");
-			JMenu settingsTabDocumentsMenu = new JMenu("Documents");
-			JMenu settingsTabResultsMenu = new JMenu("Results");
+//			JMenu settingsTabMenu = new JMenu("Tabs");
+			settingsGeneralMenuItem = new JMenuItem("Preferences");
+//			JMenu settingsTabClustersMenu = new JMenu("Clusters");
+//			JMenu settingsTabPreprocessMenu = new JMenu("Pre-Process");
+//			JMenu settingsTabSuggestionsMenu = new JMenu("Suggestions");
+//			JMenu settingsTabTranslationsMenu = new JMenu("Translations");
+//			JMenu settingsTabDocumentsMenu = new JMenu("Documents");
+//			JMenu settingsTabResultsMenu = new JMenu("Results");
 			fileSaveProblemSetMenuItem = new JMenuItem("Save Problem Set");
 			fileLoadProblemSetMenuItem = new JMenuItem("Load Problem Set");
 			fileSaveTestDocMenuItem = new JMenuItem("Save");
@@ -552,24 +552,24 @@ public class GUIMain extends javax.swing.JFrame  {
 			// ================== HAVE TO ADD ACTION LISTENERS TO THESE BUT NEED TO FIGURE OUT BEST WAY TO DO SO
 			
 			settingsMenu.add(settingsGeneralMenuItem);
-			settingsMenu.add(settingsTabMenu);
-				settingsTabMenu.add(settingsTabClustersMenu);
-					settingsTabClustersMenu.add(new JMenuItem("Left"));
-					settingsTabClustersMenu.add(new JMenuItem("Top"));
-					settingsTabClustersMenu.add(new JMenuItem("Right"));
-				settingsTabMenu.add(settingsTabPreprocessMenu);
-					settingsTabPreprocessMenu.add(new JMenuItem("Left"));
-					settingsTabPreprocessMenu.add(new JMenuItem("Right"));
-				settingsTabMenu.add(settingsTabSuggestionsMenu);
-					settingsTabSuggestionsMenu.add(new JMenuItem("Left"));
-					settingsTabSuggestionsMenu.add(new JMenuItem("Right"));
-				settingsTabMenu.add(settingsTabTranslationsMenu);
-					settingsTabTranslationsMenu.add(new JMenuItem("Left"));
-					settingsTabTranslationsMenu.add(new JMenuItem("Right"));
-				settingsTabMenu.add(settingsTabDocumentsMenu);
-					settingsTabDocumentsMenu.add(new JMenuItem("Top"));
-				settingsTabMenu.add(settingsTabResultsMenu);
-					settingsTabResultsMenu.add(new JMenuItem("Bottom"));
+//			settingsMenu.add(settingsTabMenu);
+//				settingsTabMenu.add(settingsTabClustersMenu);
+//					settingsTabClustersMenu.add(new JMenuItem("Left"));
+//					settingsTabClustersMenu.add(new JMenuItem("Top"));
+//					settingsTabClustersMenu.add(new JMenuItem("Right"));
+//				settingsTabMenu.add(settingsTabPreprocessMenu);
+//					settingsTabPreprocessMenu.add(new JMenuItem("Left"));
+//					settingsTabPreprocessMenu.add(new JMenuItem("Right"));
+//				settingsTabMenu.add(settingsTabSuggestionsMenu);
+//					settingsTabSuggestionsMenu.add(new JMenuItem("Left"));
+//					settingsTabSuggestionsMenu.add(new JMenuItem("Right"));
+//				settingsTabMenu.add(settingsTabTranslationsMenu);
+//					settingsTabTranslationsMenu.add(new JMenuItem("Left"));
+//					settingsTabTranslationsMenu.add(new JMenuItem("Right"));
+//				settingsTabMenu.add(settingsTabDocumentsMenu);
+//					settingsTabDocumentsMenu.add(new JMenuItem("Top"));
+//				settingsTabMenu.add(settingsTabResultsMenu);
+//					settingsTabResultsMenu.add(new JMenuItem("Bottom"));
 			
 			helpMenu.add(helpAboutMenuItem);
 			
@@ -623,7 +623,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	 * @throws Exception - if any of these values are not found in the prop file, we instead set them to the defaults
 	 */
 	protected void setDefaultValues() throws Exception {
-		if (PropertiesUtil.getProbSet() != null) {
+		if (PropertiesUtil.getProbSet() != "") {
 			String problemSetPath = PropertiesUtil.prop.getProperty("recentProbSet");
 			
 			PropertiesUtil.setProbSet(problemSetPath);
