@@ -14,7 +14,10 @@ public class Translator implements Runnable
 	private ArrayList<TaggedSentence> sentences = new ArrayList<TaggedSentence>(); // essentially the priority queue
 	private ArrayList<Long> timeStamps = new ArrayList<Long>();
 	private GUIMain main;
-	private boolean firstRun = true;
+	public static boolean firstRun = true;
+	public static boolean addSent = false;
+	private TaggedSentence oldSentence;
+	private TaggedSentence newSentence;
 	private int currentSentNum = 1;
 	private int currentLangNum = 1;
 	public static ArrayList<String> translatedSentences = new ArrayList<String>(); 
@@ -52,47 +55,30 @@ public class Translator implements Runnable
 //			load(sentences);
 //	}
 
+	public void replace(TaggedSentence newSentence, TaggedSentence oldSentence) {
+		if (sentences.size() >= 1) {
+			addSent = true;
+			this.newSentence = newSentence;
+			this.oldSentence = oldSentence;
+		} else {
+			addSent = true;
+			sentences.add(newSentence);
+			sentences.remove(oldSentence);
+		}
+	}
+	
 	/**
 	 * Loads sentences into the translation queue. Newly added sentences take priority. If translations arent running, it starts running.
 	 * If translations are already running, adds new sentences into the front of the queue.
 	 */
-	public void load(ArrayList<TaggedSentence> loaded) 
-	{
-//		if (sentences.size() == 0) {
-//			for (int i = 0; i < loaded.size(); i++) {
-//				timeStamps.add(new Long(0));
-//			}
-//		}
-		
-		// if there are no sentences currently being translated
-		System.out.println("DEBUGGING: OUTSIDE ELSE");
-		if (firstRun)
-		{
-			System.out.println("DEBUGGING: FIRST RUN");
-			firstRun = false;
-			// add the given sentences to the queue
-			for (int i = 0; i < loaded.size(); i++)
-				sentences.add(loaded.get(i));
-			
-			// start a new thread to begin translation
-			Thread transThread = new Thread(this);
-			transThread.start(); // calls run below
-		}
-		// if there are sentences in the queue already
-		else
-		{
-			System.out.println("DEBUGGING: PASSED ELSE " + loaded.size());
-			//
-			for (int i = 0; i < loaded.size(); i++)
-			{
-				System.out.println("DEBUGGING: IN FOR LOOP");
-				if (currentSentNum + i == sentences.size()) // the + i makes the statement account for the loaded sentences that have been added.
-					sentences.add(loaded.get(i));
-				else {
-					sentences.add(currentSentNum, loaded.get(i)); // adds it directly after the sentence currently being processed
-				}
-			}
-		}
+	public void load(ArrayList<TaggedSentence> loaded)  {
+		// add the given sentences to the queue
+		for (int i = 0; i < loaded.size(); i++)
+			sentences.add(loaded.get(i));
+
+		// start a new thread to begin translation
+		Thread transThread = new Thread(this);
+		transThread.start(); // calls run below
 	}
 
 	@Override
@@ -109,20 +95,18 @@ public class Translator implements Runnable
 		main.translationsProgressLabel.setText("Sentence: 1/" + sentences.size() + " Languages: 1/"  + DriverDocumentsTab.translator.getUsedLangs().length);
 
 		// translate all languages for each sentence, sorting the list based on anon index after each translation
-		while (!sentences.isEmpty() && currentSentNum <= sentences.size())
-		{
-			translatedSentences.add(sentences.get(currentSentNum-1).getUntagged());
+		while (!sentences.isEmpty() && currentSentNum <= sentences.size()) {
+			System.out.println("DEBUGGING: translated sentence = " + sentences.get(currentSentNum-1).getUntagged());
+			translatedSentences.add(sentences.get(currentSentNum-1).getUntagged().trim());
 			// if the sentence that is about to be translated already has translations, get rid of them
-			if (sentences.get(currentSentNum-1).hasTranslations())
-			{
+			if (sentences.get(currentSentNum-1).hasTranslations()) {
 				sentences.get(currentSentNum-1).setTranslations(new ArrayList<TaggedSentence>(Translation.getUsedLangs().length));
 				sentences.get(currentSentNum-1).setTranslationNames(new ArrayList<String>(Translation.getUsedLangs().length));
 			}
 			main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
 
 			// Translate the sentence for each language
-			for (Language lang: Translation.getUsedLangs())
-			{
+			for (Language lang: Translation.getUsedLangs()) {
 				// update the progress label
 				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
 
@@ -134,15 +118,28 @@ public class Translator implements Runnable
 				sentences.get(currentSentNum-1).sortTranslations();
 				String one = DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(DriverDocumentsTab.sentToTranslate).trim();
 				String two = sentences.get(currentSentNum-1).getUntagged().trim();
+				
 				if (one.equals(two))
 					DriverTranslationsTab.showTranslations(sentences.get(currentSentNum-1));
 				currentLangNum++;
 				
 				if (main.translationsProgressBar.getValue() + 1 <= main.translationsProgressBar.getMaximum())
 					main.translationsProgressBar.setValue(main.translationsProgressBar.getValue() + 1);
+			
+				if (addSent) {
+					addSent = false;
+					sentences.add(currentSentNum, newSentence);
+					sentences.remove(oldSentence);
+					currentSentNum -= 1;
+				}
 			}
 			currentLangNum = 1;
 			currentSentNum++;
+			
+//			System.out.println("DEBUGGING: BEFORE");
+//			for (int i = 0; i < sentences.size(); i++)
+//				System.out.println("DEBUGGING: sentences = " + sentences.get(i).getUntagged().trim());
+//			System.out.println("DEBUGGING: END");
 		}
 		sentences.removeAll(sentences);
 		main.translationsProgressBar.setIndeterminate(false);

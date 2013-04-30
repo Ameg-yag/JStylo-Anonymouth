@@ -108,6 +108,7 @@ public class PropertiesUtil {
 			prop.setProperty("numOfThreads", Integer.toString(threads));
 			writer = new BufferedWriter(new FileWriter(propFileName));
 			prop.store(writer, "User Preferences");
+			ThePresident.NUM_TAGGING_THREADS = threads;
 		} catch (Exception e) {
 			Logger.logln(NAME + "Failed setting thread count", LogOut.STDERR);
 		}

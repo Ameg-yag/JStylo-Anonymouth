@@ -128,8 +128,6 @@ public class AnonymityDrawingPanel extends JPanel {
 		}
 		
 		pointer = new Pointer();
-		pointer.setPercentages(75, 100);
-		showPointer(true);
 	}
 	
 	public void paintComponent(Graphics g) {

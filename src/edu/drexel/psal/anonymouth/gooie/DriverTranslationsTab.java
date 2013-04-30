@@ -27,7 +27,7 @@ public class DriverTranslationsTab implements ActionListener
 	private static GUIMain main;
 	protected static JPanel[] finalPanels;
 	protected static JLabel[] languageLabels;
-	protected static Map translationsMap;
+	protected static Map<String, TaggedSentence> translationsMap;
 	protected static JTextPane[] translationTextAreas;
 	protected static JButton[] translationButtons;
 	protected static int numTranslations;
@@ -47,10 +47,14 @@ public class DriverTranslationsTab implements ActionListener
 		// remove all the current translations shown
 		main.translationsHolderPanel.removeAll();
 		
-		if (Translator.translatedSentences.contains(sentence.getUntagged())) {
+		for (int i = 0; i < Translator.translatedSentences.size(); i++)
+			System.out.println("FIND ME: \"" + Translator.translatedSentences.get(i) + "\"");
+		System.out.println("COMPARE TO: \"" + sentence.getUntagged() + "\"");
+		if (Translator.translatedSentences.contains(sentence.getUntagged().trim())) {
+			System.out.println("ENTERED");
 			arrow_up = main.arrow_up;
 			arrow_down = main.arrow_down;
-
+			
 			current = sentence;
 
 			//		ArrayList<TaggedSentence> taggedSentences = DriverDocumentsTab.taggedDoc.getTaggedSentences();
@@ -81,7 +85,7 @@ public class DriverTranslationsTab implements ActionListener
 			{
 				// set up title label
 				languageLabels[i] = new JLabel(translationNames.get(i));
-				translationsMap.put(translationNames.get(i), translations.get(i).getUntagged().trim());
+				translationsMap.put(translationNames.get(i), translations.get(i));
 				languageLabels[i].setFont(main.titleFont);
 				languageLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
 				languageLabels[i].setBorder(main.rlborder);
@@ -109,7 +113,6 @@ public class DriverTranslationsTab implements ActionListener
 						"",
 						"");
 				finalPanels[i] = new JPanel(layout);
-//				finalPanels[i].setBackground(Color.LIGHT_GRAY);
 				finalPanels[i].add(languageLabels[i], "grow, h 20!, north");
 				finalPanels[i].add(translationButtons[i], "west, wmax 30, wmin 30"); //50 //25
 				finalPanels[i].add(translationTextAreas[i], "east, wmin 283, wmax 283"); //263 //288
@@ -187,8 +190,11 @@ public class DriverTranslationsTab implements ActionListener
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		//Andrew's making method for this
-		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, " "+translationsMap.get(e.getActionCommand()).toString(), true);
+		System.out.println("DEBUGGING: CLICKED!");
+		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, " "+translationsMap.get(e.getActionCommand()).getUntagged().trim(), true);
+//		System.out.println("DEBUGGING: before = " + translationsMap.get(e.getActionCommand()).getUntagged().trim());
+//		System.out.println("HELLO!");
+		main.GUITranslator.replace(translationsMap.get(e.getActionCommand()), current);
 		main.anonymityDrawingPanel.updateAnonymityBar();
 	}	
 }

@@ -357,12 +357,8 @@ public class DriverDocumentsTab {
 					boolean setSelectionInfoAndHighlight = true;
 					startSelection = e.getDot();
 					endSelection = e.getMark();
-					System.out.println("DEBUGGING: startSelection " + startSelection + " and endSelection " + endSelection);
 					currentCaretPosition = startSelection;
-					System.out.println("DEBUGGING: charsInserted " + charsInserted + " and length of document = " + taggedDoc.getUntaggedDocument().length());
 					caretPositionPriorToCharInsert = currentCaretPosition - charsInserted;
-					System.out.println("DEBUGGING: caretPositionPriorToCharInsert " + caretPositionPriorToCharInsert);
-					System.out.println("DEBUGGING: selectedSentIndexRange[0] = " + selectedSentIndexRange[0] + " and selectedSentIndexRange[1] = " + selectedSentIndexRange[1]);
 					int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert); 
 					if (selectionInfo == null)
 						return; // don't do anything.
@@ -378,26 +374,22 @@ public class DriverDocumentsTab {
 						
 					}
 						
-					System.out.printf("CARET INFO: %d to %d\n", startSelection, endSelection);
 					boolean inRange = false;
 					/*
 					 * put in a check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
 					 */
 					if ( caretPositionPriorToCharInsert >= selectedSentIndexRange[0] && caretPositionPriorToCharInsert <= selectedSentIndexRange[1]){
-						System.out.println("DEBUGGING: selectedSentIndexRange changed");
 						inRange = true;
 						// Caret is inside range of presently selected sentence.
 						// update from previous caret
 						if (charsInserted > 0 ){// && lastSentNum != -1){
 							keyJustPressed = false;
-							System.out.println("DEBUGGING: Chars inserted");
 							selectedSentIndexRange[1] += charsInserted;
 							//moveHighlight(main,selectedSentIndexRange,false);
 							charsInserted = ~-1; // puzzle: what does this mean? (scroll to bottom of file for answer) - AweM
 						}
 						else if (charsRemoved > 0){// && lastSentNum != -1){
 							keyJustPressed = false;
-							System.out.println("DEBUGGING: Chars removed");
 							selectedSentIndexRange[1] -= charsRemoved;
 							//moveHighlight(main,selectedSentIndexRange,false);
 							charsRemoved = 0;
@@ -409,7 +401,6 @@ public class DriverDocumentsTab {
 					lastSentNum = currentSentNum;
 					currentSentNum = selectionInfo[0];
 					
-					System.out.println("DEBUGGING: lastSentNum = " + lastSentNum);
 					if (lastSentNum != -1){ //NOTE needed a way to make sure that the first time a sentence is clicked, we didn't break stuff... this may not be the best way...
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
@@ -417,7 +408,6 @@ public class DriverDocumentsTab {
 						
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
-							System.out.println("DEBUGGING: sentences not the same, \n<" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged() + ">\n<" + currentSentenceString + ">");
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 							setSelectionInfoAndHighlight = false;
 						
@@ -437,7 +427,6 @@ public class DriverDocumentsTab {
 					}
 					
 					sentToTranslate = currentSentNum;
-					System.out.println("DEBUGGING: DriverTranslationsTab.showTranslations for = " + taggedDoc.getSentenceNumber(sentToTranslate));
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));			
 				}
 			}
