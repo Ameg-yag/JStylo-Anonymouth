@@ -1027,7 +1027,7 @@ public class WekaInstancesBuilder {
 			e.printStackTrace();
 		}
 		
-		File jProps = new File(path+"\\jsan_resources\\JStylo_prop.prop");
+		File jProps = new File(path+"/jsan_resources/JStylo_prop.prop");
 		
 		if (jProps.exists()){ //write numCalcThreads to the file
 	
@@ -1113,7 +1113,7 @@ public class WekaInstancesBuilder {
 			e.printStackTrace();
 		}
 		
-		File jProps = new File(path+"\\jsan_resources\\JStylo_prop.prop");
+		File jProps = new File(path+"/jsan_resources/JStylo_prop.prop");
 		
 		if (jProps.exists()){ //if it already exists, read the calc thread variable
 			
@@ -1163,7 +1163,7 @@ public class WekaInstancesBuilder {
 			e.printStackTrace();
 		}
 		
-		File jProps = new File(path+"\\jsan_resources\\JStylo_prop.prop");
+		File jProps = new File(path+"/jsan_resources/JStylo_prop.prop");
 		
 		try {
 			String[] contents = {"#JStylo Preferences","#Properties File Version: .1","numCalcThreads=4"};
