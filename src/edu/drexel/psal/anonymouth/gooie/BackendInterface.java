@@ -346,6 +346,7 @@ public class BackendInterface {
 			main.anonymityDrawingPanel.showPointer(true);
 			
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
+			
 			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument());//must re-set the document after processing (do deal 
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0);
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
@@ -353,7 +354,9 @@ public class BackendInterface {
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange, true);
 			main.documentPane.getCaret().setDot(0);
 			main.documentPane.setCaretPosition(0);
-			
+			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
+			DriverDocumentsTab.charsRemoved = 0;	
+			DriverDocumentsTab.caretPositionPriorToCharInsert = 0;
 			//Andrew had this commented out, I commented it back in for testing
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	

@@ -6,6 +6,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.jstylo.generics.CumulativeFeatureDriver;
 import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
@@ -84,6 +85,7 @@ public class InstanceConstructor {
 	 */
 	public InstanceConstructor(boolean isSparse, CumulativeFeatureDriver cfd, boolean printStuff){
 		wid = new WekaInstancesBuilder(isSparse);
+		wid.setNumCalcThreads(ThePresident.NUM_TAGGING_THREADS);
 		theseFeaturesCfd = cfd;
 		this.printStuff =printStuff;
 		Logger.logln(NAME+"InstanceConstuctor constructed");

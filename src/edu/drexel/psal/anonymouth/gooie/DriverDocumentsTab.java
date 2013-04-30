@@ -229,10 +229,13 @@ public class DriverDocumentsTab {
 			if (shouldUpdate){
 				ignoreNumActions = 2;
 				main.documentPane.setText(taggedDoc.getUntaggedDocument());
+				main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
+				main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);	
 			}
-			int[] selectionInfo = calculateIndicesOfSelectedSentence(sentenceNumberToRemove);
+			int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 			selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 			selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
+			//System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
 			moveHighlight(main,selectedSentIndexRange,true);
 	}
 	
@@ -243,10 +246,10 @@ public class DriverDocumentsTab {
 	 * @param end
 	 */
 	protected static void moveHighlight(final GUIMain main, int[] bounds, boolean deleteCurrent){
-		System.out.println("Moving highlight...");
 		if (deleteCurrent){
 			main.documentPane.getHighlighter().removeAllHighlights();
 	        try {
+				System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
 				currentHighlight = main.documentPane.getHighlighter().addHighlight(bounds[0], bounds[1], painter);
 	        } 
 	        catch (BadLocationException err) {
@@ -255,6 +258,7 @@ public class DriverDocumentsTab {
 		}
 		else{
 			try {
+				System.out.println("Changing highlight...");
 				main.documentPane.getHighlighter().changeHighlight(currentHighlight,bounds[0], bounds[1]);
 	        } 
 	        catch (BadLocationException err) {
@@ -386,14 +390,14 @@ public class DriverDocumentsTab {
 						// update from previous caret
 						if (charsInserted > 0 ){// && lastSentNum != -1){
 							keyJustPressed = false;
-							System.out.println("Chars inserted");
+							System.out.println("DEBUGGING: Chars inserted");
 							selectedSentIndexRange[1] += charsInserted;
 							//moveHighlight(main,selectedSentIndexRange,false);
 							charsInserted = ~-1; // puzzle: what does this mean? (scroll to bottom of file for answer) - AweM
 						}
 						else if (charsRemoved > 0){// && lastSentNum != -1){
 							keyJustPressed = false;
-							System.out.println("Chars removed");
+							System.out.println("DEBUGGING: Chars removed");
 							selectedSentIndexRange[1] -= charsRemoved;
 							//moveHighlight(main,selectedSentIndexRange,false);
 							charsRemoved = 0;
@@ -669,9 +673,7 @@ public class DriverDocumentsTab {
 						highlightedObjects.clear();
 						okayToSelectSuggestion = false;
 						Logger.logln(NAME+"calling backendInterface for preTargetSelectionProcessing");
-						charsInserted = 0; // this gets updated when the document is loaded.
-						charsRemoved = 0;	
-						caretPositionPriorToCharInsert = 0;
+						
 						BackendInterface.preTargetSelectionProcessing(main,wizard,magician);
 					}
 				}

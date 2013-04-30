@@ -19,8 +19,12 @@ public class Translation {
 	
 	/*
 	 * ALTERNATE CLIENT ID/SECRET COMBOS (NEW / UNUSED) 
+	 * 	 
+	 * private final static String CLIENT_ID = "weegeemounty";
+	 * private final static String CLIENT_SECRET = "UR0YCU0x20oOSzqt+xtHkT2lhk6RjcKvqEqd/3Hsdvs=";	
 	 * 
-	 * -
+	 * private final static String CLIENT_ID = "fyberoptikz";
+	 * private final static String CLIENT_SECRET = "fAjWBltN4QV+0BKqqqg9nmXVMlo5ffa90gxU6wOW55Q=";	
 	 * 
 	 * NO GOOD FOR 04/2013 (BUT GOOD AFTER):
 	 * 
@@ -33,11 +37,14 @@ public class Translation {
 	 * private final static String CLIENT_ID = "sheetal57";
 	 * private final static String CLIENT_SECRET = "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=";
 	 * 
+	 * private final static String CLIENT_ID = "drexel2";
+	 * private final static String CLIENT_SECRET = "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=";
+	 * 
 	 */
 	
 	// Current GOOD CLIENT ID / SECRET COMBO: 
-	private final static String CLIENT_ID = "drexel2";
-	private final static String CLIENT_SECRET = "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=";
+	private final static String CLIENT_ID = "ozoxdxie";
+	private final static String CLIENT_SECRET = "wU9ROglnO5qzntfRsxkq7WWGp7LAMrz0jdxPEd0t1u8=";	
 	
 	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
@@ -205,3 +212,24 @@ public class Translation {
 	  }*/
 
 }
+
+/*
+    emails (@gmail.com)
+    OzoXDxiE -> done
+    w3gMTdJp -> done
+	FIKCG9KW -> gmail yes, microsoft no
+	5YBFviQ8 -> done
+	ewvqAbvm -> not done
+	Zj5RR5co -> not done
+	
+	
+	pass
+	
+	jWURke4=s8q@%^n2
+	
+	
+	favorite historical person:
+	
+	wellicantbesureatm
+
+*/

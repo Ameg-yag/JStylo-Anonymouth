@@ -1019,15 +1019,7 @@ public class WekaInstancesBuilder {
 	{
 		this.numCalcThreads = numCalcThreads;
 		
-		String path=null;
-		
-		try {
-			path = new File(".").getCanonicalPath();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		File jProps = new File(path+"\\jsan_resources\\JStylo_prop.prop");
+		File jProps = new File("./jsan_resources/JStylo_prop.prop");
 		
 		if (jProps.exists()){ //write numCalcThreads to the file
 	
@@ -1105,15 +1097,8 @@ public class WekaInstancesBuilder {
 	public static int getNumCalcThreads()
 	{
 		int nct=4; //default is 4
-		String path=null;
 		
-		try {
-			path = new File(".").getCanonicalPath();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		File jProps = new File(path+"\\jsan_resources\\JStylo_prop.prop");
+		File jProps = new File("./jsan_resources/JStylo_prop.prop");
 		
 		if (jProps.exists()){ //if it already exists, read the calc thread variable
 			
@@ -1155,15 +1140,8 @@ public class WekaInstancesBuilder {
 	
 	public static void generateDefaultPropsFile(){
 		
-		String path=null;
 		
-		try {
-			path = new File(".").getCanonicalPath();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		File jProps = new File(path+"\\jsan_resources\\JStylo_prop.prop");
+		File jProps = new File("./jsan_resources/JStylo_prop.prop");
 		
 		try {
 			String[] contents = {"#JStylo Preferences","#Properties File Version: .1","numCalcThreads=4"};

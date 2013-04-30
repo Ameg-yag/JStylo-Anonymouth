@@ -117,7 +117,7 @@ public class SentenceTools implements Serializable  {
 		boolean foundAtLeastOneEOS = foundEOS;
 		String currentEOS;
 		while (foundEOS == true){
-			System.out.println(sent.group(0));
+			//System.out.println(sent.group(0));
 			currentEOS = sent.group(0);
 			currentStop = sent.end();
 			//System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
@@ -150,8 +150,8 @@ public class SentenceTools implements Serializable  {
 			}
 			safeString = text.substring(currentStart-1,currentStop);
 			
-			System.out.println("---------------");
-			System.out.println(safeString);
+			//System.out.println("---------------");
+			//System.out.println(safeString);
 
 			sentEnd = sentence_quote.matcher(safeString);	
 			isSentence = sentEnd.find();
@@ -178,15 +178,15 @@ public class SentenceTools implements Serializable  {
 			else{
 				forceNoMerge = false;
 				safeString_subbedEOS = subOutEOSChars(currentEOS, safeString, quoteAtEnd);
-				System.out.println("Actual: "+safeString);
-				System.out.println("SubbedEOS: "+safeString_subbedEOS);
+				//System.out.println("Actual: "+safeString);
+				//System.out.println("SubbedEOS: "+safeString_subbedEOS);
 				safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
 				safeString_subbedEOS = safeString_subbedEOS.replaceAll(t_PERIOD_REPLACEMENT,".");
-				System.out.println(safeString);
+				//System.out.println(safeString);
 				finalSents.add(new String[]{safeString, safeString_subbedEOS});
 			}
 		
-			System.out.println("---------------");
+			//System.out.println("---------------");
 			sents.add(safeString);
 			//// xxx xxx xxx return the safeString_subbedEOS too!!!!
 			//System.out.println("start minus one: "+(currentStart-1)+" stop: "+currentStop);
