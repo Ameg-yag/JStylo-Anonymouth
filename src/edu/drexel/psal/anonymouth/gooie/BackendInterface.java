@@ -347,11 +347,16 @@ public class BackendInterface {
 			
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			
-			int[] selectedSentIndexRange = new int[2];
-			selectedSentIndexRange[0] = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0)[1];
-			selectedSentIndexRange[1] = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0)[2];
-			DriverDocumentsTab.moveHighlight(main, selectedSentIndexRange, true);
-
+			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument());//must re-set the document after processing (do deal 
+			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0);
+			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
+			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
+			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange, true);
+			main.documentPane.getCaret().setDot(0);
+			main.documentPane.setCaretPosition(0);
+			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
+			DriverDocumentsTab.charsRemoved = 0;	
+			DriverDocumentsTab.caretPositionPriorToCharInsert = 0;
 			//Andrew had this commented out, I commented it back in for testing
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
@@ -379,6 +384,8 @@ public class BackendInterface {
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
 			//main.editorProgressBar.setIndeterminate(false);	
+			main.documentPane.setEnabled(true);
+            main.documentPane.setEditable(true);
 //			main.nextSentenceButton.doClick();
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			

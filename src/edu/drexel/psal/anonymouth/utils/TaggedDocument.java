@@ -65,7 +65,7 @@ public class TaggedDocument implements Serializable{
 	protected transient Tokenizer<? extends HasWord> toke;
 	protected final int PROBABLE_NUM_SENTENCES = 50;
 	protected SentenceTools jigsaw;
-	protected transient Iterator<String> strIter;
+	//protected transient Iterator<String> strIter;
 	private String ID; 
 	private int totalSentences=0;
 	private double baseline_percent_change_needed = 0; // This may end up over 100%. That's unimportant. This is used to gauge the change that the rest of the document needs -- this is normalized to 100%, effectivley.
@@ -173,13 +173,18 @@ public class TaggedDocument implements Serializable{
 	 * @return the TaggedSentences
 	 */
 	public ArrayList<TaggedSentence> makeAndTagSentences(String untagged, boolean appendTaggedSentencesToGlobalArrayList){
-		ArrayList<String> untaggedSent = jigsaw.makeSentenceTokens(untagged); // IMPORTANT TODO update this to set EOS characters to different symbols to allow people to highlight things that were broken up into more than one sentence and select, "make this one sentence"
-		ArrayList<TaggedSentence> taggedSentences = new ArrayList<TaggedSentence>(untaggedSent.size());
+		ArrayList<String[]> untaggedSents = jigsaw.makeSentenceTokens(untagged); 
+		ArrayList<TaggedSentence> taggedSentences = new ArrayList<TaggedSentence>(untaggedSents.size());
 		//sentencesPreTagging = new ArrayList<List<? extends HasWord>>();
-		strIter = untaggedSent.iterator();
+		Iterator<String[]> strRayIter = untaggedSents.iterator();
+		String[] tempRay; // 
 		String tempSent;
-		while(strIter.hasNext()){
-			tempSent = strIter.next();
+		String tempSentWithEOSSubs;
+		while(strRayIter.hasNext()){
+			tempRay = strRayIter.next();
+			tempSent = tempRay[0];
+			tempSentWithEOSSubs = tempRay[1];
+			// todo now deal with EOS.
 			TaggedSentence taggedSentence = new TaggedSentence(tempSent);
 			toke = tlp.getTokenizerFactory().getTokenizer(new StringReader(tempSent));
 			sentenceTokenized = toke.tokenize();

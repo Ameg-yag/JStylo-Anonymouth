@@ -59,6 +59,8 @@ import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.table.*;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.PlainDocument;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -305,6 +307,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 		protected JPanel sentenceEditingPanel;
 		protected JPanel documentPanel;
+		protected StyledDocument theDocument;
 		//protected JPanel documentOptionsPanel;
 //		protected JLabel docNameLabel;
 		
@@ -1553,8 +1556,8 @@ public class GUIMain extends javax.swing.JFrame  {
                 documentPane.setDragEnabled(false);
                 documentPane.setText("This is where the latest version of your document will be.");
                 documentPane.setFont(normalFont);
-                documentPane.setEnabled(true);
-                documentPane.setEditable(true);
+                documentPane.setEnabled(false);
+                documentPane.setEditable(false);
                 documentScrollPane.setViewportView(documentPane);
                 
 //                documentOptionsPanel = new JPanel();

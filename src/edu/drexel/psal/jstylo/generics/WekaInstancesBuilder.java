@@ -5,7 +5,11 @@ import weka.core.*;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVSaver;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -232,16 +236,21 @@ public class WekaInstancesBuilder {
 		// create event sets for known documents
 		known = new ArrayList<List<EventSet>>(knownDocs.size());
 		int knownDocsSize = knownDocs.size();
+		
 		int numCalcThreadsToUse = 1;
+		Logger.logln("pre-get calc threads");
+		numCalcThreads = getNumCalcThreads();
+		Logger.logln("post-get calc threads");
+		
 		if (numCalcThreads>knownDocsSize){
 			numCalcThreadsToUse=knownDocsSize;
-		} else {
+		} else if (numCalcThreads>1){
 			numCalcThreadsToUse=numCalcThreads;
 		}
-		Logger.logln("Using N calc threads: "+numCalcThreads);
-	/*	int numCalcThreadsToUse = numCalcThreads > knownDocsSize ?
-				1 : numCalcThreads;*/
+		
+		Logger.logln("Using N calc threads: "+numCalcThreadsToUse);
 		int div = knownDocsSize / numCalcThreadsToUse;
+		
 		CalcThread[] calcThreads = new CalcThread[numCalcThreadsToUse];
 		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
 			calcThreads[thread] = new CalcThread(
@@ -1009,6 +1018,54 @@ public class WekaInstancesBuilder {
 	public void setNumCalcThreads(int numCalcThreads)
 	{
 		this.numCalcThreads = numCalcThreads;
+		
+		File jProps = new File("./jsan_resources/JStylo_prop.prop");
+		
+		if (jProps.exists()){ //write numCalcThreads to the file
+	
+			try {
+				ArrayList<String> contents = new ArrayList<String>();
+				FileReader fileReader = new FileReader(jProps);
+				BufferedReader reader = new BufferedReader(fileReader);
+				
+				//read the file into memory and update the numCalcThreads variable
+				String nextLine = reader.readLine();
+				while (nextLine!=null){
+					String temp = nextLine;
+					
+					if (temp.contains("numCalcThreads")){
+						temp="numCalcThreads="+numCalcThreads;
+					}
+					contents.add(temp);
+					nextLine = reader.readLine();
+				}
+				reader.close();
+				
+				//Write to the file
+				FileWriter cleaner = new FileWriter(jProps,false);
+				cleaner.write("");
+				cleaner.close();
+				
+				FileWriter writer = new FileWriter(jProps,true);
+				for(String s:contents){
+					writer.write(s+"\n");
+				}
+				writer.close();
+				
+			} catch (FileNotFoundException e) {
+				Logger.logln("Failed to read properties file! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
+				e.printStackTrace();
+				generateDefaultPropsFile();
+			} catch (IOException e) {
+				Logger.logln("Prop file empty! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
+				e.printStackTrace();
+				generateDefaultPropsFile();
+			}
+			
+		} else { //otherwise make a new props file
+			generateDefaultPropsFile();
+		}
+		
 	}
 
 	/**
@@ -1037,9 +1094,79 @@ public class WekaInstancesBuilder {
 	/**
 	 * @return the number of calculation threads to use for feature extraction.
 	 */
-	public int getNumCalcThreads()
+	public static int getNumCalcThreads()
 	{
-		return numCalcThreads;
+		int nct=4; //default is 4
+		
+		File jProps = new File("./jsan_resources/JStylo_prop.prop");
+		
+		if (jProps.exists()){ //if it already exists, read the calc thread variable
+			
+			try {
+				FileReader fileReader = new FileReader(jProps);
+				BufferedReader reader = new BufferedReader(fileReader);
+				
+				//read the file and save the variable when it is found if for some reason it's not in the file, it'll default to 4
+				String nextLine = reader.readLine();
+				while (nextLine!=null){
+					if (nextLine.contains("numCalcThreads")){
+						String[] s = nextLine.split("="); //[0]="numCalcThreads" [1]=the number we're looking for
+						nct = Integer.parseInt(s[1]);
+						break;
+					}
+					nextLine = reader.readLine();
+				}
+				
+				reader.close();
+				
+			} catch (FileNotFoundException e) {
+				Logger.logln("Failed to read properties file! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
+				e.printStackTrace();
+				generateDefaultPropsFile();
+			} catch (IOException e) {
+				Logger.logln("Prop file empty! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
+				e.printStackTrace();
+				generateDefaultPropsFile();
+			}
+			
+			
+		} else { //if it doesn't exist, create it and give it the calc thread value
+			
+			generateDefaultPropsFile();
+		}
+		
+		return nct;
+	}
+	
+	public static void generateDefaultPropsFile(){
+		
+		
+		File jProps = new File("./jsan_resources/JStylo_prop.prop");
+		
+		try {
+			String[] contents = {"#JStylo Preferences","#Properties File Version: .1","numCalcThreads=4"};
+			
+			//Write to the file
+			FileWriter cleaner = new FileWriter(jProps,false);
+			cleaner.write("");
+			cleaner.close();
+			
+			FileWriter writer = new FileWriter(jProps,true);
+			for(String s:contents){
+				writer.write(s+"\n");
+			}
+			writer.close();
+			
+		} catch (FileNotFoundException e) {
+			Logger.logln("Failed to read properties file! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
+			e.printStackTrace();
+			generateDefaultPropsFile();
+		} catch (IOException e) {
+			Logger.logln("Prop file empty! numCalcThreads defaulting to 1! Generating new prop file...",Logger.LogOut.STDERR);
+			e.printStackTrace();
+			generateDefaultPropsFile();
+		}
+		
 	}
 	
 	/**

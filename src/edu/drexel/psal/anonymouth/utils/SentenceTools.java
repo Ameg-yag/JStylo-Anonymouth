@@ -77,12 +77,13 @@ public class SentenceTools implements Serializable  {
 	 * @param text
 	 * @return
 	 */
-	public ArrayList<String> makeSentenceTokens(String text){
+	public ArrayList<String[]> makeSentenceTokens(String text){
 		Scanner scan = new Scanner(System.in);
 		ArrayList<String> sents = new ArrayList<String>(MAX_SENTENCES);
 		ArrayList<String[]> finalSents = new ArrayList<String[]>(MAX_SENTENCES);
 		boolean mergeNext=false;
 		boolean mergeWithLast=false;
+		boolean forceNoMerge=false;
 		int currentStart = 1;
 		int currentStop = 0;
 		String safeString_subbedEOS;
@@ -116,7 +117,7 @@ public class SentenceTools implements Serializable  {
 		boolean foundAtLeastOneEOS = foundEOS;
 		String currentEOS;
 		while (foundEOS == true){
-			System.out.println(sent.group(0));
+			//System.out.println(sent.group(0));
 			currentEOS = sent.group(0);
 			currentStop = sent.end();
 			//System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
@@ -149,8 +150,8 @@ public class SentenceTools implements Serializable  {
 			}
 			safeString = text.substring(currentStart-1,currentStop);
 			
-			System.out.println("---------------");
-			System.out.println(safeString);
+			//System.out.println("---------------");
+			//System.out.println(safeString);
 
 			sentEnd = sentence_quote.matcher(safeString);	
 			isSentence = sentEnd.find();
@@ -161,7 +162,7 @@ public class SentenceTools implements Serializable  {
 				//System.out.println("start: "+sentEnd.start()+" ... end: "+sentEnd.end());
 				currentStop = text.indexOf("\"",sentEnd.start()+currentStart)+1;
 				safeString = text.substring(currentStart-1,currentStop);
-				mergeWithLast = false;
+				forceNoMerge = true;
 				quoteAtEnd = 1;
 			}
 			
@@ -170,21 +171,22 @@ public class SentenceTools implements Serializable  {
 				String prev=sents.remove(sents.size()-1);
 				safeString=prev+safeString;
 			}
-			if (mergeNext){//makes he merge happen on the next pass through
+			if (mergeNext && !forceNoMerge){//makes he merge happen on the next pass through
 				mergeNext=false;
 				mergeWithLast=true;
 			}
 			else{
+				forceNoMerge = false;
 				safeString_subbedEOS = subOutEOSChars(currentEOS, safeString, quoteAtEnd);
-				System.out.println("Actual: "+safeString);
-				System.out.println("SubbedEOS: "+safeString_subbedEOS);
+				//System.out.println("Actual: "+safeString);
+				//System.out.println("SubbedEOS: "+safeString_subbedEOS);
 				safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
 				safeString_subbedEOS = safeString_subbedEOS.replaceAll(t_PERIOD_REPLACEMENT,".");
-				System.out.println(safeString);
+				//System.out.println(safeString);
 				finalSents.add(new String[]{safeString, safeString_subbedEOS});
 			}
 		
-			System.out.println("---------------");
+			//System.out.println("---------------");
 			sents.add(safeString);
 			//// xxx xxx xxx return the safeString_subbedEOS too!!!!
 			//System.out.println("start minus one: "+(currentStart-1)+" stop: "+currentStop);
@@ -203,13 +205,12 @@ public class SentenceTools implements Serializable  {
 		
 		
 		if (!foundAtLeastOneEOS){
-			ArrayList<String> wrapper = new ArrayList<String>(1);
-			wrapper.add(text);
+			ArrayList<String[]> wrapper = new ArrayList<String[]>(1);
+			wrapper.add(new String[]{text,text});
 			return wrapper;
 		}
 		
-		//return finalSents;
-		return sents;
+		return finalSents;
 	}
 	
 	/**
@@ -299,9 +300,9 @@ public class SentenceTools implements Serializable  {
 		//String testText = "Hello?, Dr., this! is my \"t!est?\"ing tex\"t?\".\nI need!? to. See if it \"correctly (i.e. nothing goes wrong) ... and finds the first, and every other sentence, etc.. These quotes are silly, and it is 1 A.m.! a.m.? just for testing purposes?\" No! Okay, yes. What? that isn't a \"real\" \"quote\".";
 		//testText = " Or maybe, he did understand, but had more to share with humanity before his inevitable death. Maybe still, he was forecasting his own suicide twenty-eight years before it happened. No matter what Hemingway might have felt at the time, the deep nothingness that he shows in 'A Clean Well-Lighted Place,' is a nothingness that pervades the story and becomes more apparent to the characters as they age as humans do not last forever. Ernest Hemingway wrote much about the struggle to cope with the nothingness in the world, but eventually succumbed to the nothingness that he wrote about.";
 		//testText=" After living so long, the old man lacks some of the gifts that people are born with that the young man takes for granted. The old man�s long life shows that as humans age, the length of time they have been around not only ages their body, but it ages their soul.";
-		ArrayList<String> sTok=ss.makeSentenceTokens(testText);
-		for (String s: sTok)
-			System.out.println(s);
+		ArrayList<String[]> sTok=ss.makeSentenceTokens(testText);
+		for (String[] s: sTok)
+			System.out.println(s[0]+" <=> "+s[1]);
 		Object[] arr = sTok.toArray();
 		try {
 			OutputStreamWriter outStream=new OutputStreamWriter(System.out,"UTF8");
