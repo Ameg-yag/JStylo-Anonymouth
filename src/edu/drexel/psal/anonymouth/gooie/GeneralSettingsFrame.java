@@ -39,16 +39,17 @@ public class GeneralSettingsFrame extends JDialog {
 	protected JTextArea probSetTextPane;
 	protected JScrollPane probSetScrollPane;
 	protected JCheckBox autoSave;
+	protected JLabel autoSaveNote;
 	protected JCheckBox warnQuit;
 	
 	//Advanced tab
 	protected JPanel advanced;
 	protected JLabel maxFeatures;
 	protected JSlider maxFeaturesSlider;
-	protected JLabel note;
+	protected JLabel maxFeaturesNote;
 	protected JLabel numOfThreads;
 	protected JSlider numOfThreadsSlider;
-	protected JLabel note2;
+	protected JLabel numOfThreadsNote;
 	protected JButton reset;
 	
 	public GeneralSettingsFrame(GUIMain main) {
@@ -63,7 +64,7 @@ public class GeneralSettingsFrame extends JDialog {
 		initTabs();
 
 		this.add(tabbedPane);
-		this.setSize(new Dimension(500, 325));
+		this.setSize(new Dimension(500, 350));
 		this.setResizable(false);
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 	}
@@ -116,16 +117,21 @@ public class GeneralSettingsFrame extends JDialog {
 			probSetScrollPane.setPreferredSize(new Dimension(420, 20));
 			probSetScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 			probSetScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-			
-			autoSave = new JCheckBox();
-			autoSave.setText("Auto-Save anonymized documents upon exit");
-			if (PropertiesUtil.getAutoSave() == true)
-				autoSave.setSelected(true);
 
 			warnQuit = new JCheckBox();
 			warnQuit.setText("Warn about unsaved changes upon exit");
 			if (PropertiesUtil.getWarnQuit() == true)
 				warnQuit.setSelected(true);
+			
+			autoSave = new JCheckBox();
+			autoSave.setText("Auto-Save anonymized documents upon exit");
+			if (PropertiesUtil.getAutoSave() == true) {
+				autoSave.setSelected(true);
+				warnQuit.setEnabled(false);
+			}
+			
+			autoSaveNote = new JLabel("Note: Will overwrite working document with changes.");
+			autoSaveNote.setForeground(Color.GRAY);
 
 			general.add(defaultClassifier, "wrap");
 			general.add(classComboBox, "wrap");
@@ -139,6 +145,7 @@ public class GeneralSettingsFrame extends JDialog {
 			test.setPreferredSize(new Dimension(484, 15));
 			general.add(test, "alignx 50%, wrap");
 			general.add(autoSave, "wrap");
+			general.add(autoSaveNote, "alignx 50%, wrap");
 			general.add(warnQuit);
 		}
 		
@@ -156,8 +163,8 @@ public class GeneralSettingsFrame extends JDialog {
 			maxFeaturesSlider.setValue(PropertiesUtil.getMaximumFeatures());
 			maxFeaturesSlider.setOrientation(SwingConstants.HORIZONTAL);
 			
-			note = new JLabel("Note: The recommended number is 1000 for best results");
-			note.setForeground(Color.GRAY);
+			maxFeaturesNote = new JLabel("Note: The recommended number is 1000 for best results");
+			maxFeaturesNote.setForeground(Color.GRAY);
 			
 			numOfThreads = new JLabel("Number of Threads for Features Extraction = " + PropertiesUtil.getThreadCount());
 			
@@ -171,18 +178,18 @@ public class GeneralSettingsFrame extends JDialog {
 			numOfThreadsSlider.setSnapToTicks(true);
 			numOfThreadsSlider.setValue(PropertiesUtil.getThreadCount());
 			
-			note2 = new JLabel("Note: The recommended number of threads to use is 4");
-			note2.setForeground(Color.GRAY);
+			numOfThreadsNote = new JLabel("Note: The recommended number of threads to use is 4");
+			numOfThreadsNote.setForeground(Color.GRAY);
 			
 			reset = new JButton("Reset Preferences");
 			reset.setToolTipText("Reset all user preferences back to their default values");
 			
 			advanced.add(maxFeatures, "wrap");
 			advanced.add(maxFeaturesSlider, "alignx 50%, wrap");
-			advanced.add(note, "alignx 50%, wrap");
+			advanced.add(maxFeaturesNote, "alignx 50%, wrap");
 			advanced.add(numOfThreads, "wrap");
 			advanced.add(numOfThreadsSlider, "alignx 50%, wrap");
-			advanced.add(note2, "alignx 50%, wrap");
+			advanced.add(numOfThreadsNote, "alignx 50%, wrap");
 			
 			JSeparator test = new JSeparator(JSeparator.HORIZONTAL);
 			test.setPreferredSize(new Dimension(484, 30));
@@ -260,10 +267,15 @@ public class GeneralSettingsFrame extends JDialog {
 			public void actionPerformed(ActionEvent arg0) {
 				Logger.logln(NAME+"Auto-save checkbox clicked");
 				
-				if (autoSave.isSelected())
+				if (autoSave.isSelected()) {
 					PropertiesUtil.setAutoSave(true);
-				else
+					warnQuit.setSelected(false);
+					PropertiesUtil.setWarnQuit(false);
+					warnQuit.setEnabled(false);
+				} else {
 					PropertiesUtil.setAutoSave(false);
+					warnQuit.setEnabled(true);
+				}
 			}
 		};
 		autoSave.addActionListener(autoSaveListener);

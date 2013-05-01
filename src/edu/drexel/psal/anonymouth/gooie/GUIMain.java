@@ -438,6 +438,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected static Border rlborder = BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder());
 	protected static Font titleFont = new Font("Ariel", Font.BOLD, 12);
 	protected static String titleHeight = "25";
+	protected static Boolean saved = true;
 	
 	// used for translation of sentences
 	protected static Translator GUITranslator;
@@ -471,30 +472,38 @@ public class GUIMain extends javax.swing.JFrame  {
 				}
 				inst = new GUIMain();
 				GUITranslator = new Translator(inst);
+
+				WindowListener exitListener = new WindowListener() {
+					@Override
+					public void windowClosing(WindowEvent e) {
+						if (PropertiesUtil.getWarnQuit() && !saved) {
+							int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+							if (confirm == 0) {
+								System.exit(0);
+							}
+						} else if (PropertiesUtil.getAutoSave()) {
+							DriverDocumentsTab.save(inst);
+							System.exit(0);
+						} else {
+							System.exit(0);
+						}
+					}
+					@Override
+					public void windowActivated(WindowEvent arg0) {}
+					@Override
+					public void windowClosed(WindowEvent arg0) {}
+					@Override
+					public void windowDeactivated(WindowEvent arg0) {}
+					@Override
+					public void windowDeiconified(WindowEvent arg0) {}
+					@Override
+					public void windowIconified(WindowEvent arg0) {}
+					@Override
+					public void windowOpened(WindowEvent arg0) {}
+				};
 				
-//				WindowListener exitListener = new WindowListener() {
-//					@Override
-//		            public void windowClosing(WindowEvent e) {
-//		                int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?", "Exit Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
-//		                if (confirm == 0) {
-//		                   System.exit(0);
-//		                }
-//		            }
-//					@Override
-//					public void windowActivated(WindowEvent arg0) {}
-//					@Override
-//					public void windowClosed(WindowEvent arg0) {}
-//					@Override
-//					public void windowDeactivated(WindowEvent arg0) {}
-//					@Override
-//					public void windowDeiconified(WindowEvent arg0) {}
-//					@Override
-//					public void windowIconified(WindowEvent arg0) {}
-//					@Override
-//					public void windowOpened(WindowEvent arg0) {}
-//				};
-				inst.setDefaultCloseOperation(EXIT_ON_CLOSE);
-//				inst.addWindowListener(exitListener);
+				inst.addWindowListener(exitListener);
+				inst.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			
 				inst.setLocationRelativeTo(null);
 				inst.setVisible(true);

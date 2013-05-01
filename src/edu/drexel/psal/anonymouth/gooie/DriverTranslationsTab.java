@@ -50,7 +50,8 @@ public class DriverTranslationsTab implements ActionListener
 		for (int i = 0; i < Translator.translatedSentences.size(); i++)
 			System.out.println("FIND ME: \"" + Translator.translatedSentences.get(i) + "\"");
 		System.out.println("COMPARE TO: \"" + sentence.getUntagged() + "\"");
-		if (Translator.translatedSentences.contains(sentence.getUntagged().trim())) {
+		
+		if (Translator.translatedSentences.contains(sentence.getUntagged())) {
 			System.out.println("ENTERED");
 			arrow_up = main.arrow_up;
 			arrow_down = main.arrow_down;
@@ -67,6 +68,8 @@ public class DriverTranslationsTab implements ActionListener
 			//			}
 			//		}
 
+			System.out.println("DEBUGGING: getTranslationNames = " + current.getTranslationNames().size());
+			System.out.println("DEBUGGING: getTranslations = " + current.getTranslations().size());
 			// retrieve the translation information
 			ArrayList<String> translationNames = current.getTranslationNames();
 			ArrayList<TaggedSentence> translations = current.getTranslations();
@@ -120,6 +123,17 @@ public class DriverTranslationsTab implements ActionListener
 				// add final panel to the translations list panel
 				main.translationsHolderPanel.add(finalPanels[i], "");
 			}
+			
+//			if (translationsMap != null) {
+//				for (int i = 0; i < translationsMap.size(); i++) {
+//					System.out.println("hello\"" + translationsMap.get(i) + "\"goodbye");
+//					if (translationsMap.get(i) != null) {
+//						for (int j = 0; i < translationsMap.get(i).getTranslations().size(); j++)
+//							System.out.println("	hello\"" + translationsMap.get(i).getTranslations().get(j) + "\"goodbye");
+//					}
+//				}
+//			}
+			
 		} else {
 			main.notTranslated.setText("Sentence has not been translated yet, please wait or work on already translated sentences.");
 			main.translationsHolderPanel.add(main.notTranslated, "");
@@ -191,10 +205,12 @@ public class DriverTranslationsTab implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		System.out.println("DEBUGGING: CLICKED!");
-		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, " "+translationsMap.get(e.getActionCommand()).getUntagged().trim(), true);
+//		DriverDocumentsTab.replaceTaggedSentenceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()), true);
+		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(), true);
 //		System.out.println("DEBUGGING: before = " + translationsMap.get(e.getActionCommand()).getUntagged().trim());
 //		System.out.println("HELLO!");
-		main.GUITranslator.replace(translationsMap.get(e.getActionCommand()), current);
+		main.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
+//		main.GUITranslator.replace(translationsMap.get(e.getActionCommand()), current);
 		main.anonymityDrawingPanel.updateAnonymityBar();
 	}	
 }

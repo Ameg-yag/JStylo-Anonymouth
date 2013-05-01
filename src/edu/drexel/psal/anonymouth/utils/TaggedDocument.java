@@ -439,7 +439,28 @@ public class TaggedDocument implements Serializable{
 		System.out.println("TaggedSent to remove: "+toReplace.toString());
 		updateReferences(toReplace,concatted);
 		return 1;
+	}
+	
+	public void replaceTaggedSentence(int sentNumber, TaggedSentence sentToAdd) {
+		TaggedSentence toReplace = taggedSentences.get(sentNumber);
+		Logger.logln(NAME+"removing: "+toReplace.toString());
+		Logger.logln(NAME+"adding: "+ sentToAdd.getUntagged());
 		
+		if(sentToAdd.getUntagged().matches("\\s*")){//checks to see if the user deleted the current sentence
+			//CALL COMPARE
+			removeTaggedSentence(sentNumber);
+			Logger.logln(NAME+"User deleted a sentence.");
+			updateReferences(toReplace,new TaggedSentence(""));//all features must be deleted
+			totalSentences--;
+		}
+		
+		Scanner s = new Scanner(System.in);
+		removeTaggedSentence(sentNumber);
+		addTaggedSentence(sentToAdd, sentNumber);
+		
+		System.out.println("TaggedSent to add: " + sentToAdd.getUntagged());
+		System.out.println("TaggedSent to remove: " + toReplace.toString());
+		updateReferences(toReplace, sentToAdd);	
 	}
 	
 	/**

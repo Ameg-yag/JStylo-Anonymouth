@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import edu.drexel.psal.anonymouth.gooie.Translation;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
+import edu.stanford.nlp.ling.TaggedWord;
 
 public class Translator implements Runnable
 {
@@ -21,6 +22,7 @@ public class Translator implements Runnable
 	private int currentSentNum = 1;
 	private int currentLangNum = 1;
 	public static ArrayList<String> translatedSentences = new ArrayList<String>(); 
+	public static Boolean finished = false;
 
 	/**
 	 * Class that handles the 2-way translation of a given sentence. It starts a new thread so the main thread
@@ -61,9 +63,9 @@ public class Translator implements Runnable
 			this.newSentence = newSentence;
 			this.oldSentence = oldSentence;
 		} else {
-			addSent = true;
-			sentences.add(newSentence);
-			sentences.remove(oldSentence);
+			ArrayList<TaggedSentence> loaded = new ArrayList<TaggedSentence>();
+			loaded.add(newSentence);
+			load(loaded);
 		}
 	}
 	
@@ -73,8 +75,7 @@ public class Translator implements Runnable
 	 */
 	public void load(ArrayList<TaggedSentence> loaded)  {
 		// add the given sentences to the queue
-		for (int i = 0; i < loaded.size(); i++)
-			sentences.add(loaded.get(i));
+		sentences.addAll(loaded);
 
 		// start a new thread to begin translation
 		Thread transThread = new Thread(this);
@@ -90,14 +91,16 @@ public class Translator implements Runnable
 		// set up the progress bar
 		main.translationsProgressBar.setIndeterminate(false);
 		main.translationsProgressBar.setMaximum(sentences.size() * DriverDocumentsTab.translator.getUsedLangs().length);
-
 		// finish set up for translation
 		main.translationsProgressLabel.setText("Sentence: 1/" + sentences.size() + " Languages: 1/"  + DriverDocumentsTab.translator.getUsedLangs().length);
 
 		// translate all languages for each sentence, sorting the list based on anon index after each translation
 		while (!sentences.isEmpty() && currentSentNum <= sentences.size()) {
-			System.out.println("DEBUGGING: translated sentence = " + sentences.get(currentSentNum-1).getUntagged());
-			translatedSentences.add(sentences.get(currentSentNum-1).getUntagged().trim());
+			
+			for(int i = 0; i < sentences.size(); i++)
+				System.out.println("SENTENCES = \"" + sentences.get(i).getUntagged() + "\"");
+			
+			translatedSentences.add(sentences.get(currentSentNum-1).getUntagged());
 			// if the sentence that is about to be translated already has translations, get rid of them
 			if (sentences.get(currentSentNum-1).hasTranslations()) {
 				sentences.get(currentSentNum-1).setTranslations(new ArrayList<TaggedSentence>(Translation.getUsedLangs().length));
@@ -125,13 +128,20 @@ public class Translator implements Runnable
 				
 				if (main.translationsProgressBar.getValue() + 1 <= main.translationsProgressBar.getMaximum())
 					main.translationsProgressBar.setValue(main.translationsProgressBar.getValue() + 1);
-			
+				
 				if (addSent) {
 					addSent = false;
 					sentences.add(currentSentNum, newSentence);
 					sentences.remove(oldSentence);
 					currentSentNum -= 1;
 				}
+				
+//				if (currentSentNum == 3) {
+//					TaggedWord word = new TaggedWord("HELLO");
+//					ArrayList<TaggedWord> test = new ArrayList<TaggedWord>();
+//					test.add(word);
+//					DriverDocumentsTab.taggedDoc.getTaggedSentences().get(0).setTaggedSentence(test);
+//				}
 			}
 			currentLangNum = 1;
 			currentSentNum++;
@@ -141,6 +151,7 @@ public class Translator implements Runnable
 //				System.out.println("DEBUGGING: sentences = " + sentences.get(i).getUntagged().trim());
 //			System.out.println("DEBUGGING: END");
 		}
+		finished = true;
 		sentences.removeAll(sentences);
 		main.translationsProgressBar.setIndeterminate(false);
 		main.translationsProgressBar.setValue(0);

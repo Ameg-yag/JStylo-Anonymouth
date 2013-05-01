@@ -84,7 +84,7 @@ public class DriverPreProcessTabClassifiers {
 			@Override
 			public void mousePressed(MouseEvent arg0)
 			{
-				main.PPSP.tree.setSelectionRow(3);
+				main.PPSP.tabbedPane.setSelectedComponent(main.PPSP.classPanel);
 				main.PPSP.openWindow();
 				if (main.classifiersAreReady())
 					main.prepClassLabel.setBackground(main.ready);
@@ -151,7 +151,7 @@ public class DriverPreProcessTabClassifiers {
 					tmpClassifier = null;
 					main.PPSP.classJTree.clearSelection();
 					
-					PropertiesUtil.setClassifier(main.classChoice.getSelectedItem().toString());
+//					PropertiesUtil.setClassifier(main.classChoice.getSelectedItem().toString());
 				}
 			}
 		});
@@ -519,7 +519,7 @@ public class DriverPreProcessTabClassifiers {
 					tmpClassifier = null;
 					main.PPSP.classJTree.clearSelection();
 					
-					PropertiesUtil.setClassifier(main.classChoice.getSelectedItem().toString());
+//					PropertiesUtil.setClassifier(main.classChoice.getSelectedItem().toString());
 				}
 			}
 		});

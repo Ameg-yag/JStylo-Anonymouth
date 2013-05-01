@@ -32,7 +32,7 @@ public class PropertiesUtil {
 	protected static String defaultClass = "SMO";
 	protected static String defaultFeat = "WritePrints (Limited)";
 	protected static String defaultProbSet = "";
-	protected static Boolean defaultAutoSave = true;
+	protected static Boolean defaultAutoSave = false;
 	protected static Boolean defaultWarnQuit = true;
 	protected static int defaultThreads = 4;
 	protected static int defaultFeatures = 1000;

@@ -211,12 +211,15 @@ public class DriverDocumentsTab {
 	 * @param shouldUpdate if true, it replaces the text in the JTextPane (documentPane) with the text in the TaggedDocument (taggedDoc).
 	 */
 	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith, boolean shouldUpdate){
-			System.out.println("num to remove: "+sentenceNumberToRemove+" and replacing with "+sentenceToReplaceWith);
-			//Scanner in = new Scanner(System.in);
-			//in.nextLine();
-			taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
-			//main.documentPane.getCaret().setDot(currentCaretPosition);
-			//main.documentPane.setCaretPosition(currentCaretPosition);
+		main.saved = false;
+		
+		System.out.println("DEBUGGING2: sentenceToReplaceWith = \"" + sentenceToReplaceWith + "\"");
+		System.out.println("num to remove: "+sentenceNumberToRemove+", and replacing with \""+sentenceToReplaceWith+"\"");
+		//Scanner in = new Scanner(System.in);
+		//in.nextLine();
+		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
+		//main.documentPane.getCaret().setDot(currentCaretPosition);
+		//main.documentPane.setCaretPosition(currentCaretPosition);
 		/*	
 			try {
 				//System.out.printf("removing from '%d' to '%d' and then inserting at '%d'\n",selectedSentIndexRange[0],selectedSentIndexRange[1],selectedSentIndexRange[0]);
@@ -225,18 +228,36 @@ public class DriverDocumentsTab {
 			} catch (BadLocationException e) {
 				System.out.println(NAME+"Error modifying document");
 			}
-		*/
-			if (shouldUpdate){
-				ignoreNumActions = 2;
-				main.documentPane.setText(taggedDoc.getUntaggedDocument());
-				main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
-				main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);	
-			}
-			int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
-			selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
-			selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
-			//System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
-			moveHighlight(main,selectedSentIndexRange,true);
+		 */
+		if (shouldUpdate){
+			ignoreNumActions = 2;
+			main.documentPane.setText(taggedDoc.getUntaggedDocument());
+			main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
+			main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);	
+		}
+		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
+		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
+		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
+		//System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
+		moveHighlight(main,selectedSentIndexRange,true);
+	}
+
+	protected static void replaceTaggedSentenceAndUpdate(GUIMain main, int sentenceNumberToRemove, TaggedSentence sentenceToReplaceWith, boolean shouldUpdate) {
+		main.saved = false;
+		
+		System.out.println("num to remove: " + sentenceNumberToRemove + " and replacing with " + sentenceToReplaceWith);
+		taggedDoc.replaceTaggedSentence(sentenceNumberToRemove, sentenceToReplaceWith);
+		
+		if (shouldUpdate) {
+			ignoreNumActions = 2;
+			main.documentPane.setText(taggedDoc.getUntaggedDocument());
+			main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
+			main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);
+		}
+		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
+		selectedSentIndexRange[0] = selectionInfo[1];
+		selectedSentIndexRange[1] = selectionInfo[2];
+		moveHighlight(main, selectedSentIndexRange, true);
 	}
 	
 	/**
@@ -354,6 +375,7 @@ public class DriverDocumentsTab {
 					ignoreNumActions--;
 				}
 				else if (taggedDoc != null) { //main.documentPane.getText().length() != 0
+					main.saved = false;
 					boolean setSelectionInfoAndHighlight = true;
 					startSelection = e.getDot();
 					endSelection = e.getMark();
@@ -408,6 +430,8 @@ public class DriverDocumentsTab {
 						
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
+							System.out.println("DEBUGGING3: taggedDoc.getSentenceNumber(lastSentNum).getUntagged() = " + taggedDoc.getSentenceNumber(lastSentNum).getUntagged());
+							System.out.println("DEBUGGING3: currentSentenceString = " + currentSentenceString);
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 							setSelectionInfoAndHighlight = false;
 						
@@ -427,7 +451,19 @@ public class DriverDocumentsTab {
 					}
 					
 					sentToTranslate = currentSentNum;
-					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));			
+//					System.out.println("FIND ME!!! Sentence = \"" + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged() + "\"");
+//					for (int i = 0; i < taggedDoc.getSentenceNumber(sentToTranslate).getTranslations().size(); i++)
+//						System.out.println("FIND ME!!!" + taggedDoc.getSentenceNumber(sentToTranslate).getTranslations().get(i));
+					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
+					
+					if (Translator.finished) {
+						for (int i = 0; i < taggedDoc.getTaggedSentences().size(); i++) {
+							System.out.println("	Sentence: " + taggedDoc.getTaggedSentences().get(i).getUntagged());
+							for (int j = 0; j < taggedDoc.getTaggedSentences().get(i).getTranslations().size(); j++) {
+								System.out.println("		Translation: " + taggedDoc.getTaggedSentences().get(i).getTranslations().get(j).getUntagged());
+							}
+						}
+					}
 				}
 			}
 		});
@@ -867,6 +903,8 @@ public class DriverDocumentsTab {
 						bw.flush();
 						bw.close();
 						Logger.log("Saved contents of current tab to "+path);
+						
+						main.saved = true;
 					} catch (IOException exc) {
 						Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
 						Logger.logln(NAME+exc.toString(),LogOut.STDERR);
@@ -883,6 +921,29 @@ public class DriverDocumentsTab {
 		main.saveButton.addActionListener(saveAsTestDoc);
 	}
 		
+		public static void save(GUIMain main) {
+			Logger.logln(NAME+"Save document button clicked.");
+
+    		String path = main.ps.getTestDocs().get(0).getFilePath();
+    		File f = new File(path);
+    		
+    		try {
+    			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+    			bw.write(main.documentPane.getText());
+    			bw.flush();
+    			bw.close();
+    			Logger.log("Saved contents of document to "+path);
+    			
+    			main.saved = true;
+    		} catch (IOException exc) {
+    			Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
+    			Logger.logln(NAME+exc.toString(),LogOut.STDERR);
+    			JOptionPane.showMessageDialog(null,
+    					"Failed saving contents of current tab into:\n"+path,
+    					"Save Problem Set Failure",
+    					JOptionPane.ERROR_MESSAGE);
+    		}
+		}
 			
 		public static int getSelection(JOptionPane oPane){
 			Object selectedValue = oPane.getValue();

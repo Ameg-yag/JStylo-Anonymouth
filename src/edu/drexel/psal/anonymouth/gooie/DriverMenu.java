@@ -75,25 +75,7 @@ public class DriverMenu {
         saveTestDocListener = new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent e) {
-        		Logger.logln(NAME+"Save document button clicked.");
-
-        		String path = main.ps.getTestDocs().get(0).getFilePath();
-        		File f = new File(path);
-        		
-        		try {
-        			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
-        			bw.write(main.documentPane.getText());
-        			bw.flush();
-        			bw.close();
-        			Logger.log("Saved contents of document to "+path);
-        		} catch (IOException exc) {
-        			Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
-        			Logger.logln(NAME+exc.toString(),LogOut.STDERR);
-        			JOptionPane.showMessageDialog(null,
-        					"Failed saving contents of current tab into:\n"+path,
-        					"Save Problem Set Failure",
-        					JOptionPane.ERROR_MESSAGE);
-        		}
+        		DriverDocumentsTab.save(main);
         	}
         };
         main.fileSaveTestDocMenuItem.addActionListener(saveTestDocListener);
