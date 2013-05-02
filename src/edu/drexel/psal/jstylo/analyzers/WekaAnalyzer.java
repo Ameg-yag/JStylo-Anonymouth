@@ -4,6 +4,9 @@ import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.RelaxedEvaluation;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 import com.jgaap.generics.Document;
@@ -189,6 +192,7 @@ public class WekaAnalyzer extends Analyzer {
 			eval = new Evaluation(randData);
 			for (int n = 0; n < folds; n++) {
 				Instances train = randData.trainCV(folds, n);
+							
 				Instances test = randData.testCV(folds, n);
 				// build and evaluate classifier
 				Classifier clsCopy = Classifier.makeCopy(classifier);

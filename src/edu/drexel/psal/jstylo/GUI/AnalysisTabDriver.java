@@ -818,8 +818,10 @@ public class AnalysisTabDriver {
 					updateResultsView();
 					
 					// run
-					Object results = main.analysisDriver.runCrossValidation(main.wib.getTrainingSet(),Integer.parseInt(main.analysisKFoldJTextField.getText()),0,Integer.parseInt(main.analysisRelaxJTextField.getText())); 
-										
+					Object results = main.analysisDriver.runCrossValidation(main.wib.getTrainingSet(),
+							Integer.parseInt(main.analysisKFoldJTextField.getText()),0,
+							Integer.parseInt(main.analysisRelaxJTextField.getText())); 					
+					
 					content += getTimestamp()+" done!\n\n";
 					Logger.logln("Done!");
 					updateResultsView();
