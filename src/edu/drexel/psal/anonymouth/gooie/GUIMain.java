@@ -1567,6 +1567,7 @@ public class GUIMain extends javax.swing.JFrame  {
                 documentPane.setFont(normalFont);
                 documentPane.setEnabled(false);
                 documentPane.setEditable(false);
+                documentPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
                 documentScrollPane.setViewportView(documentPane);
                 
 //                documentOptionsPanel = new JPanel();

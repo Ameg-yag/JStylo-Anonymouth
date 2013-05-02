@@ -212,9 +212,6 @@ public class DriverDocumentsTab {
 	 */
 	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith, boolean shouldUpdate){
 		main.saved = false;
-		
-		System.out.println("DEBUGGING2: sentenceToReplaceWith = \"" + sentenceToReplaceWith + "\"");
-		System.out.println("num to remove: "+sentenceNumberToRemove+", and replacing with \""+sentenceToReplaceWith+"\"");
 		//Scanner in = new Scanner(System.in);
 		//in.nextLine();
 		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
@@ -230,11 +227,12 @@ public class DriverDocumentsTab {
 			}
 		 */
 		if (shouldUpdate){
-			ignoreNumActions = 2;
+			ignoreNumActions = 3;
 			main.documentPane.setText(taggedDoc.getUntaggedDocument());
 			main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
 			main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);	
 		}
+		
 		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
@@ -242,23 +240,23 @@ public class DriverDocumentsTab {
 		moveHighlight(main,selectedSentIndexRange,true);
 	}
 
-	protected static void replaceTaggedSentenceAndUpdate(GUIMain main, int sentenceNumberToRemove, TaggedSentence sentenceToReplaceWith, boolean shouldUpdate) {
-		main.saved = false;
-		
-		System.out.println("num to remove: " + sentenceNumberToRemove + " and replacing with " + sentenceToReplaceWith);
-		taggedDoc.replaceTaggedSentence(sentenceNumberToRemove, sentenceToReplaceWith);
-		
-		if (shouldUpdate) {
-			ignoreNumActions = 2;
-			main.documentPane.setText(taggedDoc.getUntaggedDocument());
-			main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
-			main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);
-		}
-		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
-		selectedSentIndexRange[0] = selectionInfo[1];
-		selectedSentIndexRange[1] = selectionInfo[2];
-		moveHighlight(main, selectedSentIndexRange, true);
-	}
+//	protected static void replaceTaggedSentenceAndUpdate(GUIMain main, int sentenceNumberToRemove, TaggedSentence sentenceToReplaceWith, boolean shouldUpdate) {
+//		main.saved = false;
+//		
+//		System.out.println("num to remove: " + sentenceNumberToRemove + " and replacing with " + sentenceToReplaceWith);
+//		taggedDoc.replaceTaggedSentence(sentenceNumberToRemove, sentenceToReplaceWith);
+//		
+//		if (shouldUpdate) {
+//			ignoreNumActions = 2;
+//			main.documentPane.setText(taggedDoc.getUntaggedDocument());
+//			main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
+//			main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);
+//		}
+//		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
+//		selectedSentIndexRange[0] = selectionInfo[1];
+//		selectedSentIndexRange[1] = selectionInfo[2];
+//		moveHighlight(main, selectedSentIndexRange, true);
+//	}
 	
 	/**
 	 * resets the highlight to a new start and end.
@@ -417,6 +415,13 @@ public class DriverDocumentsTab {
 							charsRemoved = 0;
 						}
 					}
+//					else if (lastSentNum != 1) {
+//						System.out.println("PRINTED STUFF: " + main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]));
+//						if (!Translator.translatedSentences.contains(main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
+//							main.GUITranslator.replace(taggedDoc.getSentenceNumber(selectionInfo[0]), DriverTranslationsTab.current);//new old
+//							main.anonymityDrawingPanel.updateAnonymityBar();
+//						}
+//					}
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
 					
@@ -430,12 +435,8 @@ public class DriverDocumentsTab {
 						
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
-							System.out.println("DEBUGGING3: taggedDoc.getSentenceNumber(lastSentNum).getUntagged() = " + taggedDoc.getSentenceNumber(lastSentNum).getUntagged());
-							System.out.println("DEBUGGING3: currentSentenceString = " + currentSentenceString);
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 							setSelectionInfoAndHighlight = false;
-						
-						//	selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 						}
 						
 					}
@@ -446,24 +447,14 @@ public class DriverDocumentsTab {
 						
 						if(!inRange) {
 							moveHighlight(main,selectedSentIndexRange,true);
+//							for (int i = 0; i < main.GUITranslator.translatedSentences.size(); i++)
+//								System.out.println("TRANSLATED SENTENCES = " + main.GUITranslator.translatedSentences.get(i));
 						} else
 							moveHighlight(main,selectedSentIndexRange,false);
 					}
 					
 					sentToTranslate = currentSentNum;
-//					System.out.println("FIND ME!!! Sentence = \"" + taggedDoc.getSentenceNumber(sentToTranslate).getUntagged() + "\"");
-//					for (int i = 0; i < taggedDoc.getSentenceNumber(sentToTranslate).getTranslations().size(); i++)
-//						System.out.println("FIND ME!!!" + taggedDoc.getSentenceNumber(sentToTranslate).getTranslations().get(i));
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
-					
-					if (Translator.finished) {
-						for (int i = 0; i < taggedDoc.getTaggedSentences().size(); i++) {
-							System.out.println("	Sentence: " + taggedDoc.getTaggedSentences().get(i).getUntagged());
-							for (int j = 0; j < taggedDoc.getTaggedSentences().get(i).getTranslations().size(); j++) {
-								System.out.println("		Translation: " + taggedDoc.getTaggedSentences().get(i).getTranslations().get(j).getUntagged());
-							}
-						}
-					}
 				}
 			}
 		});
