@@ -217,28 +217,6 @@ public class DriverDocumentsTab {
 		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
 		//main.documentPane.getCaret().setDot(currentCaretPosition);
 		//main.documentPane.setCaretPosition(currentCaretPosition);
-		/*	
-			try {
-				//System.out.printf("removing from '%d' to '%d' and then inserting at '%d'\n",selectedSentIndexRange[0],selectedSentIndexRange[1],selectedSentIndexRange[0]);
-				main.documentPane.getStyledDocument().remove(selectedSentIndexRange[0], selectedSentIndexRange[0]);
-				main.documentPane.getStyledDocument().insertString(selectedSentIndexRange[0], sentenceToReplaceWith, null);
-			} catch (BadLocationException e) {
-				System.out.println(NAME+"Error modifying document");
-			}
-		*/
-			int caretPos = main.documentPane.getCaretPosition();
-			if (shouldUpdate){
-				ignoreNumActions = 2;
-				main.documentPane.setText(taggedDoc.getUntaggedDocument());
-				main.documentPane.getCaret().setDot(caretPos);//caretPositionPriorToCharInsert);
-				main.documentPane.setCaretPosition(caretPos);//caretPositionPriorToCharInsert);	
-			}
-			int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPos);//caretPositionPriorToCharInsert);
-			selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
-			selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
-			//System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
-			moveHighlight(main,selectedSentIndexRange,true);
-		 */
 		if (shouldUpdate){
 			ignoreNumActions = 3;
 			main.documentPane.setText(taggedDoc.getUntaggedDocument());
