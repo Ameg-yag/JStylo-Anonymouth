@@ -84,7 +84,7 @@ public class DriverPreProcessTabClassifiers {
 			@Override
 			public void mousePressed(MouseEvent arg0)
 			{
-				main.PPSP.tree.setSelectionRow(3);
+				main.PPSP.tabbedPane.setSelectedComponent(main.PPSP.classPanel);
 				main.PPSP.openWindow();
 				if (main.classifiersAreReady())
 					main.prepClassLabel.setBackground(main.ready);
@@ -125,8 +125,12 @@ public class DriverPreProcessTabClassifiers {
 					
 					try {
 						//tmpClassifier.setOptions(main.classAvClassArgsJTextField.getText().split(" "));
+						System.out.println("TEST: tmpClassifier.getOption() = " + tmpClassifier.getOptions());
+						System.out.println("TEST: getOptionsStr(tmpClassifier.getOptions()) = " + getOptionsStr(tmpClassifier.getOptions()));
+						System.out.println("TEST: getOptionsStr(tmpClassifier.getOptions()).split(\" \") = " + getOptionsStr(tmpClassifier.getOptions()).split(" "));
 						tmpClassifier.setOptions(getOptionsStr(tmpClassifier.getOptions()).split(" "));
 					} catch (Exception e1) {
+						e1.printStackTrace();
 						Logger.logln(NAME+"Invalid options given for classifier.",LogOut.STDERR);
 						JOptionPane.showMessageDialog(main,
 								"The classifier arguments entered are invalid.\n"+
@@ -147,7 +151,7 @@ public class DriverPreProcessTabClassifiers {
 					tmpClassifier = null;
 					main.PPSP.classJTree.clearSelection();
 					
-					PropertiesUtil.setClassifier(main.classChoice.getSelectedItem().toString());
+//					PropertiesUtil.setClassifier(main.classChoice.getSelectedItem().toString());
 				}
 			}
 		});
@@ -515,7 +519,7 @@ public class DriverPreProcessTabClassifiers {
 					tmpClassifier = null;
 					main.PPSP.classJTree.clearSelection();
 					
-					PropertiesUtil.setClassifier(main.classChoice.getSelectedItem().toString());
+//					PropertiesUtil.setClassifier(main.classChoice.getSelectedItem().toString());
 				}
 			}
 		});

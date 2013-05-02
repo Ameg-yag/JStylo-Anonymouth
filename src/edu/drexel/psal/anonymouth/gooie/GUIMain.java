@@ -133,7 +133,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected List<String> results;
 	
 	protected PreProcessSettingsFrame PPSP;
-	protected GeneralSettingsFrame GSP;
+	protected static GeneralSettingsFrame GSP;
 
 	protected String defaultTrainDocsTreeName = "Authors"; 
 	protected Font defaultLabelFont = new Font("Verdana",0,16);
@@ -438,6 +438,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected static Border rlborder = BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder());
 	protected static Font titleFont = new Font("Ariel", Font.BOLD, 12);
 	protected static String titleHeight = "25";
+	protected static Boolean saved = true;
 	
 	// used for translation of sentences
 	protected static Translator GUITranslator;
@@ -471,7 +472,38 @@ public class GUIMain extends javax.swing.JFrame  {
 				}
 				inst = new GUIMain();
 				GUITranslator = new Translator(inst);
-				inst.setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+				WindowListener exitListener = new WindowListener() {
+					@Override
+					public void windowClosing(WindowEvent e) {
+						if (PropertiesUtil.getWarnQuit() && !saved) {
+							int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+							if (confirm == 0) {
+								System.exit(0);
+							}
+						} else if (PropertiesUtil.getAutoSave()) {
+							DriverDocumentsTab.save(inst);
+							System.exit(0);
+						} else {
+							System.exit(0);
+						}
+					}
+					@Override
+					public void windowActivated(WindowEvent arg0) {}
+					@Override
+					public void windowClosed(WindowEvent arg0) {}
+					@Override
+					public void windowDeactivated(WindowEvent arg0) {}
+					@Override
+					public void windowDeiconified(WindowEvent arg0) {}
+					@Override
+					public void windowIconified(WindowEvent arg0) {}
+					@Override
+					public void windowOpened(WindowEvent arg0) {}
+				};
+				
+				inst.addWindowListener(exitListener);
+				inst.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			
 				inst.setLocationRelativeTo(null);
 				inst.setVisible(true);
@@ -523,16 +555,17 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			menuBar = new JMenuBar();
 			JMenu fileMenu = new JMenu("File");
+			
 			JMenu settingsMenu = new JMenu("Settings");
 			JMenu helpMenu = new JMenu("Help");
-			JMenu settingsTabMenu = new JMenu("Tabs");
-			settingsGeneralMenuItem = new JMenuItem("General...");
-			JMenu settingsTabClustersMenu = new JMenu("Clusters");
-			JMenu settingsTabPreprocessMenu = new JMenu("Pre-Process");
-			JMenu settingsTabSuggestionsMenu = new JMenu("Suggestions");
-			JMenu settingsTabTranslationsMenu = new JMenu("Translations");
-			JMenu settingsTabDocumentsMenu = new JMenu("Documents");
-			JMenu settingsTabResultsMenu = new JMenu("Results");
+//			JMenu settingsTabMenu = new JMenu("Tabs");
+			settingsGeneralMenuItem = new JMenuItem("Preferences");
+//			JMenu settingsTabClustersMenu = new JMenu("Clusters");
+//			JMenu settingsTabPreprocessMenu = new JMenu("Pre-Process");
+//			JMenu settingsTabSuggestionsMenu = new JMenu("Suggestions");
+//			JMenu settingsTabTranslationsMenu = new JMenu("Translations");
+//			JMenu settingsTabDocumentsMenu = new JMenu("Documents");
+//			JMenu settingsTabResultsMenu = new JMenu("Results");
 			fileSaveProblemSetMenuItem = new JMenuItem("Save Problem Set");
 			fileLoadProblemSetMenuItem = new JMenuItem("Load Problem Set");
 			fileSaveTestDocMenuItem = new JMenuItem("Save");
@@ -541,7 +574,12 @@ public class GUIMain extends javax.swing.JFrame  {
 			helpAboutMenuItem = new JMenuItem("About Anonymouth");
 			
 			menuBar.add(fileMenu);
-			menuBar.add(settingsMenu);
+			
+			String OS = System.getProperty("os.name").toLowerCase();
+			if (!OS.contains("mac")) {
+				menuBar.add(settingsMenu);
+				settingsMenu.add(settingsGeneralMenuItem);
+			}
 			menuBar.add(helpMenu);
 			
 			fileMenu.add(fileSaveProblemSetMenuItem);
@@ -554,25 +592,24 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			// ================== HAVE TO ADD ACTION LISTENERS TO THESE BUT NEED TO FIGURE OUT BEST WAY TO DO SO
 			
-			settingsMenu.add(settingsGeneralMenuItem);
-			settingsMenu.add(settingsTabMenu);
-				settingsTabMenu.add(settingsTabClustersMenu);
-					settingsTabClustersMenu.add(new JMenuItem("Left"));
-					settingsTabClustersMenu.add(new JMenuItem("Top"));
-					settingsTabClustersMenu.add(new JMenuItem("Right"));
-				settingsTabMenu.add(settingsTabPreprocessMenu);
-					settingsTabPreprocessMenu.add(new JMenuItem("Left"));
-					settingsTabPreprocessMenu.add(new JMenuItem("Right"));
-				settingsTabMenu.add(settingsTabSuggestionsMenu);
-					settingsTabSuggestionsMenu.add(new JMenuItem("Left"));
-					settingsTabSuggestionsMenu.add(new JMenuItem("Right"));
-				settingsTabMenu.add(settingsTabTranslationsMenu);
-					settingsTabTranslationsMenu.add(new JMenuItem("Left"));
-					settingsTabTranslationsMenu.add(new JMenuItem("Right"));
-				settingsTabMenu.add(settingsTabDocumentsMenu);
-					settingsTabDocumentsMenu.add(new JMenuItem("Top"));
-				settingsTabMenu.add(settingsTabResultsMenu);
-					settingsTabResultsMenu.add(new JMenuItem("Bottom"));
+//			settingsMenu.add(settingsTabMenu);
+//				settingsTabMenu.add(settingsTabClustersMenu);
+//					settingsTabClustersMenu.add(new JMenuItem("Left"));
+//					settingsTabClustersMenu.add(new JMenuItem("Top"));
+//					settingsTabClustersMenu.add(new JMenuItem("Right"));
+//				settingsTabMenu.add(settingsTabPreprocessMenu);
+//					settingsTabPreprocessMenu.add(new JMenuItem("Left"));
+//					settingsTabPreprocessMenu.add(new JMenuItem("Right"));
+//				settingsTabMenu.add(settingsTabSuggestionsMenu);
+//					settingsTabSuggestionsMenu.add(new JMenuItem("Left"));
+//					settingsTabSuggestionsMenu.add(new JMenuItem("Right"));
+//				settingsTabMenu.add(settingsTabTranslationsMenu);
+//					settingsTabTranslationsMenu.add(new JMenuItem("Left"));
+//					settingsTabTranslationsMenu.add(new JMenuItem("Right"));
+//				settingsTabMenu.add(settingsTabDocumentsMenu);
+//					settingsTabDocumentsMenu.add(new JMenuItem("Top"));
+//				settingsTabMenu.add(settingsTabResultsMenu);
+//					settingsTabResultsMenu.add(new JMenuItem("Bottom"));
 			
 			helpMenu.add(helpAboutMenuItem);
 			
@@ -626,7 +663,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	 * @throws Exception - if any of these values are not found in the prop file, we instead set them to the defaults
 	 */
 	protected void setDefaultValues() throws Exception {
-		if (PropertiesUtil.getProbSet() != null) {
+		if (PropertiesUtil.getProbSet() != "") {
 			String problemSetPath = PropertiesUtil.prop.getProperty("recentProbSet");
 			
 			PropertiesUtil.setProbSet(problemSetPath);
@@ -1530,6 +1567,7 @@ public class GUIMain extends javax.swing.JFrame  {
                 documentPane.setFont(normalFont);
                 documentPane.setEnabled(false);
                 documentPane.setEditable(false);
+                documentPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
                 documentScrollPane.setViewportView(documentPane);
                 
 //                documentOptionsPanel = new JPanel();

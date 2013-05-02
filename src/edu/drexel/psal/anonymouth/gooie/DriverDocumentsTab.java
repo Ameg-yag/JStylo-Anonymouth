@@ -211,12 +211,12 @@ public class DriverDocumentsTab {
 	 * @param shouldUpdate if true, it replaces the text in the JTextPane (documentPane) with the text in the TaggedDocument (taggedDoc).
 	 */
 	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith, boolean shouldUpdate){
-			System.out.println("num to remove: "+sentenceNumberToRemove+" and replacing with "+sentenceToReplaceWith);
-			//Scanner in = new Scanner(System.in);
-			//in.nextLine();
-			taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
-			//main.documentPane.getCaret().setDot(currentCaretPosition);
-			//main.documentPane.setCaretPosition(currentCaretPosition);
+		main.saved = false;
+		//Scanner in = new Scanner(System.in);
+		//in.nextLine();
+		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
+		//main.documentPane.getCaret().setDot(currentCaretPosition);
+		//main.documentPane.setCaretPosition(currentCaretPosition);
 		/*	
 			try {
 				//System.out.printf("removing from '%d' to '%d' and then inserting at '%d'\n",selectedSentIndexRange[0],selectedSentIndexRange[1],selectedSentIndexRange[0]);
@@ -238,7 +238,38 @@ public class DriverDocumentsTab {
 			selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 			//System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
 			moveHighlight(main,selectedSentIndexRange,true);
+		 */
+		if (shouldUpdate){
+			ignoreNumActions = 3;
+			main.documentPane.setText(taggedDoc.getUntaggedDocument());
+			main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
+			main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);	
+		}
+		
+		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
+		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
+		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
+		//System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
+		moveHighlight(main,selectedSentIndexRange,true);
 	}
+
+//	protected static void replaceTaggedSentenceAndUpdate(GUIMain main, int sentenceNumberToRemove, TaggedSentence sentenceToReplaceWith, boolean shouldUpdate) {
+//		main.saved = false;
+//		
+//		System.out.println("num to remove: " + sentenceNumberToRemove + " and replacing with " + sentenceToReplaceWith);
+//		taggedDoc.replaceTaggedSentence(sentenceNumberToRemove, sentenceToReplaceWith);
+//		
+//		if (shouldUpdate) {
+//			ignoreNumActions = 2;
+//			main.documentPane.setText(taggedDoc.getUntaggedDocument());
+//			main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
+//			main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);
+//		}
+//		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
+//		selectedSentIndexRange[0] = selectionInfo[1];
+//		selectedSentIndexRange[1] = selectionInfo[2];
+//		moveHighlight(main, selectedSentIndexRange, true);
+//	}
 	
 	/**
 	 * resets the highlight to a new start and end.
@@ -355,15 +386,12 @@ public class DriverDocumentsTab {
 					ignoreNumActions--;
 				}
 				else if (taggedDoc != null) { //main.documentPane.getText().length() != 0
+					main.saved = false;
 					boolean setSelectionInfoAndHighlight = true;
 					startSelection = e.getDot();
 					endSelection = e.getMark();
-					System.out.println("DEBUGGING: startSelection " + startSelection + " and endSelection " + endSelection);
 					currentCaretPosition = startSelection;
-					System.out.println("DEBUGGING: charsInserted " + charsInserted + " and length of document = " + taggedDoc.getUntaggedDocument().length());
 					caretPositionPriorToCharInsert = currentCaretPosition - charsInserted;
-					System.out.println("DEBUGGING: caretPositionPriorToCharInsert " + caretPositionPriorToCharInsert);
-					System.out.println("DEBUGGING: selectedSentIndexRange[0] = " + selectedSentIndexRange[0] + " and selectedSentIndexRange[1] = " + selectedSentIndexRange[1]);
 					int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert); 
 					if (selectionInfo == null)
 						return; // don't do anything.
@@ -379,38 +407,40 @@ public class DriverDocumentsTab {
 						
 					}
 						
-					System.out.printf("CARET INFO: %d to %d\n", startSelection, endSelection);
 					boolean inRange = false;
 					/*
 					 * put in a check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
 					 */
 					if ( caretPositionPriorToCharInsert >= selectedSentIndexRange[0] && caretPositionPriorToCharInsert <= selectedSentIndexRange[1]){
-						System.out.println("DEBUGGING: selectedSentIndexRange changed");
 						inRange = true;
 						// Caret is inside range of presently selected sentence.
 						// update from previous caret
 						if (charsInserted > 0 ){// && lastSentNum != -1){
 							keyJustPressed = false;
-							System.out.println("DEBUGGING: Chars inserted");
 							selectedSentIndexRange[1] += charsInserted;
 							//moveHighlight(main,selectedSentIndexRange,false);
 							charsInserted = ~-1; // puzzle: what does this mean? (scroll to bottom of file for answer) - AweM
 						}
 						else if (charsRemoved > 0){// && lastSentNum != -1){
 							keyJustPressed = false;
-							System.out.println("DEBUGGING: Chars removed");
 							selectedSentIndexRange[1] -= charsRemoved;
 							//moveHighlight(main,selectedSentIndexRange,false);
 							charsRemoved = 0;
 						}
 					}
+//					else if (lastSentNum != 1) {
+//						System.out.println("PRINTED STUFF: " + main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]));
+//						if (!Translator.translatedSentences.contains(main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
+//							main.GUITranslator.replace(taggedDoc.getSentenceNumber(selectionInfo[0]), DriverTranslationsTab.current);//new old
+//							main.anonymityDrawingPanel.updateAnonymityBar();
+//						}
+//					}
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
 					
 					lastSentNum = currentSentNum;
 					currentSentNum = selectionInfo[0];
 					
-					System.out.println("DEBUGGING: lastSentNum = " + lastSentNum);
 					if (lastSentNum != -1){ //NOTE needed a way to make sure that the first time a sentence is clicked, we didn't break stuff... this may not be the best way...
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
@@ -418,11 +448,8 @@ public class DriverDocumentsTab {
 						
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
-							System.out.println("DEBUGGING: sentences not the same, \n<" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged() + ">\n<" + currentSentenceString + ">");
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 							setSelectionInfoAndHighlight = false;
-						
-						//	selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 						}
 						
 					}
@@ -433,13 +460,14 @@ public class DriverDocumentsTab {
 						
 						if(!inRange) {
 							moveHighlight(main,selectedSentIndexRange,true);
+//							for (int i = 0; i < main.GUITranslator.translatedSentences.size(); i++)
+//								System.out.println("TRANSLATED SENTENCES = " + main.GUITranslator.translatedSentences.get(i));
 						} else
 							moveHighlight(main,selectedSentIndexRange,false);
 					}
 					
 					sentToTranslate = currentSentNum;
-					System.out.println("DEBUGGING: DriverTranslationsTab.showTranslations for = " + taggedDoc.getSentenceNumber(sentToTranslate));
-					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));			
+					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 				}
 			}
 		});
@@ -879,6 +907,8 @@ public class DriverDocumentsTab {
 						bw.flush();
 						bw.close();
 						Logger.log("Saved contents of current tab to "+path);
+						
+						main.saved = true;
 					} catch (IOException exc) {
 						Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
 						Logger.logln(NAME+exc.toString(),LogOut.STDERR);
@@ -895,6 +925,29 @@ public class DriverDocumentsTab {
 		main.saveButton.addActionListener(saveAsTestDoc);
 	}
 		
+		public static void save(GUIMain main) {
+			Logger.logln(NAME+"Save document button clicked.");
+
+    		String path = main.ps.getTestDocs().get(0).getFilePath();
+    		File f = new File(path);
+    		
+    		try {
+    			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
+    			bw.write(main.documentPane.getText());
+    			bw.flush();
+    			bw.close();
+    			Logger.log("Saved contents of document to "+path);
+    			
+    			main.saved = true;
+    		} catch (IOException exc) {
+    			Logger.logln(NAME+"Failed opening "+path+" for writing",LogOut.STDERR);
+    			Logger.logln(NAME+exc.toString(),LogOut.STDERR);
+    			JOptionPane.showMessageDialog(null,
+    					"Failed saving contents of current tab into:\n"+path,
+    					"Save Problem Set Failure",
+    					JOptionPane.ERROR_MESSAGE);
+    		}
+		}
 			
 		public static int getSelection(JOptionPane oPane){
 			Object selectedValue = oPane.getValue();

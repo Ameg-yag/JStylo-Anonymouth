@@ -84,7 +84,7 @@ public class DriverPreProcessTabFeatures {
 			@Override
 			public void mousePressed(MouseEvent arg0)
 			{
-				main.PPSP.tree.setSelectionRow(2);
+				main.PPSP.tabbedPane.setSelectedComponent(main.PPSP.featPanel);
 				main.PPSP.openWindow();
 				if (main.featuresAreReady())
 					main.prepFeatLabel.setBackground(main.ready);
@@ -123,7 +123,7 @@ public class DriverPreProcessTabFeatures {
 				GUIUpdateInterface.updateFeatureSetView(main);
 				GUIUpdateInterface.updateFeatPrepColor(main);
 				
-				PropertiesUtil.setFeature(main.featuresSetJComboBox.getSelectedItem().toString());
+//				PropertiesUtil.setFeature(main.featuresSetJComboBox.getSelectedItem().toString());
 			}
 		});
 	}
@@ -169,7 +169,7 @@ public class DriverPreProcessTabFeatures {
 					Logger.logln(NAME+"Loading preset feature set canceled.");
 				}
 				
-				PropertiesUtil.setFeature(main.featuresSetJComboBox.getSelectedItem().toString());
+//				PropertiesUtil.setFeature(main.featuresSetJComboBox.getSelectedItem().toString());
 			}
 		});
 

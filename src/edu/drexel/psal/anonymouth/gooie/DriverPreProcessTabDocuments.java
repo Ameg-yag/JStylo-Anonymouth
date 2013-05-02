@@ -83,7 +83,7 @@ public class DriverPreProcessTabDocuments {
 			@Override
 			public void mousePressed(MouseEvent arg0)
 			{
-				main.PPSP.tree.setSelectionRow(1);
+				main.PPSP.tabbedPane.setSelectedComponent(main.PPSP.docPanel);
 				main.PPSP.openWindow();
 				if (main.documentsAreReady())
 					main.prepDocLabel.setBackground(main.ready);

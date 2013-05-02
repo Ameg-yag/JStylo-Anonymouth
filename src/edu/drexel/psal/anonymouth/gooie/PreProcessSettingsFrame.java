@@ -63,318 +63,146 @@ import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 public class PreProcessSettingsFrame extends JDialog {
 	
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	// features tab
+	protected static int cellPadding = 5;
 
+	protected JLabel featuresToolsJLabel;
+	protected JButton featuresNextJButton;
+	protected JButton featuresBackJButton;
+	protected JLabel featuresFeatureConfigJLabel;
+
+	protected JLabel featuresFeatureExtractorContentJLabel;
+	protected JLabel featuresFeatureExtractorJLabel;
+	protected JLabel featuresFactorJLabel;
+	protected JLabel featuresNormJLabel;
+	protected JLabel featuresFeatureDescJLabel;
+
+	protected JLabel featuresFeatureNameJLabel;
+	protected JLabel featuresCullJLabel;
+	protected JLabel featuresCanonJLabel;
+	protected JButton featuresEditJButton;
+	protected JButton featuresRemoveJButton;
+	protected JButton featuresAddJButton;
+	protected JList featuresJList;
+	protected DefaultComboBoxModel featuresJListModel;
+	protected JLabel featuresFeaturesJLabel;
+	protected JTextPane featuresSetDescJTextPane;
+	protected JScrollPane featuresSetDescJScrollPane;
+	protected JLabel featuresSetDescJLabel;
+	protected JTextField featuresSetNameJTextField;
+	protected JLabel featuresSetNameJLabel;
+	protected JButton featuresNewSetJButton;
+	protected JButton featuresSaveSetJButton;
+	protected JButton featuresLoadSetFromFileJButton;
+	protected JButton featuresAddSetJButton;
+	protected JComboBox featuresSetJComboBox;
+	protected DefaultComboBoxModel featuresSetJComboBoxModel;
+	protected JLabel featuresSetJLabel;
+	protected JButton featuresAboutJButton;
+	protected JLabel featuresListLabel;
+	protected JLabel featuresInfoLabel;
+	//
+	// Calssifiers tab
+	protected JTextField classAvClassArgsJTextField;
+	protected JLabel classAvClassArgsJLabel;
+	protected JComboBox classClassJComboBox;
+	protected JLabel classAvClassJLabel;
+	protected JButton classAddJButton;
+
+	protected JTextField classSelClassArgsJTextField;
+	protected JLabel classSelClassArgsJLabel;
+	protected JScrollPane classSelClassJScrollPane;
+	protected DefaultListModel classSelClassJListModel;
+	protected JScrollPane classTreeScrollPane;
+	protected JScrollPane classDescJScrollPane;
+	protected JTextPane classDescJTextPane;
+	protected JLabel classDescJLabel;
+	protected JButton classBackJButton;
+	protected JButton classNextJButton;
+	protected JLabel classSelClassJLabel;
+	protected JButton classRemoveJButton;
+	protected JButton classAboutJButton;
 	
+	//-------------- HELP TAB PANE STUFF ---------
+	protected JTabbedPane editorHelpTabPane;
 	
-//	// main instance
-//		public static GUIMain inst;
-//
-//		// ------------------------
-//
-//		// data
-//		protected ProblemSet ps;
-//		protected CumulativeFeatureDriver cfd;
-//		protected List<CumulativeFeatureDriver> presetCFDs;
-//		protected WekaInstancesBuilder wib;
-//		protected WekaAnalyzer wad;
-//		protected List<Classifier> classifiers;
-//		protected Thread analysisThread;
-//		protected List<String> results;
-//
-//		protected String defaultTrainDocsTreeName = "Authors"; 
-//	protected Font defaultLabelFont = new Font("Verdana",0,16);
-//		protected static int cellPadding = 5;
-//		
-//		// possible color scheme
-//		protected final Color lightblue = new Color(126, 181, 214);
-//		protected final Color medblue = new Color(42, 117, 169);
-//		protected final Color darkblue = new Color(39, 66, 87);
-//		protected final Color lightbrown = new Color(223, 193, 132);
-//		protected final Color medbrown = new Color(143, 96, 72);
-//		protected final Color darkbrown = new Color(100, 68, 54);
-//		
-//		protected final Color ready = new Color(0,255,128);
-//		protected final Color notReady = new Color(255,102,102);
-//
-//		// tabs
-//		protected JTabbedPane mainJTabbedPane;
-//		protected JPanel docsTab;
-//		protected JPanel featuresTab;
-//		protected JPanel classTab;
-//		protected JPanel editorTab;
-//		
-//		// documents tab
-//		protected String propFileName = "jsan_resources/anonymouth_prop.prop";
-//		File propFile = new File(propFileName);
-//		Properties prop = new Properties();
-//		protected JFileChooser load = new JFileChooser();
-//		protected JFileChooser save = new JFileChooser();
-//		
-//		protected JLabel testDocsJLabel;
-//		protected JButton trainDocPreviewJButton;
-//		protected JButton testDocPreviewJButton;
-//		protected JButton trainNameJButton;
-//		protected JLabel docPreviewJLabel;
-//		protected JButton newProblemSetJButton;
-//		protected JTextPane docPreviewJTextPane;
-//		protected JScrollPane docPreviewJScrollPane;
-
-//		protected JButton docTabNextJButton;
-//		protected JButton removeAuthorJButton;
-
-//		
-//		protected JTable testDocsJTable;
-//		protected DefaultTableModel testDocsTableModel;
-//		
-//		protected JLabel docPreviewNameJLabel;
-//		protected JLabel corpusJLabel;
-
-//		protected JButton clearDocPreviewJButton;
-//		protected JButton docsAboutJButton;
-//		protected JTable userSampleDocsJTable;
-//		protected DefaultTableModel userSampleDocsTableModel;
-//		protected JLabel userSampleDocsJLabel;
-//		protected JPanel buttons;
-
-//		protected JButton userSampleDocPreviewJButton;
-//
-		// features tab
-		protected static int cellPadding = 5;
+	protected JPanel editorHelpPrepPanel;
+	protected JButton prepAdvButton;
+		protected JPanel prepDocumentsPanel;
+			protected JPanel prepMainDocPanel;
+				protected JLabel prepDocLabel;
+				protected JButton loadProblemSetJButton;
+				protected JButton saveProblemSetJButton;
+				protected JList prepMainDocList;
+				protected JScrollPane prepMainDocScrollPane;
+				protected JPanel mainDocSettingsPanel;
+					protected JLabel mainDocSettingsFullPathLabel;
+					protected JLabel mainDocSettingsSizeLabel;
+					protected JLabel mainDocSettingsLastModifiedLabel;
+				protected JButton removeTestDocJButton;
+				protected JButton addTestDocJButton;
+			protected JPanel prepSampleDocsPanel;
+				protected JList prepSampleDocsList;
+				protected JScrollPane prepSampleDocsScrollPane;
+				protected JPanel sampleDocSettingsPanel;
+					protected JLabel sampleDocSettingsFullPathLabel;
+					protected JLabel sampleDocSettingsSizeLabel;
+					protected JLabel sampleDocSettingsLastModifiedLabel;
+				protected JButton adduserSampleDocJButton;
+				protected JButton removeuserSampleDocJButton;
+			protected JPanel prepTrainDocsPanel;
+				protected JTree trainCorpusJTree;
+				protected JScrollPane trainCorpusJTreeScrollPane;
+				protected JPanel trainDocSettingsPanel;
+					protected JLabel trainDocSettingsFullPathLabel;
+					protected JLabel trainDocSettingsSizeLabel;
+					protected JLabel trainDocSettingsLastModifiedLabel;
+				protected JButton removeTrainDocsJButton;
+				protected JButton addTrainDocsJButton;
+		protected JPanel prepFeaturesPanel;
+			protected JLabel prepFeatLabel;
+		protected JPanel prepClassifiersPanel;
+			protected JLabel prepClassLabel;
+			protected JPanel prepAvailableClassPanel;
+				protected JTree classJTree;
+				protected JScrollPane prepAvailableClassScrollPane;
+			protected JPanel prepSelectedClassPanel;
+				protected JList classJList;
+				protected JScrollPane prepSelectedClassScrollPane;
 	
-		protected JLabel featuresToolsJLabel;
-		protected JButton featuresNextJButton;
-		protected JButton featuresBackJButton;
-		protected JLabel featuresFeatureConfigJLabel;
+	protected JPanel editorHelpSugPanel;
+		protected JPanel elementsPanel;
+		protected JPanel elementsToAddPanel;
+		protected JLabel elementsToAddLabel;
+		protected JTextPane elementsToAddPane;
+		protected JScrollPane elementsToAddScrollPane;
+		protected JPanel elementsToRemovePanel;
+		protected JLabel elementsToRemoveLabel;
+		protected JTextPane elementsToRemovePane;
+		protected JScrollPane elementsToRemoveScrollPane;
 		
-		protected JLabel featuresFeatureExtractorContentJLabel;
-//		protected JScrollPane featuresFeatureExtractorJScrollPane;
-//		protected JScrollPane featuresFeatureExtractorConfigJScrollPane;
-//		protected JScrollPane featuresCullConfigJScrollPane;
-//		protected JScrollPane featuresCanonConfigJScrollPane;
-//		protected JList featuresCullJList;
-//		protected DefaultComboBoxModel featuresCullJListModel;
-//		protected JScrollPane featuresCullListJScrollPane;
-//		protected JScrollPane featuresCanonListJScrollPane;
-//		protected JList featuresCanonJList;
-//		protected DefaultComboBoxModel featuresCanonJListModel;
-//		protected JScrollPane featuresFeatureDescJScrollPane;
+	protected JPanel editorHelpTransPanel;
+		protected JPanel translationsPanel;
+		protected JLabel translationsLabel;
+		protected JTable translationsTable;
+		protected JScrollPane translationsScrollPane;
+		protected JComboBox translationsComboBox;
+	
+	protected JPanel editorHelpInfoPanel;
+		protected JLabel sentenceEditorLabel;
+		protected JLabel documentViewerLabel;
+		protected JLabel classificationResultsLabel;
+		protected JTextPane descriptionPane;
 		
-		protected JLabel featuresFeatureExtractorJLabel;
-		protected JLabel featuresFactorJLabel;
-		protected JLabel featuresNormJLabel;
-		protected JLabel featuresFeatureDescJLabel;
-		
-		protected JLabel featuresFeatureNameJLabel;
-		protected JLabel featuresCullJLabel;
-		protected JLabel featuresCanonJLabel;
-		protected JButton featuresEditJButton;
-		protected JButton featuresRemoveJButton;
-		protected JButton featuresAddJButton;
-		protected JList featuresJList;
-		protected DefaultComboBoxModel featuresJListModel;
-		protected JLabel featuresFeaturesJLabel;
-		protected JTextPane featuresSetDescJTextPane;
-		protected JScrollPane featuresSetDescJScrollPane;
-		protected JLabel featuresSetDescJLabel;
-		protected JTextField featuresSetNameJTextField;
-		protected JLabel featuresSetNameJLabel;
-		protected JButton featuresNewSetJButton;
-		protected JButton featuresSaveSetJButton;
-		protected JButton featuresLoadSetFromFileJButton;
-		protected JButton featuresAddSetJButton;
-		protected JComboBox featuresSetJComboBox;
-		protected DefaultComboBoxModel featuresSetJComboBoxModel;
-		protected JLabel featuresSetJLabel;
-		protected JButton featuresAboutJButton;
-		protected JLabel featuresListLabel;
-		protected JLabel featuresInfoLabel;
-//
-		// Calssifiers tab
-		protected JTextField classAvClassArgsJTextField;
-		protected JLabel classAvClassArgsJLabel;
-		protected JComboBox classClassJComboBox;
-		protected JLabel classAvClassJLabel;
-		protected JButton classAddJButton;
-		
-		protected JTextField classSelClassArgsJTextField;
-		protected JLabel classSelClassArgsJLabel;
-		protected JScrollPane classSelClassJScrollPane;
-		protected DefaultListModel classSelClassJListModel;
-		protected JScrollPane classTreeScrollPane;
-		protected JScrollPane classDescJScrollPane;
-		protected JTextPane classDescJTextPane;
-		protected JLabel classDescJLabel;
-		protected JButton classBackJButton;
-		protected JButton classNextJButton;
-		protected JLabel classSelClassJLabel;
-		protected JButton classRemoveJButton;
-		protected JButton classAboutJButton;
-//		
-//		// Editor tab
-//		
-//		
-//		protected JScrollPane theEditorScrollPane;
-//		protected JTable suggestionTable;
-//		protected JTextPane editorBox;
-//		protected JTable resultsTable;
-//		protected JLabel classificationLabel;
-//		//protected JButton addSentence;
-//		protected JPanel editorRowTwoButtonBufferPanel;
-//		protected JPanel buttonBufferJPanel;
-//		protected JPanel editorBottomRowButtonPanel;
-//		protected JPanel editorTopRowButtonsPanel;
-//		protected JPanel editorButtonJPanel;
-//		protected JPanel editorInteractionWestPanel;
-//		protected JPanel editorInteractionJPanel;
-//		protected JPanel jPanel2;
-//		protected JPanel dummyPanelUpdatorLeftSide;
-//		protected JPanel elementsToAddBoxLabelJPanel;
-//		protected JPanel suggestionBoxLabelJPanel;
-//		protected JPanel jPanel1;
-//		protected JPanel valueLabelJPanel;
-//		protected JPanel valueBoxPanel;
-//		protected JPanel updaterJPanel;
-		//-------------- HELP TAB PANE STUFF ---------
-		protected JTabbedPane editorHelpTabPane;
-		
-		protected JPanel editorHelpPrepPanel;
-		protected JButton prepAdvButton;
-			protected JPanel prepDocumentsPanel;
-				protected JPanel prepMainDocPanel;
-					protected JLabel prepDocLabel;
-					protected JButton loadProblemSetJButton;
-					protected JButton saveProblemSetJButton;
-					protected JList prepMainDocList;
-					protected JScrollPane prepMainDocScrollPane;
-					protected JPanel mainDocSettingsPanel;
-						protected JLabel mainDocSettingsFullPathLabel;
-						protected JLabel mainDocSettingsSizeLabel;
-						protected JLabel mainDocSettingsLastModifiedLabel;
-					protected JButton removeTestDocJButton;
-					protected JButton addTestDocJButton;
-				protected JPanel prepSampleDocsPanel;
-					protected JList prepSampleDocsList;
-					protected JScrollPane prepSampleDocsScrollPane;
-					protected JPanel sampleDocSettingsPanel;
-						protected JLabel sampleDocSettingsFullPathLabel;
-						protected JLabel sampleDocSettingsSizeLabel;
-						protected JLabel sampleDocSettingsLastModifiedLabel;
-					protected JButton adduserSampleDocJButton;
-					protected JButton removeuserSampleDocJButton;
-				protected JPanel prepTrainDocsPanel;
-					protected JTree trainCorpusJTree;
-					protected JScrollPane trainCorpusJTreeScrollPane;
-					protected JPanel trainDocSettingsPanel;
-						protected JLabel trainDocSettingsFullPathLabel;
-						protected JLabel trainDocSettingsSizeLabel;
-						protected JLabel trainDocSettingsLastModifiedLabel;
-					protected JButton removeTrainDocsJButton;
-					protected JButton addTrainDocsJButton;
-			protected JPanel prepFeaturesPanel;
-				protected JLabel prepFeatLabel;
-			protected JPanel prepClassifiersPanel;
-				protected JLabel prepClassLabel;
-				protected JPanel prepAvailableClassPanel;
-					protected JTree classJTree;
-					protected JScrollPane prepAvailableClassScrollPane;
-				protected JPanel prepSelectedClassPanel;
-					protected JList classJList;
-					protected JScrollPane prepSelectedClassScrollPane;
-		
-		protected JPanel editorHelpSugPanel;
-			protected JPanel elementsPanel;
-			protected JPanel elementsToAddPanel;
-			protected JLabel elementsToAddLabel;
-			protected JTextPane elementsToAddPane;
-			protected JScrollPane elementsToAddScrollPane;
-			protected JPanel elementsToRemovePanel;
-			protected JLabel elementsToRemoveLabel;
-			protected JTextPane elementsToRemovePane;
-			protected JScrollPane elementsToRemoveScrollPane;
-			
-		protected JPanel editorHelpTransPanel;
-			protected JPanel translationsPanel;
-			protected JLabel translationsLabel;
-			protected JTable translationsTable;
-			protected JScrollPane translationsScrollPane;
-			protected JComboBox translationsComboBox;
-		
-		protected JPanel editorHelpInfoPanel;
-			protected JLabel sentenceEditorLabel;
-			protected JLabel documentViewerLabel;
-			protected JLabel classificationResultsLabel;
-			protected JTextPane descriptionPane;
-			
-			protected JPanel instructionsPanel;
-			protected JLabel instructionsLabel;
-			protected JTextPane instructionsPane;
-			protected JScrollPane instructionsScrollPane;
-			protected JPanel synonymsPanel;
-			protected JLabel synonymsLabel;
-			protected JTextPane synonymsPane;
-			protected JScrollPane synonymsScrollPane;
-		//--------------------------------------------
-//		
-//		protected JPanel editorInfoJPanel;
-//		protected JScrollPane editorInteractionScrollPane;
-//		protected JScrollPane EditorInfoScrollPane;
-//		protected JTabbedPane editTP;
-//		
-//		protected JScrollPane wordsToAddPane;
-//		//protected JButton nextSentenceButton;
-//		//protected JButton refreshButtonEditor;
-//		//protected JButton lastSentenceButton;
-//		//protected JButton prevSentenceButton;
-//		//protected JButton transButton;
-//		protected JTextField searchInputBox;
-//		protected JComboBox highlightSelectionBox;
-//		protected JLabel highlightLabel;
-//		protected JPanel jPanel_IL3;
-//		protected JButton clearHighlightingButton;
-//		//protected JProgressBar editorProgressBar;
-//		//protected JLabel editingProgressBarLabel;
-//		protected JLabel featureNameLabel;
-//		protected JLabel targetValueLabel;
-//		protected JLabel presentValueLabel;
-//		protected JTextField targetValueField;
-//		protected JTextField presentValueField;
-//		protected JLabel suggestionListLabel;
-//		//protected JButton saveButton;
-//		//protected JButton exitButton;
-//		protected JButton verboseButton;
-//		//protected JButton dictButton;
-//		protected JLabel resultsTableLabel;
-//		protected JScrollPane resultsTablePane;
-//		protected JScrollPane editBox;
-//		protected JPanel editBoxPanel;
-//		protected JScrollPane suggestionListPane;
-//
-//		// Cluster tab
-//		protected JScrollPane theScrollPane;
-//		protected JPanel examplePlotPanel;
-//		protected JPanel topPanel;
-//		protected JPanel secondPanel;
-//		protected JPanel holderPanel;
-//		protected JButton refreshButton;
-//		protected JTabbedPane clusterTab;
-//		protected JCheckBox shouldCloseBox;
-//		protected JButton selectClusterConfiguration;
-//		protected JComboBox clusterConfigurationBox;
-//		protected JPanel Targets;
-//		protected JButton reClusterAllButton;
-//		protected JLayeredPane[] clusterViewerLayoverPanes;
-//		protected JPanel[] namePanels;
-//		
-//		// Analysis tab
-//		protected JCheckBox analysisOutputAccByClassJCheckBox;
-//		protected JCheckBox analysisOutputConfusionMatrixJCheckBox;
-//		protected ButtonGroup analysisTypeButtonGroup;
-//		
-//		protected static ImageIcon iconNO;
-//		protected static ImageIcon iconFINISHED;
-//		public static ImageIcon icon;
-//		
-//		protected Translation GUITranslator = new Translation();
+		protected JPanel instructionsPanel;
+		protected JLabel instructionsLabel;
+		protected JTextPane instructionsPane;
+		protected JScrollPane instructionsScrollPane;
+		protected JPanel synonymsPanel;
+		protected JLabel synonymsLabel;
+		protected JTextPane synonymsPane;
+		protected JScrollPane synonymsScrollPane;
+	//--------------------------------------------
 	
 	protected GUIMain main;
 	public boolean panelsAreMade = false;
@@ -416,9 +244,7 @@ public class PreProcessSettingsFrame extends JDialog {
 	protected JPanel classPanel;
 	protected JPanel classMainPanel;
 	
-	protected JPanel bottomPanel;
-	protected JButton okButton;
-	protected JButton cancelButton;
+	protected JTabbedPane tabbedPane;
 	
 	public PreProcessSettingsFrame(GUIMain main)
 	{
@@ -430,115 +256,24 @@ public class PreProcessSettingsFrame extends JDialog {
 	private void init(GUIMain main)
 	{
 		this.main = main;
+		this.setResizable(false);
 		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
 		initPanels();
+		
 		getContentPane().setLayout(new MigLayout(
 				"fill, wrap 1, ins 0, gap 0 0",
 				"fill, grow",
-				"[grow][grow, shrink 0, 40!]"));
-		{
-			// main panel must be created before the tree panel, but added to content pane after the tree panel
-			// when tree is initialized it selects the first leaf and needs the main panel to be created
-			mainPanel = new JPanel();
-			mainPanel.setLayout(new MigLayout(
-					"fill, wrap 1, ins 0, gap 0 0",
-					"fill",
-					"fill"));
-			mainPanel.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.LIGHT_GRAY));
-			
-			treePanel = new JPanel();
-			treePanel.setLayout(new MigLayout(
-					"",
-					"fill",
-					"fill"));
-			treePanel.setBackground(Color.WHITE);
-			treeScrollPane = new JScrollPane(treePanel);
-			{
-				top = new DefaultMutableTreeNode("Pre-Process");
-				tree = new JTree(top);
-				initializeTree(tree, top);
-			}
-			treePanel.add(tree);
-			
-			bottomPanel = new JPanel();
-			bottomPanel.setLayout(new MigLayout(
-					"right",
-					"[left]0[center]0[right]-6[fill]0[]",
-					"rel[]-2"));
-			bottomPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
-			{
-				okButton = new JButton("Ok");
-				okButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent e) 
-					{
-						closeWindow();
-					}
-				});
-				bottomPanel.add(okButton);
-				
-				cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent e) 
-					{
-						closeWindow();
-					}
-				});
-				bottomPanel.add(cancelButton);
-			}
-			getContentPane().add(treePanel, "split 2, growy, shrinkx 0");
-			getContentPane().add(mainPanel, "grow");
-			getContentPane().add(bottomPanel);
-		}
+				"[grow][grow, shrink 0]"));
+		tabbedPane = new JTabbedPane();
+		tabbedPane.add("Documents", docPanel);
+		tabbedPane.add("Features", featPanel);
+		tabbedPane.add("Classifiers", classPanel);
+
+		getContentPane().add(tabbedPane, "grow");
 		
 		Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setSize(new Dimension((int)(screensize.width*.9), (int)(screensize.height*.9)));
+		this.setSize(new Dimension((int)(screensize.width*.8), (int)(screensize.height*.8)));
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
-	}
-	
-	private void initializeTree(JTree tree, DefaultMutableTreeNode top) 
-	{
-	    DefaultMutableTreeNode section = null;
-	    DefaultMutableTreeNode subSection = null;
-	    
-	    section = new DefaultMutableTreeNode("Documents");
-	    top.add(section);
-	    
-	    section = new DefaultMutableTreeNode("Features");
-	    top.add(section);
-	    
-	    section = new DefaultMutableTreeNode("Classifiers");
-	    top.add(section);
-	    
-	    TreeSelectionListener treeListener = new TreeSelectionListener()
-    	{
-			@Override
-			public void valueChanged(TreeSelectionEvent e) 
-			{
-				String name = e.getPath().getLastPathComponent().toString();
-				if (name.equals("Documents"))
-				{
-					showPanel(docPanel);
-				}
-				else if (name.equals("Features"))
-				{
-					showPanel(featPanel);
-				}
-				else if (name.equals("Classifiers"))
-				{
-					showPanel(classPanel);
-				}
-				else
-				{}
-			}
-		};
-		
-		tree.addTreeSelectionListener(treeListener);
-		tree.expandRow(0);
-		tree.setSelectionRow(1);
 	}
 	
 	public void openWindow()
@@ -552,16 +287,6 @@ public class PreProcessSettingsFrame extends JDialog {
 		//main.setEnabled(true);
         WindowEvent wev = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
         Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
-	}
-	
-	private void showPanel(JPanel panel)
-	{
-//		if (docPanel == null || featPanel == null || classPanel == null)
-//			makePanels();
-		mainPanel.removeAll();
-		mainPanel.add(panel);
-		mainPanel.revalidate();
-		mainPanel.repaint();
 	}
 	
 	/**

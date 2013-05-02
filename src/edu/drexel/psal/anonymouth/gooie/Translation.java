@@ -23,9 +23,6 @@ public class Translation {
 	 * private final static String CLIENT_ID = "weegeemounty";
 	 * private final static String CLIENT_SECRET = "UR0YCU0x20oOSzqt+xtHkT2lhk6RjcKvqEqd/3Hsdvs=";	
 	 * 
-	 * private final static String CLIENT_ID = "fyberoptikz";
-	 * private final static String CLIENT_SECRET = "fAjWBltN4QV+0BKqqqg9nmXVMlo5ffa90gxU6wOW55Q=";	
-	 * 
 	 * NO GOOD FOR 04/2013 (BUT GOOD AFTER):
 	 * 
 	 * private final static String CLIENT_ID = "drexel1";
@@ -40,12 +37,14 @@ public class Translation {
 	 * private final static String CLIENT_ID = "drexel2";
 	 * private final static String CLIENT_SECRET = "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=";
 	 * 
+	 * private final static String CLIENT_ID = "ozoxdxie";
+	 * private final static String CLIENT_SECRET = "wU9ROglnO5qzntfRsxkq7WWGp7LAMrz0jdxPEd0t1u8=";	
+	 * 
 	 */
 	
-	// Current GOOD CLIENT ID / SECRET COMBO: 
-	private final static String CLIENT_ID = "ozoxdxie";
-	private final static String CLIENT_SECRET = "wU9ROglnO5qzntfRsxkq7WWGp7LAMrz0jdxPEd0t1u8=";	
-	
+	// Current GOOD CLIENT ID / SECRET COMBO:
+	private final static String CLIENT_ID = "fyberoptikz";
+	private final static String CLIENT_SECRET = "fAjWBltN4QV+0BKqqqg9nmXVMlo5ffa90gxU6wOW55Q=";	
 	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
 			Language.CHINESE_SIMPLIFIED, Language.CHINESE_TRADITIONAL,Language.CZECH,
