@@ -1,25 +1,19 @@
 package edu.drexel.psal.anonymouth.gooie;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 
-import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
 public class DriverTranslationsTab implements ActionListener
@@ -107,16 +101,6 @@ public class DriverTranslationsTab implements ActionListener
 				main.translationsHolderPanel.add(finalPanels[i], "");
 			}
 			
-//			if (translationsMap != null) {
-//				for (int i = 0; i < translationsMap.size(); i++) {
-//					System.out.println("hello\"" + translationsMap.get(i) + "\"goodbye");
-//					if (translationsMap.get(i) != null) {
-//						for (int j = 0; i < translationsMap.get(i).getTranslations().size(); j++)
-//							System.out.println("	hello\"" + translationsMap.get(i).getTranslations().get(j) + "\"goodbye");
-//					}
-//				}
-//			}
-			
 		} else {
 			main.notTranslated.setText("Sentence has not been translated yet, please wait or work on already translated sentences.");
 			main.translationsHolderPanel.add(main.notTranslated, "");
@@ -127,67 +111,8 @@ public class DriverTranslationsTab implements ActionListener
 		main.translationsHolderPanel.repaint();
 	}
 
-	protected static void initListeners(final GUIMain main)
-	{
-
-		// Mouse listener taken from early version of anonymouth to listen for right clicks. Should use this as a template for code to allow right-clicking a translation and 
-		// a response asking use if they want to swap this translation in for the highlighted sentence. If they agree, then the translation should be swapped in for the highlighted sentence.
-		/*	
-		main.addMouseListener(new MouseListener(){
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int theAnswer = -1;
-				boolean okayToDelete = true;
-				if(e.getButton() != 1){
-					if(main.editTP.getSelectedIndex() == 0){
-						JOptionPane.showMessageDialog(main, "You cannot delete your original document.", "Can't Delete Original!",JOptionPane.ERROR_MESSAGE,GUIMain.iconNO);
-						okayToDelete = false;
-					}
-					else{
-					theAnswer = JOptionPane.showConfirmDialog(main,"Really delete current tab? \n\nNote: this action effects the current tab","Delete Current Tab",
-							JOptionPane.YES_NO_OPTION);
-					}
-				}
-				if(theAnswer == 0 && okayToDelete == true){
-					main.editTP.remove(eits.editBoxPanel);
-					nextTabIndex--;
-					//main.editTP.setSelectedIndex(nextTabIndex);
-				}
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-
-		});
-		 */
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		System.out.println("DEBUGGING: CLICKED!");
 		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(), true);
 		main.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
 		main.anonymityDrawingPanel.updateAnonymityBar();

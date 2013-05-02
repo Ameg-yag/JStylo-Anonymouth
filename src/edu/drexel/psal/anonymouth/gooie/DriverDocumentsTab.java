@@ -29,6 +29,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.swing.JFileChooser;
@@ -127,7 +128,9 @@ public class DriverDocumentsTab {
 	protected static Translation translator = new Translation();
 	
 	protected static TaggedDocument taggedDoc;
-	protected static int currentSentNum = -1;
+	protected static Map<String, TaggedSentence> originals = new HashMap();
+	protected static ArrayList<String> originalSents = new ArrayList<String>();
+	protected static int currentSentNum = 0;
 	protected static int lastSentNum = -1;
 	protected static int sentToTranslate = 0;
 	protected static int[] selectedSentIndexRange = new int[]{-2,-2}; 
@@ -139,6 +142,8 @@ public class DriverDocumentsTab {
 	protected static Object currentHighlight = null;
 	protected static int ignoreNumActions = 0;
 	protected static int caretPositionPriorToCharInsert = 0;
+	private static Boolean firstRun = true;
+	private static int[] oldSelectionInfo = new int[3];
 	
 	protected static ActionListener saveAsTestDoc;
 	
@@ -379,7 +384,7 @@ public class DriverDocumentsTab {
 					endSelection = e.getMark();
 					currentCaretPosition = startSelection;
 					caretPositionPriorToCharInsert = currentCaretPosition - charsInserted;
-					int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert); 
+					int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
 					if (selectionInfo == null)
 						return; // don't do anything.
 					if (startSelection == endSelection){
@@ -394,6 +399,9 @@ public class DriverDocumentsTab {
 						
 					}
 						
+					lastSentNum = currentSentNum;
+					currentSentNum = selectionInfo[0];
+				
 					boolean inRange = false;
 					/*
 					 * put in a check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
@@ -415,20 +423,22 @@ public class DriverDocumentsTab {
 							charsRemoved = 0;
 						}
 					}
-//					else if (lastSentNum != 1) {
-//						System.out.println("PRINTED STUFF: " + main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]));
-//						if (!Translator.translatedSentences.contains(main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
-//							main.GUITranslator.replace(taggedDoc.getSentenceNumber(selectionInfo[0]), DriverTranslationsTab.current);//new old
-//							main.anonymityDrawingPanel.updateAnonymityBar();
-//						}
-//					}
+					else if (!firstRun) {
+						if (!originals.keySet().contains(main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
+							main.GUITranslator.replace(taggedDoc.getSentenceNumber(oldSelectionInfo[0]), originals.get(originalSents.get(oldSelectionInfo[0])));//new old
+							main.anonymityDrawingPanel.updateAnonymityBar();
+							originals.remove(originalSents.get(oldSelectionInfo[0]));
+							originals.put(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged(), taggedDoc.getSentenceNumber(oldSelectionInfo[0]));
+							originalSents.remove(oldSelectionInfo[0]);
+							originalSents.add(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged());
+						}
+					}
+
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
-					
-					lastSentNum = currentSentNum;
-					currentSentNum = selectionInfo[0];
-					
-					if (lastSentNum != -1){ //NOTE needed a way to make sure that the first time a sentence is clicked, we didn't break stuff... this may not be the best way...
+					if (firstRun){ //NOTE needed a way to make sure that the first time a sentence is clicked, we didn't break stuff... this may not be the best way...
+						firstRun = false;
+					} else {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.documentPane.getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
@@ -445,16 +455,15 @@ public class DriverDocumentsTab {
 						selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 						selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 						
-						if(!inRange) {
+						if(!inRange)
 							moveHighlight(main,selectedSentIndexRange,true);
-//							for (int i = 0; i < main.GUITranslator.translatedSentences.size(); i++)
-//								System.out.println("TRANSLATED SENTENCES = " + main.GUITranslator.translatedSentences.get(i));
-						} else
+						else
 							moveHighlight(main,selectedSentIndexRange,false);
 					}
 					
 					sentToTranslate = currentSentNum;
 					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
+					oldSelectionInfo = selectionInfo;
 				}
 			}
 		});

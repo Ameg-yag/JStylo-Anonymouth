@@ -651,7 +651,6 @@ public class GUIMain extends javax.swing.JFrame  {
 			DriverPreProcessTab.initListeners(this);
 			DriverResultsTab.initListeners(this);
 			DriverSuggestionsTab.initListeners(this);
-			DriverTranslationsTab.initListeners(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
