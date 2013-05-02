@@ -55,7 +55,7 @@ public class TargetExtractor {
 	 */
 	public TargetExtractor(int numAuthors, Attribute attrib){//, boolean usePreviousInitialization){
 		this.featName = attrib.getConcatGenNameAndStrInBraces();
-		Logger.logln(NAME+"In TargetExtractor extracting targets for "+featName);
+		//Logger.logln(NAME+"In TargetExtractor extracting targets for "+featName);
 		this.trainTitlesList = DocumentMagician.getTrainTitlesList();
 		this.numAuthors = numAuthors;
 		this.numMeans = numAuthors;
@@ -189,7 +189,6 @@ public class TargetExtractor {
 			if(maxCentroidsFound==true)
 				break;
 			if(tooManyTries == true){
-				Logger.logln(NAME+"Calling kPlusPlusPrep again from within itself.");
 				kPlusPlusPrep();
 				break;
 			}
@@ -205,9 +204,8 @@ public class TargetExtractor {
 	 * and assigns features to partitions based upon Euclidean distance from centroids (single dimension)
 	 */
 	public boolean initialize(){
-		Logger.logln(NAME+"Initializing Clustering, will call kPlusPlusPrep.");
+		//Logger.logln(NAME+"Initializing Clustering, will call kPlusPlusPrep.");
 		kPlusPlusPrep();
-		Logger.logln(NAME+"kPlusPlusPrep seems to have done its job. Moving on.");
 		//System.out.println("Initialized with k-means++....");
 		int i;
 		int j;
@@ -252,7 +250,7 @@ public class TargetExtractor {
 			partitionToGoTo = (int)temp[0];
 			thisFeaturesClusters.get(partitionToGoTo).addElement(thePairs[i]);
 		}
-		Logger.logln(NAME+"Initial positions for elements found. Updating Centroids.");
+		//Logger.logln(NAME+"Initial positions for elements found. Updating Centroids.");
 		return updateCentroids();
 	}
 	
@@ -261,7 +259,7 @@ public class TargetExtractor {
 	 * Updates the centroids to be the average of the values contained within their respective partitions. 
 	 */
 	public boolean updateCentroids(){
-		Logger.logln(NAME+"Begin updating centroids.");
+		//Logger.logln(NAME+"Begin updating centroids.");
 		// update centroids to be the averages of their respective element lists
 		int i=0;
 		int j = 0;
@@ -299,7 +297,7 @@ public class TargetExtractor {
 			//}
 		}
 		// Once all centroids have been updated, re-organize
-		Logger.logln(NAME+"Updating centroids complete, will reOrganize");
+		//Logger.logln(NAME+"Updating centroids complete, will reOrganize");
 		return reOrganize();
 	}
 	
@@ -317,7 +315,7 @@ public class TargetExtractor {
 	 * Moves the features to their new nearest centroids
 	 */
 	public boolean reOrganize(){
-		Logger.logln(NAME+"Starting reOrganize");
+		//Logger.logln(NAME+"Starting reOrganize");
 		// need to go through all elements, extract data, and check distance agains new centroids
 		// create list of all centroids
 		int i;
@@ -359,7 +357,7 @@ public class TargetExtractor {
 		//Scanner in = new Scanner(System.in);
 		boolean noProblems = true;
 		if(movedElement == false ){
-			Logger.logln(NAME+"Elements stopped moving - algorithm converged.");
+			//Logger.logln(NAME+"Elements stopped moving - algorithm converged.");
 			int numClusters = thisFeaturesClusters.size();
 			if(numClusters < 2 && maxCentroidsFound == false){
 				additionalPartitions++;
@@ -367,7 +365,7 @@ public class TargetExtractor {
 				//Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
 				//while(clusterIter.hasNext())
 					//System.out.println(clusterIter.next().getElements().toString());
-				Logger.logln(NAME+"Less than two Clusters. Will restart with '"+numMeans+"' means. Enter a character.");
+				//Logger.logln(NAME+"Less than two Clusters. Will restart with '"+numMeans+"' means. Enter a character.");
 				noProblems = false;
 				
 			}
@@ -381,7 +379,7 @@ public class TargetExtractor {
 						//Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
 						//while(clusterIter.hasNext())
 						//	System.out.println(clusterIter.next().getElements().toString());
-						Logger.logln(NAME+"Cluster '"+i+"' has less than 3 elements. Will restart with '"+numMeans+"' means.");
+						//Logger.logln(NAME+"Cluster '"+i+"' has less than 3 elements. Will restart with '"+numMeans+"' means.");
 						noProblems = false;
 						break;
 					}
@@ -400,7 +398,7 @@ public class TargetExtractor {
 			}
 		}
 		else{
-			Logger.logln(NAME+"Updating Centroids... something moved");
+			//Logger.logln(NAME+"Updating Centroids... something moved");
 			return updateCentroids();
 		}
 		return false;

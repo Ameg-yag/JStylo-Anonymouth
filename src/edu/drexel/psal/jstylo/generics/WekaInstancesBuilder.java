@@ -277,6 +277,8 @@ public class WekaInstancesBuilder {
 		known = CumulativeEventCuller.cull(known, cfd);
 
 		// initialize number of sets per document and number of vectors
+		//if (known.size() == 0) // TODO figure out why we need this! -AweM
+		//	return;
 		final int numOfFeatureClasses = known.get(0).size();
 		final int numOfVectors = known.size();
 		featureClassAttrsFirstIndex = new int[numOfFeatureClasses+1];

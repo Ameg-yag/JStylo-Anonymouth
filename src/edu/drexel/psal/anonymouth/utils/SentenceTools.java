@@ -45,8 +45,8 @@ public class SentenceTools implements Serializable  {
 	private int currentStart = 0;
 	private int currentStop = 0;
 	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]){1}");
-	private static final Pattern sentence_quote = Pattern.compile("[.?!]\"\\s+[A-Z]");
-	//private static final Pattern sentence_quote = Pattern.compile("([?!]+)|([.]{1})\\s+\"\\s+[A-Z]");
+	//private static final Pattern sentence_quote = Pattern.compile("[.?!]\"\\s+[A-Z]");
+	private static final Pattern sentence_quote = Pattern.compile("([?!]+)|([.]{1})\\s*\"\\s+[A-Z]");
 	private static final String t_PERIOD_REPLACEMENT = ""; // XXX: Hopefully it is safe to assume no one sprinkles apple symbols in their paper
 	// The below three "permanent" replacments are to mark EOS characters in text that the user has told us are not actually ending a sentence. 
 	// DO NOT remove these... in order to get them back, you need to know the unicode code
@@ -151,19 +151,21 @@ public class SentenceTools implements Serializable  {
 			safeString = text.substring(currentStart-1,currentStop);
 			
 			//System.out.println("---------------");
-			//System.out.println(safeString);
-
-			sentEnd = sentence_quote.matcher(safeString);	
-			isSentence = sentEnd.find();
-			//System.out.println("RESULT OF sentence_quote matching: "+isSentence);
+			//sentEnd = sentence_quote.matcher(safeString);	
 			quoteAtEnd = 0;
-			if(isSentence == true){ // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
-				// Then we want to split this up into two sentences (it's possible to have a sentence like this: He said, "Hello.")
-				//System.out.println("start: "+sentEnd.start()+" ... end: "+sentEnd.end());
-				currentStop = text.indexOf("\"",sentEnd.start()+currentStart)+1;
-				safeString = text.substring(currentStart-1,currentStop);
-				forceNoMerge = true;
-				quoteAtEnd = 1;
+			if (foundQuote){
+				sentEnd = sentence_quote.matcher(text);	
+				isSentence = sentEnd.find(currentStop-2); // -2 so that we match the EOS character before the quotes (not -1 because currentStop is one greater than the last index of the string -- due to the way substring works, which is includes the first index, and excludes the end index: [start,end).)
+				System.out.println("RESULT OF sentence_quote matching: "+isSentence+" ==> attempted to match: "+safeString+" ====> from: "+text);
+				if(isSentence == true){ // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
+					// Then we want to split this up into two sentences (it's possible to have a sentence like this: He said, "Hello.")
+					System.out.println("start: "+sentEnd.start()+" ... end: "+sentEnd.end());
+					currentStop = text.indexOf("\"",sentEnd.start())+1;
+					safeString = text.substring(currentStart-1,currentStop);
+					forceNoMerge = true;
+					mergeNext = false;
+					quoteAtEnd = 1;
+				}
 			}
 			
 			if(mergeWithLast){
@@ -171,14 +173,14 @@ public class SentenceTools implements Serializable  {
 				String prev=sents.remove(sents.size()-1);
 				safeString=prev+safeString;
 			}
-			if (mergeNext && !forceNoMerge){//makes he merge happen on the next pass through
+			if (mergeNext && !forceNoMerge){//makes the merge happen on the next pass through
 				mergeNext=false;
 				mergeWithLast=true;
 			}
 			else{
 				forceNoMerge = false;
-				safeString_subbedEOS = subOutEOSChars(currentEOS, safeString, quoteAtEnd);
 				//System.out.println("Actual: "+safeString);
+				safeString_subbedEOS = subOutEOSChars(currentEOS, safeString, quoteAtEnd);
 				//System.out.println("SubbedEOS: "+safeString_subbedEOS);
 				safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
 				safeString_subbedEOS = safeString_subbedEOS.replaceAll(t_PERIOD_REPLACEMENT,".");

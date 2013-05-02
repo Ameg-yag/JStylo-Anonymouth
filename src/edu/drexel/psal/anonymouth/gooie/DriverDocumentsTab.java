@@ -226,13 +226,14 @@ public class DriverDocumentsTab {
 				System.out.println(NAME+"Error modifying document");
 			}
 		*/
+			int caretPos = main.documentPane.getCaretPosition();
 			if (shouldUpdate){
 				ignoreNumActions = 2;
 				main.documentPane.setText(taggedDoc.getUntaggedDocument());
-				main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
-				main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);	
+				main.documentPane.getCaret().setDot(caretPos);//caretPositionPriorToCharInsert);
+				main.documentPane.setCaretPosition(caretPos);//caretPositionPriorToCharInsert);	
 			}
-			int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
+			int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPos);//caretPositionPriorToCharInsert);
 			selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 			selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 			//System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
