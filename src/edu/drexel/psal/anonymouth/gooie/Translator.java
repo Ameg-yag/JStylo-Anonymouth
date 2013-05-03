@@ -1,19 +1,14 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import java.awt.Color;
-import java.util.Date;
 import com.memetix.mst.language.Language;
 import java.util.ArrayList;
-//import edu.drexel.psal.anonymouth.gooie.EditorTabDriver;
 
 import edu.drexel.psal.anonymouth.gooie.Translation;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
-import edu.stanford.nlp.ling.TaggedWord;
 
 public class Translator implements Runnable
 {
 	private ArrayList<TaggedSentence> sentences = new ArrayList<TaggedSentence>(); // essentially the priority queue
-	private ArrayList<Long> timeStamps = new ArrayList<Long>();
 	private GUIMain main;
 	public static boolean firstRun = true;
 	public static boolean addSent = false;
@@ -34,28 +29,6 @@ public class Translator implements Runnable
 	{
 		this.main = main;
 	}
-
-	/**
-	 * Compact method that sets everything's enabled property while the thread is translating.
-	 * The components listed are listed because they can possibly interrupt or overlap the translating.
-	 * @param b boolean that controls the "enabled" value of the listed components
-	 */
-	public void setAllEnabled(boolean b)
-	{
-//		main.nextSentenceButton.setEnabled(b);
-//		main.transButton.setEnabled(b);
-//		main.prevSentenceButton.setEnabled(b);
-//		main.translationsComboBox.setEnabled(b);
-		main.processButton.setEnabled(b);
-	}
-	
-	//UNCOMMENT
-//	public void isSentenceChange(String newSentence) {
-//		if (sentences.contains(newSentence))
-//			return;
-//		else
-//			load(sentences);
-//	}
 
 	public void replace(TaggedSentence newSentence, TaggedSentence oldSentence) {
 		if (sentences.size() >= 1) {
@@ -86,7 +59,7 @@ public class Translator implements Runnable
 	public void run() 
 	{
 		// disable everything to start so there are no interruptions
-		setAllEnabled(false); 
+		main.processButton.setEnabled(false);
 
 		// set up the progress bar
 		main.translationsProgressBar.setIndeterminate(false);
@@ -103,14 +76,18 @@ public class Translator implements Runnable
 				sentences.get(currentSentNum-1).setTranslations(new ArrayList<TaggedSentence>(Translation.getUsedLangs().length));
 				sentences.get(currentSentNum-1).setTranslationNames(new ArrayList<String>(Translation.getUsedLangs().length));
 			}
-			main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + 0 + "/"  + Translation.getUsedLangs().length);
 
 			// Translate the sentence for each language
 			for (Language lang: Translation.getUsedLangs()) {
 				// update the progress label
-				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + (currentLangNum-1) + "/"  + Translation.getUsedLangs().length);
 
+				System.out.println(sentences);
+				System.out.println(sentences.get(currentSentNum-1));
+				System.out.println(sentences.get(currentSentNum-1).getUntagged());
+				System.out.println(lang);
 				String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged().trim(), lang);
+				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
+				currentLangNum++;
 				TaggedSentence taggedTrans = new TaggedSentence(translation);
 				taggedTrans.tagAndGetFeatures();
 				sentences.get(currentSentNum-1).getTranslations().add(taggedTrans);
@@ -121,7 +98,6 @@ public class Translator implements Runnable
 				
 				if (one.equals(two))
 					DriverTranslationsTab.showTranslations(sentences.get(currentSentNum-1));
-				currentLangNum++;
 				
 				if (main.translationsProgressBar.getValue() + 1 <= main.translationsProgressBar.getMaximum())
 					main.translationsProgressBar.setValue(main.translationsProgressBar.getValue() + 1);
@@ -129,21 +105,21 @@ public class Translator implements Runnable
 				if (addSent) {
 					addSent = false;
 					sentences.add(currentSentNum, newSentence);
-					sentences.remove(oldSentence);
+					if (sentences.contains(oldSentence))
+						sentences.remove(oldSentence);
 					currentSentNum -= 1;
 				}
-
 			}
 			currentLangNum = 1;
 			currentSentNum++;
-
 		}
+		
 		finished = true;
 		sentences.removeAll(sentences);
 		main.translationsProgressBar.setIndeterminate(false);
 		main.translationsProgressBar.setValue(0);
 		main.translationsProgressLabel.setText("No Translations Pending.");
 		currentSentNum = 1;
-		setAllEnabled(true);
+		main.processButton.setEnabled(true);
 	}
 }
