@@ -46,7 +46,7 @@ public class SentenceTools implements Serializable  {
 	private int currentStop = 0;
 	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]){1}");
 	//private static final Pattern sentence_quote = Pattern.compile("[.?!]\"\\s+[A-Z]");
-	private static final Pattern sentence_quote = Pattern.compile("([?!]+)|([.]{1})\\s*\"\\s+[A-Z]");
+	private static final Pattern sentence_quote = Pattern.compile("([?!]+)|([.]{1})\\s*\"([?!]*)|([.]{0,1})\\s+[A-Z]");
 	private static final String t_PERIOD_REPLACEMENT = ""; // XXX: Hopefully it is safe to assume no one sprinkles apple symbols in their paper
 	// The below three "permanent" replacments are to mark EOS characters in text that the user has told us are not actually ending a sentence. 
 	// DO NOT remove these... in order to get them back, you need to know the unicode code
@@ -87,13 +87,14 @@ public class SentenceTools implements Serializable  {
 		int currentStart = 1;
 		int currentStop = 0;
 		String safeString_subbedEOS;
-		int lenText = text.length();
 		int quoteAtEnd;
 		String temp;
 		int closingQuoteIndex = 0;
 		text = text.replaceAll("\u201C","\"");
 		text = text.replaceAll("\u201D","\"");
-		text = text.replaceAll("\\p{C}&&[^\\t\\n\\r]"," ");
+		text = text.replaceAll("^\\t\\n\\r]"," ");
+		text = text.replaceAll("\\p{C}","");
+		int lenText = text.length();
 		int notEOSNumber = 0;
 		int numNotEOS = notEndsOfSentence.length;
 		String replacementString = "";
@@ -150,11 +151,12 @@ public class SentenceTools implements Serializable  {
 			}
 			safeString = text.substring(currentStart-1,currentStop);
 			
-			//System.out.println("---------------");
+			System.out.println("safeString: "+safeString);
 			//sentEnd = sentence_quote.matcher(safeString);	
 			quoteAtEnd = 0;
 			if (foundQuote){
 				sentEnd = sentence_quote.matcher(text);	
+				System.out.println("substring from currentStop-2  (currentStop == "+currentStop+" to end is: "+text.substring(currentStop-2)+"\n\n");
 				isSentence = sentEnd.find(currentStop-2); // -2 so that we match the EOS character before the quotes (not -1 because currentStop is one greater than the last index of the string -- due to the way substring works, which is includes the first index, and excludes the end index: [start,end).)
 				System.out.println("RESULT OF sentence_quote matching: "+isSentence+" ==> attempted to match: "+safeString+" ====> from: "+text);
 				if(isSentence == true){ // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
