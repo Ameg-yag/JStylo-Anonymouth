@@ -114,8 +114,8 @@ public interface API {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<List<EventSet>> cullWithRespectToTraining(
-			List<EventSet> relevantEvents, List<List<EventSet>> eventSetsToCull)
+	public List<EventSet> cullWithRespectToTraining(
+			List<EventSet> relevantEvents, List<EventSet> eventSetsToCull)
 			throws Exception;
 	
 	// createInstance - same as for training documents
