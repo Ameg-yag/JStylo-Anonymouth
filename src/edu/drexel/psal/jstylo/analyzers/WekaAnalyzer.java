@@ -301,108 +301,31 @@ public class WekaAnalyzer extends Analyzer {
 	}
 	
 	/**
-	 * Produces the string array of descriptions of each option the classifier has.
-	 * At the moment it only returns descriptions of arguments that are provided by the classifier's default getOptions() method.
+	 * Produces the string array of the flags and descriptions for all of the arguments the classifier can take.
 	 */
 	@Override
 	public String[] optionsDescription() {
-		String[] optionsDesc=null;
-		Integer[] skipIndices = null;
-		Option skipped = null;
+		ArrayList<String> optionsDesc= new ArrayList<String>();
+		String[] optionsDescToReturn = null;
 		
-		List<Option> descriptions = Collections.list(classifier.listOptions());
-		
-		//this chunk is pretty hideous. It should only be present temporarily
-		//once we get all weka args working it should vanish
-		//in the meantime though, it works via explicitly stating which arg descriptions should be ignored
-		//the reason that some numbers are the same is that when an arg is skipped, the index doesn't increase,
-		//so if you have more then one arg in a row you want to skip you have to remove the "same" index more then once
-		//these should be optimized for the given classes, so I recommend not touching them unless you really have to, as they're rather
-		//confusing.
-		if (classifier instanceof NaiveBayes || classifier instanceof NaiveBayesUpdateable || classifier instanceof NaiveBayesMultinomial || classifier instanceof NaiveBayesMultinomialUpdateable){
-			optionsDesc = null;
-		} else if (classifier instanceof MultilayerPerceptron){
-			optionsDesc = new String[descriptions.size()-3];
-			skipIndices = new Integer[8];
-			skipIndices[0]=6;
-			skipIndices[1]=6;
-			skipIndices[2]=6;
-			skipIndices[3]=7;
-			skipIndices[4]=7;
-			skipIndices[5]=7;
-			skipIndices[6]=7;
-			skipIndices[7]=-1;
-		} else if (classifier instanceof IBk){
-			optionsDesc = new String[descriptions.size()-5];
-			skipIndices = new Integer[6];
-			skipIndices[0]=0;
-			skipIndices[1]=0;
-			skipIndices[2]=1;
-			skipIndices[3]=2;
-			skipIndices[4]=2;
-			skipIndices[5]=-1;
-		} else if (classifier instanceof J48){
-			optionsDesc = new String[descriptions.size()-8];
-			skipIndices = new Integer[9];
-			skipIndices[0]=0;
-			skipIndices[1]=2;
-			skipIndices[2]=2;
-			skipIndices[3]=2;
-			skipIndices[4]=2;
-			skipIndices[5]=2;
-			skipIndices[6]=2;
-			skipIndices[7]=2;
-			skipIndices[8]=-1;
-		} else if (classifier instanceof SMO){
-			optionsDesc = new String[descriptions.size()-3];
-			skipIndices = new Integer[4];
-			skipIndices[0]=0;
-			skipIndices[1]=0;
-			skipIndices[2]=1;
-			skipIndices[3]=-1;		
-		} else {
-			optionsDesc = new String[descriptions.size()];
-		}
-		//End of the ugly chunk
-		
-		
-		if (optionsDesc!=null){
-			int i=0;
-			int n=0;
-			for (Option opt : descriptions){
-				if(skipIndices==null || skipIndices[n]==null || skipIndices[n]!=i){
-				//	Logger.logln("Adding opt... "+" i "+i+" n "+n+" skip[n]: "+skipIndices[n]);
-					optionsDesc[i]=opt.description();
-					i++;
-				}else{
-				//Logger.logln("Skipping opt... "+" i "+i+" n "+n+" skip[n]: "+skipIndices[n]);
-					if (n<skipIndices.length-1)
-						n++;
-				}			
-			}
-		}
-
-
-		
-		//For some reasom LibSVM's arguments are in the wrong order, rather then trying to rearrange them intelligently, I'm
-		//just going to hard code them for now, as that would be a lot more work for really not much gain, since this
-		//section should be removed once the classifier's args are working properly anyway.
-		if (classifier instanceof LibSVM){
-			optionsDesc = new String[10];
-			optionsDesc[0]="Set type of SVM (default: 0) 0= C-SVC 1= nu-SVC 2= one-class SVM 3= epsilon-SVR 4= nu-SVR";
-			optionsDesc[1]="Set type of kernel function (default: 2)0= linear: u'*v 1= polynomial: (gamma*u'*v + coef0)^degree 2= radial basis function: exp(-gamma*|u-v|^2) 3= sigmoid: tanh(gamma*u'*v + coef0)";
-			optionsDesc[2]="Set degree in kernel function (default: 3)";
-			optionsDesc[3]="Set gamma in kernel function (default: 1/k)";
-			optionsDesc[4]="Set coef0 in kernel function (default: 0)";
-			optionsDesc[5]="Set the parameter nu of nu-SVC, one-class SVM, and nu-SVR (default: 0.5)";
-			optionsDesc[6]="Set cache memory size in MB (default: 40)";
-			optionsDesc[7]="Set the parameter C of C-SVC, epsilon-SVR, and nu-SVR (default: 1)";
-			optionsDesc[8]="Set tolerance of termination criterion (default: 0.001)";
-			optionsDesc[9]="Set the epsilon in loss function of epsilon-SVR (default: 0.1)";
+		Enumeration<Option> opts = classifier.listOptions();
+		Option nextOpt = null;
+		while (opts.hasMoreElements()){
+			nextOpt = opts.nextElement();
+			optionsDesc.add(nextOpt.name()+"<ARG>"+nextOpt.description());
 		}
 		
-		return optionsDesc;
+		optionsDescToReturn = new String[optionsDesc.size()];
+		
+		int i=0;
+		for (String s: optionsDesc){
+			optionsDescToReturn[i]=s;
+			i++;
+		}
+		
+		return optionsDescToReturn;
 	}
+	
 	/** TODO add the other classifiers
 	 * returns the description of the analyzer itself. Due to the way weka is coded, the instanceofs are necessary, as "globalInfo"
 	 * is not listed in the "Classifier" abstract class, so we have to cast to the subclass in order to get it.

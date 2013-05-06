@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -34,11 +35,12 @@ public class ClassWizard extends javax.swing.JFrame {
 	protected static int cellPadding = 5;
 	protected static Border defaultBorder = BorderFactory.createLineBorder(Color.BLACK);
 	
+	protected PropertyEditorSupport classifierEditor;
+	
 	//data
+	protected ArrayList<Argument> args;
 	protected Analyzer tmpAnalyzer;
 	protected GUIMain parent;
-	protected String[] options;
-	protected String[] optionsDesc;
 	protected String analyzerDesc;
 	protected String analyzerName;
 	
@@ -77,11 +79,74 @@ public class ClassWizard extends javax.swing.JFrame {
 		this.tmpAnalyzer = tmpAnalyzer;
 		analyzerName = this.tmpAnalyzer.getName();
 		analyzerDesc = this.tmpAnalyzer.analyzerDescription();
-		options = this.tmpAnalyzer.getOptions();
-		optionsDesc = this.tmpAnalyzer.optionsDescription();
 		optionFields = new ArrayList<JTextField>();
+		if (this.tmpAnalyzer.getOptions()!=null)
+			initArgumentList(this.tmpAnalyzer.getOptions(),this.tmpAnalyzer.optionsDescription());
 		initGUI();
+	}
+
+	/**
+	 * Initializes a list of Argument objects so that they can be examined/modified.
+	 * @param currentOps the current arg string
+	 * @param optionsDesc the descriptions and flags for all possible options the classifier can take
+	 */
+	protected void initArgumentList(String[] currentOps, String[] optionsDesc){
+		ArrayList<Argument> argList = new ArrayList<Argument>();
 		
+		//Go over option flags, creating new Ags and adding them to the argList with their descriptions attached already
+		for (int i=0; i<optionsDesc.length;i++){
+
+			//parse the string for the flag and description
+			String[] components = optionsDesc[i].split("<ARG>");
+			if (components!=null && !(components.length==0) && !components[0].matches("[a-z][A-Z]")){
+				String flag = components[0].trim();
+				String desc = components[1].trim();
+				String[] descParts = desc.split("\\s");
+				desc="";
+				for (String s:descParts){
+					desc+=s+" ";
+				}
+				desc.trim();
+				
+				desc.replaceAll("\\s"," ");
+				desc.replaceAll("\\t"," ");
+				Argument tempArg = new Argument(flag,desc);
+				argList.add(tempArg);
+			}
+		}
+		
+		//iterate over the current options, adding the correct ones based on matching the flags
+		for (int i=0; i<currentOps.length; i++){
+			
+			boolean found = false;
+			
+			//iterate over the arg list to see if we can find a matching flag
+			for (Argument a: argList){
+				//if one is found, add the value to that arg
+				if (a.getFlag().equalsIgnoreCase(currentOps[i])){
+					
+					//if the next arg is a flag, this arg is an enable/disable
+					if (currentOps[i+1].charAt(0)=='-' && currentOps[i+1].substring(1,2).matches("[a-zA-Z]")){
+						a.setValue("<ON/OFF>");
+						break;
+					} else {
+						a.setValue(currentOps[i+1]);
+						i++;
+						found = true;
+						break;
+					}
+				}
+			}
+			
+		}
+		
+		//iterate over the argList. Any arg which does not yet have any value for the option gets an empty string
+		for (Argument a: argList){
+			if (a.getValue()==null || a.getValue()=="" || a.getValue()==" ")
+				a.setValue("");
+		}
+		
+		args = argList;
 	}
 	
 	/**
@@ -107,7 +172,7 @@ public class ClassWizard extends javax.swing.JFrame {
 					descriptionPanel.setBorder(BorderFactory.createCompoundBorder(defaultBorder,BorderFactory.createEmptyBorder(10,10,10,10)));
 					
 
-					if (options==null || options.length<=5 || optionsDesc.length<=3){ //if there are no options, make the description the main focus of the window
+					if (args==null || args.size()<=5){ //if there are no options, make the description the main focus of the window
 						mainPanel.add(descriptionPanel,BorderLayout.CENTER);
 					}
 					else //otherwise the description is delegated to the top of the window
@@ -128,10 +193,10 @@ public class ClassWizard extends javax.swing.JFrame {
 						summaryJLabel.setText("<html><p>" +
 								"<font size=12pt><b>Editing a Classifier</b></font><br>" +
 								"To edit the arguments given to the classifier, simply change the values in the text field below.<br>" +
+								"If the text field is blank, the arg is optional. You can leave it blank to ignore it, or fill it in with an appropriate value<br>" +
 								"Clicking the \"Apply Changes\" button will change the arg string and close the window.<br>"+
 								"Clicking the \"Cancel\" button will undo any changes.<br><br>" +
-								"NOTE: Due to the way some classifiers are coded, we do not yet support the editing<br>"+
-								"&nbsp&nbsp&nbsp&nbsp&nbsp of all arguments for all classifiers. Only arguments which can be edited reliably are listed.<br>" +
+								"NOTE: For classifiers which are toggled on/off please use either \"&lt;ON/OFF&gt;\" as the argument<br>" +
 								"<br></p></html>");
 						descriptionPanel.add(summaryJLabel,BorderLayout.NORTH);
 					}
@@ -149,38 +214,41 @@ public class ClassWizard extends javax.swing.JFrame {
 					
 					editorPanel.add(optionsJScrollPane,BorderLayout.CENTER);
 					
-					if (options!=null && options.length>0 && optionsDesc!=null && optionsDesc.length!=0){
-						if (options.length<=3 || optionsDesc.length<=2){
+					if (args!=null && args.size()>0){
+						if (args.size()<=3){
 							optionsPanel.setPreferredSize(new Dimension(500,150));
 							optionsJScrollPane.setPreferredSize(new Dimension(500,125));
 							mainPanel.add(editorPanel,BorderLayout.SOUTH);
 						}
-						else if (options.length<=5 || optionsDesc.length<=3){
+						else if (args.size()<=5){
 							optionsPanel.setPreferredSize(new Dimension(500,200));
 							mainPanel.add(editorPanel,BorderLayout.SOUTH);
 							optionsJScrollPane.setPreferredSize(new Dimension(500,200));
 						}
-						else if (options.length>5){
-							optionsPanel.setPreferredSize(new Dimension(500,450));
+						else if (args.size()<=8){
+							optionsPanel.setPreferredSize(new Dimension(500,600));
 							mainPanel.add(editorPanel,BorderLayout.CENTER);
-							optionsJScrollPane.setPreferredSize(new Dimension(500,450));
+							optionsJScrollPane.setPreferredSize(new Dimension(500,400));
+						} else if (args.size()>8){
+							optionsPanel.setPreferredSize(new Dimension(500,600));
+							mainPanel.add(editorPanel,BorderLayout.CENTER);
+							optionsJScrollPane.setPreferredSize(new Dimension(500,500));
 						}
 						
 						//loop through options, adding a new option-description pair for each one
-						for (int i=0; i<options.length/2;i++){
+						for (int i=0; i<args.size();i++){
 							
-							if (optionsDesc==null || i>=optionsDesc.length || optionsDesc[i]==null)
-								break;
-							JTextField tempLabel = new JTextField("\n"+optionsDesc[i].trim().replaceAll("\\s+", " "));
-							tempLabel.setPreferredSize(new Dimension(550,50));
+							JTextField tempLabel = new JTextField("\n"+args.get(i).getDescription());
+							tempLabel.setPreferredSize(new Dimension(550,30));
 							tempLabel.setEditable(false);
 							
-							JTextField tempField = new JTextField(options[2*i+1]);
-							tempField.setPreferredSize(new Dimension(550,25));
-							
-							optionFields.add(tempField); 							
+							JTextField tempField = new JTextField(" "+args.get(i).getValue());
+							tempField.setPreferredSize(new Dimension(550,30));
+							tempField.setEditable(true);
+							 							
 							optionsPanel.add(tempLabel);
 							optionsPanel.add(tempField);
+							optionFields.add(tempField);
 						}
 						
 					}
@@ -197,11 +265,11 @@ public class ClassWizard extends javax.swing.JFrame {
 						// ============
 						// Button panel
 						// ============
-						if (options!=null && options.length!=0){
+						if (args!=null && args.size()!=0){
 							buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 							buttonPanel.setPreferredSize(new Dimension(500,30));
 							
-							if (options.length<=5 || optionsDesc.length<=3)
+							if (args.size()<=5)
 								editorPanel.add(buttonPanel,BorderLayout.SOUTH);
 							else
 								mainPanel.add(buttonPanel,BorderLayout.SOUTH);
@@ -218,15 +286,52 @@ public class ClassWizard extends javax.swing.JFrame {
 				}
 			}
 			
-			if (options!=null && options.length!=0)
+			if (args!=null && args.size()!=0)
 				ClassWizardDriver.initListeners(this);
 			
 			pack();
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-
 	}
 	
+	/**
+	 * A simple data concatenation class consisting of a flag, a description, and a value. <br>
+	 * Used to modify the arguments in the ClassWizard
+	 */
+	public class Argument{
+		
+		private String value;
+		private String description;
+		private String flag;
+		
+		public Argument (String f,String d){
+			setFlag(f);
+			setDescription(d);
+		}
+		
+		
+		public String getValue() {
+			return value;
+		}
+		public void setValue(String value) {
+			this.value = value;
+		}
+		public String getDescription() {
+			return description;
+		}
+		public void setDescription(String description) {
+			this.description = description;
+		}
+		public String getFlag() {
+			return flag;
+		}
+		public void setFlag(String flag) {
+			this.flag = "-"+flag;
+		}
 	
+	}
+	public ArrayList<Argument> getArgs(){
+		return args;
+	}
 }
