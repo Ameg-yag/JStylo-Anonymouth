@@ -696,7 +696,15 @@ public class ProblemSet {
 			SAXParser sp = spf.newSAXParser();
 			//parse the file and also register this class for call backs
 			System.out.println("filename->"+filename);
+			try {
 			sp.parse(filename, this);
+			} catch (IOException ioe){
+				Logger.logln("IOException occured while parsing file: "+filename);
+				ioe.printStackTrace();
+			} catch (SAXException se){
+				Logger.logln("SAXException occured while parsing file: "+filename);
+				se.printStackTrace();
+			}
 		}
 		
 		// event handlers

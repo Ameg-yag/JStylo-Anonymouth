@@ -280,7 +280,12 @@ public abstract class Analyzer{
 	}
 	
 	/**
-	 * An array of 1-2 sentences per index describing each option the analyzer has.
+	 * An array of 1-2 sentences per index describing each option the analyzer has and the flag used to invoke each argument.
+	 * It is essential that each the flag comes prior to the description and that in between them, an \<ARG\> tag appears.
+	 * The arg parser expects the description in this format, and failing to comply to it will result in the inability to edit the args.
+	 * Example:
+	 * -C\<ARG\>Enables some function c such that...
+	 * 
 	 * @return a description corresponding to each option the analyzer/classifier has
 	 */
 	public abstract String[] optionsDescription();
