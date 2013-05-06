@@ -430,6 +430,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JMenuItem fileSaveAsTestDocMenuItem;
 	protected JMenuItem helpAboutMenuItem;
 	protected JMenuItem helpSuggestionsMenuItem;
+	protected JMenuItem helpClustersMenuItem;
 	protected JMenuItem viewMenuItem;
 	protected JMenuItem viewClustersMenuItem;
 	protected JMenuItem helpMenu;
@@ -451,6 +452,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected boolean classPPIsShowing = true;
 	protected ClustersWindow clustersWindow;
 	protected SuggestionsWindow suggestionsWindow;
+	protected ClustersTutorial clustersTutorial;
 	
 	//used mostly for loading the main document without having to alter the main.ps.testDocAt(0) directly
 	Document mainDocPreview;
@@ -607,10 +609,15 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			helpMenu = new JMenu("Help");
 			helpAboutMenuItem = new JMenuItem("About Anonymouth");
-			if (!OS.contains("mac"))
+			helpClustersMenuItem = new JMenuItem("Clusters Tutorial");
+			if (!OS.contains("mac")) {
 				helpMenu.add(helpAboutMenuItem);
+				helpMenu.add(new JSeparator());
+			}
 			helpSuggestionsMenuItem = new JMenuItem("Suggestions");
 			helpMenu.add(helpSuggestionsMenuItem);
+			helpMenu.add(new JSeparator());
+			helpMenu.add(helpClustersMenuItem);
 			
 			menuBar.add(helpMenu);
 			
@@ -645,6 +652,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			clustersWindow = new ClustersWindow();
 			suggestionsWindow = new SuggestionsWindow();
+			clustersTutorial = new ClustersTutorial();
 			
 			// initialize listeners - except for EditorTabDriver!
 			

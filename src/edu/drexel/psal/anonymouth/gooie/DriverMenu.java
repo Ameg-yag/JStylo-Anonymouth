@@ -44,6 +44,7 @@ public class DriverMenu {
 	protected static ActionListener aboutListener;
 	protected static ActionListener viewClustersListener;
 	protected static ActionListener suggestionsListener;
+	protected static ActionListener helpClustersListener;
 //	protected static ActionListener printMenuItemListener;
 	
 	protected static void initListeners(final GUIMain main)
@@ -119,6 +120,14 @@ public class DriverMenu {
         	}
         };
         main.helpSuggestionsMenuItem.addActionListener(suggestionsListener);
+        
+        helpClustersListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		main.clustersTutorial.openWindow();
+        	}
+        };
+        main.helpClustersMenuItem.addActionListener(helpClustersListener);
         /*
         printMenuItemListener = new ActionListener() {
         	@Override
