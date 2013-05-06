@@ -2,7 +2,6 @@ package edu.drexel.psal.anonymouth.gooie;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -20,21 +17,13 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
-import com.jgaap.generics.Canonicizer;
 import com.jgaap.generics.Document;
 
-import edu.drexel.psal.anonymouth.calculators.Computer;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
-import edu.drexel.psal.anonymouth.engine.FeatureList;
-import edu.drexel.psal.anonymouth.engine.Mapper;
-import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
-import edu.drexel.psal.anonymouth.suggestors.TheOracle;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.DocumentTagger;
-import edu.drexel.psal.anonymouth.utils.ObjectIO;
 import edu.drexel.psal.anonymouth.utils.Tagger;
-import edu.drexel.psal.jstylo.generics.FeatureDriver;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.ProblemSet;
 
@@ -110,32 +99,7 @@ public class BackendInterface {
 	}
 	
 	
-	/*
-	protected static void tagDocs(GUIMain main, DocumentMagician magician){
-		(new Thread(bei.new TagDocs(main, magician))).start();
-	}
-	
-	public class TagDocs extends GUIThread{
-		
-		public DocumentTagger otherSampleTagger;
-		public DocumentTagger authorSampleTagger;
-		public DocumentTagger toModifyTagger;
-		private DocumentMagician magician;
-		
-		TagDocs(GUIMain main, DocumentMagician magician){
-			super(main);
-			this.magician = magician;
-		}
-		
-		public void run(){
-			
-			
-			EditorTabDriver.consolidator = new ConsolidationStation(EditorTabDriver.attribs);
-			EditorTabDriver.consolidator.beginConsolidation();
-			
-		}
-	}
-*/	
+
 	protected static void preTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
 		//Logger
 		(new Thread(bei.new PreTargetSelectionProcessing(main,wizard,magician))).start();
@@ -172,7 +136,6 @@ public class BackendInterface {
 			{
 				main.documentPane.setEnabled(true);
 				DocumentMagician.numProcessRequests++;
-				TheOracle.resetColorIndex();
 				String tempDoc = "";
 				
 				if(DriverDocumentsTab.isFirstRun == true)
@@ -321,7 +284,6 @@ public class BackendInterface {
 			//tCol.setPreferredWidth(30);
 			// make highlight bar
 			//main.highlightSelectionBox.setModel(makeHighlightBarModel());
-			TheOracle.setTheDocument(main.documentPane.getText());
 //			main.nextSentenceButton.setEnabled(false);
 //			main.prevSentenceButton.setEnabled(false);
 //			main.transButton.setEnabled(false);
@@ -362,7 +324,7 @@ public class BackendInterface {
 			DriverDocumentsTab.caretPositionPriorToCharInsert = 0;
 			//Andrew had this commented out, I commented it back in for testing
 			Translator.firstRun = true;
-			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			//GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;
@@ -401,57 +363,7 @@ public class BackendInterface {
 		}
 	}
 	
-	public static ComboBoxModel makeHighlightBarModel(){
-		Iterator<FeatureList> yesHistIter = DriverDocumentsTab.yesCalcHistFeatures.iterator();
-		Iterator<FeatureList> noHistIter = DriverDocumentsTab.noCalcHistFeatures.iterator();
-		ArrayList<HighlightMapList> highlightersToInclude = new ArrayList<HighlightMapList>(DriverDocumentsTab.sizeOfCfd);
-		FeatureList tempFeat;
-		List<HighlightMapList> tempList;
-		HighlightMapList tempHML;
-		int count = 0;
-		while (yesHistIter.hasNext()){
-				tempFeat = yesHistIter.next();
-				if(Mapper.fhmMap.containsKey(tempFeat) == true){
-					tempList = Mapper.fhmMap.get(tempFeat);
-					//System.out.println(tempList.toString());
-					Iterator<HighlightMapList> tempListIter  = tempList.iterator();
-					while(tempListIter.hasNext()){
-						tempHML = tempListIter.next();
-						//System.out.println("STRING: "+tempHML.toString());
-						highlightersToInclude.add(tempHML);
-						count++;
-					}
-				}
-		}
-		while (noHistIter.hasNext()){
-				tempFeat = noHistIter.next();
-				if(Mapper.fhmMap.containsKey(tempFeat) == true){
-					tempList = Mapper.fhmMap.get(tempFeat);
-					Iterator<HighlightMapList> tempListIter = tempList.iterator();
-					while(tempListIter.hasNext()){
-						tempHML = tempListIter.next();
-						//System.out.println("STRING: "+tempHML.toString());
-						highlightersToInclude.add(tempHML);
-						count++;
-					}
-				}
-		}
-		int i = 0;
-		DriverDocumentsTab.highlightingOptions = new HighlightMapList[count+1];
-		DriverDocumentsTab.highlightingOptions[0] = HighlightMapList.None;
-		for(i=1;i<count+1;i++)
-			DriverDocumentsTab.highlightingOptions[i] = highlightersToInclude.get(i-1);
-		return (new DefaultComboBoxModel(DriverDocumentsTab.highlightingOptions));
-	}
-	
-	
-	public static ComboBoxModel makeInstantUpdateBarModel(){
-		ArrayList<FeatureList> calculatorsToInclude = new ArrayList<FeatureList>(DriverDocumentsTab.sizeOfCfd);
-		calculatorsToInclude.addAll(DriverDocumentsTab.yesCalcHistFeatures);
-		calculatorsToInclude.addAll(DriverDocumentsTab.noCalcHistFeatures);
-		ComboBoxModel calculatingOptions = new DefaultComboBoxModel(calculatorsToInclude.toArray());
-		return calculatingOptions;
-	}
+
 	
 	
 	public static TableModel makeSuggestionListTable(String[] suggestions){
