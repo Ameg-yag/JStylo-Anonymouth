@@ -10,6 +10,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import edu.drexel.psal.jstylo.generics.Logger;
 
+/**
+ * Used to display the state of the application when the "Process" button is pressed.
+ * NOTE: Currently a structure to accurately track the progress of the process is NOT in place. Initially, we solved this by having
+ * the bar be indeterminable, but due to a bug in the JRE 7, the indeterminable progress bar does not update on OS X. As such,
+ * Andrew created a quick hack to have the bar cycle to being full then repeat until the process is done.
+ * @author Marc Barrowclift
+ *
+ */
 public class ProgressWindow extends JDialog implements PropertyChangeListener, Runnable {
 
 	private static final long serialVersionUID = 1L;
@@ -22,6 +30,11 @@ public class ProgressWindow extends JDialog implements PropertyChangeListener, R
 	private JLabel editingProgressBarLabel;
 	private JPanel processPanel;
 
+	/**
+	 * Constructor
+	 * @param title - The title of the window
+	 * @param main - an instance of GUIMain
+	 */
 	public ProgressWindow(String title, GUIMain main) {
 		super(main, title, Dialog.ModalityType.MODELESS); // MODELESS lets it stay on top, but not block any processes
 		this.main = main;
@@ -47,6 +60,11 @@ public class ProgressWindow extends JDialog implements PropertyChangeListener, R
 		this.setLocationRelativeTo(null);
 	}
 
+	/**
+	 * The "hack" Andrew made to get around the JRE 7 bug discussed above
+	 * @author Andrew W.E. McDonald
+	 *
+	 */
 	class Task extends SwingWorker<Void, Void> {
 		@Override
 		public Void doInBackground() {
@@ -96,10 +114,17 @@ public class ProgressWindow extends JDialog implements PropertyChangeListener, R
 		task.execute();
 	}
 	
+	/**
+	 * Sets the progress bar's label
+	 * @param text - whatever you want to display
+	 */
 	public void setText(String text) {
 		this.text = text;
 	}
 	
+	/**
+	 * Stops the progress bar and trashes the window
+	 */
 	public void stop() {
 		Logger.logln("Stopping ProgressBar");
 		main.setEnabled(true); // to ensure its enabled, even if we didn't disable it to begin with

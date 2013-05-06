@@ -32,6 +32,11 @@ import edu.drexel.psal.jstylo.canonicizers.*;
 import com.jgaap.canonicizers.*;
 import com.jgaap.generics.*;
 
+/**
+ * Handles all the menu bar listeners
+ * @author Marc Barrowclift
+ *
+ */
 public class DriverMenu {
 	
 	private final static String NAME = "( DriverMenu ) - ";

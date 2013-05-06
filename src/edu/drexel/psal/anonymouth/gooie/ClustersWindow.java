@@ -15,6 +15,11 @@ import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 
+/**
+ * A modified version of the existing ClusterPanel such that it will be removed from the main window and relocated to it's own window
+ * accessed by the pull-down menu.
+ * @author Marc Barrowclift
+ */
 public class ClustersWindow extends JFrame {
 
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
@@ -42,7 +47,10 @@ public class ClustersWindow extends JFrame {
 		this.setVisible(false);
 	}
 	
-	public void init() {
+	/**
+	 * initializes all the data needed to display the clusters
+	 */
+	private void init() {
 		PropertiesUtil.Location location = PropertiesUtil.getClustersTabLocation();
 		clustersPanel = new JPanel();
 		clustersPanel.setLayout(new MigLayout(
@@ -158,6 +166,9 @@ public class ClustersWindow extends JFrame {
 		this.setTitle("Clusters Viewer");
 	}
 	
+	/**
+	 * Displays the window
+	 */
 	public void openWindow() {
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 		this.setVisible(true);

@@ -177,6 +177,10 @@ public class AnonymityDrawingPanel extends JPanel {
 		}
 	}
 	
+	/**
+	 * Should be called whenever the designer wants the anonymity bar's current gauge value to be shown
+	 * @param show - true or false depending on whether or not you want the gauge to be visible
+	 */
 	public void showPointer(Boolean show) {
 		showPointer = show;
 		repaint();

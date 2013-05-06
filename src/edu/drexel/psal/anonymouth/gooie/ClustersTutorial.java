@@ -11,23 +11,37 @@ import javax.swing.JPanel;
 import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.Logger;
 
+/**
+ * A window displaying a simple tutorial of the Clusters
+ * @author Marc Barrowclift
+ *
+ */
 public class ClustersTutorial extends JFrame {
 	
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 	private Image tutorial;
 	private JPanel panel;
 	
+	/**
+	 * Constructor
+	 */
 	public ClustersTutorial() {
 		init();
 		this.setVisible(false);
 	}
 	
+	/**
+	 * Displays the window.
+	 */
 	public void openWindow() {
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 		this.setVisible(true);
 	}
 	
-	public void init() {
+	/**
+	 * Initializes all the data for the window
+	 */
+	private void init() {
 		try {
 			tutorial = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"clustersTutorial.png"));
 		} catch (Exception e) {
