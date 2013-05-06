@@ -81,10 +81,6 @@ public class Translator implements Runnable
 			for (Language lang: Translation.getUsedLangs()) {
 				// update the progress label
 
-				System.out.println(sentences);
-				System.out.println(sentences.get(currentSentNum-1));
-				System.out.println(sentences.get(currentSentNum-1).getUntagged());
-				System.out.println(lang);
 				String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged().trim(), lang);
 				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
 				currentLangNum++;
@@ -107,13 +103,16 @@ public class Translator implements Runnable
 					sentences.add(currentSentNum, newSentence);
 					if (sentences.contains(oldSentence))
 						sentences.remove(oldSentence);
-					currentSentNum -= 1;
+					else
+						main.translationsProgressBar.setMaximum(sentences.size() * DriverDocumentsTab.translator.getUsedLangs().length);
+				
+					if (currentSentNum - 1 >= 1)
+						currentSentNum -= 1;
 				}
 			}
 			currentLangNum = 1;
 			currentSentNum++;
 		}
-		
 		finished = true;
 		sentences.removeAll(sentences);
 		main.translationsProgressBar.setIndeterminate(false);

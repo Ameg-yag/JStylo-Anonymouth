@@ -17,8 +17,11 @@ import javax.swing.JOptionPane;
 import com.apple.eawt.AboutHandler;
 import com.apple.eawt.AppEvent.AboutEvent;
 import com.apple.eawt.AppEvent.PreferencesEvent;
+import com.apple.eawt.AppEvent.QuitEvent;
 import com.apple.eawt.Application;
 import com.apple.eawt.PreferencesHandler;
+import com.apple.eawt.QuitHandler;
+import com.apple.eawt.QuitResponse;
 
 /**
  * ThePresident sets up the Application and System fields/preferences prior to calling 'GUIMain'
@@ -109,6 +112,23 @@ public class ThePresident {
 				@Override
 				public void handlePreferences(PreferencesEvent arg0) {
 					GUIMain.GSP.openWindow();
+				}
+			});
+			
+			app.setQuitHandler(new QuitHandler() {
+				@Override
+				public void handleQuitRequestWith(QuitEvent arg0, QuitResponse arg1) {
+					if (PropertiesUtil.getWarnQuit() && !GUIMain.saved) {
+						int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+						if (confirm == 0) {
+							System.exit(0);
+						}
+					} else if (PropertiesUtil.getAutoSave()) {
+						DriverDocumentsTab.save(GUIMain.inst);
+						System.exit(0);
+					} else {
+						System.exit(0);
+					}
 				}
 			});
 

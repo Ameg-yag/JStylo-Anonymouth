@@ -17,7 +17,7 @@ import java.util.Scanner;
 import edu.drexel.psal.anonymouth.gooie.AnonymityDrawingPanel;
 import edu.drexel.psal.anonymouth.gooie.ClusterPanel;
 import edu.drexel.psal.anonymouth.gooie.DriverAnonymityTab;
-import edu.drexel.psal.anonymouth.gooie.DriverClustersTab;
+import edu.drexel.psal.anonymouth.gooie.DriverClustersWindow;
 import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
@@ -481,7 +481,7 @@ public class DataAnalyzer{
 		//long endTime = System.currentTimeMillis();
 		//System.out.println("Time elapsed while using ClusterAnalyzer: "+(endTime-startTime));
 		Logger.logln(NAME+"calling makeViewer");
-		DriverClustersTab.makePanels(topAttributes);
+		DriverClustersWindow.makePanels(topAttributes);
 		//ClusterViewerFrame.startClusterViewer();
 		Logger.logln(NAME+"viewer made");
 	}
@@ -556,7 +556,7 @@ public class DataAnalyzer{
 		//int maxClusters = runAllTopFeatures();
 		//runClusterAnalysis(maxClusters);
 		Logger.logln(NAME+"Calling makeViewer in ClusterViewer after re-running modified.");
-		DriverClustersTab.makePanels(topAttributes);
+		DriverClustersWindow.makePanels(topAttributes);
 		Logger.logln(NAME+"viewer made");
 	}
 	

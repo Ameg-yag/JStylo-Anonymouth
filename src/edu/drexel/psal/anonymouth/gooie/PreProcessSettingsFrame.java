@@ -278,8 +278,8 @@ public class PreProcessSettingsFrame extends JDialog {
 	
 	public void openWindow()
 	{
-		this.setVisible(true);
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
+		this.setVisible(true);
 	}
 	
 	public void closeWindow() 
