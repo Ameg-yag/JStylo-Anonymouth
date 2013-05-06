@@ -124,4 +124,3 @@ public interface API {
 	
 	// applyInfoGain - same as for training documents
 }
-

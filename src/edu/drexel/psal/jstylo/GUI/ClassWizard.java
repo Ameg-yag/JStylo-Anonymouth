@@ -35,8 +35,6 @@ public class ClassWizard extends javax.swing.JFrame {
 	protected static int cellPadding = 5;
 	protected static Border defaultBorder = BorderFactory.createLineBorder(Color.BLACK);
 	
-	protected PropertyEditorSupport classifierEditor;
-	
 	//data
 	protected ArrayList<Argument> args;
 	protected Analyzer tmpAnalyzer;
@@ -59,10 +57,6 @@ public class ClassWizard extends javax.swing.JFrame {
 	//optionsPanel
 	protected ArrayList<JTextField> optionFields; //is used by ClassWizardDriver to set the new option string
 	protected JScrollPane optionsJScrollPane;
-	/*
-	 * The rest of the components are to be dynamically generated based on the size/number of arguments.
-	 * for each argument there will be either a JLabel or JTextArea description, and a JTextfield in which to edit the arg
-	 */
 	
 	//button panels
 	protected JButton applyJButton;
@@ -107,7 +101,7 @@ public class ClassWizard extends javax.swing.JFrame {
 					desc+=s+" ";
 				}
 				desc.trim();
-				
+				//used to tidy up some of the longer descriptions
 				desc.replaceAll("\\s"," ");
 				desc.replaceAll("\\t"," ");
 				Argument tempArg = new Argument(flag,desc);
@@ -117,8 +111,6 @@ public class ClassWizard extends javax.swing.JFrame {
 		
 		//iterate over the current options, adding the correct ones based on matching the flags
 		for (int i=0; i<currentOps.length; i++){
-			
-			boolean found = false;
 			
 			//iterate over the arg list to see if we can find a matching flag
 			for (Argument a: argList){
@@ -132,7 +124,6 @@ public class ClassWizard extends javax.swing.JFrame {
 					} else {
 						a.setValue(currentOps[i+1]);
 						i++;
-						found = true;
 						break;
 					}
 				}
