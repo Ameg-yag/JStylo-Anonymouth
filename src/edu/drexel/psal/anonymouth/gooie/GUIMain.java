@@ -1301,9 +1301,9 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemovePane.setFocusable(false);
 			
 			suggestionsPanel.add(elementsToAddLabel, "h " + titleHeight + "!");
-			suggestionsPanel.add(elementsToAddScrollPane, "hmin 362, hmax 362");
+			suggestionsPanel.add(elementsToAddScrollPane, "grow");
 			suggestionsPanel.add(elementsToRemoveLabel, "h " + titleHeight + "!");
-			suggestionsPanel.add(elementsToRemoveScrollPane, "hmin 362, hmax 362");
+			suggestionsPanel.add(elementsToRemoveScrollPane, "grow");
 		}//============ End Suggestions Tab =================
 	return suggestionsPanel;
 	}
