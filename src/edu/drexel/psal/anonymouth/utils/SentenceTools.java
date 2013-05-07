@@ -131,7 +131,7 @@ public class SentenceTools implements Serializable  {
 			//System.out.println("REPLACEMENT: "+replacementString);
 			safeString = notEndsOfSentence[notEOSNumber].replaceAll("\\.","\\\\.");
 			//System.out.println(safeString);
-			text = text.replaceAll("(?i)"+safeString,replacementString); // the "(?i)" tells Java to do a case-insensitive search.
+			text = text.replaceAll("(?i)\\b"+safeString,replacementString); // the "(?i)" tells Java to do a case-insensitive search.
 		}
 		Matcher sent = EOS_chars.matcher(text);
 		boolean foundEOS = sent.find(currentStart); // xxx TODO xxx take this EOS character, and if not in quotes, swap it for a permanent replacement, and create and add an EOS to the calling TaggedDocument's eosTracker.
