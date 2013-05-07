@@ -113,6 +113,7 @@ public class DriverTranslationsTab implements ActionListener
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		main.saved = false;
 		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(), true);
 		main.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
 		main.anonymityDrawingPanel.updateAnonymityBar();

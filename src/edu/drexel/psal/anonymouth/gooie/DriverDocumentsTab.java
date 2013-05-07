@@ -417,7 +417,7 @@ public class DriverDocumentsTab {
 					/*
 					 * put in a check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
 					 */
-					if ( caretPositionPriorToCharInsert >= selectedSentIndexRange[0] && caretPositionPriorToCharInsert <= selectedSentIndexRange[1]){
+					if ( caretPositionPriorToCharInsert >= selectedSentIndexRange[0] && caretPositionPriorToCharInsert <= selectedSentIndexRange[1]-1) {
 						inRange = true;
 						// Caret is inside range of presently selected sentence.
 						// update from previous caret
@@ -444,21 +444,22 @@ public class DriverDocumentsTab {
 							originalSents.add(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged());
 						}
 					}
-
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
 					if (firstRun){ //NOTE needed a way to make sure that the first time a sentence is clicked, we didn't break stuff... this may not be the best way...
 						firstRun = false;
 					} else {
-						main.saved = false;
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.documentPane.getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
 						
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
+							System.out.println("\"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged() + "\"");
+							System.out.println("\"" + currentSentenceString + "\"");
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 							setSelectionInfoAndHighlight = false;
+							main.saved = false;
 						}
 						
 					}
@@ -474,7 +475,8 @@ public class DriverDocumentsTab {
 					}
 					
 					sentToTranslate = currentSentNum;
-					DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
+					if (!inRange)
+						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 					oldSelectionInfo = selectionInfo;
 				}
 			}

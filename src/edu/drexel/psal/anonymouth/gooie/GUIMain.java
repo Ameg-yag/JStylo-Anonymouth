@@ -506,27 +506,6 @@ public class GUIMain extends javax.swing.JFrame  {
 					public void windowOpened(WindowEvent arg0) {}
 				};
 				
-//				String OS = System.getProperty("os.name").toLowerCase();
-//				if (OS.contains("mac")) {
-//					Application app = Application.getApplication();
-//					app.setQuitHandler(new QuitHandler() {
-//						@Override
-//						public void handleQuitRequestWith(QuitEvent arg0, QuitResponse arg1) {
-//							if (PropertiesUtil.getWarnQuit() && !saved) {
-//								int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
-//								if (confirm == 0) {
-//									System.exit(0);
-//								}
-//							} else if (PropertiesUtil.getAutoSave()) {
-//								DriverDocumentsTab.save(inst);
-//								System.exit(0);
-//							} else {
-//								System.exit(0);
-//							}
-//						}
-//					});
-//				}
-				
 				inst.addWindowListener(exitListener);
 				inst.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			
