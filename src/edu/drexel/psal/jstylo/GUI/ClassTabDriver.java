@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.InputStream;
+import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
@@ -80,6 +82,7 @@ public class ClassTabDriver {
 					tmpAnalyzer = null;
 					tmpObject = null;
 					try {
+						Logger.logln("classname: "+className);
 						tmpObject = Class.forName(className).newInstance();
 						
 						if (tmpObject instanceof Classifier){	//TODO hopefully this is the only "instanceOf" I'll need
@@ -103,7 +106,6 @@ public class ClassTabDriver {
 					Logger.logln("with a classifier of: "+tmpAnalyzer.getName());
 					
 					main.classAvClassArgsJTextField.setText(getOptionsStr( tmpAnalyzer.getOptions()));
-	
 
 				}
 					// otherwise
@@ -124,7 +126,6 @@ public class ClassTabDriver {
 					
 					cw = new ClassWizard(main,tmpAnalyzer);
 					cw.setVisible(true);
-					
 					
 				} else {
 					Logger.logln("clicked in textfield without a classifier selected!");
@@ -239,8 +240,7 @@ public class ClassTabDriver {
 				Logger.logln("Classifier selected in the selected classifiers list in the classifiers tab: "+className);
 
 				// show options and description
-				main.classSelClassArgsJTextField.setText(getOptionsStr(main.analyzers.get(selected).getOptions()));
-				
+				main.classSelClassArgsJTextField.setText(getOptionsStr(main.analyzers.get(selected).getOptions()));	
 			}
 		});
 		
@@ -312,7 +312,6 @@ public class ClassTabDriver {
 				}
 			}
 		});
-		
 	}
 	
 	/**
@@ -364,98 +363,66 @@ public class ClassTabDriver {
 	 * initialization methods
 	 * ======================
 	 */
-
-	// build classifiers tree from list of class names
-	protected static String[] classNames = new String[] {		//TODO maybe convert this into an ordering list instead of getting rid of it entirely?
-																//		as is, if at least one classifier in a package shows up first, that whole package will be
-																//		listed first. Just an idea.
-		// bayes
-		//"weka.classifiers.bayes.BayesNet",
-		"weka.classifiers.bayes.NaiveBayes",
-		//"weka.classifiers.bayes.NaiveBayesMultinomial",
-		//"weka.classifiers.bayes.NaiveBayesMultinomialUpdateable",
-		"weka.classifiers.bayes.NaiveBayesUpdateable",
-
-		// functions
-		"weka.classifiers.functions.Logistic",
-		"weka.classifiers.functions.MultilayerPerceptron",
-		"weka.classifiers.functions.SMO",
-		"weka.classifiers.functions.LibSVM",
-
-		// lazy
-		"weka.classifiers.lazy.IBk",
-
-		// meta
-
-
-		// misc
-
-
-		// rules
-		"weka.classifiers.rules.ZeroR",
-
-		// trees
-		"weka.classifiers.trees.J48",
-	};
 	
 	/**
 	 * Initialize available classifiers tree
 	 */
 	@SuppressWarnings("unchecked")
 	protected static void initWekaClassifiersTree(GUIMain main) {
-		// create root and set to tree
-		ArrayList<DefaultMutableTreeNode> roots = new ArrayList<DefaultMutableTreeNode>();
+		
 		ArrayList<Node> loadedClassifiers = generateClassifiers();
 		
 		DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("root");
-		DefaultMutableTreeNode wekaNode = new DefaultMutableTreeNode("weka");
-		rootNode.add(wekaNode);
 		
 		for (Node n : loadedClassifiers){
 			String name = n.getName();
-			if (name.contains("weka")) break; //weka's in a weird spot currently. TODO probably remove this later once everything's standardized. 
-																//in the meantime, this prevents a second, empty, weka folder from being added.
 			String[] components = name.split("\\."); 
-			DefaultMutableTreeNode temp = new DefaultMutableTreeNode(components[0]);
-			DefaultMutableTreeNode previous = temp;
-			for (int k=1; k<components.length;k++){
-				DefaultMutableTreeNode t = new DefaultMutableTreeNode(components[k]);
-				previous.add(t);
-				previous=t;
+			boolean add = true;
+			
+			DefaultMutableTreeNode child;
+			Enumeration<DefaultMutableTreeNode> children = rootNode.children();
+			while (children.hasMoreElements()) {
+				child = children.nextElement();
+				if (child.toString().equals(components[0])){
+					add=false;
+					break;
+				}
 			}
-			rootNode.add(temp);
+			
+			if (add){
+				DefaultMutableTreeNode temp = new DefaultMutableTreeNode(components[0]);
+				DefaultMutableTreeNode previous = temp;
+				for (int k=1; k<components.length;k++){
+					DefaultMutableTreeNode t = new DefaultMutableTreeNode(components[k]);
+					previous.add(t);
+					previous=t;
+				}
+				rootNode.add(temp);
+			}
 		}
 		
-		DefaultMutableTreeNode classifiersNode = new DefaultMutableTreeNode("classifiers");
-		
-		wekaNode.add(classifiersNode);
 		DefaultTreeModel model = new DefaultTreeModel(rootNode);
 		main.classJTree.setModel(model);
 		
 		String[] loadedClasses = loadedClassifiers(loadedClassifiers);
-		String[] cNames = new String[loadedClasses.length+classNames.length];
+		
 		int j=0;
-		for (String c : classNames){
-			cNames[j]=c;
-			j++;
-		}
 		for (String c : loadedClasses){
 			
 			if (c.substring(c.length()-6).equals(".class"))
-				cNames[j]=c.substring(0,c.length()-6);
+				loadedClasses[j]=c.substring(0,c.length()-6);
 			else {
-				cNames[j]=c;
+				loadedClasses[j]=c;
 			}
 			j++;
 		}
 		
 		// add all classes		
 		DefaultMutableTreeNode currNode, child;	
-		for (String className: cNames) {
+		for (String className: loadedClasses) {
 			String[] nameArr = className.split("\\.");
 			currNode = rootNode;
 			
-;
 			for (int i=0; i<nameArr.length; i++) {
 				// look for node
 				Enumeration<DefaultMutableTreeNode> children = currNode.children();
@@ -474,8 +441,6 @@ public class ClassTabDriver {
 					currNode = child;
 				}
 			}
-			
-			
 		}
 		
 		// expand tree
@@ -484,28 +449,32 @@ public class ClassTabDriver {
 			main.classJTree.expandRow(row++);
 	}
 	/**
-	 * Strings which represent the "root" directories for a given set of classifiers
-	 * These directories can contain subdirectories
+	 * Strings which represent the "root" directories for a given set of classifiers<br>
+	 * These directories can contain subdirectories <br>
 	 * 
 	 * 
-	 *      Current usable args/filters
-	 *      
-	 *      "-P str"  ignore package "str" and all of its sub packages and files
-	 *      "-F str"  ignore file "str" File names must end in ".class" also, they're case sensitive
-	 * 
-	 * 		UNUSABLE args, but nifty ideas, I think
-	 * 
-	 * 		"-FC str" ignore a file containing a given string  On its own, not very useful, but perhaps...
-	 * 		"-FPC str" ignore a file, in a package, containing the string. I could see this being used in, say jgaap where there's one package with 
-	 * 											a huge number of classifiers that we may not want. (I don't know if jgaap's weka classifiers are basically the same as WEKA's or not
-	 * 													but if they were, they could be filtered out in this manner.
-	 * 
+	 *<p>      Current usable args/filters<br>
+	 *      <br>
+	 *      "-P str"  ignore package "str" and all of its sub packages and files<br>
+	 *      "-F str"  ignore file "str" File names must end in ".class" also, they're case sensitive<br>
+	 * <br>
+	 * 		UNUSABLE args, but nifty ideas, I think<br>
+	 * <br>
+	 * 		"-FC str" ignore a file containing a given string  On its own, not very useful, but perhaps...<br>
+	 * 		"-FPC str" ignore a file, in a package, containing the string. I could see this being used in, say jgaap where there's one package with <br>
+	 *      a huge number of classifiers that we may not want. (I don't know if jgaap's weka classifiers are basically the same as WEKA's or not <br>
+	 *      but if they were, they could be filtered out in this manner. <br>
+	 * </p>
 	 * 
 	 */
-	protected static String[] classifierGroups = new String[] {
+	protected static String[] classifierGroups = new String[] { //TODO move this into the properties file for ease of editing
 		"edu.drexel.psal.jstylo.analyzers -F AuthorWPdata.class -F SynonymBasedClassifier.class -F WekaAnalyzer.class",
 		//"com.jgaap.classifiers",
-		//"weka.classifiers"
+		"weka.classifiers.bayes",
+		"weka.classifiers.functions",
+		"weka.classifiers.lazy",
+		"weka.classifiers.meta",
+		"weka.classifiers.trees"
 	};
 	
 	/**
@@ -593,17 +562,13 @@ public class ClassTabDriver {
 		return converted;
 	}
 	
-	
-	//TODO put in new loggers once everything is figured out/working smoothly. AND DOCUMENTATION
+	//TODO could use some cleanup
 	/**
-	*		Okay, so it currently can get jgaap and psal, try to fix up weka
+	*		Returns the a list of nodes for the tree of classifiers.
 	**/
 	protected static ArrayList<Node> generateClassifiers(){
 		
-		ArrayList<Node> modules = new ArrayList<Node>();
-		
-		String[] classifierRoots = new String[classifierGroups.length];
-		
+		ArrayList<Node> modules = new ArrayList<Node>();	
 		ArrayList<String> packagesToIgnore = new ArrayList<String>();
 		ArrayList<String> filesToIgnore = new ArrayList<String>();
 				
@@ -630,8 +595,8 @@ public class ClassTabDriver {
 						break;
 					}
 				}
-			}
-				
+			}	
+			
 			modules.add(new Node(components[0]));
 		}
 
@@ -639,8 +604,7 @@ public class ClassTabDriver {
 			populateNode(current,packagesToIgnore,filesToIgnore); //populates each node and all its subnodes
 			//Logger.logln("\nClassifier Tree for "+current.toString()); // use this to see each tree ---I think it's pretty useful
 		}
-		
-		
+
 		return modules;	
 	}
 	
@@ -667,7 +631,7 @@ public class ClassTabDriver {
 			try { //loads the path to the resource. doubles as a test to see if we're in a jar
 				df = new File(resource.toURI());
 			} catch (Exception e) {
-				Logger.logln("Reading from jar file..."); 
+				//Logger.logln("Reading from jar file..."); 
 			} 
 			
 			//for non-jars
@@ -692,7 +656,6 @@ public class ClassTabDriver {
 					//check to see if the file is on the ignore list
 					if (file.isFile()){
 						for (String ignore : filesToIgnore){
-							//Logger.logln("checking ignore list temptoString:" +temp.toString()+" file.getName(): "+file.getName()+" ignore: "+ignore);
 							if (temp.getName().equalsIgnoreCase(ignore)|| file.getName().equalsIgnoreCase(ignore)){
 								toAdd=false;
 							}
@@ -724,31 +687,45 @@ public class ClassTabDriver {
 					//set up jar path and information
 					JarFile source = new JarFile(resource.getFile().replaceFirst("[.]jar[!].*",".jar").replaceFirst("file:",""));
 					Enumeration<JarEntry> files = source.entries();
-					//iterate over subfiles
-
 					
-					boolean foundClassifiers = false; //once we find the classifier, there's no need to keep looking
+					//iterate over subfiles
 					while(files.hasMoreElements()){
 						JarEntry file = files.nextElement();
 						String fileName = file.toString();
-						if (fileName.endsWith(".class")&&fileName.contains(current.getName().replace(".","/"))){
-							//Logger.logln("Print classes: "+fileName);
-						}
-						/*
-						if ((file.toString()).contains((current.getName().replace(".","/")+"/"))){
-							foundClassifiers=true; //next time there is not a match, it means that we're done
-							String convertedFileName = file.toString().substring(0,file.toString().length()-1).replace("/",".");
+						
+						if (fileName.contains(current.getName().replace(".","/"))){
+							String[] splitFile = fileName.split("/");
+							String[] splitCurrent = current.getName().split("\\.");
 							
-							
-							Logger.logln("convertedFileName: "+convertedFileName);
-							
-							
-						} else {
-							if (foundClassifiers){ 
-								break; //stop iterating
+							if (!(splitFile.length<=splitCurrent.length) && splitFile[splitCurrent.length].endsWith(".class") && !splitFile[splitCurrent.length].contains("$")){
+								
+								String path = fileName.replaceAll("/",".");
+								path+="..."; //kinda hacky way to separate the .class portion of the filename without removing class from inside the string
+								path=path.replaceAll("\\.class\\.\\.\\.",""); 
+		
+								Class tempClass = Class.forName(path);
+								boolean skip = false;
+								
+								//don't add the file if it's an abstract class
+								if (Modifier.isAbstract(tempClass.getModifiers()))
+									skip=true;
+								
+								//or if its an interface
+								if (Modifier.isInterface(tempClass.getModifiers()))
+									skip=true;
+								
+								//check to see if it's on the ignore list
+								for (String ignore : filesToIgnore){
+									if (path.equalsIgnoreCase(ignore)|| file.getName().equalsIgnoreCase(ignore)){
+										skip=true;
+									}
+								}
+								
+								//add the file
+								if (!skip)
+									current.addChild(new Node(path));
 							}
-						}
-						*/
+						} 
 					}
 					
 				} catch (Exception e){ //if we're unsuccessful for some reason
