@@ -154,7 +154,7 @@ public class BackendInterface {
 						Tagger.initTagger();
 						
 						pw.setText("Initialize Cluster Viewer...");
-						DriverClustersTab.initializeClusterViewer(main,false);
+						DriverClustersWindow.initializeClusterViewer(main,false);
 						pw.setText("Initialize Cluster Viewer... Done");
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
@@ -196,7 +196,7 @@ public class BackendInterface {
 							wizard.reRunModified(magician);
 							pw.setText("Extracting and Clustering Features... Done");
 							pw.setText("Initialize Cluster Viewer...");
-							DriverClustersTab.initializeClusterViewer(main,false);
+							DriverClustersWindow.initializeClusterViewer(main,false);
 							pw.setText("Initialize Cluster Viewer... Done");
 							pw.setText("Classifying Documents...");
 							magician.runWeka();
@@ -215,10 +215,10 @@ public class BackendInterface {
 				}
 				int selectedIndex = 1;
 				int trueIndex = selectedIndex - 1;
-				Logger.logln(NAME+"Cluster Group number '"+trueIndex+"' selected: " + DriverClustersTab.getStringRep()[selectedIndex]);
-				Logger.logln(NAME+"Cluster Group chosen by Anonymouth: "+DriverClustersTab.getStringRep()[1]);
-				DataAnalyzer.selectedTargets = DriverClustersTab.getIntRep()[trueIndex];
-				Logger.logln(NAME+"INTREP: "+DriverClustersTab.getIntRep()[trueIndex]);//added this.
+				Logger.logln(NAME+"Cluster Group number '"+trueIndex+"' selected: " + DriverClustersWindow.getStringRep()[selectedIndex]);
+				Logger.logln(NAME+"Cluster Group chosen by Anonymouth: "+DriverClustersWindow.getStringRep()[1]);
+				DataAnalyzer.selectedTargets = DriverClustersWindow.getIntRep()[trueIndex];
+				Logger.logln(NAME+"INTREP: "+DriverClustersWindow.getIntRep()[trueIndex]);//added this.
 				DriverDocumentsTab.wizard.setSelectedTargets();
 				DriverDocumentsTab.signalTargetsSelected(main, true);
 
@@ -306,10 +306,12 @@ public class BackendInterface {
 					Integer.toString(main.anonymityDrawingPanel.getAvgPercentChangeNeeded()) +
 					"% of your document needs to be changed for it to be considered anonymous");
 			main.anonymityDrawingPanel.showPointer(true);
-			for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++)
+			for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++) {
+				System.out.println("		" + DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(i));
 				DriverDocumentsTab.originals.put(DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(i), DriverDocumentsTab.taggedDoc.getTaggedSentences().get(i));
+			}
 			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences();
-			
+			DriverDocumentsTab.suggestionCalculator.trackEditSentence(main);
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			
 			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument());//must re-set the document after processing (do deal 
@@ -322,7 +324,6 @@ public class BackendInterface {
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
 			DriverDocumentsTab.charsRemoved = 0;	
 			DriverDocumentsTab.caretPositionPriorToCharInsert = 0;
-			//Andrew had this commented out, I commented it back in for testing
 			Translator.firstRun = true;
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	

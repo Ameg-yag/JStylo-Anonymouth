@@ -39,7 +39,7 @@ import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.anonymouth.gooie.Translation;
-import edu.drexel.psal.anonymouth.gooie.DriverClustersTab.alignListRenderer;
+import edu.drexel.psal.anonymouth.gooie.DriverClustersWindow.alignListRenderer;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 
@@ -74,6 +74,15 @@ import weka.classifiers.*;
 
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 import edu.stanford.nlp.util.PropertiesUtils;
+
+import com.apple.eawt.AppEventListener;
+import com.apple.eawt.Application;
+import com.apple.eawt.ApplicationAdapter;
+import com.apple.eawt.ApplicationEvent;
+import com.apple.eawt.ApplicationListener;
+import com.apple.eawt.AppEvent.QuitEvent;
+import com.apple.eawt.QuitHandler;
+import com.apple.eawt.QuitResponse;
 
 
 /**
@@ -369,27 +378,15 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 	//--------------------------------------------------------------------
 		
-		protected JPanel clustersPanel;
-		protected JLabel clustersLabel;
 		protected JPanel featuresPanel;
 		protected JLabel legendLabel;
 		protected JPanel legendPanel;
 		private String oldEditorBoxDoc = " ";
 		private TableModel oldResultsTableModel = null;
 		private TableCellRenderer tcr = new DefaultTableCellRenderer();
-		
-		protected JScrollPane featuresListScrollPane;
-		protected JList featuresList;
-		protected DefaultListModel featuresListModel;
-		protected JScrollPane subFeaturesListScrollPane;
-		protected JList subFeaturesList;
-		protected DefaultListModel subFeaturesListModel;
-		protected JScrollPane clusterScrollPane;
-		protected ScrollablePanel clusterHolderPanel;
+
 		protected JPanel topPanel;
-		protected JButton reClusterAllButton;
 		protected JButton refreshButton;
-		protected JButton selectClusterConfiguration;
 		protected JPanel secondPanel;
 		
 	//----------------------------------------------------------------------
@@ -432,6 +429,12 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JMenuItem fileSaveTestDocMenuItem;
 	protected JMenuItem fileSaveAsTestDocMenuItem;
 	protected JMenuItem helpAboutMenuItem;
+	protected JMenuItem helpSuggestionsMenuItem;
+	protected JMenuItem helpClustersMenuItem;
+	protected JMenuItem viewMenuItem;
+	protected JMenuItem viewClustersMenuItem;
+	protected JMenuItem helpMenu;
+	protected JMenuItem fileMenu;
 //	protected JMenuItem filePrintMenuItem;
 	
 	// random useful variables
@@ -447,11 +450,12 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected boolean docPPIsShowing = true;
 	protected boolean featPPIsShowing = true;
 	protected boolean classPPIsShowing = true;
+	protected ClustersWindow clustersWindow;
+	protected SuggestionsWindow suggestionsWindow;
+	protected ClustersTutorial clustersTutorial;
 	
 	//used mostly for loading the main document without having to alter the main.ps.testDocAt(0) directly
 	Document mainDocPreview;
-	protected ArrayList<String> features = new ArrayList<String>();
-	protected ArrayList<ArrayList<String>> subfeatures = new ArrayList<ArrayList<String>>();
 	
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -501,6 +505,27 @@ public class GUIMain extends javax.swing.JFrame  {
 					@Override
 					public void windowOpened(WindowEvent arg0) {}
 				};
+				
+//				String OS = System.getProperty("os.name").toLowerCase();
+//				if (OS.contains("mac")) {
+//					Application app = Application.getApplication();
+//					app.setQuitHandler(new QuitHandler() {
+//						@Override
+//						public void handleQuitRequestWith(QuitEvent arg0, QuitResponse arg1) {
+//							if (PropertiesUtil.getWarnQuit() && !saved) {
+//								int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+//								if (confirm == 0) {
+//									System.exit(0);
+//								}
+//							} else if (PropertiesUtil.getAutoSave()) {
+//								DriverDocumentsTab.save(inst);
+//								System.exit(0);
+//							} else {
+//								System.exit(0);
+//							}
+//						}
+//					});
+//				}
 				
 				inst.addWindowListener(exitListener);
 				inst.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -554,64 +579,47 @@ public class GUIMain extends javax.swing.JFrame  {
 			this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
 			
 			menuBar = new JMenuBar();
-			JMenu fileMenu = new JMenu("File");
 			
-			JMenu settingsMenu = new JMenu("Settings");
-			JMenu helpMenu = new JMenu("Help");
-//			JMenu settingsTabMenu = new JMenu("Tabs");
-			settingsGeneralMenuItem = new JMenuItem("Preferences");
-//			JMenu settingsTabClustersMenu = new JMenu("Clusters");
-//			JMenu settingsTabPreprocessMenu = new JMenu("Pre-Process");
-//			JMenu settingsTabSuggestionsMenu = new JMenu("Suggestions");
-//			JMenu settingsTabTranslationsMenu = new JMenu("Translations");
-//			JMenu settingsTabDocumentsMenu = new JMenu("Documents");
-//			JMenu settingsTabResultsMenu = new JMenu("Results");
+			fileMenu = new JMenu("File");
 			fileSaveProblemSetMenuItem = new JMenuItem("Save Problem Set");
 			fileLoadProblemSetMenuItem = new JMenuItem("Load Problem Set");
 			fileSaveTestDocMenuItem = new JMenuItem("Save");
 			fileSaveAsTestDocMenuItem = new JMenuItem("Save As...");
-//			filePrintMenuItem = new JMenuItem("Print...");
-			helpAboutMenuItem = new JMenuItem("About Anonymouth");
-			
-			menuBar.add(fileMenu);
-			
-			String OS = System.getProperty("os.name").toLowerCase();
-			if (!OS.contains("mac")) {
-				menuBar.add(settingsMenu);
-				settingsMenu.add(settingsGeneralMenuItem);
-			}
-			menuBar.add(helpMenu);
-			
 			fileMenu.add(fileSaveProblemSetMenuItem);
 			fileMenu.add(fileLoadProblemSetMenuItem);
 			fileMenu.add(new JSeparator());
 			fileMenu.add(fileSaveTestDocMenuItem);
 			fileMenu.add(fileSaveAsTestDocMenuItem);
-//			fileMenu.add(new JSeparator());
-//			fileMenu.add(filePrintMenuItem);
 			
-			// ================== HAVE TO ADD ACTION LISTENERS TO THESE BUT NEED TO FIGURE OUT BEST WAY TO DO SO
+			menuBar.add(fileMenu);
 			
-//			settingsMenu.add(settingsTabMenu);
-//				settingsTabMenu.add(settingsTabClustersMenu);
-//					settingsTabClustersMenu.add(new JMenuItem("Left"));
-//					settingsTabClustersMenu.add(new JMenuItem("Top"));
-//					settingsTabClustersMenu.add(new JMenuItem("Right"));
-//				settingsTabMenu.add(settingsTabPreprocessMenu);
-//					settingsTabPreprocessMenu.add(new JMenuItem("Left"));
-//					settingsTabPreprocessMenu.add(new JMenuItem("Right"));
-//				settingsTabMenu.add(settingsTabSuggestionsMenu);
-//					settingsTabSuggestionsMenu.add(new JMenuItem("Left"));
-//					settingsTabSuggestionsMenu.add(new JMenuItem("Right"));
-//				settingsTabMenu.add(settingsTabTranslationsMenu);
-//					settingsTabTranslationsMenu.add(new JMenuItem("Left"));
-//					settingsTabTranslationsMenu.add(new JMenuItem("Right"));
-//				settingsTabMenu.add(settingsTabDocumentsMenu);
-//					settingsTabDocumentsMenu.add(new JMenuItem("Top"));
-//				settingsTabMenu.add(settingsTabResultsMenu);
-//					settingsTabResultsMenu.add(new JMenuItem("Bottom"));
+			String OS = System.getProperty("os.name").toLowerCase();
+			if (!OS.contains("mac")) {
+				JMenu settingsMenu = new JMenu("Settings");
+				settingsGeneralMenuItem = new JMenuItem("Preferences");
+				settingsMenu.add(settingsGeneralMenuItem);
+				menuBar.add(settingsMenu);
+			}
 			
-			helpMenu.add(helpAboutMenuItem);
+			viewMenuItem = new JMenu("View");
+			viewClustersMenuItem = new JMenuItem("Clusters");
+			viewMenuItem.add(viewClustersMenuItem);
+			
+			menuBar.add(viewMenuItem);
+			
+			helpMenu = new JMenu("Help");
+			helpAboutMenuItem = new JMenuItem("About Anonymouth");
+			helpClustersMenuItem = new JMenuItem("Clusters Tutorial");
+			if (!OS.contains("mac")) {
+				helpMenu.add(helpAboutMenuItem);
+				helpMenu.add(new JSeparator());
+			}
+			helpSuggestionsMenuItem = new JMenuItem("Suggestions");
+			helpMenu.add(helpSuggestionsMenuItem);
+			helpMenu.add(new JSeparator());
+			helpMenu.add(helpClustersMenuItem);
+			
+			menuBar.add(helpMenu);
 			
 			this.setJMenuBar(menuBar);
 			
@@ -626,7 +634,6 @@ public class GUIMain extends javax.swing.JFrame  {
 			createTransTab();
 			createDocumentTab();
 			createAnonymityTab();
-			createClustersTab();
 //			createResultsTab();
 			
 			setUpContentPane();
@@ -643,14 +650,18 @@ public class GUIMain extends javax.swing.JFrame  {
 			//init default values
 			setDefaultValues();
 			
+			clustersWindow = new ClustersWindow();
+			suggestionsWindow = new SuggestionsWindow();
+			clustersTutorial = new ClustersTutorial();
+			
 			// initialize listeners - except for EditorTabDriver!
 			
 			DriverMenu.initListeners(this);
-			DriverClustersTab.initListeners(this);
 			DriverDocumentsTab.initListeners(this);
 			DriverPreProcessTab.initListeners(this);
 			DriverResultsTab.initListeners(this);
 			DriverSuggestionsTab.initListeners(this);
+			DriverClustersWindow.initListeners(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -708,7 +719,6 @@ public class GUIMain extends javax.swing.JFrame  {
 		panelNames.add("Translations");
 		panelNames.add("Document");
 		panelNames.add("Anonymity");
-		panelNames.add("Clusters");
 		panelNames.add("Results");
 		
 		HashMap<String, JPanel> panels = new HashMap<String, JPanel>(6);
@@ -717,7 +727,6 @@ public class GUIMain extends javax.swing.JFrame  {
 		panels.put("Translations", translationsPanel);
 		panels.put("Document", documentsPanel);
 		panels.put("Anonymity", anonymityPanel);
-		panels.put("Clusters", clustersPanel);
 //		panels.put("Results", resultsPanel);
 		
 		ArrayList<PropertiesUtil.Location> panelLocations = new ArrayList<PropertiesUtil.Location>();
@@ -726,7 +735,6 @@ public class GUIMain extends javax.swing.JFrame  {
 		panelLocations.add(PropertiesUtil.getTranslationsTabLocation());
 		panelLocations.add(PropertiesUtil.getDocumentsTabLocation());
 		panelLocations.add(PropertiesUtil.getAnonymityTabLocation());
-		panelLocations.add(PropertiesUtil.getClustersTabLocation());
 		panelLocations.add(PropertiesUtil.getResultsTabLocation());
 		
 		// ----- form the column specifications
@@ -801,35 +809,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	 * Adjusts a tabs layout based on its location property. If this is not done, the tab will be arranged for the wrong location.
 	 */
 	public void fixLayouts()
-	{
-		PropertiesUtil.Location clustersLocation = PropertiesUtil.getClustersTabLocation();
-		if (clustersLocation == PropertiesUtil.Location.LEFT || clustersLocation == PropertiesUtil.Location.RIGHT)
-		{
-			clustersPanel.setLayout(new MigLayout(
-					"wrap, ins 0, gap 0 0",
-					"grow, fill",
-					"[][grow, fill][]"));
-			
-			clustersPanel.removeAll();
-			clustersPanel.add(clustersLabel);
-			clustersPanel.add(clusterScrollPane);
-			clustersPanel.add(featuresPanel, "h 250!");
-		}
-		else if (clustersLocation == PropertiesUtil.Location.TOP)
-		{
-			clustersPanel.setLayout(new MigLayout(
-					"wrap 2, fill, ins 0, gap 0",
-					"[70%][30%]",
-					"[][][grow, fill]"));
-			
-			clustersPanel.removeAll();
-			clustersPanel.add(clustersLabel, "grow, h " + titleHeight + "!");
-			clustersPanel.add(legendLabel, "grow, h " + titleHeight + "!");
-			clustersPanel.add(clusterScrollPane, "grow, spany");
-			clustersPanel.add(legendPanel, "grow");
-			clustersPanel.add(featuresPanel, "spany, grow");
-		}
-		
+	{	
 		PropertiesUtil.Location anonymityLocation = PropertiesUtil.getAnonymityTabLocation();
 		if (anonymityLocation == PropertiesUtil.Location.LEFT || anonymityLocation == PropertiesUtil.Location.RIGHT)
 		{
@@ -992,46 +972,6 @@ public class GUIMain extends javax.swing.JFrame  {
 		return ready;
 	}
 	
-	public void addClusterFeatures (String[] names)
-	{
-		Arrays.sort(names);
-		// add the holder at top
-		subfeatures.add(new ArrayList<String>());
-		for (int i = 0; i < names.length; i++)
-		{
-			String feature = null;
-			String subfeature = null;
-			
-			// get the feature and subfeature from the name
-			if (names[i].contains("--"))
-			{
-				feature = names[i].substring(0, names[i].indexOf("--"));
-				subfeature = names[i].substring(names[i].indexOf("--")+2, names[i].length());
-			}
-			else
-				feature = names[i];
-			
-			// if the feature doesnt exist yet, add it to the feature list
-			if (!features.contains(feature))
-			{
-				features.add(feature);
-				subfeatures.add(new ArrayList<String>());
-				if (subfeature != null)
-					subfeatures.get(features.indexOf(feature)).add(subfeature);
-					
-			}
-			else // if the feature does exist, add its subfeature to the subfeature list
-			{
-				if (subfeature != null)
-					subfeatures.get(features.indexOf(feature)).add(subfeature);
-			}
-		}
-		featuresListModel = new DefaultListModel();
-		for (int i = 0; i < features.size(); i++)
-			featuresListModel.addElement(features.get(i));
-		featuresList.setModel(featuresListModel);
-	}
-	
 	/**
 	 * Creates a Pre-Process panel that can be added to the "help area".
 	 * @return editorHelpSettingsPanel
@@ -1084,14 +1024,12 @@ public class GUIMain extends javax.swing.JFrame  {
 			DefaultListModel mainDocListModel = new DefaultListModel();
 			prepMainDocList = new JList(mainDocListModel);
 			prepMainDocList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			prepMainDocList.setCellRenderer(new DriverClustersTab.alignListRenderer(SwingConstants.CENTER));
 			prepMainDocScrollPane = new JScrollPane(prepMainDocList);
 			
 			// sample documents list
 			DefaultListModel sampleDocsListModel = new DefaultListModel();
 			prepSampleDocsList = new JList(sampleDocsListModel);
 			prepSampleDocsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			prepSampleDocsList.setCellRenderer(new DriverClustersTab.alignListRenderer(SwingConstants.CENTER));
 			prepSampleDocsScrollPane = new JScrollPane(prepSampleDocsList);
 			
 			// main add button
@@ -1363,7 +1301,10 @@ public class GUIMain extends javax.swing.JFrame  {
 			//--------- Elements to Add Text Pane ------------------
 			elementsToAddPane = new JTextPane();
 			elementsToAddScrollPane = new JScrollPane(elementsToAddPane);
-			elementsToAddPane.setText("Process the document...");
+			elementsToAddPane.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
+			elementsToAddPane.setText("Please process your document to receive word suggestions");
+			elementsToAddPane.setEditable(false);
+			elementsToAddPane.setFocusable(false);
 			
 			//--------- Elements to Remove Label  ------------------
 			elementsToRemoveLabel = new JLabel("Elements To Remove:");
@@ -1376,12 +1317,15 @@ public class GUIMain extends javax.swing.JFrame  {
 			//--------- Elements to Remove Text Pane ------------------
 			elementsToRemovePane = new JTextPane();
 			elementsToRemoveScrollPane = new JScrollPane(elementsToRemovePane);
-			elementsToRemovePane.setText("Process the document...");
+			elementsToRemovePane.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
+			elementsToRemovePane.setText("Please process your document to receive word removal suggestions");
+			elementsToRemovePane.setEditable(false);
+			elementsToRemovePane.setFocusable(false);
 			
 			suggestionsPanel.add(elementsToAddLabel, "h " + titleHeight + "!");
-			suggestionsPanel.add(elementsToAddScrollPane);
+			suggestionsPanel.add(elementsToAddScrollPane, "hmin 362, hmax 362");
 			suggestionsPanel.add(elementsToRemoveLabel, "h " + titleHeight + "!");
-			suggestionsPanel.add(elementsToRemoveScrollPane);
+			suggestionsPanel.add(elementsToRemoveScrollPane, "hmin 362, hmax 362");
 		}//============ End Suggestions Tab =================
 	return suggestionsPanel;
 	}
@@ -1393,7 +1337,7 @@ public class GUIMain extends javax.swing.JFrame  {
 					"wrap, ins 0, gap 0 0",
 					"grow, fill",
 					"[][grow, fill][]"));
-		{ // --------------cluster panel components
+		{ // --------------translation panel components
 			translationsLabel = new JLabel("Translations:");
 			translationsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			translationsLabel.setFont(titleFont);
@@ -1643,139 +1587,6 @@ public class GUIMain extends javax.swing.JFrame  {
 		return documentsPanel;
 	}
 	
-	private JPanel createClustersTab() throws Exception
-	{
-		PropertiesUtil.Location location = PropertiesUtil.getClustersTabLocation();
-		clustersPanel = new JPanel();
-		if (location == PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
-			clustersPanel.setLayout(new MigLayout(
-					"wrap, ins 0",
-					"grow, fill",
-					"0[]0[grow, fill][]0"));
-		else if (location == PropertiesUtil.Location.TOP)
-			clustersPanel.setLayout(new MigLayout(
-					"wrap 2, fill, ins 0, gap 0",
-					"[70%][30%]",
-					"[][][grow, fill]"));
-		else
-			throw new Exception();
-		
-		{ // --------------cluster panel components
-			clustersLabel = new JLabel("Clusters:");
-			clustersLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			clustersLabel.setFont(titleFont);
-			clustersLabel.setOpaque(true);
-			clustersLabel.setBackground(tan);
-			clustersLabel.setBorder(rlborder);
-			
-			clusterHolderPanel = new ScrollablePanel()
-			{
-				public boolean getScrollableTracksViewportWidth()
-				{
-					return true;
-				}
-			};
-			clusterHolderPanel.setScrollableUnitIncrement(SwingConstants.VERTICAL, ScrollablePanel.IncrementType.PIXELS, 74);
-			clusterHolderPanel.setAutoscrolls(true);
-			clusterHolderPanel.setOpaque(true);
-			BoxLayout clusterHolderPanelLayout = new BoxLayout(clusterHolderPanel, javax.swing.BoxLayout.Y_AXIS);
-			clusterHolderPanel.setLayout(clusterHolderPanelLayout);
-			clusterScrollPane = new JScrollPane(clusterHolderPanel);
-			clusterScrollPane.setOpaque(true);
-			
-			legendLabel = new JLabel("Legend:");
-			legendLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			legendLabel.setFont(titleFont);
-			legendLabel.setOpaque(true);
-			legendLabel.setBackground(tan);
-			legendLabel.setBorder(rlborder);
-			
-			legendPanel = new JPanel();
-			legendPanel.setLayout(new MigLayout(
-					"wrap 2",
-					"20[][100]",
-					"grow, fill"));
-			
-			{ // --------------------legend panel components
-				JLabel presentValueLabel = new JLabel("Present Value:");
-				
-				JPanel presentValuePanel = new JPanel();
-				presentValuePanel.setBackground(Color.black);
-				
-				JLabel normalRangeLabel = new JLabel("Normal Range:");
-				
-				JPanel normalRangePanel = new JPanel();
-				normalRangePanel.setBackground(Color.red);
-				
-				JLabel safeZoneLabel = new JLabel("Safe Zone:");
-				
-				JPanel safeZonePanel = new JPanel();
-				safeZonePanel.setBackground(Color.green);
-				
-				legendPanel.add(presentValueLabel, "grow");
-				legendPanel.add(presentValuePanel, "grow");
-				legendPanel.add(normalRangeLabel, "grow");
-				legendPanel.add(normalRangePanel, "grow");
-				legendPanel.add(safeZoneLabel, "grow");
-				legendPanel.add(safeZonePanel, "grow");
-			}
-			
-			featuresPanel = new JPanel();
-				featuresPanel.setLayout(new MigLayout(
-						"wrap, fill, ins 0, gap 0 0",
-						"grow, fill",
-						"[][grow, fill][][grow, fill]"));
-			{ // --------------------legend panel components
-				JLabel featuresLabel = new JLabel("Feature Search:");
-				featuresLabel.setHorizontalAlignment(SwingConstants.CENTER);
-				featuresLabel.setFont(titleFont);
-				featuresLabel.setOpaque(true);
-				featuresLabel.setBackground(tan);
-				featuresLabel.setBorder(rlborder);
-				
-				featuresListModel = new DefaultListModel();
-				featuresList = new JList(featuresListModel);
-				featuresListScrollPane = new JScrollPane(featuresList);
-				
-				JLabel subFeaturesLabel = new JLabel("Sub-Feature Search:");
-				subFeaturesLabel.setHorizontalAlignment(SwingConstants.CENTER);
-				subFeaturesLabel.setFont(titleFont);
-				subFeaturesLabel.setOpaque(true);
-				subFeaturesLabel.setBackground(tan);
-				subFeaturesLabel.setBorder(rlborder);
-				
-				subFeaturesListModel = new DefaultListModel();
-				subFeaturesList = new JList(subFeaturesListModel);
-				subFeaturesList.setEnabled(false);
-				subFeaturesListScrollPane = new JScrollPane(subFeaturesList);
-				
-				featuresPanel.add(featuresLabel, "grow, h " + titleHeight + "!");
-				featuresPanel.add(featuresListScrollPane, "grow");
-				featuresPanel.add(subFeaturesLabel, "grow, h " + titleHeight + "!");
-				featuresPanel.add(subFeaturesListScrollPane, "grow");
-			}
-			
-			if (location== PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
-			{
-				//clustersPanel.add(legendPanel);
-				clustersPanel.add(clustersLabel);
-				clustersPanel.add(clusterScrollPane);
-				clustersPanel.add(featuresPanel, "h 250!");
-			}
-			else if (location == PropertiesUtil.Location.TOP)
-			{
-				clustersPanel.add(clustersLabel, "grow, h " + titleHeight + "!");
-				clustersPanel.add(legendLabel, "grow, h " + titleHeight + "!");
-				clustersPanel.add(clusterScrollPane, "grow, spany");
-				clustersPanel.add(legendPanel, "grow");
-				clustersPanel.add(featuresPanel, "spany, grow");
-			}
-			else
-				throw new Exception();
-		}
-		return clustersPanel;
-	}
-	
 	private JPanel createAnonymityTab() throws Exception
 	{
 		PropertiesUtil.Location location = PropertiesUtil.getAnonymityTabLocation();
@@ -1793,7 +1604,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		else
 			throw new Exception();
 		
-		{ // --------------cluster panel components
+		{ // --------------anonymity panel components
 			anonymityLabel = new JLabel("Anonymity:");
 			anonymityLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			anonymityLabel.setFont(titleFont);

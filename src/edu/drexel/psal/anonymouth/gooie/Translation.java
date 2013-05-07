@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.memetix.mst.language.Language;
 import com.memetix.mst.translate.Translate;
@@ -42,9 +43,10 @@ public class Translation {
 	 * 
 	 */
 	
-	// Current GOOD CLIENT ID / SECRET COMBO:
-	private final static String CLIENT_ID = "fyberoptikz";
-	private final static String CLIENT_SECRET = "fAjWBltN4QV+0BKqqqg9nmXVMlo5ffa90gxU6wOW55Q=";	
+	private static Map<String, String> clientsAndSecrets;
+	private static ArrayList<String> clients;
+	private static int current = 0;
+	private static Boolean translationFound = false;
 	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
 			Language.CHINESE_SIMPLIFIED, Language.CHINESE_TRADITIONAL,Language.CZECH,
@@ -104,16 +106,50 @@ public class Translation {
 		names.put(allLangs[34], "Turkish");
 		names.put(allLangs[35], "Ukrainian");
 		names.put(allLangs[36], "Vietnamese");
+		
+		readyAccountsAndSecrets();
 	}
 
+	private void readyAccountsAndSecrets() {
+		clients = new ArrayList<String>();
+		clients.add("fyberoptikz");
+		clients.add("weegeemounty");
+		clients.add("drexel1");
+		clients.add("drexel4");
+		clients.add("sheetal57");
+		clients.add("drexel2");
+		clients.add("ozoxdxie");
+		
+		clientsAndSecrets = new HashMap();
+		clientsAndSecrets.put(clients.get(0), "fAjWBltN4QV+0BKqqqg9nmXVMlo5ffa90gxU6wOW55Q=");
+		clientsAndSecrets.put(clients.get(1), "UR0YCU0x20oOSzqt+xtHkT2lhk6RjcKvqEqd/3Hsdvs=");
+		clientsAndSecrets.put(clients.get(2), "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=");
+		clientsAndSecrets.put(clients.get(3), "F5Hw32MSQoTygwLu6YMpHYx9zV3TQVQxqsIIybVCI1Y=");
+		clientsAndSecrets.put(clients.get(4), "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=");
+		clientsAndSecrets.put(clients.get(5), "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=");
+		clientsAndSecrets.put(clients.get(6), "wU9ROglnO5qzntfRsxkq7WWGp7LAMrz0jdxPEd0t1u8=");
+	}
+	
 	public static String getTranslation(String original, Language other)
-	{
-		Translate.setClientId(CLIENT_ID/* Enter your Windows Azure Client Id here */);
-	    Translate.setClientSecret(CLIENT_SECRET/* Enter your Windows Azure Client Secret here */);
-
+	{   
+	    Translate.setClientId(clients.get(current));
+		Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
+	    
 	    try {
-			String translatedText = Translate.execute(original, Language.ENGLISH,other);
-			String backToenglish = Translate.execute(translatedText,other,Language.ENGLISH);
+	    	String backToenglish;
+	    	
+	    	do {
+	    		String translatedText = Translate.execute(original, Language.ENGLISH,other);
+				backToenglish = Translate.execute(translatedText,other,Language.ENGLISH);
+				
+				if (backToenglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
+					current++;
+					Translate.setClientId(clients.get(current));
+					Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
+					translationFound = false;
+				} else
+					translationFound = true;
+	    	} while (!translationFound);
 			
 			return backToenglish;
 			
@@ -133,15 +169,28 @@ public class Translation {
 	 */
 	public ArrayList<String> getAllTranslations(String original)
 	{
-		Translate.setClientId(CLIENT_ID/* Enter your Windows Azure Client Id here */);
-	    Translate.setClientSecret(CLIENT_SECRET/* Enter your Windows Azure Client Secret here */);
+		Translate.setClientId(clients.get(current));
+		Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
 	    
 	    ArrayList<String> translations = new ArrayList<String>();
     	try {
+    		String backToEnglish;
+    		
     		for (Language other:allLangs)
     	    {
-				String translatedText = Translate.execute(original, Language.ENGLISH,other);
-				String backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
+    			do {
+    	    		String translatedText = Translate.execute(original, Language.ENGLISH,other);
+    				backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
+    				
+    				if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
+    					current++;
+    					Translate.setClientId(clients.get(current));
+    					Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
+    					translationFound = false;
+    				} else
+    					translationFound = true;
+    	    	} while (!translationFound);
+
 				translations.add(backToEnglish);
     	    }
     		

@@ -257,7 +257,10 @@ public class DictionaryBinding {
 		return true;
 	}
 	
-	public static String[] getSynonyms(String wordToFind, String pos){
+	//NOTE: Someone had begun work on passing in an additional String that represented the part of speech, but was not yet implemented in
+	//the body of the method. As such, I removed it from the parameters for now just to get the DriverDocumentsTab words to remove and add
+	//back online
+	public static String[] getSynonyms(String wordToFind){
 		wordSynSetResult = "";
 		wordToFind=wordToFind.trim().toLowerCase();
 		WordNetDatabase wnd = WordNetDatabase.getFileInstance();
@@ -291,11 +294,11 @@ public class DictionaryBinding {
 		
 	}
 
-	 public static void main(String args[]) {
-		 String [] temp=getSynonyms("walk", "verb");
-		 for(String s:temp){
-			 System.out.println(s);
-		 }
-	 }
+//	 public static void main(String args[]) {
+//		 String [] temp=getSynonyms("walk", "verb");
+//		 for(String s:temp){
+//			 System.out.println(s);
+//		 }
+//	 }
 	
 }

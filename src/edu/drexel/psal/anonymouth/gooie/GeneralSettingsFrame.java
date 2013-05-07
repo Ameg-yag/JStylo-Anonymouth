@@ -19,6 +19,12 @@ import javax.swing.event.ChangeListener;
 
 import net.miginfocom.swing.MigLayout;
 
+/**
+ * The main preferences window for Anonymouth. Stores under a different pull down menu depending on the system (if Mac, it's put under
+ * Anonymouth > Preferences to keep with the Mac L&F, and if Windows/Linux it's put under Settings > Preferences.
+ * @author Marc Barrowclift
+ *
+ */
 public class GeneralSettingsFrame extends JDialog {	
 
 	private static final long serialVersionUID = 1L;
@@ -58,6 +64,10 @@ public class GeneralSettingsFrame extends JDialog {
 		setVisible(false);
 	}
 	
+	/**
+	 * Readies the window.
+	 * @param main
+	 */
 	private void init(final GUIMain main) {
 		this.main = main;
 		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
@@ -69,14 +79,12 @@ public class GeneralSettingsFrame extends JDialog {
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 	}
 	
+	/**
+	 * Displays the window
+	 */
 	public void openWindow() {
-		this.setVisible(true);
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
-	}
-	
-	public void closeWindow() {
-        WindowEvent wev = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
-        Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
+		this.setVisible(true);
 	}
 	
 	/**
@@ -202,6 +210,9 @@ public class GeneralSettingsFrame extends JDialog {
 		tabbedPane.add("Advanced", advanced);
 	}
 	
+	/**
+	 * Initializes all the listeners needed for each tab of the preferences window.
+	 */
 	public void initListeners() {
 		ActionListener classifierListener;
 		ActionListener featureListener;

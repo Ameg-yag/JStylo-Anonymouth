@@ -17,6 +17,7 @@ import java.util.concurrent.locks.Lock;
 import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
+import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
@@ -339,10 +340,9 @@ public class ConsolidationStation {
 	public static ArrayList<String> getPriorityWords(ArrayList<TaggedDocument> docsToConsider, boolean findTopToRemove, double percentToReturn){
 		int totalWords = 0;
 		ArrayList<Word> words = new ArrayList<Word>(totalWords);
-		for(TaggedDocument td:docsToConsider){
-			totalWords += td.getWordCount();
-			words.addAll(td.getWords());
-		}
+			
+		totalWords += DriverDocumentsTab.taggedDoc.getWordCount();
+		words.addAll(DriverDocumentsTab.taggedDoc.getWords());
 		//System.out.println("-----------------------Printing word list-------------------------");
 		/*for(Word w:words){
 			System.out.println(w.toString());
@@ -361,16 +361,17 @@ public class ConsolidationStation {
 		}
 		Word tempWord;
 		if(findTopToRemove){ // then start from index 0, and go up to index (numToReturn-1) words (inclusive)]
-			for(int i = 0; i<numToReturn; i++){
+			System.out.println("Finding top to remove");
+			for(int i = 0; i < numToReturn; i++) {
 				System.out.println(words.get(i).word+" "+words.get(i).getAnonymityIndex()); 	
-				if((tempWord=words.get(i)).getAnonymityIndex()<0)
+				if((tempWord=words.get(i)).getAnonymityIndex() <= 0)
 					toReturn.add(tempWord.word);//+" ("+tempWord.getAnonymityIndex()+")");
 				else 
 					break;
 			}
 		}
 		else{ // start at the END of the list, and go down to (END-numToReturn) (inclusive)
-			System.out.println("GOt here");
+			System.out.println("Finding top to add");
 			int startIndex = mergedNumWords - 1;
 			int stopIndex = startIndex - numToReturn;
 			for(int i = startIndex; i> stopIndex; i--){

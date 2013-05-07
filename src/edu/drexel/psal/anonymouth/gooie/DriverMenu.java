@@ -32,6 +32,11 @@ import edu.drexel.psal.jstylo.canonicizers.*;
 import com.jgaap.canonicizers.*;
 import com.jgaap.generics.*;
 
+/**
+ * Handles all the menu bar listeners
+ * @author Marc Barrowclift
+ *
+ */
 public class DriverMenu {
 	
 	private final static String NAME = "( DriverMenu ) - ";
@@ -42,6 +47,9 @@ public class DriverMenu {
 	protected static ActionListener saveTestDocListener;
 	protected static ActionListener saveAsTestDocListener;
 	protected static ActionListener aboutListener;
+	protected static ActionListener viewClustersListener;
+	protected static ActionListener suggestionsListener;
+	protected static ActionListener helpClustersListener;
 //	protected static ActionListener printMenuItemListener;
 	
 	protected static void initListeners(final GUIMain main)
@@ -54,7 +62,9 @@ public class DriverMenu {
 				main.GSP.openWindow();
 			}
         };
-        main.settingsGeneralMenuItem.addActionListener(generalListener);
+        String OS = System.getProperty("os.name").toLowerCase();
+        if (!OS.contains("mac"))
+        	main.settingsGeneralMenuItem.addActionListener(generalListener);
         
         saveProblemSetListener = new ActionListener() {
         	@Override
@@ -100,6 +110,29 @@ public class DriverMenu {
         };
         main.helpAboutMenuItem.addActionListener(aboutListener);
         
+        viewClustersListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		main.clustersWindow.openWindow();
+        	}
+        };
+        main.viewClustersMenuItem.addActionListener(viewClustersListener);
+        
+        suggestionsListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		main.suggestionsWindow.openWindow();
+        	}
+        };
+        main.helpSuggestionsMenuItem.addActionListener(suggestionsListener);
+        
+        helpClustersListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		main.clustersTutorial.openWindow();
+        	}
+        };
+        main.helpClustersMenuItem.addActionListener(helpClustersListener);
         /*
         printMenuItemListener = new ActionListener() {
         	@Override
