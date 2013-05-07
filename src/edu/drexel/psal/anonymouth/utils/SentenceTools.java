@@ -49,26 +49,29 @@ public class SentenceTools implements Serializable  {
 	 * This pattern, "EOS_chars" matches:
 	 * 		=> any number (but at least one) and combination of question marks and quotation marks, OR
 	 *		=> EXACTLY four periods (because English dictates that if you end a sentence with ellipsis points, you must have four periods: one for the period, and three for the ellipsis points, OR
-	 *		=> EXACTLY one period followed by a space character, or a period at the end of the input line. (otherwise, ellipsis points confuse the regex)
+	 *		=> any period NOT behind another period AND NOT in front of another period (otherwise, ellipsis points will be matched)
 	 */
-	private static final Pattern EOS_chars = Pattern.compile("([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))(\\s*|$?)"); // NOTE must subtract the length of group 2 (IF NOT null) from the length of the match. 
+	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]{4})|((?<!\\.)\\.(?!\\.))"); 
 	
 	
 	/**
-	 * the "sentence_quote" pattern matches any number and combination of "?" and "!" characters, OR four periods, OR a <i>single</i> period. (because ellipses points don't indicate an end of sentence UNLESS there are 4 ellipses points [one for the period, and three for the ellipsis]),
+	 * the "sentence_quote" pattern matches any number and combination of "?" and "!" characters, OR four periods, OR a <i>single</i> period (specifically, any period that isn't followed by, or that follows, another period). (because ellipses points don't indicate an end of sentence UNLESS there are 4 ellipses points [one for the period, and three for the ellipsis]),
 	 * it then matches a single "double" quotation mark, followed by  the first group (see above line) (because some people think that: "The man said, "Hello!"." (using an EOS character pre and post quotation mark is acceptable...)
-	 * Finally, it checks to see if there are any spaces, and will either match the end of the input, or a capital letter (both which indicate that the current sentence is over).
+	 * Finally, it and will either match the end of the input, a capital letter (both which indicate that the current sentence is over), or a citation (the explanation of the citation regex is below... I just copied and pasted it onto the end of this one).
 	 * 
+	 * NOTE: in the written description above, spaces are not necessarily discussed.
 	 */
-	private static final Pattern sentence_quote = Pattern.compile("([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))\\s*\"\\s*([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))?\\s*($|[A-Z])"); 
+	private static final Pattern sentence_quote = Pattern.compile("([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))\\s*\"\\s*([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))?\\s*($|[A-Z]|\\(((\\s*[A-Za-z.]*\\s*(et\\.?\\s*al\\.)?\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*)|(\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*[A-Za-z.]*\\s*(et\\.?\\s*al\\.)?\\s*))\\))"); 
 	
 	/**
-	 * the pattern 'citation' matches either an EOS character or a quotation mark, and then searches for citations that begin with an opening parenthesis,
-	 * match either a word (a name) followed by "et. al." (or not) followed by a number, or two numbers separated by a dash, and finishing with a closing parenthesis. 
+	 * the pattern 'citation' forces the match to begin at the start of the input (via the anchor), and matches zero or one occurrences EOS character, and then searches for citations that begin with an opening parenthesis,
+	 * match either a word (a name) followed by "et al." [or et. al.", even though it's wrong] (or not) followed by a number, or two numbers separated by a dash, and finishing with a closing parenthesis. 
 	 * It will also match a swapped version, where the number / two numbers separated by a dash come before the name (and "et. al.", if it exists.)
 	 * 
+	 * NOTE: in the written description above, space characters are not necessarily discussed.
 	 */
-	private static final Pattern citation = Pattern.compile("([.?!]|\")\\s\\(((\\s*[A-Za-z.]*\\s*(et\\.\\s*al\\.)?\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*)|(\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*[A-Za-z.]*\\s*(et\\.\\s*al\\.)?\\s*))\\)"); // TODO document this (what this does)
+	private static final Pattern citation = Pattern.compile("^[?!.]?\\s*\\(((\\s*[A-Za-z.]*\\s*(et\\.?\\s*al\\.)?\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*)|(\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*[A-Za-z.]*\\s*(et\\.?\\s*al\\.)?\\s*))\\)"); 
+	
 	private static final String t_PERIOD_REPLACEMENT = ""; // XXX: Hopefully it is safe to assume no one sprinkles apple symbols in their paper
 	// The below three "permanent" replacments are to mark EOS characters in text that the user has told us are not actually ending a sentence. 
 	// DO NOT remove these... in order to get them back, you need to know the unicode code
@@ -89,8 +92,6 @@ public class SentenceTools implements Serializable  {
 	private boolean mustAddToIndex = false;
 	private String[] notEndsOfSentence = {"Dr.","Mr.","Mrs.","Ms.","St.","vs.","U.S.","Sr.","Sgt.","R.N.","pt.","mt.","mts.","M.D.","Ltd.","Jr.","Lt.","Hon.","i.e.","e.x.","e.g.","inc.",
 			"et al.","est.","ed.","D.C.","B.C.","B.S.","Ph.D.","B.A.","A.B.","A.D.","A.M.","P.M.","Ln.","fig.","p.","pp.","ref.","r.b.i.","V.P.","yr.","yrs.","etc."};
-	//what if a name like F. Scott Fitzgerald 
-			// ^^ To whoever said this: then, we are in trouble. - AweM
 	
 	/**
 	 * Takes a text (one String representing an entire document), and breaks it up into sentences. Tries to find true ends of sentences: shouldn't break up sentences containing quoted sentences, 
@@ -115,8 +116,10 @@ public class SentenceTools implements Serializable  {
 		int closingQuoteIndex = 0;
 		text = text.replaceAll("\u201C","\"");
 		text = text.replaceAll("\u201D","\"");
-		//text = text.replaceAll("^\\t\\n\\r"," ");
-		text = text.replaceAll("\\p{C}","");
+		text = text.replaceAll("^(\\t|\\n|\\r)","");
+		text = text.replaceAll("\\p{Cf}","");// replace unicode format characters that will ruin the regular expressions (because non-printable characters in the document still take up indices, but you won't know they're there untill you "arrow" though the document and have to hit the same arrow twice to move past a certain point.
+		// Note that we must use "Cf" rather than "C". If we use "C" or "Cc" (which includes control characters), we remove our newline characters and this screws up the document.
+		// "Cf" is "other, format". "Cc" is "other, control". Using "C" will match both of them.
 		int lenText = text.length();
 		int notEOSNumber = 0;
 		int numNotEOS = notEndsOfSentence.length;
@@ -142,14 +145,10 @@ public class SentenceTools implements Serializable  {
 		boolean isSentence;
 		boolean foundAtLeastOneEOS = foundEOS;
 		String currentEOS;
-		String groupTwo;
-		int groupTwoLen;
 		while (foundEOS == true){
 			//System.out.println(sent.group(0));
 			currentEOS = sent.group(0);
-			groupTwo = sent.group(2);
-			groupTwoLen = (groupTwo == null) ? 0 : groupTwo.length();
-			currentStop = sent.end() - groupTwoLen;
+			currentStop = sent.end();
 			//System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
 			temp = text.substring(currentStart-1,currentStop);
 			//System.out.println(temp);
@@ -180,7 +179,7 @@ public class SentenceTools implements Serializable  {
 			}
 			safeString = text.substring(currentStart-1,currentStop);
 			
-			System.out.println("safeString: "+safeString);
+			//System.out.println("safeString: "+safeString);
 			//sentEnd = sentence_quote.matcher(safeString);	
 			quoteAtEnd = 0;
 			citationAtEnd = 0;
@@ -191,7 +190,7 @@ public class SentenceTools implements Serializable  {
 				System.out.println("RESULT OF sentence_quote matching: "+isSentence+" ==> attempted to match: "+safeString+" ====> from: "+text);
 				if(isSentence == true){ // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
 					// Then we want to split this up into two sentences (it's possible to have a sentence like this: He said, "Hello.")
-					System.out.println("start: "+sentEnd.start()+" ... end: "+sentEnd.end());
+					//System.out.println("start: "+sentEnd.start()+" ... end: "+sentEnd.end());
 					currentStop = text.indexOf("\"",sentEnd.start())+1;
 					safeString = text.substring(currentStart-1,currentStop);
 					forceNoMerge = true;
@@ -199,15 +198,16 @@ public class SentenceTools implements Serializable  {
 					quoteAtEnd = 1;
 				}
 			}
+			//System.out.println("POST quote finder: "+safeString);
 			// now check to see if there is a citation after the sentence (doesn't just apply to quotes due to paraphrasing)
 			// The rule -- at least as of now -- is if after the EOS mark there is a set of parenthesis containing either one word (name) or a name and numbers (name 123) || (123 name) || (123-456 name) || (name 123-456) || etc..
-			citationFinder = citation.matcher(text);	
-			hasCitation = citationFinder.find(currentStop-2); // -2 so that we match the EOS character before the quotes (not -1 because currentStop is one greater than the last index of the string -- due to the way substring works, which is includes the first index, and excludes the end index: [start,end).)
-			System.out.println("RESULT OF citation matching: "+hasCitation+" ==> attempted to match: "+safeString+" ====> from: "+text);
+			citationFinder = citation.matcher(text.substring(currentStop));	
+			hasCitation = citationFinder.find(); // -2 so that we match the EOS character before the quotes (not -1 because currentStop is one greater than the last index of the string -- due to the way substring works, which is includes the first index, and excludes the end index: [start,end).)
+			//System.out.println("RESULT OF citation matching: "+hasCitation+" ==> attempted to match: "+safeString+" ====> from: "+text);
 			if(hasCitation == true){ // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
 				// Then we want to split this up into two sentences (it's possible to have a sentence like this: He said, "Hello.")
-				System.out.println("start: "+citationFinder.start()+" ... end: "+citationFinder.end());
-				currentStop = text.indexOf(")",citationFinder.start())+1;
+				//System.out.println("start: "+(citationFinder.start()+currentStop)+" ... end: "+(citationFinder.end()+currentStop-1));
+				currentStop = text.indexOf(")",citationFinder.start()+currentStop)+1;
 				safeString = text.substring(currentStart-1,currentStop);
 				mergeNext = false;
 				citationAtEnd = citationFinder.group(0).length() - 1;// citationFinder will match either the last EOS character or "double" quote, so we subtract one to negate that

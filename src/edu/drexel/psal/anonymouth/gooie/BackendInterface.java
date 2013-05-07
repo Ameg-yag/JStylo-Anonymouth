@@ -324,7 +324,7 @@ public class BackendInterface {
 			DriverDocumentsTab.caretPositionPriorToCharInsert = 0;
 			//Andrew had this commented out, I commented it back in for testing
 			Translator.firstRun = true;
-			//GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;

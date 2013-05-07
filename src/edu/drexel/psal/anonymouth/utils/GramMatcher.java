@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.drexel.psal.anonymouth.suggestors.IndexFinder;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 /**
