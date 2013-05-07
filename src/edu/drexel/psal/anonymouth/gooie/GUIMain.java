@@ -1301,9 +1301,9 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemovePane.setFocusable(false);
 			
 			suggestionsPanel.add(elementsToAddLabel, "h " + titleHeight + "!");
-			suggestionsPanel.add(elementsToAddScrollPane, "grow");
+			suggestionsPanel.add(elementsToAddScrollPane, "growx, height 50%");
 			suggestionsPanel.add(elementsToRemoveLabel, "h " + titleHeight + "!");
-			suggestionsPanel.add(elementsToRemoveScrollPane, "grow");
+			suggestionsPanel.add(elementsToRemoveScrollPane, "growx, height 50%");
 		}//============ End Suggestions Tab =================
 	return suggestionsPanel;
 	}
@@ -1590,7 +1590,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			anonymityLabel.setBackground(tan);
 			anonymityLabel.setBorder(rlborder);
 			
-			anonymityDrawingPanel = new AnonymityDrawingPanel();
+			anonymityDrawingPanel = new AnonymityDrawingPanel(this);
 			
 			anonymityDescription = new JTextPane();
 			anonymityDescription.setDragEnabled(false);

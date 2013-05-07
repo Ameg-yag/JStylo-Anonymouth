@@ -34,6 +34,7 @@ public class AnonymityDrawingPanel extends JPanel {
 	private final int MINY = 50;
 	private final int MAXY = 470; //700 without results part
 	private final String[] PERCENTTEXT = {"100%", "75%", "50%", "25%", "0%"};
+	private GUIMain main;
 	private JLabel anonymous;
 	private JLabel notAnonymous;
 	private Boolean showPointer;
@@ -105,8 +106,9 @@ public class AnonymityDrawingPanel extends JPanel {
 		}
 	}
 	
-	public AnonymityDrawingPanel() {
+	public AnonymityDrawingPanel(GUIMain main) {
 		this.setLayout(new MigLayout());
+		this.main = main;
 		
 		anonymous = new JLabel("Anonymous");
 		notAnonymous = new JLabel("Not Anonymous");
@@ -192,8 +194,9 @@ public class AnonymityDrawingPanel extends JPanel {
 	 */
 	public void updateAnonymityBar() {
 		pointer.setPercentages((int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5), (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5));
-		System.out.println("TargetAnonymityIndex: " + (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5));
-		System.out.println("AnonymityIndex: " + (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5));
+		main.anonymityDescription.setText("About " +
+				Integer.toString(main.anonymityDrawingPanel.getAvgPercentChangeNeeded()) +
+				"% of your document needs to be changed for it to be considered anonymous");
 		repaint();
 	}
 	

@@ -302,9 +302,6 @@ public class BackendInterface {
 
 			pw.stop();
 			main.anonymityDrawingPanel.updateAnonymityBar();
-			main.anonymityDescription.setText("About " +
-					Integer.toString(main.anonymityDrawingPanel.getAvgPercentChangeNeeded()) +
-					"% of your document needs to be changed for it to be considered anonymous");
 			main.anonymityDrawingPanel.showPointer(true);
 			for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++) {
 				System.out.println("		" + DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(i));
