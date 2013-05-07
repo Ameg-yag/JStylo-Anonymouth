@@ -1,6 +1,5 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import edu.drexel.psal.anonymouth.calculators.Computer;
 import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
