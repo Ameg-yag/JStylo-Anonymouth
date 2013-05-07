@@ -572,8 +572,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			menuBar.add(fileMenu);
 			
-			String OS = System.getProperty("os.name").toLowerCase();
-			if (!OS.contains("mac")) {
+			if (!ThePresident.IS_MAC) {
 				JMenu settingsMenu = new JMenu("Settings");
 				settingsGeneralMenuItem = new JMenuItem("Preferences");
 				settingsMenu.add(settingsGeneralMenuItem);
@@ -589,7 +588,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			helpMenu = new JMenu("Help");
 			helpAboutMenuItem = new JMenuItem("About Anonymouth");
 			helpClustersMenuItem = new JMenuItem("Clusters Tutorial");
-			if (!OS.contains("mac")) {
+			if (!ThePresident.IS_MAC) {
 				helpMenu.add(helpAboutMenuItem);
 				helpMenu.add(new JSeparator());
 			}

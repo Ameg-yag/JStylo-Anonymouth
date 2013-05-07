@@ -38,6 +38,7 @@ public class ThePresident {
 	public static String sessionName;
 	public static final String DOC_MAGICIAN_WRITE_DIR = "./.edited_documents/";
 	public static final String LOG_DIR = "log";
+	public static boolean IS_MAC = false;
 	public static String TEMP_DIR =  "temp/"; // TODO: put in "options"
 	public static String SER_DIR = "./.serialized_objects/";
 	public static String GRAMMAR_DIR = "grammar_data/";//TODO: put in "options"
@@ -73,7 +74,8 @@ public class ThePresident {
 	public static void main(String[] args){
 		String OS = System.getProperty("os.name").toLowerCase();
 		ThePresident leader = new ThePresident();
-		if(OS.contains("mac")){
+		if(OS.contains("mac")) {
+			IS_MAC = true;
 			Logger.logln(leader.NAME+"We're on a Mac!");
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name","Anonymouth");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");

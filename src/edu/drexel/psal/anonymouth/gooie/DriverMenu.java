@@ -63,7 +63,7 @@ public class DriverMenu {
 			}
         };
         String OS = System.getProperty("os.name").toLowerCase();
-        if (!OS.contains("mac"))
+        if (!ThePresident.IS_MAC)
         	main.settingsGeneralMenuItem.addActionListener(generalListener);
         
         saveProblemSetListener = new ActionListener() {

@@ -17,6 +17,7 @@ import edu.drexel.psal.jstylo.GUI.DocsTabDriver.ExtFilter;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Event;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.swing.InputMap;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -268,25 +270,25 @@ public class DriverDocumentsTab {
 	protected static void moveHighlight(final GUIMain main, int[] bounds, boolean deleteCurrent){
 		if (deleteCurrent){
 			main.documentPane.getHighlighter().removeAllHighlights();
-	        try {
+			try {
 				System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
 				currentHighlight = main.documentPane.getHighlighter().addHighlight(bounds[0], bounds[1], painter);
-	        } 
-	        catch (BadLocationException err) {
+			} 
+			catch (BadLocationException err) {
 				err.printStackTrace();
-	        }	
+			}	
 		}
 		else{
 			try {
 				System.out.println("Changing highlight...");
 				main.documentPane.getHighlighter().changeHighlight(currentHighlight,bounds[0], bounds[1]);
-	        } 
-	        catch (BadLocationException err) {
+			} 
+			catch (BadLocationException err) {
 				err.printStackTrace();
-	        }	
+			}	
 		}
 	}
-	
+
 	/**
 	 * Calcualtes the selected sentence number (index in TaggedDocument taggedDoc), start of that sentence in the documentPane, and end of the sentence in the documentPane. 
 	 * Returns all three values in an int array.
@@ -326,46 +328,52 @@ public class DriverDocumentsTab {
 		return new int[]{selectedSentence, startHighlight, endHighlight};
 	}
 
-	   
-	   private static void displayEditInfo(DocumentEvent e) {
-		     javax.swing.text.Document document = (javax.swing.text.Document) e.getDocument();
-		     int changeLength = e.getLength();
-		     System.out.println(e.getType().toString() + ": " + changeLength + " character(s). Text length = " + document.getLength() + ".");
-		   }
-/*
-	   protected void addBindings() {
-		   InputMap inputMap = textPane.getInputMap();
 
-		   // Ctrl-b to go backward one character
-		   KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK);
-		   inputMap.put(key, DefaultEditorKit.backwardAction);
+	private static void displayEditInfo(DocumentEvent e) {
+		javax.swing.text.Document document = (javax.swing.text.Document) e.getDocument();
+		int changeLength = e.getLength();
+		System.out.println(e.getType().toString() + ": " + changeLength + " character(s). Text length = " + document.getLength() + ".");
+	}
 
-		   // Ctrl-f to go forward one character
-		   key = KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK);
-		   inputMap.put(key, DefaultEditorKit.forwardAction);
+//	protected void addBindings(GUIMain main) {
+//		InputMap inputMap = main.documentPane.getInputMap();
+//
+//		if (ThePresident.IS_MAC) {
+//			KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.META_MASK);
+//			inputMap.put
+//		}
+//		//Command S to save the document
+//		KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK);
+////		// Ctrl-b to go backward one character
+////		KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK);
+////		inputMap.put(key, DefaultEditorKit.backwardAction);
+////
+////		// Ctrl-f to go forward one character
+////		key = KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK);
+////		inputMap.put(key, DefaultEditorKit.forwardAction);
+////
+////		// Ctrl-p to go up one line
+////		key = KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK);
+////		inputMap.put(key, DefaultEditorKit.upAction);
+////
+////		// Ctrl-n to go down one line
+////		key = KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK);
+////		inputMap.put(key, DefaultEditorKit.downAction);
+//	}
 
-		   // Ctrl-p to go up one line
-		   key = KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK);
-		   inputMap.put(key, DefaultEditorKit.upAction);
 
-		   // Ctrl-n to go down one line
-		   key = KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK);
-		   inputMap.put(key, DefaultEditorKit.downAction);
-		 }
-*/	
-	
 	protected static void initListeners(final GUIMain main){
-		
-/***********************************************************************************************************************************************
- *############################################################################################################*
- *###########################################  BEGIN EDITING HANDLERS  ###########################################*
- *############################################################################################################*
- ************************************************************************************************************************************************/	
-		
+
+		/***********************************************************************************************************************************************
+		 *############################################################################################################*
+		 *###########################################  BEGIN EDITING HANDLERS  ###########################################*
+		 *############################################################################################################*
+		 ************************************************************************************************************************************************/	
+
 		suggestionCalculator = new SuggestionCalculator();
-		
+
 		main.documentPane.addCaretListener(new CaretListener() {
-			
+
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				if (ignoreNumActions > 0){
@@ -388,16 +396,16 @@ public class DriverDocumentsTab {
 					}
 					else if (startSelection < endSelection) {
 						// clicked then dragged right
-						
+
 					}
 					else if (startSelection > endSelection) {
 						// clicked then dragged left
-						
+
 					}
-						
+
 					lastSentNum = currentSentNum;
 					currentSentNum = selectionInfo[0];
-				
+
 					boolean inRange = false;
 					/*
 					 * put in a check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
