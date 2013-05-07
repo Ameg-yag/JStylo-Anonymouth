@@ -21,7 +21,6 @@ import edu.drexel.psal.anonymouth.gooie.DriverClustersWindow;
 import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
-import edu.drexel.psal.anonymouth.suggestors.HighlightMapMaker;
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
@@ -590,8 +589,6 @@ public class DataAnalyzer{
 			topAttributes[i].setTargetCentroid(target);
 			topAttributes[i].setTargetValue(target);
 			topAttributes[i].setRangeForTarget(tempCluster.getMinValue(),tempCluster.getMaxValue()); // maybe this should be changed to avg. avs. dev.
-			if((mapMakerSentenceTargetSet && mapMakerCharTargetSet) == false)
-				mapMakerTargetSetter(topAttributes[i].getGenericName(),target);
 		}
 		System.out.println(targetSaver);
 		boolean mustSaveTargets = false;
@@ -641,22 +638,6 @@ public class DataAnalyzer{
         }
 	}	
 	
-	
-	public void mapMakerTargetSetter(FeatureList name, double target){
-		switch(name){
-			//case AVERAGE_CHARACTERS_PER_WORD:
-			//	HighlightMapMaker.avgCharTargetValue = target;
-			//	mapMakerCharTargetSet = true;
-			//	break;
-			case AVERAGE_SENTENCE_LENGTH:
-				mapMakerSentenceTargetSet = true;
-				HighlightMapMaker.avgSentenceTargetValue = target;
-				break;
-			default: 
-				break;
-		}
-			
-			
-	}
+
 		
 }

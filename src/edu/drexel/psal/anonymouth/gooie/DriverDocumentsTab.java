@@ -1,13 +1,9 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import edu.drexel.psal.anonymouth.calculators.Computer;
 import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
-import edu.drexel.psal.anonymouth.suggestors.HighlightMapList;
-import edu.drexel.psal.anonymouth.suggestors.Prophecy;
-import edu.drexel.psal.anonymouth.suggestors.TheOracle;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
@@ -77,7 +73,6 @@ public class DriverDocumentsTab {
 	protected static DataAnalyzer wizard;
 	private static DocumentMagician magician;
 	protected static String[] theFeatures;
-	protected static Prophecy utterance;
 	protected static ArrayList<HighlightMapper> highlightedObjects = new ArrayList<HighlightMapper>();
 	public static int resultsMaxIndex;
 	public static Object maxValue;
@@ -111,7 +106,6 @@ public class DriverDocumentsTab {
 	//protected static ClassifyingProgressBar cpb;
 	protected static ArrayList<FeatureList> noCalcHistFeatures;
 	protected static ArrayList<FeatureList> yesCalcHistFeatures;
-	protected static HighlightMapList[] highlightingOptions;
 	protected static String searchBoxInputText;
 	public static Attribute[] attribs;
 	public static HashMap<FeatureList,Integer> attributesMappedByName;
@@ -233,15 +227,6 @@ public class DriverDocumentsTab {
 		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
 		//main.documentPane.getCaret().setDot(currentCaretPosition);
 		//main.documentPane.setCaretPosition(currentCaretPosition);
-		/*	
-			try {
-				//System.out.printf("removing from '%d' to '%d' and then inserting at '%d'\n",selectedSentIndexRange[0],selectedSentIndexRange[1],selectedSentIndexRange[0]);
-				main.documentPane.getStyledDocument().remove(selectedSentIndexRange[0], selectedSentIndexRange[0]);
-				main.documentPane.getStyledDocument().insertString(selectedSentIndexRange[0], sentenceToReplaceWith, null);
-			} catch (BadLocationException e) {
-				System.out.println(NAME+"Error modifying document");
-			}
-		 */
 		if (shouldUpdate){
 			ignoreNumActions = 3;
 			main.documentPane.setText(taggedDoc.getUntaggedDocument());
@@ -706,7 +691,6 @@ public class DriverDocumentsTab {
 						
 						main.documentPane.getHighlighter().removeAllHighlights();
 						highlightedObjects.clear();
-						TheOracle.resetColorIndex();
 						main.resultsTablePane.setOpaque(false);
 						main.resultsTable.setOpaque(false);
 						highlightedObjects.clear();
