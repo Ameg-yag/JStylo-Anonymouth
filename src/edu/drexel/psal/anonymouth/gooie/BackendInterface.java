@@ -268,7 +268,6 @@ public class BackendInterface {
 		}
 
 		public void run(){
-			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
 			//Scanner in = new Scanner(System.in);
 			//in.nextLine();
 				
@@ -312,7 +311,7 @@ public class BackendInterface {
 			
 			//NOTE make this false when actually using (line below). For testing though, it should be true.
 			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));//must re-set the document after processing (do deal 
-			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0);
+			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange, true);
@@ -322,7 +321,7 @@ public class BackendInterface {
 			DriverDocumentsTab.charsRemoved = 0;	
 			DriverDocumentsTab.caretPositionPriorToCharInsertion = 0;
 			Translator.firstRun = true;
-			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			//TODO uncomment: GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;
