@@ -304,14 +304,14 @@ public class BackendInterface {
 			main.anonymityDrawingPanel.updateAnonymityBar();
 			main.anonymityDrawingPanel.showPointer(true);
 			for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++) {
-				System.out.println("		" + DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(i));
-				DriverDocumentsTab.originals.put(DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(i), DriverDocumentsTab.taggedDoc.getTaggedSentences().get(i));
+				System.out.println("		" + DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(i));
+				DriverDocumentsTab.originals.put(DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(i), DriverDocumentsTab.taggedDoc.getTaggedSentences().get(i));
 			}
-			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences();
+			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
 			DriverDocumentsTab.suggestionCalculator.trackEditSentence(main);
-			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			
-			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument());//must re-set the document after processing (do deal 
+			//NOTE make this false when actually using (line below). For testing though, it should be true.
+			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));//must re-set the document after processing (do deal 
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0);
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
@@ -320,7 +320,7 @@ public class BackendInterface {
 			main.documentPane.setCaretPosition(0);
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
 			DriverDocumentsTab.charsRemoved = 0;	
-			DriverDocumentsTab.caretPositionPriorToCharInsert = 0;
+			DriverDocumentsTab.caretPositionPriorToCharInsertion = 0;
 			Translator.firstRun = true;
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
@@ -350,6 +350,7 @@ public class BackendInterface {
 			//main.editorProgressBar.setIndeterminate(false);	
 			main.documentPane.setEnabled(true);
             main.documentPane.setEditable(true);
+			DriverDocumentsTab.setAllDocTabUseable(true, main);
 //			main.nextSentenceButton.doClick();
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			

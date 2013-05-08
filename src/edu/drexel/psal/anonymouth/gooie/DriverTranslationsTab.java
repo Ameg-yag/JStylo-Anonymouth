@@ -41,7 +41,7 @@ public class DriverTranslationsTab implements ActionListener
 		// remove all the current translations shown
 		main.translationsHolderPanel.removeAll();
 		
-		if (Translator.translatedSentences.contains(sentence.getUntagged())) {
+		if (Translator.translatedSentences.contains(sentence.getUntagged(false))) {
 			arrow_up = main.arrow_up;
 			arrow_down = main.arrow_down;
 			
@@ -75,7 +75,7 @@ public class DriverTranslationsTab implements ActionListener
 				// set up translation text area
 				translationTextAreas[i] = new JTextPane();
 				translationTextAreas[i].setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
-				translationTextAreas[i].setText(translations.get(i).getUntagged().trim());
+				translationTextAreas[i].setText(translations.get(i).getUntagged(false).trim());
 				translationTextAreas[i].setEditable(false);
 
 				translationButtons[i] = new JButton();
@@ -114,7 +114,7 @@ public class DriverTranslationsTab implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		main.saved = false;
-		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(), true);
+		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(false), true);
 		main.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
 		main.anonymityDrawingPanel.updateAnonymityBar();
 		

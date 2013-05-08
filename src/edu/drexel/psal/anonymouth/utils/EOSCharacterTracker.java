@@ -19,8 +19,8 @@ public class EOSCharacterTracker implements Serializable{
 	// Basically parallel arrays... we use the replacement characters instead of the corresponding eos characters. 
 	// Doing this allows us to break sentences only where we are sure we want to break them, and will allow the user more flexibility.
 	// as a side note, while realEOS[2] and replacementEOS[2] look very similar, they are not the same character.. this can be tested (which I did at the bottom of 'main', below) by asking Java if they are equal to eachother.
-	private char[] realEOS = {'.', '?', '!'};
-	private char[] replacementEOS = {'๏', 'ʔ', '˩'};
+	public static char[] realEOS = {'.', '?', '!'};
+	public static char[] replacementEOS = {'๏', 'ʔ', '˩'};
 	private ArrayList<EOS> eoses;
 
 	/**
@@ -39,23 +39,27 @@ public class EOSCharacterTracker implements Serializable{
 	}
 	
 	/**
-	 * Removes the EOS objects located between [lowerBound, upperBound] (inclusive)
+	 * Removes the EOS objects located between [lowerBound, upperBound) ==> [inclusive, exclusive)
 	 * @param lowerBound
 	 * @param upperBound
 	 */
-	public void removeEOSesInRange(int lowerBound, int upperBound){
+	public boolean removeEOSesInRange(int lowerBound, int upperBound){
 		int i;
 		int numEOSes = eoses.size();
 		int thisEOSLoc;
+		boolean haveRemoved = false;
 		for (i=0; i < numEOSes; i++){
 			thisEOSLoc = eoses.get(i).location;
 			System.out.printf("thisEOSLoc: %d, lowerBound: %d, upperBound: %d\n", thisEOSLoc, lowerBound, upperBound);
-			if (thisEOSLoc >= lowerBound && thisEOSLoc <= upperBound){
+			if (thisEOSLoc >= lowerBound && thisEOSLoc < upperBound){
 				eoses.remove(i);
 				i--; // decrement 'i' so that we don't miss the object that shifts down into the spot just freed.
 				numEOSes--; // also decrement numEOSes so that 
+				haveRemoved = true;
 			}
 		}
+		shiftAllEOSChars(false, upperBound, (upperBound - lowerBound));
+		return haveRemoved;
 		
 	}
 	
@@ -141,7 +145,7 @@ class EOS implements Serializable{
 	
 	/**
 	 * Constructor
-	 * @param eos 
+	 * @param eos the replacement EOS (not an actual EOS character)
 	 * @param location
 	 */
 	public EOS( char eos, int location){

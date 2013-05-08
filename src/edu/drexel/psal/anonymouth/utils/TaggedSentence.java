@@ -79,10 +79,10 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	}
 
 	/**
-	 * Constructor -- accepts a TaggedSentence object. (Don't use this. This may be bad.)
+	 * Constructor -- accepts a TaggedSentence object. (Don't use this if you need to continue to reference/use the input tagged sentence... this may be bad, as the "Word" objects are not copied, just referenced...)
 	 * @param taggedSentence
 	 */
-	public TaggedSentence(TaggedSentence taggedSentence) {//TODO make sure this doesnt need new objects.
+	public TaggedSentence(TaggedSentence taggedSentence) {
 		sentenceLevelFeaturesFound = new SparseReferences(10); // probably won't find more than 10 features in the sentence.
 		this.untagged=taggedSentence.untagged;
 		this.wordsInSentence=taggedSentence.wordsInSentence;
@@ -192,6 +192,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 
 		return true;
 	}
+	
 
 	/**
 	 * Retrieves all Reference objects associated with each word in the sentence, and merges them into a single instance of SparseReferences
@@ -406,14 +407,6 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	}
 
 
-	/**
-	 * returns the untagged version of the sentence
-	 * @return
-	 */
-	public String getUntagged(){
-		return untagged;
-	}
-	
 	/**
 	 * if returnWithEOSSubs
 	 * @param returnWithEOSSubs 

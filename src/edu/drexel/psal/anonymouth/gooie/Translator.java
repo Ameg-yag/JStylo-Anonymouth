@@ -70,7 +70,7 @@ public class Translator implements Runnable
 		// translate all languages for each sentence, sorting the list based on anon index after each translation
 		while (!sentences.isEmpty() && currentSentNum <= sentences.size()) {
 			
-			translatedSentences.add(sentences.get(currentSentNum-1).getUntagged());
+			translatedSentences.add(sentences.get(currentSentNum-1).getUntagged(false));
 			// if the sentence that is about to be translated already has translations, get rid of them
 			if (sentences.get(currentSentNum-1).hasTranslations()) {
 				sentences.get(currentSentNum-1).setTranslations(new ArrayList<TaggedSentence>(Translation.getUsedLangs().length));
@@ -81,7 +81,7 @@ public class Translator implements Runnable
 			for (Language lang: Translation.getUsedLangs()) {
 				// update the progress label
 
-				String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged().trim(), lang);
+				String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged(false).trim(), lang);
 				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
 				currentLangNum++;
 				TaggedSentence taggedTrans = new TaggedSentence(translation);
@@ -89,8 +89,8 @@ public class Translator implements Runnable
 				sentences.get(currentSentNum-1).getTranslations().add(taggedTrans);
 				sentences.get(currentSentNum-1).getTranslationNames().add(Translation.getName(lang));
 				sentences.get(currentSentNum-1).sortTranslations();
-				String one = DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(DriverDocumentsTab.sentToTranslate).trim();
-				String two = sentences.get(currentSentNum-1).getUntagged().trim();
+				String one = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(DriverDocumentsTab.sentToTranslate).trim();
+				String two = sentences.get(currentSentNum-1).getUntagged(false).trim();
 				
 				if (one.equals(two))
 					DriverTranslationsTab.showTranslations(sentences.get(currentSentNum-1));
