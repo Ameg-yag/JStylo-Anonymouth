@@ -39,7 +39,7 @@ public class Word implements Comparable<Word>, Serializable {
 	}
 	
 	/**
-	 * Constructor for Word
+	 * Constructor for Word. Essentially does a deep copy of the input word.
 	 * @param word
 	 */
 	public Word(Word word){

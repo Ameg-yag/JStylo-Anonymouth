@@ -95,4 +95,5 @@ public class Reference implements Serializable {
 	public String toString(){
 		return "["+index+" => "+value+" percentChange: "+DataAnalyzer.topAttributes[index].getPercentChangeNeeded(false,false,false)+"]";
 	}
+	
 }

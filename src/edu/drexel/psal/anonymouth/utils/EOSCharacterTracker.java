@@ -31,6 +31,18 @@ public class EOSCharacterTracker implements Serializable{
 	}
 	
 	/**
+	 * Constructor for EOSCharacterTracker. Essentially does a deep copy of the input EOSCharacterTracker.
+	 * @param eosCT
+	 */
+	public EOSCharacterTracker( EOSCharacterTracker eosCT){
+		int i;
+		int numEOSes = eosCT.eoses.size();
+		eoses = new ArrayList<EOS>(numEOSes);
+		for( i = 0; i < numEOSes; i++)
+			eoses.add(new EOS(eosCT.eoses.get(i)));
+	}
+	
+	/**
 	 * Adds the EOS eos to the EOS ArrayList
 	 * @param eos
 	 */
@@ -147,6 +159,11 @@ class EOS implements Serializable{
 	public EOS( char eos, int location){
 		this.eos = eos;
 		this.location = location;
+	}
+	
+	public EOS( EOS eosObj){
+		this.eos = eosObj.eos;
+		this.location = eosObj.location;
 	}
 	
 	public String toString(){
