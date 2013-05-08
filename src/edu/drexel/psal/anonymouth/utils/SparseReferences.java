@@ -32,7 +32,7 @@ public class SparseReferences implements Serializable {
 	}
 	
 	/**
-	 * Constructor for SparseReferences
+	 * Constructor for SparseReferences. Essentially does a deep copy of the input SparseReferences
 	 * @param sr
 	 */
 	public SparseReferences(SparseReferences sr){
@@ -210,6 +210,8 @@ public class SparseReferences implements Serializable {
 	public int length(){
 		return references.size();
 	}
+	
+	
 	
 	
 	/*

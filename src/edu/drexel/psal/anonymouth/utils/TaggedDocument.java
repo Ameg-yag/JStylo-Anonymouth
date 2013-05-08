@@ -48,10 +48,7 @@ public class TaggedDocument implements Serializable{
 	 */
 	private static final long serialVersionUID = 2258415935896292619L;
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
-	protected TaggedSentence currentLiveTaggedSentences;
 	protected ArrayList<TaggedSentence> taggedSentences;
-	//protected ArrayList<String> untaggedSentences;
-	private static final Pattern EOS_chars = Pattern.compile("(([?!]+)|([.]){1})\\s*");
 	
 	protected String documentTitle = "None";
 	protected String documentAuthor = "None";
@@ -64,12 +61,10 @@ public class TaggedDocument implements Serializable{
 	protected transient List<? extends HasWord> sentenceTokenized;
 	protected transient Tokenizer<? extends HasWord> toke;
 	protected final int PROBABLE_NUM_SENTENCES = 50;
-	protected SentenceTools jigsaw;
+	protected static SentenceTools jigsaw;
 	//protected transient Iterator<String> strIter;
 	private String ID; 
 	private int totalSentences=0;
-	private double baseline_percent_change_needed = 0; // This may end up over 100%. That's unimportant. This is used to gauge the change that the rest of the document needs -- this is normalized to 100%, effectivley.
-	private boolean can_set_baseline_percent_change_needed = true;
 	public EOSCharacterTracker eosTracker;
 
 	/**
@@ -79,7 +74,6 @@ public class TaggedDocument implements Serializable{
 		jigsaw = new SentenceTools();
 		eosTracker = new EOSCharacterTracker();
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
-		//currentLiveTaggedSentences = new ArrayList<TaggedSentence>(5); // Most people probably won't try to edit more than 5 sentences at a time.... if they do... they'll just have to wait for the array to grow.
 	}
 	
 	/**
@@ -184,6 +178,7 @@ public class TaggedDocument implements Serializable{
 			tempRay = strRayIter.next();
 			tempSent = tempRay[0];
 			tempSentWithEOSSubs = tempRay[1];
+			
 			// todo now deal with EOS.
 			TaggedSentence taggedSentence = new TaggedSentence(tempSent);
 			toke = tlp.getTokenizerFactory().getTokenizer(new StringReader(tempSent));
@@ -228,64 +223,6 @@ public class TaggedDocument implements Serializable{
 	}
 	
 	
-
-	/**
-	 * adds the next sentence to the current one.
-	 * @param The sentenceEditBox text
-	 * @return the concatenation of the current sentence and the next sentence.
-	 */
-//	public String addNextSentence(String boxText) {
-//		if(sentNumber <totalSentences-1 && sentNumber>=0){
-//			//have to add the next sentence to this one otherwise the appended sentence will not be taken into calculations.
-//			totalSentences--;
-//			ArrayList<TaggedSentence> tempTaggedSentences=new ArrayList<TaggedSentence>(2);
-//			tempTaggedSentences.add(taggedSentences.get(sentNumber));
-//			tempTaggedSentences.add(taggedSentences.get(sentNumber+1));
-//			currentLiveTaggedSentences=concatSentences(tempTaggedSentences);
-//			
-//			TaggedSentence newSent= new TaggedSentence(boxText);
-//			int position=0;
-//			while(position<boxText.length()){
-//				Matcher sent = EOS_chars.matcher(boxText);
-//				if(!sent.find(position)){//checks to see if there is a lack of an end of sentence character.
-//					Logger.logln(NAME+"User tried submitting an incomplete sentence.");//THIS DOES NOT KEEP TAGS. 
-//					//--------------------This is because you cannot pass in incomplete sent to parser
-//					TaggedSentence tagSentNext=removeTaggedSentence(sentNumber+1);
-//					removeTaggedSentence(sentNumber);
-//					newSent.untagged=newSent.getUntagged()+tagSentNext.getUntagged();
-//					addTaggedSentence(newSent,sentNumber);//--------possible improvement needed to parser?-----
-//					//ErrorHandler.incompleteSentence();
-//					//for(int i=0;i<currentLiveTaggedSentences.size();i++)
-//					
-//					Logger.logln(NAME+currentLiveTaggedSentences.untagged);
-//					updateReferences(currentLiveTaggedSentences,newSent);
-//					
-//					return newSent.getUntagged();
-//				}
-//				position=sent.end();
-//			}
-//			ArrayList<TaggedSentence> taggedSents=makeAndTagSentences(boxText,false);
-//			TaggedSentence nextSent=taggedSentences.remove(sentNumber+1);
-//			taggedSents.add(nextSent);
-//			taggedSentences.remove(sentNumber);
-//			newSent=concatSentences(taggedSents);
-//			taggedSentences.add(sentNumber, newSent);
-//			
-//			updateReferences(currentLiveTaggedSentences,newSent);
-//			
-//			//for(int i=0;i<currentLiveTaggedSentences.size();i++)
-//			Logger.logln(NAME+currentLiveTaggedSentences.untagged);
-//			return newSent.getUntagged();
-//		}
-//		if(sentNumber<0){
-//			sentNumber=0;
-//		}
-//		//currentLiveTaggedSentences=taggedSentences.get(sentNumber);
-//		//for(int i=0;i<currentLiveTaggedSentences.size();i++)
-//		Logger.logln(NAME+currentLiveTaggedSentences.untagged);
-//		return taggedSentences.get(sentNumber).getUntagged();
-//	}
-//	
 	/**
 	 * updates the referenced Attributes 'toModifyValue's (present value) with the amount that must be added/subtracted from each respective value 
 	 * @param oldSentence The pre-editing version of the sentence(s)
@@ -542,44 +479,7 @@ public class TaggedDocument implements Serializable{
 		
 	}
 	
-	/**
-	 * XXX XXX fixme XXX XXX 
-	 * 
-	 * Loops through all topAttribute Attributes in DataAnalyzer, and returns the average percent change needed. This is a first stab at some
-	 * way to deliver a general sense of the degree of anonymity achived at any given point. This method must be called before any changes are made to set 
-	 * a baseline percent change. That number is what everything from that point on gets compared (normalized) to. 
-	 * 
-	 * It is important to note that this does not take into consideration the information gain of any feature. So, the less important features will have the same effect on this number
-	 * as the most important features. This should probably change...
-	 * @param is_initial 'true' if this is the first time the function is being called for this document (basically, if you are calling it to set the document's baseline percent change needed, this should be true. If you want to know how much the document has changed, this should be false. This will be false all the time, except for the first time it's called).
-	 * @return
-	 * The overall percent change that is needed. 
-	 */
-	public double getAvgPercentChangeNeeded(boolean is_initial){
-		int total_attribs = 0;
-		double total_percent_change = 0;
-		for (Attribute attrib : DataAnalyzer.topAttributes){
-			total_percent_change += attrib.getPercentChangeNeeded(false,false,true);
-			total_attribs ++;
-		}
-		double avg_percent_change = total_percent_change/total_attribs;
-		if (is_initial)
-			return avg_percent_change;
-		else{
-			double percent_change_needed = baseline_percent_change_needed - (Math.abs(avg_percent_change - baseline_percent_change_needed)/baseline_percent_change_needed);
-			return percent_change_needed;
-		}
-	}
 	
-	/**
-	 * Sets baseline_percent_change_needed. This is the ONLY time that 'getAvgPercentChangeNeeded' will be called with 'true'.
-	 */
-	public void setBaselinePercentChangeNeeded(){
-		if (can_set_baseline_percent_change_needed){
-			baseline_percent_change_needed = getAvgPercentChangeNeeded(true);
-			can_set_baseline_percent_change_needed = false;
-		}
-	}
 	
 	public String toString(){
 		String toReturn = "Document Title: "+documentTitle+" Author: "+documentAuthor+"\n";
@@ -589,6 +489,78 @@ public class TaggedDocument implements Serializable{
 			toReturn += taggedSentences.get(i).toString()+"\n";
 		}
 		return toReturn;
+	}
+	
+	
+	/**
+	 * Constructor for TaggedDocument. Essentially does a deep copy of the input TaggedDocument.
+	 * @param td
+	 */
+	public TaggedDocument(TaggedDocument td){
+		int i;
+		int j;
+		int numTaggedSents = td.taggedSentences.size();
+		int numArrayLists;
+		int numValues;
+		// copy TaggedSentences
+		for(i = 0; i < numTaggedSents; i++)
+			taggedSentences.add(new TaggedSentence(td.taggedSentences.get(i)));
+		// copy document author and title (Strings are immutable)
+		documentAuthor = td.documentAuthor;
+		documentTitle = td.documentTitle;
+		
+		// copy the ArrayLists of ArrayLists of grammar related concepts
+		// first tenses
+		numArrayLists = td.tenses.size();
+		ArrayList<ArrayList<TENSE>> tempTenses = new ArrayList<ArrayList<TENSE>>(numArrayLists);
+		for(i = 0; i < numArrayLists; i++){
+			ArrayList<TENSE> tempOld = td.tenses.get(i);
+			numValues = tempOld.size();
+			ArrayList<TENSE> tempPartialTenses = new ArrayList<TENSE>(numValues);
+			for(j = 0; j < numValues; j++){
+				tempPartialTenses.add(tempOld.get(j));
+			}
+			tempTenses.add(tempPartialTenses);
+		}
+		tenses = tempTenses;
+		
+		// then points of view
+		numArrayLists = td.pointsOfView.size();
+		ArrayList<ArrayList<POV>> tempPOVs = new ArrayList<ArrayList<POV>>(numArrayLists);
+		for(i = 0; i < numArrayLists; i++){
+			ArrayList<POV> tempOld = td.pointsOfView.get(i);
+			numValues = tempOld.size();
+			ArrayList<POV> tempPartialPOVs = new ArrayList<POV>(numValues);
+			for(j = 0; j < numValues; j++){
+				tempPartialPOVs.add(tempOld.get(j));
+			}
+			tempPOVs.add(tempPartialPOVs);
+		}
+		pointsOfView = tempPOVs;
+
+		// and then conjugations
+		numArrayLists = td.conjugations.size();
+		ArrayList<ArrayList<CONJ>> tempConjugations = new ArrayList<ArrayList<CONJ>>(numArrayLists);
+		for(i = 0; i < numArrayLists; i++){
+			ArrayList<CONJ> tempOld = td.conjugations.get(i);
+			numValues = tempOld.size();
+			ArrayList<CONJ> tempPartialConjugations= new ArrayList<CONJ>(numValues);
+			for(j = 0; j < numValues; j++){
+				tempPartialConjugations.add(tempOld.get(j));
+			}
+			tempConjugations.add(tempPartialConjugations);
+		}
+		conjugations = tempConjugations;
+		
+		// Next copy the ID (not really sure what this is, but I don't see a good reason to throw it out)
+		ID = td.ID;
+		
+		// Then the total number of sentences (could probably chuck ths)
+		totalSentences = td.totalSentences;
+		
+		// Finally, copy the eosTracker (EOSCharacterTracker)
+		eosTracker = new EOSCharacterTracker(td.eosTracker);
+		
 	}
 	
 	/*
