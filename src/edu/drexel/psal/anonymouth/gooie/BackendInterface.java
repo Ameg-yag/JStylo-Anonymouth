@@ -268,6 +268,8 @@ public class BackendInterface {
 		}
 
 		public void run(){
+			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
+
 			//Scanner in = new Scanner(System.in);
 			//in.nextLine();
 				
