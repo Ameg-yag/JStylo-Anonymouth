@@ -59,7 +59,7 @@ public class SentenceTools implements Serializable  {
 	 * it then matches a single "double" quotation mark, followed by  the first group (see above line) (because some people think that: "The man said, "Hello!"." (using an EOS character pre and post quotation mark is acceptable...)
 	 * Finally, it and will either match the end of the input, a capital letter (both which indicate that the current sentence is over), or a citation (the explanation of the citation regex is below... I just copied and pasted it onto the end of this one).
 	 * 
-	 * NOTE: in the written description above, spaces are not necessarily discussed.
+	 * NOTE: in the written description above, space characters are not necessarily discussed.
 	 */
 	private static final Pattern sentence_quote = Pattern.compile("([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))\\s*\"\\s*([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))?\\s*($|[A-Z]|\\(((\\s*[A-Za-z.]*\\s*(et\\.?\\s*al\\.)?\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*)|(\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*[A-Za-z.]*\\s*(et\\.?\\s*al\\.)?\\s*))\\))"); 
 	

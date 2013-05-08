@@ -184,6 +184,7 @@ public class TaggedDocument implements Serializable{
 			tempRay = strRayIter.next();
 			tempSent = tempRay[0];
 			tempSentWithEOSSubs = tempRay[1];
+			
 			// todo now deal with EOS.
 			TaggedSentence taggedSentence = new TaggedSentence(tempSent);
 			toke = tlp.getTokenizerFactory().getTokenizer(new StringReader(tempSent));
@@ -228,64 +229,6 @@ public class TaggedDocument implements Serializable{
 	}
 	
 	
-
-	/**
-	 * adds the next sentence to the current one.
-	 * @param The sentenceEditBox text
-	 * @return the concatenation of the current sentence and the next sentence.
-	 */
-//	public String addNextSentence(String boxText) {
-//		if(sentNumber <totalSentences-1 && sentNumber>=0){
-//			//have to add the next sentence to this one otherwise the appended sentence will not be taken into calculations.
-//			totalSentences--;
-//			ArrayList<TaggedSentence> tempTaggedSentences=new ArrayList<TaggedSentence>(2);
-//			tempTaggedSentences.add(taggedSentences.get(sentNumber));
-//			tempTaggedSentences.add(taggedSentences.get(sentNumber+1));
-//			currentLiveTaggedSentences=concatSentences(tempTaggedSentences);
-//			
-//			TaggedSentence newSent= new TaggedSentence(boxText);
-//			int position=0;
-//			while(position<boxText.length()){
-//				Matcher sent = EOS_chars.matcher(boxText);
-//				if(!sent.find(position)){//checks to see if there is a lack of an end of sentence character.
-//					Logger.logln(NAME+"User tried submitting an incomplete sentence.");//THIS DOES NOT KEEP TAGS. 
-//					//--------------------This is because you cannot pass in incomplete sent to parser
-//					TaggedSentence tagSentNext=removeTaggedSentence(sentNumber+1);
-//					removeTaggedSentence(sentNumber);
-//					newSent.untagged=newSent.getUntagged()+tagSentNext.getUntagged();
-//					addTaggedSentence(newSent,sentNumber);//--------possible improvement needed to parser?-----
-//					//ErrorHandler.incompleteSentence();
-//					//for(int i=0;i<currentLiveTaggedSentences.size();i++)
-//					
-//					Logger.logln(NAME+currentLiveTaggedSentences.untagged);
-//					updateReferences(currentLiveTaggedSentences,newSent);
-//					
-//					return newSent.getUntagged();
-//				}
-//				position=sent.end();
-//			}
-//			ArrayList<TaggedSentence> taggedSents=makeAndTagSentences(boxText,false);
-//			TaggedSentence nextSent=taggedSentences.remove(sentNumber+1);
-//			taggedSents.add(nextSent);
-//			taggedSentences.remove(sentNumber);
-//			newSent=concatSentences(taggedSents);
-//			taggedSentences.add(sentNumber, newSent);
-//			
-//			updateReferences(currentLiveTaggedSentences,newSent);
-//			
-//			//for(int i=0;i<currentLiveTaggedSentences.size();i++)
-//			Logger.logln(NAME+currentLiveTaggedSentences.untagged);
-//			return newSent.getUntagged();
-//		}
-//		if(sentNumber<0){
-//			sentNumber=0;
-//		}
-//		//currentLiveTaggedSentences=taggedSentences.get(sentNumber);
-//		//for(int i=0;i<currentLiveTaggedSentences.size();i++)
-//		Logger.logln(NAME+currentLiveTaggedSentences.untagged);
-//		return taggedSentences.get(sentNumber).getUntagged();
-//	}
-//	
 	/**
 	 * updates the referenced Attributes 'toModifyValue's (present value) with the amount that must be added/subtracted from each respective value 
 	 * @param oldSentence The pre-editing version of the sentence(s)
