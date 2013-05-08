@@ -398,10 +398,10 @@ public class WriteprintsAnalyzer extends Analyzer {
 						
 					} catch (Exception e) {
 						e.printStackTrace();
-					}	
-				}		
+					}
+				}
 			}
-		}			
+		}
 		// Build and return results string
 		return eval;
 	}
