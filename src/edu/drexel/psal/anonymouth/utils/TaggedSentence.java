@@ -95,7 +95,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 		wordsInSentence = new ArrayList<Word>(numWords);
 		translations = new ArrayList<TaggedSentence>(numTranslations);
 		// copy the SparseReferences for the sentence level features
-		sentenceLevelFeaturesFound = new SparseReferences(sentenceLevelFeaturesFound);
+		sentenceLevelFeaturesFound = new SparseReferences(ts.sentenceLevelFeaturesFound);
 
 		// copy the untagged string
 		untagged = ts.untagged;

@@ -332,7 +332,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		private JPanel spacer1;
 		protected JButton restoreSentenceButton;
 		protected JLabel documentLabel;
-		protected JTextPane documentPane;
+		private JTextPane documentPane;
 		protected JScrollPane documentScrollPane;
 //		public JTextPane sentenceEditPane; //============================================ PUBLIC
 //		protected JLabel sentenceBoxLabel;
@@ -1508,14 +1508,14 @@ public class GUIMain extends javax.swing.JFrame  {
                 documentLabel.setBorder(rlborder);
                 
                 documentScrollPane = new JScrollPane();
-                documentPane = new JTextPane();
-                documentPane.setDragEnabled(false);
-                documentPane.setText("This is where the latest version of your document will be.");
-                documentPane.setFont(normalFont);
-                documentPane.setEnabled(false);
-                documentPane.setEditable(false);
-                documentPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
-                documentScrollPane.setViewportView(documentPane);
+                setDocumentPane(new JTextPane());
+                getDocumentPane().setDragEnabled(false);
+                getDocumentPane().setText("This is where the latest version of your document will be.");
+                getDocumentPane().setFont(normalFont);
+                getDocumentPane().setEnabled(false);
+                getDocumentPane().setEditable(false);
+                getDocumentPane().setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
+                documentScrollPane.setViewportView(getDocumentPane());
                 
 //                documentOptionsPanel = new JPanel();
 //                documentOptionsPanel.setBackground(tan);
@@ -1752,6 +1752,14 @@ public class GUIMain extends javax.swing.JFrame  {
 	    resultsMainPanel.add(resultsTablePane, "grow");
 	}
 	
+	public JTextPane getDocumentPane() {
+		return documentPane;
+	}
+
+	public void setDocumentPane(JTextPane documentPane) {
+		this.documentPane = documentPane;
+	}
+
 	/**\
 	 * Aligns the table header and cells to the specified alignment.
 	 * @param table - The table you want to apply this too.

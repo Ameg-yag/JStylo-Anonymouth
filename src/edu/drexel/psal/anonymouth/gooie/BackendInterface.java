@@ -127,14 +127,14 @@ public class BackendInterface {
 		
 		public String getDocFromCurrentTab()
 		{
-			return main.documentPane.getText();
+			return main.getDocumentPane().getText();
 		}
 		
 		public void run()
 		{
 			try
 			{
-				main.documentPane.setEnabled(true);
+				main.getDocumentPane().setEnabled(true);
 				DocumentMagician.numProcessRequests++;
 				String tempDoc = "";
 				
@@ -187,8 +187,8 @@ public class BackendInterface {
 					else
 					{
 						magician.setModifiedDocument(tempDoc);
-						main.documentPane.setEditable(false);
-						main.documentPane.setEnabled(true);
+						main.getDocumentPane().setEditable(false);
+						main.getDocumentPane().setEnabled(true);
 						
 						pw.setText("Extracting and Clustering Features...");
 						try 
@@ -295,33 +295,33 @@ public class BackendInterface {
 			DriverDocumentsTab.okayToSelectSuggestion = true;
 			
 			if(DriverDocumentsTab.isFirstRun)
-				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), true);
+				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), true);
 			else
-				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
+				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), false);
 
 			pw.stop();
 			main.anonymityDrawingPanel.updateAnonymityBar();
 			main.anonymityDrawingPanel.showPointer(true);
-			for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++) {
-				System.out.println("		" + DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(i));
+			for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++)
 				DriverDocumentsTab.originals.put(DriverDocumentsTab.taggedDoc.getUntaggedSentences().get(i), DriverDocumentsTab.taggedDoc.getTaggedSentences().get(i));
-			}
+
 			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences();
 			DriverDocumentsTab.suggestionCalculator.trackEditSentence(main);
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			
-			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument());//must re-set the document after processing (do deal 
+			main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument());//must re-set the document after processing (do deal
+//			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0);
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange, true);
-			main.documentPane.getCaret().setDot(0);
-			main.documentPane.setCaretPosition(0);
+			main.getDocumentPane().getCaret().setDot(0);
+			main.getDocumentPane().setCaretPosition(0);
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
 			DriverDocumentsTab.charsRemoved = 0;	
 			DriverDocumentsTab.caretPositionPriorToCharInsert = 0;
 			Translator.firstRun = true;
-			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+//			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;
@@ -347,8 +347,8 @@ public class BackendInterface {
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
 			//main.editorProgressBar.setIndeterminate(false);	
-			main.documentPane.setEnabled(true);
-            main.documentPane.setEditable(true);
+			main.getDocumentPane().setEnabled(true);
+            main.getDocumentPane().setEditable(true);
 //			main.nextSentenceButton.doClick();
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			

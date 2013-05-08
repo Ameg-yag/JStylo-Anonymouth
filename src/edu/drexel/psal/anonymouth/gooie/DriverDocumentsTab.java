@@ -70,7 +70,7 @@ public class DriverDocumentsTab {
 	
 	private final static String NAME = "( DriverDocumentsTab ) - ";
 	
-	private final static int UNDOCHARACTERBUFFER = 5;
+	private final static int UNDOCHARACTERBUFFER = 0;
 	private static int currentCharacterBuffer = 0;
 	
 	protected static SentenceTools sentenceTools;
@@ -233,8 +233,8 @@ public class DriverDocumentsTab {
 	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith, boolean shouldUpdate){
 		//Scanner in = new Scanner(System.in);
 		//in.nextLine();
-		
-		if (currentCharacterBuffer < UNDOCHARACTERBUFFER) {
+
+		if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
 			main.versionControl.addVersion(taggedDoc);
 			currentCharacterBuffer = 0;
 		} else
@@ -243,11 +243,18 @@ public class DriverDocumentsTab {
 		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
 		//main.documentPane.getCaret().setDot(currentCaretPosition);
 		//main.documentPane.setCaretPosition(currentCaretPosition);
-		if (shouldUpdate){
+		
+		update(main, shouldUpdate);
+		
+		main.versionControl.setMostRecentState(taggedDoc);
+	}
+	
+	public static void update(GUIMain main, Boolean shouldUpdate) {
+		if (shouldUpdate) {
 			ignoreNumActions = 3;
-			main.documentPane.setText(taggedDoc.getUntaggedDocument());
-			main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
-			main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);	
+			main.getDocumentPane().setText(taggedDoc.getUntaggedDocument());
+			main.getDocumentPane().getCaret().setDot(caretPositionPriorToCharInsert);
+			main.getDocumentPane().setCaretPosition(caretPositionPriorToCharInsert);	
 		}
 		
 		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
@@ -283,10 +290,10 @@ public class DriverDocumentsTab {
 	 */
 	protected static void moveHighlight(final GUIMain main, int[] bounds, boolean deleteCurrent){
 		if (deleteCurrent){
-			main.documentPane.getHighlighter().removeAllHighlights();
+			main.getDocumentPane().getHighlighter().removeAllHighlights();
 			try {
 				System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
-				currentHighlight = main.documentPane.getHighlighter().addHighlight(bounds[0], bounds[1], painter);
+				currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
 			} 
 			catch (BadLocationException err) {
 				err.printStackTrace();
@@ -295,7 +302,7 @@ public class DriverDocumentsTab {
 		else{
 			try {
 				System.out.println("Changing highlight...");
-				main.documentPane.getHighlighter().changeHighlight(currentHighlight,bounds[0], bounds[1]);
+				main.getDocumentPane().getHighlighter().changeHighlight(currentHighlight,bounds[0], bounds[1]);
 			} 
 			catch (BadLocationException err) {
 				err.printStackTrace();
@@ -424,7 +431,7 @@ public class DriverDocumentsTab {
 
 		suggestionCalculator = new SuggestionCalculator();
 
-		main.documentPane.addCaretListener(new CaretListener() {
+		main.getDocumentPane().addCaretListener(new CaretListener() {
 
 			@Override
 			public void caretUpdate(CaretEvent e) {
@@ -487,7 +494,7 @@ public class DriverDocumentsTab {
 						 * constantly pushing now sentences to be translated is the user's immediately going to replace them again, we only
 						 * want to translate completed sentences).
 						 */
-						if (!originals.keySet().contains(main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
+						if (!originals.keySet().contains(main.getDocumentPane().getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
 							main.GUITranslator.replace(taggedDoc.getSentenceNumber(oldSelectionInfo[0]), originals.get(originalSents.get(oldSelectionInfo[0])));//new old
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							originals.remove(originalSents.get(oldSelectionInfo[0]));
@@ -503,7 +510,7 @@ public class DriverDocumentsTab {
 					} else {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
-						currentSentenceString = main.documentPane.getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
+						currentSentenceString = main.getDocumentPane().getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
 						
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
@@ -536,7 +543,7 @@ public class DriverDocumentsTab {
 		/**
 		 * Key listener for the documentPane. Allows tracking the cursor while typing to make sure that indices of sentence start and ends 
 		 */
-		main.documentPane.addKeyListener(new KeyListener(){
+		main.getDocumentPane().addKeyListener(new KeyListener(){
 
 			@Override
 			public void keyPressed(KeyEvent arg0) {
@@ -578,7 +585,7 @@ public class DriverDocumentsTab {
  				 *
  				 * Codes 
 				 */
-				thisKeyCaretPosition = main.documentPane.getCaretPosition(); // todo maybe we dont need to call for this.. all we might have to do is get the dot position from the CaretListener
+				thisKeyCaretPosition = main.getDocumentPane().getCaretPosition(); // todo maybe we dont need to call for this.. all we might have to do is get the dot position from the CaretListener
 				//System.out.println("Caret postion resitered at keyreleased:  "+currentCaretPosition);
 				if(keyJustTyped == true){
 					keyJustTyped = false;
@@ -618,7 +625,7 @@ public class DriverDocumentsTab {
 		});
 		
 		
-		main.documentPane.getDocument().addDocumentListener(new DocumentListener(){
+		main.getDocumentPane().getDocument().addDocumentListener(new DocumentListener(){
 		
 			@Override
 			public void insertUpdate(DocumentEvent e) {
@@ -644,7 +651,7 @@ public class DriverDocumentsTab {
 		});
 			
 		
-		main.documentPane.addMouseListener(new MouseListener(){
+		main.getDocumentPane().addMouseListener(new MouseListener(){
 
 			@Override
 			public void mouseClicked(MouseEvent me) {
@@ -754,7 +761,7 @@ public class DriverDocumentsTab {
 						else
 							Logger.logln(NAME+"Repeat processing starting....");
 						
-						main.documentPane.getHighlighter().removeAllHighlights();
+						main.getDocumentPane().getHighlighter().removeAllHighlights();
 						highlightedObjects.clear();
 						main.resultsTablePane.setOpaque(false);
 						main.resultsTable.setOpaque(false);
@@ -962,7 +969,7 @@ public class DriverDocumentsTab {
 						path += ".txt";
 					try {
 						BufferedWriter bw = new BufferedWriter(new FileWriter(path));
-						bw.write(main.documentPane.getText());
+						bw.write(main.getDocumentPane().getText());
 						bw.flush();
 						bw.close();
 						Logger.log("Saved contents of current tab to "+path);
@@ -992,7 +999,7 @@ public class DriverDocumentsTab {
     		
     		try {
     			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
-    			bw.write(main.documentPane.getText());
+    			bw.write(main.getDocumentPane().getText());
     			bw.flush();
     			bw.close();
     			Logger.log("Saved contents of document to "+path);
@@ -1567,7 +1574,7 @@ public class DriverDocumentsTab {
 			//int sentNum=ConsolidationStation.toModifyTaggedDocs.get(0).getSentNumber();
 			int sentNum = DriverDocumentsTab.currentSentNum;
 			ArrayList<String> sentences=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedSentences();
-			main.documentPane.setHighlighter(editTracker);
+			main.getDocumentPane().setHighlighter(editTracker);
 			String newText=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument();
 			//main.documentPane.setText(newText);
 			boolean fixTabs=false;
@@ -1623,7 +1630,7 @@ public class DriverDocumentsTab {
 			findSynonyms(main,sentence);
 
 			editTracker.removeAllHighlights();
-			main.documentPane.repaint();
+			main.getDocumentPane().repaint();
 			int innerArrSize,outerArrSize=indexArray.size(), currentStart,currentEnd;
 			currentStart=startHighlight;
 			//Logger.logln(NAME+"indexArr "+indexArray.toString(),Logger.LogOut.STDERR);
