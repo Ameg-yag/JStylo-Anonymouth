@@ -565,19 +565,12 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			menuBar = new JMenuBar();
 			
-			int commandOrControl = 0;
-			if (ThePresident.IS_MAC)
-				commandOrControl = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-			else
-				commandOrControl = InputEvent.CTRL_DOWN_MASK;
-			
 			fileMenu = new JMenu("File");
 			fileSaveProblemSetMenuItem = new JMenuItem("Save Problem Set");
 			fileLoadProblemSetMenuItem = new JMenuItem("Load Problem Set");
 			fileSaveTestDocMenuItem = new JMenuItem("Save");
-			fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, commandOrControl));
 			fileSaveAsTestDocMenuItem = new JMenuItem("Save As...");
-			fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | commandOrControl));
+			
 			fileMenu.add(fileSaveProblemSetMenuItem);
 			fileMenu.add(fileLoadProblemSetMenuItem);
 			fileMenu.add(new JSeparator());
@@ -588,14 +581,24 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			editMenu = new JMenu("Edit");
 			editUndoMenuItem = new JMenuItem("Undo");
-			editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, commandOrControl));
 			editUndoMenuItem.setEnabled(false);
 			editMenu.add(editUndoMenuItem);
 			editRedoMenuItem = new JMenuItem("Redo");
-			editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | commandOrControl));
 			editRedoMenuItem.setEnabled(false);
 			editMenu.add(editRedoMenuItem);
 			menuBar.add(editMenu);
+			
+			if (ThePresident.IS_MAC) {
+				fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			} else {
+				fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
+				fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+				editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+				editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
+			}
 			
 			if (!ThePresident.IS_MAC) {
 				JMenu settingsMenu = new JMenu("Settings");

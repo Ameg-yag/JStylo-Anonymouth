@@ -21,11 +21,13 @@ public class VersionControl {
 	}
 	
 	public void addVersion(TaggedDocument taggedDoc) {
-		if (undo.size() < SIZECAP) {
-			main.editUndoMenuItem.setEnabled(true);
-			TaggedDocument backup = new TaggedDocument(taggedDoc);
-			undo.push(backup);
+		if (undo.size() >= SIZECAP) {
+			undo.remove(0);
 		}
+		
+		main.editUndoMenuItem.setEnabled(true);
+		TaggedDocument backup = new TaggedDocument(taggedDoc);
+		undo.push(backup);
 	}
 	
 	public void undo() {

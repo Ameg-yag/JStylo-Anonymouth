@@ -70,8 +70,8 @@ public class DriverDocumentsTab {
 	
 	private final static String NAME = "( DriverDocumentsTab ) - ";
 	
-	private final static int UNDOCHARACTERBUFFER = 0;
-	private static int currentCharacterBuffer = 0;
+	public final static int UNDOCHARACTERBUFFER = 0;
+	public static int currentCharacterBuffer = 0;
 	
 	protected static SentenceTools sentenceTools;
 	
@@ -234,18 +234,17 @@ public class DriverDocumentsTab {
 		//Scanner in = new Scanner(System.in);
 		//in.nextLine();
 
-		if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
-			main.versionControl.addVersion(taggedDoc);
-			currentCharacterBuffer = 0;
-		} else
-			currentCharacterBuffer += 1;
+//		if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
+//			main.versionControl.addVersion(taggedDoc);
+//			currentCharacterBuffer = 0;
+//		} else
+//			currentCharacterBuffer += 1;
 		
 		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
 		//main.documentPane.getCaret().setDot(currentCaretPosition);
 		//main.documentPane.setCaretPosition(currentCaretPosition);
 		
-		update(main, shouldUpdate);
-		
+		update(main, shouldUpdate);		
 		main.versionControl.setMostRecentState(taggedDoc);
 	}
 	
@@ -502,6 +501,12 @@ public class DriverDocumentsTab {
 							originalSents.remove(oldSelectionInfo[0]);
 							originalSents.add(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged());
 						}
+						
+						if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
+							main.versionControl.addVersion(taggedDoc);
+							currentCharacterBuffer = 0;
+						} else
+							currentCharacterBuffer += 1;
 					}
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
@@ -525,9 +530,10 @@ public class DriverDocumentsTab {
 						selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 						selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 						
-						if(!inRange)
+						if(!inRange) {
 							moveHighlight(main,selectedSentIndexRange,true);
-						else
+							main.versionControl.setMostRecentState(taggedDoc);
+						} else
 							moveHighlight(main,selectedSentIndexRange,false);
 					}
 					
