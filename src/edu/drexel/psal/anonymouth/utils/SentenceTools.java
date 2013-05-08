@@ -60,7 +60,7 @@ public class SentenceTools implements Serializable  {
 	 *	)
 	 *********
 	 */
-	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]{4})|((?<!\\.)\\.(?!\\.))\\s+([A-Z]|$)"); 
+	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]{4})|((?<!\\.)\\.(?!\\.))"); 
 	
 	
 	/**

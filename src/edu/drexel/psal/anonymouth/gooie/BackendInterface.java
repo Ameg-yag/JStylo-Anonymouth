@@ -268,6 +268,7 @@ public class BackendInterface {
 		}
 
 		public void run(){
+			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded(); // todo figure out why this and/or the two percent change needed calls in TaggedDocument affect AnonymityBar
 			//Scanner in = new Scanner(System.in);
 			//in.nextLine();
 				
