@@ -4,6 +4,7 @@ import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
+import edu.drexel.psal.anonymouth.engine.VersionControl;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
@@ -18,8 +19,10 @@ import edu.drexel.psal.jstylo.GUI.DocsTabDriver.ExtFilter;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Event;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -36,6 +39,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.InputMap;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -64,6 +69,9 @@ import com.jgaap.generics.Document;
 public class DriverDocumentsTab {
 	
 	private final static String NAME = "( DriverDocumentsTab ) - ";
+	
+	private final static int UNDOCHARACTERBUFFER = 5;
+	private static int currentCharacterBuffer = 0;
 	
 	protected static SentenceTools sentenceTools;
 	
@@ -152,8 +160,7 @@ public class DriverDocumentsTab {
 	
 	protected static SuggestionCalculator suggestionCalculator;
 	
-	protected static ActionListener saveAsTestDoc;
-	
+	protected static ActionListener saveAsTestDoc;	
 	
 	protected static void signalTargetsSelected(GUIMain main, boolean goodToGo){
 		if(goodToGo == true)
@@ -226,6 +233,13 @@ public class DriverDocumentsTab {
 	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith, boolean shouldUpdate){
 		//Scanner in = new Scanner(System.in);
 		//in.nextLine();
+		
+		if (currentCharacterBuffer < UNDOCHARACTERBUFFER) {
+			main.versionControl.addVersion(taggedDoc);
+			currentCharacterBuffer = 0;
+		} else
+			currentCharacterBuffer += 1;
+		
 		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
 		//main.documentPane.getCaret().setDot(currentCaretPosition);
 		//main.documentPane.setCaretPosition(currentCaretPosition);
@@ -336,29 +350,67 @@ public class DriverDocumentsTab {
 	}
 
 //	protected void addBindings(GUIMain main) {
-//		InputMap inputMap = main.documentPane.getInputMap();
+//		Action undo = new AbstractAction() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				versionControl.undo();
+//			}
+//		};
+//		
+//		Action redo = new AbstractAction() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				versionControl.redo();
+//			}
+//		};
+//		
+//		Action save = new AbstractAction() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				DriverDocumentsTab.save(GUIMain.inst);
+//			}
+//		};
+//		
+//		Action saveAs = new AbstractAction() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				DriverDocumentsTab.saveAsTestDoc.actionPerformed(e);
+//			}
+//		};
+//		
+//		int commandOrControl = 0;
+//		
+//		if (ThePresident.IS_MAC)
+//			commandOrControl = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+//		else
+//			commandOrControl = InputEvent.CTRL_DOWN_MASK;
+//		
+//		KeyStroke commandZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z, commandOrControl);
+//		KeyStroke commandShiftZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | commandOrControl);
+//		KeyStroke commandS = KeyStroke.getKeyStroke(KeyEvent.VK_S, commandOrControl);
+//		KeyStroke commandShiftS = KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | commandOrControl);
+//		
+//		InputMap inputMap = new InputMap();
+//		inputMap.put(commandZ, undo);
+//		inputMap.put(commandShiftZ, redo);
+//		inputMap.put(commandS, save);
+//		inputMap.put(commandShiftS, saveAs);
 //
-//		if (ThePresident.IS_MAC) {
-//			KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.META_MASK);
-//			inputMap.put
-//		}
-//		//Command S to save the document
-//		KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK);
-////		// Ctrl-b to go backward one character
-////		KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK);
-////		inputMap.put(key, DefaultEditorKit.backwardAction);
-////
-////		// Ctrl-f to go forward one character
-////		key = KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK);
-////		inputMap.put(key, DefaultEditorKit.forwardAction);
-////
-////		// Ctrl-p to go up one line
-////		key = KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK);
-////		inputMap.put(key, DefaultEditorKit.upAction);
-////
-////		// Ctrl-n to go down one line
-////		key = KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK);
-////		inputMap.put(key, DefaultEditorKit.downAction);
+//		// Ctrl-b to go backward one character
+//		KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK);
+//		inputMap.put(key, DefaultEditorKit.backwardAction);
+//
+//		// Ctrl-f to go forward one character
+//		key = KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK);
+//		inputMap.put(key, DefaultEditorKit.forwardAction);
+//
+//		// Ctrl-p to go up one line
+//		key = KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK);
+//		inputMap.put(key, DefaultEditorKit.upAction);
+//
+//		// Ctrl-n to go down one line
+//		key = KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK);
+//		inputMap.put(key, DefaultEditorKit.downAction);
 //	}
 
 
@@ -428,6 +480,13 @@ public class DriverDocumentsTab {
 						}
 					}
 					else if (!firstRun) {
+						/**
+						 * Exists for the sole purpose of pushing a sentence that has been edited and finished to the appropriate place in
+						 * The Translation.java class so that it can be promptly translated. This will ONLY happen when the user has clicked
+						 * away from the sentence they were editing to work on another one (the reason behind this being we don't want to be
+						 * constantly pushing now sentences to be translated is the user's immediately going to replace them again, we only
+						 * want to translate completed sentences).
+						 */
 						if (!originals.keySet().contains(main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
 							main.GUITranslator.replace(taggedDoc.getSentenceNumber(oldSelectionInfo[0]), originals.get(originalSents.get(oldSelectionInfo[0])));//new old
 							main.anonymityDrawingPanel.updateAnonymityBar();
@@ -448,8 +507,6 @@ public class DriverDocumentsTab {
 						
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
-							System.out.println("\"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged() + "\"");
-							System.out.println("\"" + currentSentenceString + "\"");
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 							setSelectionInfoAndHighlight = false;
 							main.saved = false;

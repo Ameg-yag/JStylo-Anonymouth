@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -38,6 +39,7 @@ import java.util.*;
 import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
+import edu.drexel.psal.anonymouth.engine.VersionControl;
 import edu.drexel.psal.anonymouth.gooie.Translation;
 import edu.drexel.psal.anonymouth.gooie.DriverClustersWindow.alignListRenderer;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
@@ -435,6 +437,9 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JMenuItem viewClustersMenuItem;
 	protected JMenuItem helpMenu;
 	protected JMenuItem fileMenu;
+	protected JMenuItem editMenu;
+	public JMenuItem editUndoMenuItem;
+	public JMenuItem editRedoMenuItem;
 //	protected JMenuItem filePrintMenuItem;
 	
 	// random useful variables
@@ -453,6 +458,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected ClustersWindow clustersWindow;
 	protected SuggestionsWindow suggestionsWindow;
 	protected ClustersTutorial clustersTutorial;
+	protected VersionControl versionControl;
 	
 	//used mostly for loading the main document without having to alter the main.ps.testDocAt(0) directly
 	Document mainDocPreview;
@@ -559,11 +565,19 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			menuBar = new JMenuBar();
 			
+			int commandOrControl = 0;
+			if (ThePresident.IS_MAC)
+				commandOrControl = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+			else
+				commandOrControl = InputEvent.CTRL_DOWN_MASK;
+			
 			fileMenu = new JMenu("File");
 			fileSaveProblemSetMenuItem = new JMenuItem("Save Problem Set");
 			fileLoadProblemSetMenuItem = new JMenuItem("Load Problem Set");
 			fileSaveTestDocMenuItem = new JMenuItem("Save");
+			fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, commandOrControl));
 			fileSaveAsTestDocMenuItem = new JMenuItem("Save As...");
+			fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | commandOrControl));
 			fileMenu.add(fileSaveProblemSetMenuItem);
 			fileMenu.add(fileLoadProblemSetMenuItem);
 			fileMenu.add(new JSeparator());
@@ -571,6 +585,17 @@ public class GUIMain extends javax.swing.JFrame  {
 			fileMenu.add(fileSaveAsTestDocMenuItem);
 			
 			menuBar.add(fileMenu);
+			
+			editMenu = new JMenu("Edit");
+			editUndoMenuItem = new JMenuItem("Undo");
+			editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, commandOrControl));
+			editUndoMenuItem.setEnabled(false);
+			editMenu.add(editUndoMenuItem);
+			editRedoMenuItem = new JMenuItem("Redo");
+			editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | commandOrControl));
+			editRedoMenuItem.setEnabled(false);
+			editMenu.add(editRedoMenuItem);
+			menuBar.add(editMenu);
 			
 			if (!ThePresident.IS_MAC) {
 				JMenu settingsMenu = new JMenu("Settings");
@@ -631,6 +656,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			clustersWindow = new ClustersWindow();
 			suggestionsWindow = new SuggestionsWindow();
 			clustersTutorial = new ClustersTutorial();
+			versionControl = new VersionControl(this);
 			
 			// initialize listeners - except for EditorTabDriver!
 			

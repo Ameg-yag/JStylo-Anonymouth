@@ -41,7 +41,7 @@ public class SuggestionsWindow extends JFrame {
 		textScrollPane = new JScrollPane(textPane);
 		
 		this.add(textScrollPane);
-		this.setSize(400, 500);
+		this.setSize(600, 500);
 		this.setLocationRelativeTo(null);
 		this.setTitle("Suggestions");
 		this.setVisible(false);
