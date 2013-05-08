@@ -185,7 +185,7 @@ public abstract class Analyzer{
 	 * At the moment it is limited in its functionality. It does need /some/ way to determine who the true author is. <br>
 	 * For now, this is being checked via the document name, which must at least contain the author's name as it appears in the list of training document authors.<br>
 	 * NOTE: this carries with it the problem of authors whose names are subsets of another author ie Robert and Rob--> Rob could mistakenly considered Robert.<br>
-	 * &nbsp&nbsp&nbsp&nbsp&nbsp&nbspTo avoid this, make sure each author name is unique and not a subset of another, adding symbols or numbers if necessary.<br>
+	 * &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp To avoid this, make sure each author name is unique and not a subset of another, adding symbols or numbers if necessary.<br>
 	 * @return an evaluation object representing the classification results
 	 */
 	public Evaluation getClassificationStatistics(){
@@ -247,9 +247,8 @@ public abstract class Analyzer{
 			e.printStackTrace();
 		}
 		
-		//TODO
 		//we need SOME way to tell who the real author is. Right now I'm just going to arbitrarily decide that this is via the document title, as I can't really think of an
-		//easy way to do it otherwise.
+		//easy way to do it otherwise; no matter what we decide to use, the test set will need to be prepped before hand regardless.
 		for (String testDoc: results.keySet()){
 			
 			String selectedAuthor = "";
@@ -264,7 +263,7 @@ public abstract class Analyzer{
 			}
 			
 			//check to see whether or not that author was correct, and evaluate the model accordingly.
-			if (testDoc.contains(selectedAuthor)){
+			if (testDoc.contains(selectedAuthor)){ //classify with a good instance
 				
 				//find where the correct index is
 				int correctIndex=-1;
@@ -284,9 +283,8 @@ public abstract class Analyzer{
 					//Logger.logln(eval.toMatrixString());
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
-				
-			} else {
+				}		
+			} else { //classify with a bad instance
 				
 				//find where the correct index is
 				int correctIndex=-1;
@@ -298,7 +296,6 @@ public abstract class Analyzer{
 					}
 					i++;
 				}
-				
 				int incorrectIndex = extractedAuthors.indexOf(selectedAuthor);
 
 				try {
@@ -318,11 +315,9 @@ public abstract class Analyzer{
 					
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
-				
+				}	
 			}
 		}
-		
 		return eval;
 	}
 	

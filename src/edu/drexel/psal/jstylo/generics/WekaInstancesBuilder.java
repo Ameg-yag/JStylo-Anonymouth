@@ -238,9 +238,7 @@ public class WekaInstancesBuilder {
 		int knownDocsSize = knownDocs.size();
 		
 		int numCalcThreadsToUse = 1;
-		Logger.logln("pre-get calc threads");
 		numCalcThreads = getNumCalcThreads();
-		Logger.logln("post-get calc threads");
 		
 		if (numCalcThreads>knownDocsSize){
 			numCalcThreadsToUse=knownDocsSize;
