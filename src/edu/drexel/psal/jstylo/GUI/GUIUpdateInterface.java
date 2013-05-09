@@ -9,7 +9,7 @@ import weka.classifiers.Classifier;
 
 import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
-import edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer;
+import edu.drexel.psal.jstylo.analyzers.WriteprintsAnalyzer;
 import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.CumulativeFeatureDriver;
 import edu.drexel.psal.jstylo.generics.FeatureDriver;

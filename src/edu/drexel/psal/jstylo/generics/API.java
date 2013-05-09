@@ -6,6 +6,9 @@ import weka.core.*;
 
 import com.jgaap.generics.*;
 
+
+//TODO update the repository to the latest version of weka
+
 public interface API {
 
 	/*
@@ -25,7 +28,7 @@ public interface API {
 	 * @param document
 	 * @param cumulativeFeatureDriver
 	 * @return
-	 */
+	 */ 
 	public List<EventSet> extractEventSets(Document document,
 			CumulativeFeatureDriver cumulativeFeatureDriver) throws Exception;
 	
@@ -40,7 +43,7 @@ public interface API {
 			CumulativeFeatureDriver cumulativeFeatureDriver) throws Exception;
 	
 	/**
-	 * 
+	 * The event sets to extract from the test documents
 	 * @param culledEventSets
 	 * @param cumulativeFeatureDriver
 	 * @return
@@ -48,9 +51,10 @@ public interface API {
 	 */
 	public List<EventSet> getRelevantEvents(List<List<EventSet>> culledEventSets,
 			CumulativeFeatureDriver cumulativeFeatureDriver) throws Exception;
+	//Any time there is a single numeric value, use "null"
 	
 	/**
-	 * 
+	 * List of Attributes used to create Instances
 	 * @param culledEventSets
 	 * @return
 	 * @throws Exception
@@ -70,7 +74,7 @@ public interface API {
 			CumulativeFeatureDriver cumulativeFeatureDriver,
 			List<EventSet> documentData, boolean isSparse) throws Exception;
 	
-	// initialize global baselines
+	//TODO remove global normalization options
 	
 	/**
 	 * Does not support global normalization baselines!
@@ -84,7 +88,7 @@ public interface API {
 	// the full training Instances object is generated
 	
 	/**
-	 * 
+	 * returns list of indices of the top N features
 	 * @param insts
 	 * @param apply
 	 * @param N

@@ -1,7 +1,7 @@
 package edu.drexel.psal.jstylo.GUI;
 
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
-import edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer;
+import edu.drexel.psal.jstylo.analyzers.WriteprintsAnalyzer;
 import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
@@ -468,7 +468,7 @@ public class ClassTabDriver {
 	 * 
 	 */
 	protected static String[] classifierGroups = new String[] { //TODO move this into the properties file for ease of editing
-		"edu.drexel.psal.jstylo.analyzers.writeprints -F AuthorWPdata.class",
+		"edu.drexel.psal.jstylo.analyzers -F AuthorWPdata.class",
 		//"com.jgaap.classifiers",
 		"weka.classifiers.bayes",
 		"weka.classifiers.functions",
