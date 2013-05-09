@@ -431,7 +431,6 @@ public class BackendInterface {
 			predictions[i] = tempVal;
 			
 			if (authors[i].equals("~* you *~")) {
-				System.out.println("PASSED!!!");
 				predMap.put(predictions[i], "You");
 			} else
 				predMap.put(predictions[i], authors[i]);

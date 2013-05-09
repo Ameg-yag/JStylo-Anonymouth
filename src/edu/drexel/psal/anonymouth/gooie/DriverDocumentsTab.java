@@ -395,55 +395,58 @@ public class DriverDocumentsTab {
 					startSelection = e.getDot();
 					endSelection = e.getMark();
 					currentCaretPosition = startSelection;
-					caretPositionPriorToCharInsertion = currentCaretPosition - charsInserted;
-					caretPositionPriorToCharRemoval = currentCaretPosition + charsRemoved;
-					// update the EOSTracker, and from the value that it returns we can tell if sentences are being merged (EOS characters are being erased)
-					boolean EOSesRemoved = taggedDoc.eosTracker.removeEOSesInRange( currentCaretPosition, caretPositionPriorToCharRemoval);
-					boolean EOSesAdded = false;
 					int[] currentSelectionInfo = null;
-					if (EOSesRemoved){
-						// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
-						int[][] activatedSentenceInfo = calculateIndicesOfSentences(currentCaretPosition, caretPositionPriorToCharRemoval);
-						int i;
-						int j = 0;
-						int numInfos = activatedSentenceInfo.length;
-						int[] leftSentInfo = activatedSentenceInfo[0];
-						int[] rightSentInfo = activatedSentenceInfo[1];
-						int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
-						int[] taggedSentsToDelete = new int[numToDelete];
-						for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]; i++){ 
-							taggedSentsToDelete[j] = i;
-							j++;
+					if (!firstRun){
+						caretPositionPriorToCharInsertion = currentCaretPosition - charsInserted;
+						caretPositionPriorToCharRemoval = currentCaretPosition + charsRemoved;
+						// update the EOSTracker, and from the value that it returns we can tell if sentences are being merged (EOS characters are being erased)
+						boolean EOSesRemoved = taggedDoc.eosTracker.removeEOSesInRange( currentCaretPosition, caretPositionPriorToCharRemoval);
+						boolean EOSesAdded = false;
+						if (EOSesRemoved){
+							// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
+							int[][] activatedSentenceInfo = calculateIndicesOfSentences(currentCaretPosition, caretPositionPriorToCharRemoval);
+							int i;
+							int j = 0;
+							int numInfos = activatedSentenceInfo.length;
+							int[] leftSentInfo = activatedSentenceInfo[0];
+							int[] rightSentInfo = activatedSentenceInfo[1];
+							int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
+							int[] taggedSentsToDelete = new int[numToDelete];
+							for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]; i++){ 
+								taggedSentsToDelete[j] = i;
+								j++;
+							}
+							//First delete what we don't need anymore
+							TaggedSentence[] taggedSentsJustDeleted = taggedDoc.removeTaggedSentences(taggedSentsToDelete); // XXX XXX can stop saving the return value after testing!!!!
+							System.out.println("Just removed the following TaggedSentences:");
+							for(i = 0; i < numToDelete; i++)
+								System.out.println("TS #"+taggedSentsToDelete[i]+" ==> "+taggedSentsJustDeleted[i]);
+							
+							// Then read the remaining strings from "left" and "right" sentence:
+								// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
+								// for right: read from 'caretPositionPriorToCharRemoval' (where the "sentence" now begins) to 'rightSentInfo[2]' (the end of the sentence) 
+							// Once we have the string, we call removeAndReplace, once for each sentence (String)
+							String docText = main.documentPane.getText();
+							String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition+1);
+							taggedDoc.removeAndReplace(leftSentInfo[0], leftSentCurrent);
+							String rightSentCurrent = docText.substring(caretPositionPriorToCharRemoval, rightSentInfo[2]+1);
+							taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);
+							
+							// Now that we have internally gotten rid of the parts of left and right sentence that no longer exist in the editor box, we merge those two sentences so that they become a single TaggedSentence.
+							taggedDoc.concatSentences(taggedDoc.getTaggedDocument().get(leftSentInfo[0]), taggedDoc.getTaggedDocument().get(rightSentInfo[0]));
+							
+							
+							currentSelectionInfo = activatedSentenceInfo[0]; // same as leftSentInfo
+							
 						}
-						//First delete what we don't need anymore
-						TaggedSentence[] taggedSentsJustDeleted = taggedDoc.removeTaggedSentences(taggedSentsToDelete); // XXX XXX can stop saving the return value after testing!!!!
-						System.out.println("Just removed the following TaggedSentences:");
-						for(i = 0; i < numToDelete; i++)
-							System.out.println("TS #"+taggedSentsToDelete[i]+" ==> "+taggedSentsJustDeleted[i]);
-						
-						// Then read the remaining strings from "left" and "right" sentence:
-							// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
-							// for right: read from 'caretPositionPriorToCharRemoval' (where the "sentence" now begins) to 'rightSentInfo[2]' (the end of the sentence) 
-						// Once we have the string, we call removeAndReplace, once for each sentence (String)
-						String docText = main.documentPane.getText();
-						String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition+1);
-						taggedDoc.removeAndReplace(leftSentInfo[0], leftSentCurrent);
-						String rightSentCurrent = docText.substring(caretPositionPriorToCharRemoval, rightSentInfo[2]+1);
-						taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);
-						
-						// Now that we have internally gotten rid of the parts of left and right sentence that no longer exist in the editor box, we merge those two sentences so that they become a single TaggedSentence.
-						taggedDoc.concatSentences(taggedDoc.getTaggedDocument().get(leftSentInfo[0]), taggedDoc.getTaggedDocument().get(rightSentInfo[0]));
-						
-						
-						currentSelectionInfo = activatedSentenceInfo[0]; // same as leftSentInfo
-						
-					}
-					else if (EOSesAdded){
-						// todo ????
+						else if (EOSesAdded){
+							// todo ????
+						}
+						else
+							currentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToCharInsertion)[0];
 					}
 					else
-						currentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToCharInsertion)[0];
-					
+							currentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToCharInsertion)[0];
 					if (currentSelectionInfo == null)
 						return; // don't do anything.
 					if (startSelection == endSelection){
@@ -518,7 +521,10 @@ public class DriverDocumentsTab {
 						else
 							moveHighlight(main,selectedSentIndexRange,false);
 					}
-					
+					// testing selection with mouse
+					main.documentPane.setSelectionStart(50);
+					main.documentPane.setSelectionEnd(100);
+					// end test
 					sentToTranslate = currentSentNum;
 					if (!inRange)
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
