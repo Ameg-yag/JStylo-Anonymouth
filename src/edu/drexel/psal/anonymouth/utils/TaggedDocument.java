@@ -105,6 +105,7 @@ public class TaggedDocument implements Serializable{
 	public TaggedDocument(String untaggedDocument, String docTitle, String author){
 		this.documentTitle = docTitle;
 		this.documentAuthor = author;
+		eosTracker = new EOSCharacterTracker();
 		this.ID = documentTitle+"_"+documentAuthor;
 		//Logger.logln(NAME+"TaggedDocument ID: "+ID);
 	//	currentLiveTaggedSentences = new ArrayList<TaggedSentence>(5); 

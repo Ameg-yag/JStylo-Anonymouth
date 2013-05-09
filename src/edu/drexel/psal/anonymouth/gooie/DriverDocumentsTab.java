@@ -332,7 +332,7 @@ public class DriverDocumentsTab {
 				startHighlight = lengthTriangle[selectedSentence-1]; // start highlighting JUST after the previous sentence stops
 				endHighlight = lengthTriangle[selectedSentence]; // stop highlighting when the current sentence stops.
 			}	
-			results[i] = new int[]{selectedSentence, startHighlight, endHighlight};
+			results[positionNumber] = new int[]{selectedSentence, startHighlight, endHighlight};
 		}
 		return results; 
 	}
@@ -396,9 +396,9 @@ public class DriverDocumentsTab {
 					endSelection = e.getMark();
 					currentCaretPosition = startSelection;
 					int[] currentSelectionInfo = null;
-					if (!firstRun){
-						caretPositionPriorToCharInsertion = currentCaretPosition - charsInserted;
-						caretPositionPriorToCharRemoval = currentCaretPosition + charsRemoved;
+					caretPositionPriorToCharInsertion = currentCaretPosition - charsInserted;
+					caretPositionPriorToCharRemoval = currentCaretPosition + charsRemoved;
+					if (charsRemoved > 0){
 						// update the EOSTracker, and from the value that it returns we can tell if sentences are being merged (EOS characters are being erased)
 						boolean EOSesRemoved = taggedDoc.eosTracker.removeEOSesInRange( currentCaretPosition, caretPositionPriorToCharRemoval);
 						boolean EOSesAdded = false;

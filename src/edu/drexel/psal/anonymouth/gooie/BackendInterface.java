@@ -312,13 +312,15 @@ public class BackendInterface {
 			DriverDocumentsTab.suggestionCalculator.trackEditSentence(main);
 			
 			//NOTE make this false when actually using (line below). For testing though, it should be true.
-			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));//must re-set the document after processing (do deal 
+			DriverDocumentsTab.ignoreNumActions = 3;// setting text requres 2 actions: removal and insertion.
+			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));//must re-set the document after processing (to deal with unprintable characters)
+			main.documentPane.getCaret().setDot(0);
+			main.documentPane.setCaretPosition(0);
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange, true);
-			main.documentPane.getCaret().setDot(0);
-			main.documentPane.setCaretPosition(0);
+			
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
 			DriverDocumentsTab.charsRemoved = 0;	
 			DriverDocumentsTab.caretPositionPriorToCharInsertion = 0;
