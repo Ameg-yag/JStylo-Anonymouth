@@ -14,15 +14,15 @@ public class Engine implements API {
 	@Override
 	public List<EventSet> extractEventSets(Document document,
 			CumulativeFeatureDriver cumulativeFeatureDriver) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return cumulativeFeatureDriver.createEventSets(document);
 	}
 
 	@Override
 	public List<List<EventSet>> cull(List<List<EventSet>> eventSets,
 			CumulativeFeatureDriver cumulativeFeatureDriver) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return CumulativeEventCuller.cull(eventSets,cumulativeFeatureDriver);
 	}
 
 	@Override

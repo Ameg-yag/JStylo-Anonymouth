@@ -23,30 +23,30 @@ public interface API {
 	// feature extraction - training set
 	
 	/**
-	 * Extracts events sets from the given document using the given cumulative
-	 * feature driver.
-	 * @param document
-	 * @param cumulativeFeatureDriver
-	 * @return
+	 * Extracts the List of EventSets from a document using the provided CumulativeFeatureDriver
+	 * @param document the document to have features extracted and made into event sets
+	 * @param cumulativeFeatureDriver the driver containing the features to be extracted and the functionality to do so
+	 * @return the List\<EventSet\> for the document
 	 */ 
 	public List<EventSet> extractEventSets(Document document,
 			CumulativeFeatureDriver cumulativeFeatureDriver) throws Exception;
 	
 	/**
-	 * 
-	 * @param eventSets
-	 * @param cumulativeFeatureDriver
-	 * @return
+	 * Determines which EventSets to use for the given documents
+	 * @param eventSets A List which contains Lists of EventSets (represents a list of documents' EventSets0
+	 * @param cumulativeFeatureDriver the driver with the culling functionality
+	 * @return The culled List\<List\<EventSet\>\> created from eventSets
 	 * @throws Exception
 	 */
 	public List<List<EventSet>> cull(List<List<EventSet>> eventSets,
 			CumulativeFeatureDriver cumulativeFeatureDriver) throws Exception;
 	
 	/**
-	 * The event sets to extract from the test documents
-	 * @param culledEventSets
-	 * @param cumulativeFeatureDriver
-	 * @return
+	 * Goes over the culled List<List<EventSet>> and determines which events are histograms and which have a single<br>
+	 * numerical value. Uses the information to prepare a List\<EventSet\> to extract from the test document(s)
+	 * @param culledEventSets The culled List<List<EventSet>>
+	 * @param cumulativeFeatureDriver The driver used to extract the EventSets
+	 * @return The List\<EventSet\> to extract from the test document(s) 
 	 * @throws Exception
 	 */
 	public List<EventSet> getRelevantEvents(List<List<EventSet>> culledEventSets,
@@ -54,9 +54,9 @@ public interface API {
 	//Any time there is a single numeric value, use "null"
 	
 	/**
-	 * List of Attributes used to create Instances
-	 * @param culledEventSets
-	 * @return
+	 * Generates the List\<Attributes\> from the List\<List\<EventSet\>\> that will be used to create the Instances object.
+	 * @param culledEventSets The culled list of EventSets that have been gathered from the document set
+	 * @return A List\<Attribute\> which will be used to create the Instances object 
 	 * @throws Exception
 	 */
 	public List<Attribute> getAttributeList(
@@ -64,8 +64,8 @@ public interface API {
 	
 	/**
 	 * 
-	 * @param attributes
-	 * @param cumulativeFeatureDriver
+	 * @param attributes the data used to construct the Instance object
+	 * @param cumulativeFeatureDriver 
 	 * @param documentData
 	 * @return
 	 * @throws Exception
