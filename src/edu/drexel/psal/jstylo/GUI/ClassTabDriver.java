@@ -468,7 +468,7 @@ public class ClassTabDriver {
 	 * 
 	 */
 	protected static String[] classifierGroups = new String[] { //TODO move this into the properties file for ease of editing
-		"edu.drexel.psal.jstylo.analyzers -F AuthorWPdata.class",
+		"edu.drexel.psal.jstylo.analyzers -F AuthorWPdata.class -F WekaAnalyzer.class -F SynonymBasedClassifier.class",
 		//"com.jgaap.classifiers",
 		"weka.classifiers.bayes",
 		"weka.classifiers.functions",
