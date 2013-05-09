@@ -386,6 +386,7 @@ public class DriverDocumentsTab {
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				if (ignoreNumActions > 0){
+					// test
 					charsInserted = 0;
 					charsRemoved = 0;
 					ignoreNumActions--;
