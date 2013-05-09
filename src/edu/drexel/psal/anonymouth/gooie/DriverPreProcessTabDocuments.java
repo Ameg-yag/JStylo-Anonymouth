@@ -54,25 +54,20 @@ public class DriverPreProcessTabDocuments {
 	//+++++++++++++++++++++++++++++++++++++++ Main Listeners ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	//=======================================================================================================================
 	//=======================================================================================================================
-	protected static void initMainListeners(final GUIMain main)
-	{
-		documentLabelClickAL = new MouseListener()
-		{
+	protected static void initMainListeners(final GUIMain main) {
+		documentLabelClickAL = new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {}
+			@Override
+			public void mousePressed(MouseEvent arg0) {}
 
 			@Override
-			public void mouseClicked(MouseEvent arg0) 
-			{
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) 
-			{
+			public void mouseEntered(MouseEvent arg0) {
 				main.prepDocLabel.setBackground(Color.YELLOW);
 			}
 
 			@Override
-			public void mouseExited(MouseEvent arg0) 
-			{
+			public void mouseExited(MouseEvent arg0) {
 				if (main.documentsAreReady())
 					main.prepDocLabel.setBackground(main.ready);
 				else
@@ -81,20 +76,13 @@ public class DriverPreProcessTabDocuments {
 			}
 
 			@Override
-			public void mousePressed(MouseEvent arg0)
-			{
+			public void mouseReleased(MouseEvent arg0) {
 				main.PPSP.tabbedPane.setSelectedComponent(main.PPSP.docPanel);
 				main.PPSP.openWindow();
 				if (main.documentsAreReady())
 					main.prepDocLabel.setBackground(main.ready);
 				else
 					main.prepDocLabel.setBackground(main.notReady);
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0)
-			{
-				
 			}
 			
 		};

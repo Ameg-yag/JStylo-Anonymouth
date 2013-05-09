@@ -54,26 +54,20 @@ public class DriverPreProcessTabClassifiers {
 	/**
 	 * Initialize all classifiers tab listeners.
 	 */
-	protected static void initMainListeners(final GUIMain main) 
-	{
-		classifierLabelClickAL = new MouseListener()
-		{
+	protected static void initMainListeners(final GUIMain main) {
+		classifierLabelClickAL = new MouseListener() {
+			@Override
+			public void mousePressed(MouseEvent arg0) {}
+			@Override
+			public void mouseClicked(MouseEvent arg0) {}
 
 			@Override
-			public void mouseClicked(MouseEvent arg0) 
-			{
-				
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) 
-			{
+			public void mouseEntered(MouseEvent arg0) {
 				main.prepClassLabel.setBackground(Color.YELLOW);
 			}
 
 			@Override
-			public void mouseExited(MouseEvent arg0) 
-			{
+			public void mouseExited(MouseEvent arg0) {
 				if (main.classifiersAreReady())
 					main.prepClassLabel.setBackground(main.ready);
 				else
@@ -82,8 +76,7 @@ public class DriverPreProcessTabClassifiers {
 			}
 
 			@Override
-			public void mousePressed(MouseEvent arg0)
-			{
+			public void mouseReleased(MouseEvent arg0) {
 				main.PPSP.tabbedPane.setSelectedComponent(main.PPSP.classPanel);
 				main.PPSP.openWindow();
 				if (main.classifiersAreReady())
@@ -91,13 +84,6 @@ public class DriverPreProcessTabClassifiers {
 				else
 					main.prepClassLabel.setBackground(main.notReady);
 			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0)
-			{
-				
-			}
-			
 		};
 		main.prepClassLabel.addMouseListener(classifierLabelClickAL);
 		

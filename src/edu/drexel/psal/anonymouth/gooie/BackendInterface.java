@@ -283,7 +283,7 @@ public class BackendInterface {
 			
 			//main.editorProgressBar.setIndeterminate(true);	
 			
-			main.resultsTablePane.setOpaque(true);
+//			main.resultsTablePane.setOpaque(true);
 			DriverDocumentsTab.okayToSelectSuggestion = true;
 			
 			if(DriverDocumentsTab.isFirstRun)
@@ -299,6 +299,7 @@ public class BackendInterface {
 
 			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences();
 			DriverDocumentsTab.suggestionCalculator.trackEditSentence(main);
+			GUIUpdateInterface.updateResultsPrepColor(main);
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			
 			main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument());//must re-set the document after processing (do deal
@@ -393,7 +394,7 @@ public class BackendInterface {
 	
 	public static void makeResultsTable(Map<String,Map<String,Double>> resultMap, GUIMain main)
 	{
-		main.resultsTableModel.getDataVector().removeAllElements();
+//		main.resultsTableModel.getDataVector().removeAllElements();
 		
 		Iterator<String> mapKeyIter = resultMap.keySet().iterator();
 		Map<String,Double> tempMap = resultMap.get(mapKeyIter.next()); 
@@ -419,7 +420,6 @@ public class BackendInterface {
 			predictions[i] = tempVal;
 			
 			if (authors[i].equals("~* you *~")) {
-				System.out.println("PASSED!!!");
 				predMap.put(predictions[i], "You");
 			} else
 				predMap.put(predictions[i], authors[i]);
@@ -429,14 +429,18 @@ public class BackendInterface {
 		
 		for (int i = numAuthors-1; i >= 0; i--)
 		{
-			main.resultsTableModel.addRow(new Object[]{predMap.get(predictions[i]), predictions[i] + "%"});
+//			main.resultsTableModel.addRow(new Object[]{predMap.get(predictions[i]), predictions[i] + "%"});
+			main.resultsWindow.addAttrib(predMap.get(predictions[i]).toString(), (int)(predictions[i] + .5));
 		}
 		
 		DriverDocumentsTab.resultsMaxIndex = maxIndex;
 		DriverDocumentsTab.chosenAuthor = (String)authors[maxIndex];
 		DriverDocumentsTab.maxValue = (Object)biggest;
+		
+		main.resultsWindow.makeChart();
+		main.resultsWindow.drawingPanel.repaint();
+		main.resultsMainPanel.repaint();
 	}
-	
 }
 
 class PredictionRenderer implements TableCellRenderer {

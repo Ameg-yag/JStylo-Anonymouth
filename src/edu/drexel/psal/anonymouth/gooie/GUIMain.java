@@ -15,6 +15,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -362,6 +363,7 @@ public class GUIMain extends javax.swing.JFrame  {
 //		protected JPanel resultsPanel;
 		protected JPanel resultsOptionsPanel;
 		protected JPanel resultsMainPanel;
+		protected JScrollPane resultsScrollPane;
 		protected DefaultComboBoxModel displayComboBoxModel;
 		protected JComboBox displayComboBox;
 		protected JTextArea displayTextArea;
@@ -464,6 +466,9 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected SuggestionsWindow suggestionsWindow;
 	protected ClustersTutorial clustersTutorial;
 	protected VersionControl versionControl;
+	protected ResultsWindow resultsWindow;
+	
+	private int resultsHeight;
 	
 	//used mostly for loading the main document without having to alter the main.ps.testDocAt(0) directly
 	Document mainDocPreview;
@@ -715,6 +720,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			suggestionsWindow = new SuggestionsWindow();
 			clustersTutorial = new ClustersTutorial();
 			versionControl = new VersionControl(this);
+			resultsWindow = new ResultsWindow(this);
 			
 			// initialize listeners - except for EditorTabDriver!
 			
@@ -724,6 +730,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			DriverResultsTab.initListeners(this);
 			DriverSuggestionsTab.initListeners(this);
 			DriverClustersWindow.initListeners(this);
+			DriverResultsWindow.initListeners(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -763,6 +770,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
 		GUIUpdateInterface.updateClassList(this);
 		GUIUpdateInterface.updateClassPrepColor(this);
+		GUIUpdateInterface.updateResultsPrepColor(this);
 		DriverPreProcessTabClassifiers.tmpClassifier = null;
 	}
 
@@ -882,10 +890,10 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			anonymityPanel.removeAll();
 			anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(anonymityDrawingPanel, "h 515!");
+			anonymityPanel.add(anonymityDrawingPanel, "growy");
 			anonymityPanel.add(anonymityDescription, "h 90!");
 			anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(resultsMainPanel, "grow");
+			anonymityPanel.add(resultsScrollPane, "grow");
 		}
 		else if (anonymityLocation == PropertiesUtil.Location.TOP)
 		{
@@ -896,10 +904,10 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			anonymityPanel.removeAll();
 			anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(anonymityDrawingPanel, "h 515!");
+			anonymityPanel.add(anonymityDrawingPanel, "growy");
 			anonymityPanel.add(anonymityDescription, "h 70!");
 			anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(resultsMainPanel, "grow");
+			anonymityPanel.add(resultsScrollPane, "grow");
 		}
 		
 //		PropUtil.Location resultsLocation = PropUtil.getResultsTabLocation();
@@ -1031,6 +1039,21 @@ public class GUIMain extends javax.swing.JFrame  {
 			return false;
 		}
 		
+		return ready;
+	}
+	
+	public boolean resultsAreReady() {
+		boolean ready = true;
+		
+		try {
+			if (!resultsWindow.isReady())
+				ready = false;
+		} catch (Exception e) {
+			ready = false;
+		}
+		
+//		if (ready)
+//			resultsMainPanel.repaint();
 		return ready;
 	}
 	
@@ -1695,27 +1718,29 @@ public class GUIMain extends javax.swing.JFrame  {
 			resultsTableLabel.setBackground(tan);
 			resultsTableLabel.setBorder(rlborder);
 			
-			resultsMainPanel = new JPanel();
-			{
-				makeResultsTable();
-			}
+			makeResultsPanel();
+			resultsMainPanel.setLayout(new MigLayout(
+					"wrap, ins 0",
+					"grow, fill",
+					"grow, fill"));
+			resultsMainPanel.setBackground(Color.WHITE);
 			
 			if (location== PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
 			{
 				//anonymityPanel.add(legendPanel);
 				anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(anonymityDrawingPanel, "h 515!");
+				anonymityPanel.add(anonymityDrawingPanel, "growy");
 				anonymityPanel.add(anonymityDescription, "h 70!");
 				anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(resultsMainPanel, "grow");
+				anonymityPanel.add(resultsScrollPane, "grow");
 			}
 			else if (location == PropertiesUtil.Location.TOP)
 			{
 				anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(anonymityDrawingPanel, "h 515!");
+				anonymityPanel.add(anonymityDrawingPanel, "growy");
 				anonymityPanel.add(anonymityDescription, "h 70!");
 				anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(resultsMainPanel, "grow");
+				anonymityPanel.add(resultsScrollPane, "grow");
 			}
 			else
 				throw new Exception();
@@ -1775,39 +1800,67 @@ public class GUIMain extends javax.swing.JFrame  {
 //        return resultsPanel;
 //	}
 	
-	private void makeResultsTable()
-	{
-		resultsMainPanel.setLayout(new MigLayout(
-				"wrap, ins 0",
-				"grow, fill",
-				"grow, fill"));
-		
-		String[][] row = new String[1][1];
-		row[0] = new String[] {"Waiting", "..."};
-    	String[] header = {"Author:", "Ownership Probability"};
-		
-		// feature description pane--------------------------------------------------
-		resultsTableModel = new DefaultTableModel(row, header){
-			public boolean isCellEditable(int rowIndex, int mColIndex) {
-		        return false;
-		    }
+	private void makeResultsPanel() {
+		resultsMainPanel = new JPanel() {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				Graphics2D g2d = (Graphics2D)g;
+				
+				if (resultsAreReady()) {
+					resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+					
+					if (resultsWindow.getAuthorSize() <= 20) {
+						resultsHeight = 25 * resultsWindow.getAuthorSize();
+					}
+					
+					resultsMainPanel.setPreferredSize(new Dimension(160, resultsHeight));
+					g2d.drawImage(resultsWindow.getPanelChart(170, resultsHeight), -10, -6, null);
+				} else {
+					g2d.setFont(new Font("Helvatica", Font.PLAIN, 15));
+					g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+					
+					g2d.drawString(" Please process your", 0, 15);
+					g2d.drawString(" document to recieve", 0, 32);
+					g2d.drawString(" results.", 0, 49);
+				}
+			}
 		};
+		resultsMainPanel.setPreferredSize(new Dimension(160, 200));
 		
-		resultsTable = new JTable(resultsTableModel);
-		try {
-			resultsTable.setDefaultRenderer(String.class, new alignCellRenderer(resultsTable, JLabel.CENTER, "cell"));
-			resultsTable.getTableHeader().setDefaultRenderer(new alignCellRenderer(resultsTable, JLabel.CENTER, "header"));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		resultsTable.setRowSelectionAllowed(false);
-		resultsTable.setColumnSelectionAllowed(false);
-		resultsTable.getColumnModel().getColumn(0).setPreferredWidth(75);
-		resultsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
-		resultsTable.getTableHeader().setReorderingAllowed(false);
-		resultsTablePane = new JScrollPane(resultsTable);
-	    resultsMainPanel.add(resultsTablePane, "grow");
+		resultsScrollPane = new JScrollPane(resultsMainPanel);
+		resultsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+//		resultsMainPanel.setLayout(new MigLayout(
+//				"wrap, ins 0",
+//				"grow, fill",
+//				"grow, fill"));
+//		
+//		String[][] row = new String[1][1];
+//		row[0] = new String[] {"Waiting", "..."};
+//    	String[] header = {"Author:", "Ownership Probability"};
+//		
+//		// feature description pane--------------------------------------------------
+//		resultsTableModel = new DefaultTableModel(row, header){
+//			public boolean isCellEditable(int rowIndex, int mColIndex) {
+//		        return false;
+//		    }
+//		};
+//		
+//		resultsTable = new JTable(resultsTableModel);
+//		try {
+//			resultsTable.setDefaultRenderer(String.class, new alignCellRenderer(resultsTable, JLabel.CENTER, "cell"));
+//			resultsTable.getTableHeader().setDefaultRenderer(new alignCellRenderer(resultsTable, JLabel.CENTER, "header"));
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		resultsTable.setRowSelectionAllowed(false);
+//		resultsTable.setColumnSelectionAllowed(false);
+//		resultsTable.getColumnModel().getColumn(0).setPreferredWidth(75);
+//		resultsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
+//		resultsTable.getTableHeader().setReorderingAllowed(false);
+//		resultsTablePane = new JScrollPane(resultsTable);
+//	    resultsMainPanel.add(resultsTablePane, "grow");
 	}
 	
 	public JTextPane getDocumentPane() {

@@ -370,21 +370,11 @@ public class GUIUpdateInterface {
 			model2.addElement(className);
 		}
 	}
+	
+	protected static void updateResultsPrepColor(GUIMain main) {
+		if (main.resultsAreReady())
+			main.resultsTableLabel.setBackground(main.ready);
+		else
+			main.resultsTableLabel.setBackground(main.tan);
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

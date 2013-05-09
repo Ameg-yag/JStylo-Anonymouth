@@ -54,26 +54,20 @@ public class DriverPreProcessTabFeatures {
 	/**
 	 * Initialize all documents tab listeners.
 	 */
-	protected static void initMainListeners(final GUIMain main) 
-	{
-		featuresLabelClickAL = new MouseListener()
-		{
+	protected static void initMainListeners(final GUIMain main) {
+		featuresLabelClickAL = new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {}
+			@Override
+			public void mousePressed(MouseEvent arg0) {}
 
 			@Override
-			public void mouseClicked(MouseEvent arg0) 
-			{
-				
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) 
-			{
+			public void mouseEntered(MouseEvent arg0) {
 				main.prepFeatLabel.setBackground(Color.YELLOW);
 			}
 
 			@Override
-			public void mouseExited(MouseEvent arg0) 
-			{
+			public void mouseExited(MouseEvent arg0) {
 				if (main.featuresAreReady())
 					main.prepFeatLabel.setBackground(main.ready);
 				else
@@ -82,8 +76,7 @@ public class DriverPreProcessTabFeatures {
 			}
 
 			@Override
-			public void mousePressed(MouseEvent arg0)
-			{
+			public void mouseReleased(MouseEvent arg0) {
 				main.PPSP.tabbedPane.setSelectedComponent(main.PPSP.featPanel);
 				main.PPSP.openWindow();
 				if (main.featuresAreReady())
@@ -91,13 +84,6 @@ public class DriverPreProcessTabFeatures {
 				else
 					main.prepFeatLabel.setBackground(main.notReady);
 			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0)
-			{
-				
-			}
-			
 		};
 		main.prepFeatLabel.addMouseListener(featuresLabelClickAL);
 		

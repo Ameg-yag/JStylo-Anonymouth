@@ -209,7 +209,7 @@ public class DriverDocumentsTab {
 //		main.transButton.setEnabled(b);
 //		main.sentenceEditPane.setEditable(b);
 //		main.translationEditPane.setEditable(b);
-		main.resultsTable.setEnabled(b);
+//		main.resultsTable.setEnabled(b);
 //		main.restoreSentenceButton.setEnabled(b);
 //		main.SaveChangesButton.setEnabled(b);
 //		main.copyToSentenceButton.setEnabled(b);
@@ -769,8 +769,8 @@ public class DriverDocumentsTab {
 						
 						main.getDocumentPane().getHighlighter().removeAllHighlights();
 						highlightedObjects.clear();
-						main.resultsTablePane.setOpaque(false);
-						main.resultsTable.setOpaque(false);
+//						main.resultsTablePane.setOpaque(false);
+//						main.resultsTable.setOpaque(false);
 						highlightedObjects.clear();
 						okayToSelectSuggestion = false;
 						Logger.logln(NAME+"calling backendInterface for preTargetSelectionProcessing");
