@@ -382,15 +382,17 @@ public class DriverDocumentsTab {
 		suggestionCalculator = new SuggestionCalculator();
 
 		main.documentPane.addCaretListener(new CaretListener() {
-
 			@Override
 			public void caretUpdate(CaretEvent e) {
+				System.out.println("caretUpdate fired.");
 				if (ignoreNumActions > 0){
+					System.out.println("ignoring caretUpdate...");
 					charsInserted = 0;
 					charsRemoved = 0;
 					ignoreNumActions--;
 				}
 				else if (taggedDoc != null) { //main.documentPane.getText().length() != 0
+					System.out.println("handling caretUpdate...");
 					boolean setSelectionInfoAndHighlight = true;
 					startSelection = e.getDot();
 					endSelection = e.getMark();
@@ -399,9 +401,9 @@ public class DriverDocumentsTab {
 					caretPositionPriorToCharInsertion = currentCaretPosition - charsInserted;
 					caretPositionPriorToCharRemoval = currentCaretPosition + charsRemoved;
 					if (charsRemoved > 0){
+						System.out.println("characters removed...");
 						// update the EOSTracker, and from the value that it returns we can tell if sentences are being merged (EOS characters are being erased)
 						boolean EOSesRemoved = taggedDoc.eosTracker.removeEOSesInRange( currentCaretPosition, caretPositionPriorToCharRemoval);
-						boolean EOSesAdded = false;
 						if (EOSesRemoved){
 							// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
 							int[][] activatedSentenceInfo = calculateIndicesOfSentences(currentCaretPosition, caretPositionPriorToCharRemoval);
@@ -412,10 +414,13 @@ public class DriverDocumentsTab {
 							int[] rightSentInfo = activatedSentenceInfo[1];
 							int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
 							int[] taggedSentsToDelete = new int[numToDelete];
+							
+							// Now we list the indices of sentences that need to be removed, which are the ones between the left and right sentence (though not including either the left or the right sentence).
 							for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]; i++){ 
 								taggedSentsToDelete[j] = i;
 								j++;
 							}
+							
 							//First delete what we don't need anymore
 							TaggedSentence[] taggedSentsJustDeleted = taggedDoc.removeTaggedSentences(taggedSentsToDelete); // XXX XXX can stop saving the return value after testing!!!!
 							System.out.println("Just removed the following TaggedSentences:");
@@ -432,21 +437,35 @@ public class DriverDocumentsTab {
 							String rightSentCurrent = docText.substring(caretPositionPriorToCharRemoval, rightSentInfo[2]+1);
 							taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);
 							
+							System.out.printf("Merging <%s> (indices: [ %d, %d]) and <%s> (indices: [ %d, %d])\n",leftSentCurrent, leftSentInfo[1], currentCaretPosition+1, rightSentCurrent, caretPositionPriorToCharRemoval, rightSentInfo[2]+1);
+							
 							// Now that we have internally gotten rid of the parts of left and right sentence that no longer exist in the editor box, we merge those two sentences so that they become a single TaggedSentence.
 							taggedDoc.concatSentences(taggedDoc.getTaggedDocument().get(leftSentInfo[0]), taggedDoc.getTaggedDocument().get(rightSentInfo[0]));
+							System.out.printf("Now sentence number '%d' looks like <%s> in the TaggedDocument.\n",leftSentInfo[0],taggedDoc.getTaggedSentences().get(leftSentInfo[0]));
 							
+							// now update the EOSTracker
+							taggedDoc.eosTracker.shiftAllEOSChars(false, caretPositionPriorToCharRemoval, charsRemoved);
 							
-							currentSelectionInfo = activatedSentenceInfo[0]; // same as leftSentInfo
+							// Then update the selection information so that when we move the highlight, it highlights "both" sentences (well, what used to be both sentences, but is now a single sentence)
+							currentSelectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
 							
-						}
-						else if (EOSesAdded){
-							// todo ????
 						}
 						else
 							currentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToCharInsertion)[0];
 					}
+					else if (charsInserted > 0){
+						System.out.println("characters inserted...");
+						// check to see if EOS characters were added
+						boolean EOSesAdded = false;
+						if (EOSesAdded){
+							// do something? (does something need to be done?)
+							
+						}
+					}
 					else
 							currentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToCharInsertion)[0];
+					
+					
 					if (currentSelectionInfo == null)
 						return; // don't do anything.
 					if (startSelection == endSelection){
@@ -467,7 +486,7 @@ public class DriverDocumentsTab {
 					boolean inRange = false;
 					
 					//check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
-					if ( caretPositionPriorToCharInsertion >= selectedSentIndexRange[0] && caretPositionPriorToCharInsertion <= selectedSentIndexRange[1]-1) {
+					if ( caretPositionPriorToCharInsertion >= selectedSentIndexRange[0] && caretPositionPriorToCharInsertion < selectedSentIndexRange[1]) {
 						inRange = true;
 						// Caret is inside range of presently selected sentence.
 						// update from previous caret
@@ -522,8 +541,8 @@ public class DriverDocumentsTab {
 							moveHighlight(main,selectedSentIndexRange,false);
 					}
 					// testing selection with mouse
-					main.documentPane.setSelectionStart(50);
-					main.documentPane.setSelectionEnd(100);
+					//main.documentPane.setSelectionStart(50);
+					//main.documentPane.setSelectionEnd(100);
 					// end test
 					sentToTranslate = currentSentNum;
 					if (!inRange)

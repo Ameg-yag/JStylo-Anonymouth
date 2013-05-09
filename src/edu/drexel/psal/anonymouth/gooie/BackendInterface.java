@@ -270,7 +270,7 @@ public class BackendInterface {
 		public void run(){
 			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
 
-			//Scanner in = new Scanner(System.in);
+			Scanner in = new Scanner(System.in);
 			//in.nextLine();
 				
 			pw.setText("Target Selected");
@@ -311,11 +311,20 @@ public class BackendInterface {
 			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
 			DriverDocumentsTab.suggestionCalculator.trackEditSentence(main);
 			
+			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			//NOTE make this false when actually using (line below). For testing though, it should be true.
-			DriverDocumentsTab.ignoreNumActions = 3;// setting text requres 2 actions: removal and insertion.
+			DriverDocumentsTab.ignoreNumActions = 1;
+			System.out.println("ignoreNumActions == "+DriverDocumentsTab.ignoreNumActions);
+			in.nextLine();
 			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));//must re-set the document after processing (to deal with unprintable characters)
+			System.out.println("ignoreNumActions == "+DriverDocumentsTab.ignoreNumActions);
+			in.nextLine();
 			main.documentPane.getCaret().setDot(0);
-			main.documentPane.setCaretPosition(0);
+			System.out.println("ignoreNumActions == "+DriverDocumentsTab.ignoreNumActions);
+			in.nextLine();
+			//main.documentPane.setCaretPosition(0);
+			System.out.println("ignoreNumActions == "+DriverDocumentsTab.ignoreNumActions);
+			in.nextLine();
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
