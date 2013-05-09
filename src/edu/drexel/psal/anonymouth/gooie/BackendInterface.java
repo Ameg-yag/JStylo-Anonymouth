@@ -148,17 +148,14 @@ public class BackendInterface {
 					try
 					{
 						wizard.runInitial(magician,main.cfd, main.classifiers.get(0));
-						pw.setText("Extracting and Clustering Features... Done");
 						pw.setText("Initializing Tagger...");
 
 						Tagger.initTagger();
 						
 						pw.setText("Initialize Cluster Viewer...");
 						DriverClustersWindow.initializeClusterViewer(main,false);
-						pw.setText("Initialize Cluster Viewer... Done");
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
-						pw.setText("Classifying Documents... Done");
 					}
 					catch(Exception e){
 						e.printStackTrace();
@@ -194,13 +191,10 @@ public class BackendInterface {
 						try 
 						{
 							wizard.reRunModified(magician);
-							pw.setText("Extracting and Clustering Features... Done");
 							pw.setText("Initialize Cluster Viewer...");
 							DriverClustersWindow.initializeClusterViewer(main,false);
-							pw.setText("Initialize Cluster Viewer... Done");
 							pw.setText("Classifying Documents...");
 							magician.runWeka();
-							pw.setText("Classifying Documents... Done");
 						} catch (Exception e) {
 							e.printStackTrace();
 							ErrorHandler.fatalError();
@@ -210,7 +204,6 @@ public class BackendInterface {
 						Logger.logln(NAME+" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
 						Logger.logln(NAME+wekaResults.toString());
 						makeResultsTable(wekaResults, main);
-						pw.setText("Setting Results... Done");
 					}
 				}
 				int selectedIndex = 1;
@@ -287,7 +280,6 @@ public class BackendInterface {
 //			main.prevSentenceButton.setEnabled(false);
 //			main.transButton.setEnabled(false);
 //			main.appendSentenceButton.setEnabled(false);
-			pw.setText("Tagging all documents... Done");
 			
 			//main.editorProgressBar.setIndeterminate(true);	
 			
@@ -310,7 +302,6 @@ public class BackendInterface {
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			
 			main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument());//must re-set the document after processing (do deal
-//			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0);
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];

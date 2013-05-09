@@ -52,6 +52,7 @@ public class DriverMenu {
 	protected static ActionListener helpClustersListener;
 	protected static ActionListener undoListener;
 	protected static ActionListener redoListener;
+	protected static ActionListener fullScreenListener;
 //	protected static ActionListener printMenuItemListener;
 	
 	protected static void initListeners(final GUIMain main)
@@ -151,6 +152,14 @@ public class DriverMenu {
         	}
         };
         main.editRedoMenuItem.addActionListener(redoListener);
+        
+        fullScreenListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {  		  		
+        		ThePresident.app.requestToggleFullScreen(main);
+        	}
+        };
+        main.viewEnterFullScreenMenuItem.addActionListener(fullScreenListener);
         /*
         printMenuItemListener = new ActionListener() {
         	@Override

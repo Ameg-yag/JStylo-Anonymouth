@@ -16,6 +16,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -34,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import edu.drexel.psal.JSANConstants;
@@ -77,12 +79,14 @@ import weka.classifiers.*;
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 import edu.stanford.nlp.util.PropertiesUtils;
 
+import com.apple.eawt.AppEvent.FullScreenEvent;
 import com.apple.eawt.AppEventListener;
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
 import com.apple.eawt.ApplicationListener;
 import com.apple.eawt.AppEvent.QuitEvent;
+import com.apple.eawt.FullScreenListener;
 import com.apple.eawt.QuitHandler;
 import com.apple.eawt.QuitResponse;
 
@@ -435,6 +439,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JMenuItem helpClustersMenuItem;
 	protected JMenuItem viewMenuItem;
 	protected JMenuItem viewClustersMenuItem;
+	public static JMenuItem viewEnterFullScreenMenuItem;
 	protected JMenuItem helpMenu;
 	protected JMenuItem fileMenu;
 	protected JMenuItem editMenu;
@@ -511,6 +516,10 @@ public class GUIMain extends javax.swing.JFrame  {
 					@Override
 					public void windowOpened(WindowEvent arg0) {}
 				};
+			
+				if (ThePresident.IS_MAC) {
+					enableOSXFullscreen(inst);
+				}
 				
 				inst.addWindowListener(exitListener);
 				inst.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -520,6 +529,47 @@ public class GUIMain extends javax.swing.JFrame  {
 			}
 		});
 	}
+	
+	/**
+	 * (Thanks to Dyorgio at StackOverflow for the code)
+	 * If the user is on OS X, we will allow them to enter full screen in Anonymouth using OS X's native full screen functionality.
+	 * As of right now it doesn't actually resize the components that much and doesn't add much to the application, but the structure's
+	 * there to allow someone to come in and optimize Anonymouth when in full screen (not to mention just having the functionality makes
+	 * it seem more like a native OS X application).
+	 * 
+	 * This enables full screen for the particular window and also adds a full screen listener so that we may chance components as needed
+	 * depending on what state we are in.
+	 * @param window
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static void enableOSXFullscreen(Window window) {
+	    try {
+	        Class util = Class.forName("com.apple.eawt.FullScreenUtilities");
+	        Class params[] = new Class[]{Window.class, Boolean.TYPE};
+	        Method method = util.getMethod("setWindowCanFullScreen", params);
+	        method.invoke(util, window, true);
+	        
+	        com.apple.eawt.FullScreenUtilities.addFullScreenListenerTo(window, new FullScreenListener () {
+				@Override
+				public void windowEnteredFullScreen(FullScreenEvent arg0) {
+					GUIMain.viewEnterFullScreenMenuItem.setText("Exit Full Screen");
+				}
+				@Override
+				public void windowEnteringFullScreen(FullScreenEvent arg0) {}
+				@Override
+				public void windowExitedFullScreen(FullScreenEvent arg0) {
+					GUIMain.viewEnterFullScreenMenuItem.setText("Enter Full Screen");
+				}
+				@Override
+				public void windowExitingFullScreen(FullScreenEvent arg0) {}
+			});
+	    } catch (ClassNotFoundException e1) {
+	    	Logger.logln("( GUIMain ) - Failed initializing Anonymouth for full-screen", LogOut.STDERR);
+	    } catch (Exception e) {
+	    	Logger.logln("( GUIMain ) - Failed initializing Anonymouth for full-screen", LogOut.STDERR);
+	    }
+	}
+
 
 	public GUIMain() {
 		super();
@@ -588,11 +638,22 @@ public class GUIMain extends javax.swing.JFrame  {
 			editMenu.add(editRedoMenuItem);
 			menuBar.add(editMenu);
 			
+			viewMenuItem = new JMenu("View");
+			viewClustersMenuItem = new JMenuItem("Clusters");
+			viewMenuItem.add(viewClustersMenuItem);
+			
+			menuBar.add(viewMenuItem);
+			
 			if (ThePresident.IS_MAC) {
 				fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 				fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 				editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 				editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				
+				viewMenuItem.add(new JSeparator());
+				viewEnterFullScreenMenuItem = new JMenuItem("Enter Full Screen");
+				viewMenuItem.add(viewEnterFullScreenMenuItem);
+				viewEnterFullScreenMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 			} else {
 				fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
 				fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
@@ -606,12 +667,6 @@ public class GUIMain extends javax.swing.JFrame  {
 				settingsMenu.add(settingsGeneralMenuItem);
 				menuBar.add(settingsMenu);
 			}
-			
-			viewMenuItem = new JMenu("View");
-			viewClustersMenuItem = new JMenuItem("Clusters");
-			viewMenuItem.add(viewClustersMenuItem);
-			
-			menuBar.add(viewMenuItem);
 			
 			helpMenu = new JMenu("Help");
 			helpAboutMenuItem = new JMenuItem("About Anonymouth");

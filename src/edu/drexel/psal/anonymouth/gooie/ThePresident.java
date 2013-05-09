@@ -48,6 +48,7 @@ public class ThePresident {
 	public static boolean SAVE_TAGGED_DOCUMENTS = true; // TODO: put in "options
 	public static int MAX_FEATURES_TO_CONSIDER = PropertiesUtil.getMaximumFeatures(); // todo: put in 'options', and figure out an optimal number (maybe based upon info gain, total #, etc.)... basically, when the processing time outweighs the benefit, that should be our cutoff.
 	public static int NUM_TAGGING_THREADS = PropertiesUtil.getThreadCount();
+	public static Application app;
 	// test
 	
 	/*
@@ -80,7 +81,7 @@ public class ThePresident {
 			Logger.logln(leader.NAME+"We're on a Mac!");
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name","Anonymouth");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			Application app = Application.getApplication();
+			app = Application.getApplication();
 			String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png";
 			try{
 				leader.getLogo(logoName);
