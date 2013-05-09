@@ -1198,7 +1198,7 @@ public class GUIMain extends javax.swing.JFrame {
 								analysisClassificationStatisticsJCheckBox.setSelected(false);
 								analysisClassificationStatisticsJCheckBox.setToolTipText("<html>JStylo will provide a confusion matrix and supplementary statistics.<br>" +
 										"Not recommended by default.<br>Only use if the true authors of each document are known and appear in the test document filename in the same" +
-										"format as the author name.<br>" +
+										" format as the author name.<br>" +
 										"Intended for research purposes, not for deanonymization attempts.</html>");
 								analysisClassificationStatisticsJCheckBox.setText("Enable Classification Statistics");
 								analysisClassificationStatisticsJCheckBox.setEnabled(false);

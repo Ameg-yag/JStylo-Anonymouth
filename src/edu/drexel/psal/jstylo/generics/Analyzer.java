@@ -166,9 +166,11 @@ public abstract class Analyzer{
 				if (author.equals(resAuthor))
 					c = '+';
 				else c = ' ';
-
-				f.format(" %2.6f %c     |",currRes.get(author).doubleValue(),c);
-				
+				try{
+					f.format(" %2.6f %c     |",currRes.get(author).doubleValue(),c);
+				} catch (NullPointerException e){
+					
+				}
 			}
 			res += f.toString()+"\n";
 		}
@@ -297,25 +299,29 @@ public abstract class Analyzer{
 					i++;
 				}
 				int incorrectIndex = extractedAuthors.indexOf(selectedAuthor);
+				
+				if (!(correctIndex==-1)){ //if the author is listed
+					try {
 
-				try {
-
-					//Logger.logln("Attempting to add incorrect instance at: "+(correctIndex*extractedAuthors.numValues()+incorrectIndex));
-					//Logger.logln("\t "+"correctAuthor: "+testInstAuthor+" guess: "+selected);
+						//Logger.logln("Attempting to add incorrect instance at: "+(correctIndex*extractedAuthors.numValues()+incorrectIndex));
+						//Logger.logln("\t "+"correctAuthor: "+testInstAuthor+" guess: "+selected);
 					
-					int index = extractedAuthors.size()-1; //moves the index past the good instances
-					index+=extractedAuthors.size()*correctIndex; //moves to the correct "row"
-					index+=incorrectIndex; //moves to correct "column"
-					index-=correctIndex; //adjusts for the fact that there are numAuthors-1 cells per row in the bad instances part of the instance list					
-					if (incorrectIndex<correctIndex)
-						index+=1;
+						int index = extractedAuthors.size()-1; //moves the index past the good instances
+						index+=extractedAuthors.size()*correctIndex; //moves to the correct "row"
+						index+=incorrectIndex; //moves to correct "column"
+						index-=correctIndex; //adjusts for the fact that there are numAuthors-1 cells per row in the bad instances part of the instance list					
+						if (incorrectIndex<correctIndex)
+							index+=1;
 					
-					eval.evaluateModelOnce(smo,allInstances.instance(index));
-					//Logger.logln(eval.toMatrixString());
+						eval.evaluateModelOnce(smo,allInstances.instance(index));
+						//Logger.logln(eval.toMatrixString());
 					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}	
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					Logger.logln("author to be removed: "+testDoc);
+				}
 			}
 		}
 		return eval;
