@@ -19,6 +19,7 @@ import com.apple.eawt.AppEvent.AboutEvent;
 import com.apple.eawt.AppEvent.PreferencesEvent;
 import com.apple.eawt.AppEvent.QuitEvent;
 import com.apple.eawt.Application;
+import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
 import com.apple.eawt.ApplicationListener;
 import com.apple.eawt.PreferencesHandler;
@@ -47,6 +48,7 @@ public class ThePresident {
 	public static boolean SAVE_TAGGED_DOCUMENTS = true; // TODO: put in "options
 	public static int MAX_FEATURES_TO_CONSIDER = PropertiesUtil.getMaximumFeatures(); // todo: put in 'options', and figure out an optimal number (maybe based upon info gain, total #, etc.)... basically, when the processing time outweighs the benefit, that should be our cutoff.
 	public static int NUM_TAGGING_THREADS = PropertiesUtil.getThreadCount();
+	public static Application app;
 	// test
 	
 	/*
@@ -79,7 +81,7 @@ public class ThePresident {
 			Logger.logln(leader.NAME+"We're on a Mac!");
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name","Anonymouth");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			Application app = Application.getApplication();
+			app = Application.getApplication();
 			String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png";
 			try{
 				leader.getLogo(logoName);
@@ -102,74 +104,13 @@ public class ThePresident {
 				menuBar.add(menu[i]);
 			app.setDefaultMenuBar(menuBar);
 			 */
-//			app.setAboutHandler(new AboutHandler(){
-//				public void handleAbout(AboutEvent e){
-//					JOptionPane.showMessageDialog(null, 
-//							"Anonymouth\nVersion 0.0.3\nAuthor: Andrew W.E. McDonald\nDrexel University, PSAL, Dr. Rachel Greenstadt - P.I.",
-//							"About Anonymouth",
-//							JOptionPane.INFORMATION_MESSAGE,
-//							LOGO);
-//				}
-//			});
-//			
-//			app.setPreferencesHandler(new PreferencesHandler() {
-//				@Override
-//				public void handlePreferences(PreferencesEvent arg0) {
-//					GUIMain.GSP.openWindow();
-//				}
-//			});
-//			
-//			app.setQuitHandler(new QuitHandler() {
-//				@Override
-//				public void handleQuitRequestWith(QuitEvent arg0, QuitResponse arg1) {
-//					if (PropertiesUtil.getWarnQuit() && !GUIMain.saved) {
-//						int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
-//						if (confirm == 0) {
-//							System.exit(0);
-//						}
-//					} else if (PropertiesUtil.getAutoSave()) {
-//						DriverDocumentsTab.save(GUIMain.inst);
-//						System.exit(0);
-//					} else {
-//						System.exit(0);
-//					}
-//				}
-//			});
 			
-			/*
-			 * NOTE: While I know well that this is a deprecated library, it's the only one that works with what I want my code in the
-			 * quit handler. Above, while it did seem to work at first, if you said "no" to the quit warning prompt and focus returned back
-			 * to the application, you would no longer be able to quit the application by any means (incredibly odd, still have no idea
-			 * why it does this). This deprecated library though works beautifully and with my testing I didn't see any problems, which is
-			 * why I'm sticking with this instead of the new and "better" ones above.
+			/**
+			 * The best method I've found yet for handling the OS X menu look and feel, everything works perfectly and it's not deprecated.
 			 */
-			app.addApplicationListener(new ApplicationListener() {
+			app.addApplicationListener(new ApplicationAdapter() {
 				@Override
-				@Deprecated
-				public void handleAbout(ApplicationEvent arg0) {
-					JOptionPane.showMessageDialog(null, 
-							"Anonymouth\nVersion 0.0.3\nAuthor: Andrew W.E. McDonald\nDrexel University, PSAL, Dr. Rachel Greenstadt - P.I.",
-							"About Anonymouth",
-							JOptionPane.INFORMATION_MESSAGE,
-							LOGO);
-				}
-				@Override
-				@Deprecated
-				public void handleOpenApplication(ApplicationEvent arg0) {}
-				@Override
-				@Deprecated
-				public void handleOpenFile(ApplicationEvent arg0) {}
-				@Override
-				@Deprecated
-				public void handlePreferences(ApplicationEvent arg0) {
-					GUIMain.GSP.openWindow();
-				}
-				@Override
-				@Deprecated
-				public void handlePrintFile(ApplicationEvent arg0) {}
-				@Override
-				@Deprecated
-				public void handleQuit(ApplicationEvent arg0) {
+				public void handleQuit(ApplicationEvent e) {
 					if (PropertiesUtil.getWarnQuit() && !GUIMain.saved) {
 						int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
 						if (confirm == 0) {
@@ -182,11 +123,24 @@ public class ThePresident {
 						System.exit(0);
 					}
 				}
+				
 				@Override
-				@Deprecated
-				public void handleReOpenApplication(ApplicationEvent arg0) {}
+				public void handleAbout(ApplicationEvent e) {
+					e.setHandled(true); //Tells the system to not display their own "About" window since we've got this covered.
+					JOptionPane.showMessageDialog(null, 
+							"Anonymouth\nVersion 0.0.3\nAuthor: Andrew W.E. McDonald\nDrexel University, PSAL, Dr. Rachel Greenstadt - P.I.",
+							"About Anonymouth",
+							JOptionPane.INFORMATION_MESSAGE,
+							LOGO);
+				}
+				
+				@Override
+				public void handlePreferences(ApplicationEvent e) {
+					GUIMain.GSP.openWindow();
+				}
 			});
-
+			
+			app.setEnabledPreferencesMenu(true);
 			app.requestForeground(true);
 		}
 		sessionName = "anonymous"; 

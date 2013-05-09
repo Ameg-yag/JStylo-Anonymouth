@@ -504,6 +504,8 @@ public class TaggedDocument implements Serializable{
 		int numTaggedSents = td.taggedSentences.size();
 		int numArrayLists;
 		int numValues;
+		
+		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
 		// copy TaggedSentences
 		for(i = 0; i < numTaggedSents; i++)
 			taggedSentences.add(new TaggedSentence(td.taggedSentences.get(i)));
@@ -513,46 +515,46 @@ public class TaggedDocument implements Serializable{
 		
 		// copy the ArrayLists of ArrayLists of grammar related concepts
 		// first tenses
-		numArrayLists = td.tenses.size();
-		ArrayList<ArrayList<TENSE>> tempTenses = new ArrayList<ArrayList<TENSE>>(numArrayLists);
-		for(i = 0; i < numArrayLists; i++){
-			ArrayList<TENSE> tempOld = td.tenses.get(i);
-			numValues = tempOld.size();
-			ArrayList<TENSE> tempPartialTenses = new ArrayList<TENSE>(numValues);
-			for(j = 0; j < numValues; j++){
-				tempPartialTenses.add(tempOld.get(j));
-			}
-			tempTenses.add(tempPartialTenses);
-		}
-		tenses = tempTenses;
+//		numArrayLists = td.tenses.size();
+//		ArrayList<ArrayList<TENSE>> tempTenses = new ArrayList<ArrayList<TENSE>>(numArrayLists);
+//		for(i = 0; i < numArrayLists; i++){
+//			ArrayList<TENSE> tempOld = td.tenses.get(i);
+//			numValues = tempOld.size();
+//			ArrayList<TENSE> tempPartialTenses = new ArrayList<TENSE>(numValues);
+//			for(j = 0; j < numValues; j++){
+//				tempPartialTenses.add(tempOld.get(j));
+//			}
+//			tempTenses.add(tempPartialTenses);
+//		}
+//		tenses = tempTenses;
 		
 		// then points of view
-		numArrayLists = td.pointsOfView.size();
-		ArrayList<ArrayList<POV>> tempPOVs = new ArrayList<ArrayList<POV>>(numArrayLists);
-		for(i = 0; i < numArrayLists; i++){
-			ArrayList<POV> tempOld = td.pointsOfView.get(i);
-			numValues = tempOld.size();
-			ArrayList<POV> tempPartialPOVs = new ArrayList<POV>(numValues);
-			for(j = 0; j < numValues; j++){
-				tempPartialPOVs.add(tempOld.get(j));
-			}
-			tempPOVs.add(tempPartialPOVs);
-		}
-		pointsOfView = tempPOVs;
+//		numArrayLists = td.pointsOfView.size();
+//		ArrayList<ArrayList<POV>> tempPOVs = new ArrayList<ArrayList<POV>>(numArrayLists);
+//		for(i = 0; i < numArrayLists; i++){
+//			ArrayList<POV> tempOld = td.pointsOfView.get(i);
+//			numValues = tempOld.size();
+//			ArrayList<POV> tempPartialPOVs = new ArrayList<POV>(numValues);
+//			for(j = 0; j < numValues; j++){
+//				tempPartialPOVs.add(tempOld.get(j));
+//			}
+//			tempPOVs.add(tempPartialPOVs);
+//		}
+//		pointsOfView = tempPOVs;
 
 		// and then conjugations
-		numArrayLists = td.conjugations.size();
-		ArrayList<ArrayList<CONJ>> tempConjugations = new ArrayList<ArrayList<CONJ>>(numArrayLists);
-		for(i = 0; i < numArrayLists; i++){
-			ArrayList<CONJ> tempOld = td.conjugations.get(i);
-			numValues = tempOld.size();
-			ArrayList<CONJ> tempPartialConjugations= new ArrayList<CONJ>(numValues);
-			for(j = 0; j < numValues; j++){
-				tempPartialConjugations.add(tempOld.get(j));
-			}
-			tempConjugations.add(tempPartialConjugations);
-		}
-		conjugations = tempConjugations;
+//		numArrayLists = td.conjugations.size();
+//		ArrayList<ArrayList<CONJ>> tempConjugations = new ArrayList<ArrayList<CONJ>>(numArrayLists);
+//		for(i = 0; i < numArrayLists; i++){
+//			ArrayList<CONJ> tempOld = td.conjugations.get(i);
+//			numValues = tempOld.size();
+//			ArrayList<CONJ> tempPartialConjugations= new ArrayList<CONJ>(numValues);
+//			for(j = 0; j < numValues; j++){
+//				tempPartialConjugations.add(tempOld.get(j));
+//			}
+//			tempConjugations.add(tempPartialConjugations);
+//		}
+//		conjugations = tempConjugations;
 		
 		// Next copy the ID (not really sure what this is, but I don't see a good reason to throw it out)
 		ID = td.ID;

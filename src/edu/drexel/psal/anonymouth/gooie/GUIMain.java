@@ -16,10 +16,12 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -33,11 +35,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
+import edu.drexel.psal.anonymouth.engine.VersionControl;
 import edu.drexel.psal.anonymouth.gooie.Translation;
 import edu.drexel.psal.anonymouth.gooie.DriverClustersWindow.alignListRenderer;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
@@ -75,12 +79,14 @@ import weka.classifiers.*;
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 import edu.stanford.nlp.util.PropertiesUtils;
 
+import com.apple.eawt.AppEvent.FullScreenEvent;
 import com.apple.eawt.AppEventListener;
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
 import com.apple.eawt.ApplicationListener;
 import com.apple.eawt.AppEvent.QuitEvent;
+import com.apple.eawt.FullScreenListener;
 import com.apple.eawt.QuitHandler;
 import com.apple.eawt.QuitResponse;
 
@@ -330,7 +336,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		private JPanel spacer1;
 		protected JButton restoreSentenceButton;
 		protected JLabel documentLabel;
-		protected JTextPane documentPane;
+		private JTextPane documentPane;
 		protected JScrollPane documentScrollPane;
 //		public JTextPane sentenceEditPane; //============================================ PUBLIC
 //		protected JLabel sentenceBoxLabel;
@@ -433,8 +439,12 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JMenuItem helpClustersMenuItem;
 	protected JMenuItem viewMenuItem;
 	protected JMenuItem viewClustersMenuItem;
+	public static JMenuItem viewEnterFullScreenMenuItem;
 	protected JMenuItem helpMenu;
 	protected JMenuItem fileMenu;
+	protected JMenuItem editMenu;
+	public JMenuItem editUndoMenuItem;
+	public JMenuItem editRedoMenuItem;
 //	protected JMenuItem filePrintMenuItem;
 	
 	// random useful variables
@@ -453,6 +463,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected ClustersWindow clustersWindow;
 	protected SuggestionsWindow suggestionsWindow;
 	protected ClustersTutorial clustersTutorial;
+	protected VersionControl versionControl;
 	
 	//used mostly for loading the main document without having to alter the main.ps.testDocAt(0) directly
 	Document mainDocPreview;
@@ -505,6 +516,10 @@ public class GUIMain extends javax.swing.JFrame  {
 					@Override
 					public void windowOpened(WindowEvent arg0) {}
 				};
+			
+				if (ThePresident.IS_MAC) {
+					enableOSXFullscreen(inst);
+				}
 				
 				inst.addWindowListener(exitListener);
 				inst.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -514,6 +529,47 @@ public class GUIMain extends javax.swing.JFrame  {
 			}
 		});
 	}
+	
+	/**
+	 * (Thanks to Dyorgio at StackOverflow for the code)
+	 * If the user is on OS X, we will allow them to enter full screen in Anonymouth using OS X's native full screen functionality.
+	 * As of right now it doesn't actually resize the components that much and doesn't add much to the application, but the structure's
+	 * there to allow someone to come in and optimize Anonymouth when in full screen (not to mention just having the functionality makes
+	 * it seem more like a native OS X application).
+	 * 
+	 * This enables full screen for the particular window and also adds a full screen listener so that we may chance components as needed
+	 * depending on what state we are in.
+	 * @param window
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static void enableOSXFullscreen(Window window) {
+	    try {
+	        Class util = Class.forName("com.apple.eawt.FullScreenUtilities");
+	        Class params[] = new Class[]{Window.class, Boolean.TYPE};
+	        Method method = util.getMethod("setWindowCanFullScreen", params);
+	        method.invoke(util, window, true);
+	        
+	        com.apple.eawt.FullScreenUtilities.addFullScreenListenerTo(window, new FullScreenListener () {
+				@Override
+				public void windowEnteredFullScreen(FullScreenEvent arg0) {
+					GUIMain.viewEnterFullScreenMenuItem.setText("Exit Full Screen");
+				}
+				@Override
+				public void windowEnteringFullScreen(FullScreenEvent arg0) {}
+				@Override
+				public void windowExitedFullScreen(FullScreenEvent arg0) {
+					GUIMain.viewEnterFullScreenMenuItem.setText("Enter Full Screen");
+				}
+				@Override
+				public void windowExitingFullScreen(FullScreenEvent arg0) {}
+			});
+	    } catch (ClassNotFoundException e1) {
+	    	Logger.logln("( GUIMain ) - Failed initializing Anonymouth for full-screen", LogOut.STDERR);
+	    } catch (Exception e) {
+	    	Logger.logln("( GUIMain ) - Failed initializing Anonymouth for full-screen", LogOut.STDERR);
+	    }
+	}
+
 
 	public GUIMain() {
 		super();
@@ -564,6 +620,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			fileLoadProblemSetMenuItem = new JMenuItem("Load Problem Set");
 			fileSaveTestDocMenuItem = new JMenuItem("Save");
 			fileSaveAsTestDocMenuItem = new JMenuItem("Save As...");
+			
 			fileMenu.add(fileSaveProblemSetMenuItem);
 			fileMenu.add(fileLoadProblemSetMenuItem);
 			fileMenu.add(new JSeparator());
@@ -572,18 +629,44 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			menuBar.add(fileMenu);
 			
-			if (!ThePresident.IS_MAC) {
-				JMenu settingsMenu = new JMenu("Settings");
-				settingsGeneralMenuItem = new JMenuItem("Preferences");
-				settingsMenu.add(settingsGeneralMenuItem);
-				menuBar.add(settingsMenu);
-			}
+			editMenu = new JMenu("Edit");
+			editUndoMenuItem = new JMenuItem("Undo");
+			editUndoMenuItem.setEnabled(false);
+			editMenu.add(editUndoMenuItem);
+			editRedoMenuItem = new JMenuItem("Redo");
+			editRedoMenuItem.setEnabled(false);
+			editMenu.add(editRedoMenuItem);
+			menuBar.add(editMenu);
 			
 			viewMenuItem = new JMenu("View");
 			viewClustersMenuItem = new JMenuItem("Clusters");
 			viewMenuItem.add(viewClustersMenuItem);
 			
 			menuBar.add(viewMenuItem);
+			
+			if (ThePresident.IS_MAC) {
+				fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				
+				viewMenuItem.add(new JSeparator());
+				viewEnterFullScreenMenuItem = new JMenuItem("Enter Full Screen");
+				viewMenuItem.add(viewEnterFullScreenMenuItem);
+				viewEnterFullScreenMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			} else {
+				fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
+				fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+				editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+				editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
+			}
+			
+			if (!ThePresident.IS_MAC) {
+				JMenu settingsMenu = new JMenu("Settings");
+				settingsGeneralMenuItem = new JMenuItem("Preferences");
+				settingsMenu.add(settingsGeneralMenuItem);
+				menuBar.add(settingsMenu);
+			}
 			
 			helpMenu = new JMenu("Help");
 			helpAboutMenuItem = new JMenuItem("About Anonymouth");
@@ -631,6 +714,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			clustersWindow = new ClustersWindow();
 			suggestionsWindow = new SuggestionsWindow();
 			clustersTutorial = new ClustersTutorial();
+			versionControl = new VersionControl(this);
 			
 			// initialize listeners - except for EditorTabDriver!
 			
@@ -1482,14 +1566,14 @@ public class GUIMain extends javax.swing.JFrame  {
                 documentLabel.setBorder(rlborder);
                 
                 documentScrollPane = new JScrollPane();
-                documentPane = new JTextPane();
-                documentPane.setDragEnabled(false);
-                documentPane.setText("This is where the latest version of your document will be.");
-                documentPane.setFont(normalFont);
-                documentPane.setEnabled(false);
-                documentPane.setEditable(false);
-                documentPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
-                documentScrollPane.setViewportView(documentPane);
+                setDocumentPane(new JTextPane());
+                getDocumentPane().setDragEnabled(false);
+                getDocumentPane().setText("This is where the latest version of your document will be.");
+                getDocumentPane().setFont(normalFont);
+                getDocumentPane().setEnabled(false);
+                getDocumentPane().setEditable(false);
+                getDocumentPane().setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
+                documentScrollPane.setViewportView(getDocumentPane());
                 
 //                documentOptionsPanel = new JPanel();
 //                documentOptionsPanel.setBackground(tan);
@@ -1726,6 +1810,14 @@ public class GUIMain extends javax.swing.JFrame  {
 	    resultsMainPanel.add(resultsTablePane, "grow");
 	}
 	
+	public JTextPane getDocumentPane() {
+		return documentPane;
+	}
+
+	public void setDocumentPane(JTextPane documentPane) {
+		this.documentPane = documentPane;
+	}
+
 	/**\
 	 * Aligns the table header and cells to the specified alignment.
 	 * @param table - The table you want to apply this too.

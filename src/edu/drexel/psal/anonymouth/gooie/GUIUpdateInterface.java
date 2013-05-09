@@ -116,7 +116,7 @@ public class GUIUpdateInterface {
 					e.printStackTrace();
 				}
 				try {
-					main.documentPane.setText(main.mainDocPreview.stringify());
+					main.getDocumentPane().setText(main.mainDocPreview.stringify());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -174,7 +174,7 @@ public class GUIUpdateInterface {
 	 * Clears the text from the document preview text box.
 	 */
 	protected static void clearDocPreview(GUIMain main) {
-		main.documentPane.setText("This is where the latest version of your document will be.");
+		main.getDocumentPane().setText("This is where the latest version of your document will be.");
 		main.documentLabel.setText("Document:");
 	}
 	

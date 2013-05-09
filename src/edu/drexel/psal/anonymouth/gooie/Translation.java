@@ -143,7 +143,10 @@ public class Translation {
 				backToenglish = Translate.execute(translatedText,other,Language.ENGLISH);
 				
 				if (backToenglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
-					current++;
+					if (current+1 >= clients.size())
+						current = 0;
+					else
+						current++;
 					Translate.setClientId(clients.get(current));
 					Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
 					translationFound = false;
@@ -182,8 +185,12 @@ public class Translation {
     	    		String translatedText = Translate.execute(original, Language.ENGLISH,other);
     				backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
     				
-    				if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
-    					current++;
+    				if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request has credentials zero balance.")) {
+    					if (current+1 >= clients.size())
+    						current = 0;
+    					else
+    						current++;
+    					
     					Translate.setClientId(clients.get(current));
     					Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
     					translationFound = false;
