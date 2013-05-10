@@ -238,9 +238,7 @@ public class WekaInstancesBuilder {
 		int knownDocsSize = knownDocs.size();
 		
 		int numCalcThreadsToUse = 1;
-		Logger.logln("pre-get calc threads");
 		numCalcThreads = getNumCalcThreads();
-		Logger.logln("post-get calc threads");
 		
 		if (numCalcThreads>knownDocsSize){
 			numCalcThreadsToUse=knownDocsSize;
@@ -674,12 +672,11 @@ public class WekaInstancesBuilder {
 				// set the author name to that of the document, or if not set,
 				// to the author of the first training instance
 				String name = unknownDocs.get(i).getAuthor();
-				if (name == null)
-					name = trainingSet.instance(0)
-					.stringValue(trainingSet.classAttribute());
+				if (name == null){
+					name = trainingSet.instance(0).stringValue(trainingSet.classAttribute());
+				}
 				inst.setValue((Attribute) attributeList.lastElement(), name);
 			}
-
 			testSet.add(inst);
 		}
 

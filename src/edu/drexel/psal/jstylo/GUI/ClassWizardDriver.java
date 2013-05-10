@@ -26,11 +26,11 @@ public class ClassWizardDriver {
 					i++;
 				}
 				
-				
 				for (Argument a: args){
 					if (a.getValue()==null ||a.getValue().equals("")|| a.getValue().equals(" ")){ //if the arg doesn't have any value at all, don't add it
-						;
-					} else if (a.getValue().equalsIgnoreCase("<ON/OFF>")){ //if the flag is the only arg the classifier takes, just add the flag
+						;				
+						//if the flag is the only arg the classifier takes, just add the flag
+					} else if (a.getValue().equalsIgnoreCase("<ON/OFF>")||a.getValue().equalsIgnoreCase("<ON>")||a.getValue().equalsIgnoreCase("<OFF>")){ 
 						argString+=(a.getFlag()+" ");
 					} else { //if it's a normal arg, add the flag, a space, then the arg
 						argString+=(a.getFlag()+" "+a.getValue()+" ");
@@ -40,6 +40,7 @@ public class ClassWizardDriver {
 				argString.trim(); //remove trailing whitespace
 				String[] argArray = argString.split(" "); //create arg array
 			
+				//set args and arg string in the GUI
 				cw.tmpAnalyzer.setOptions(argArray);
 				cw.parent.classAvClassArgsJTextField.setText(edu.drexel.psal.jstylo.GUI.ClassTabDriver.getOptionsStr(cw.tmpAnalyzer.getOptions()));
 				cw.dispose();

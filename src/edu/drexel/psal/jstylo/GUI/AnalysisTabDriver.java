@@ -2,7 +2,7 @@ package edu.drexel.psal.jstylo.GUI;
 
 import edu.drexel.psal.jstylo.GUI.DocsTabDriver.ExtFilter;
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
-import edu.drexel.psal.jstylo.analyzers.writeprints.WriteprintsAnalyzer;
+import edu.drexel.psal.jstylo.analyzers.WriteprintsAnalyzer;
 import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.AnalyzerTypeEnum;
 import edu.drexel.psal.jstylo.generics.Logger;
@@ -264,7 +264,7 @@ public class AnalysisTabDriver {
 		});
 		
 		//
-		// K-fold and N-thread text area toggling
+		// Analysis-specific options toggling
 		// =====================================
 		main.analysisTrainCVJRadioButton.addActionListener(new ActionListener(){
 
@@ -277,6 +277,7 @@ public class AnalysisTabDriver {
 				if (selected){
 					main.analysisKFoldJTextField.setEnabled(true);					
 					main.analysisRelaxJTextField.setEnabled(true);
+					main.analysisClassificationStatisticsJCheckBox.setEnabled(false);
 				}			
 			}		
 		});
@@ -291,6 +292,7 @@ public class AnalysisTabDriver {
 				if (selected){
 					main.analysisKFoldJTextField.setEnabled(false);
 					main.analysisRelaxJTextField.setEnabled(false);
+					main.analysisClassificationStatisticsJCheckBox.setEnabled(true);
 				}			
 			}		
 		});
@@ -544,6 +546,9 @@ public class AnalysisTabDriver {
 			main.analysisKFoldJTextField.setEnabled(!lock);
 			main.analysisRelaxJTextField.setEnabled(!lock);
 		}
+		if (main.analysisClassTestDocsJRadioButton.isSelected()){
+			main.analysisClassificationStatisticsJCheckBox.setEnabled(!lock);
+		}
 		main.analysisRelaxJLabel.setEnabled(!lock);
 		main.analysisKFoldJLabel.setEnabled(!lock);
 		main.analysisNThreadJLabel.setEnabled(!lock);
@@ -790,8 +795,21 @@ public class AnalysisTabDriver {
 							"========\n";
 					
 					content += main.analysisDriver.getLastStringResults();
-					updateResultsView();
 					
+					//TODO have this be optional and toggle it via an option on the analysis tab. Make sure that there's some kind
+					// of disclaimer since right now it only works if the author name is in the document title.
+					if (main.analysisClassificationStatisticsJCheckBox.isSelected()){
+						Evaluation eval = main.analysisDriver.getClassificationStatistics();
+						content += eval.toSummaryString(false)+"\n";
+						try {
+							content +=
+								eval.toClassDetailsString()+"\n" +
+									eval.toMatrixString()+"\n" ;
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+					updateResultsView();
 				}
 				
 			} else {
@@ -832,20 +850,6 @@ public class AnalysisTabDriver {
 					updateResultsView();
 					
 					// print out results
-					//if (a instanceof WekaAnalyzer){
-						Evaluation eval = (Evaluation) results;
-						content += eval.toSummaryString(false)+"\n";
-						try {
-							content +=
-									eval.toClassDetailsString()+"\n" +
-										eval.toMatrixString()+"\n" ;
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-				/*	} else if (a instanceof WriteprintsAnalyzer){ //TODO fix writeprints analyzer and remove instanceof
-						
-						content+=(String) results;
-						
 					Evaluation eval = (Evaluation) results;
 					content += eval.toSummaryString(false)+"\n";
 					try {
@@ -854,7 +858,7 @@ public class AnalysisTabDriver {
 									eval.toMatrixString()+"\n" ;
 					} catch (Exception e) {
 						e.printStackTrace();
-					}*/
+					}
 						
 					updateResultsView();
 					

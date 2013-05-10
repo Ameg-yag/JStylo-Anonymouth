@@ -211,6 +211,7 @@ public class GUIMain extends javax.swing.JFrame {
 	protected JTextPane analysisInstructionPane;
 	protected JLabel analysisRelaxJLabel;
 	protected JTextField analysisRelaxJTextField;
+	protected JCheckBox analysisClassificationStatisticsJCheckBox;
 	
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -1125,8 +1126,6 @@ public class GUIMain extends javax.swing.JFrame {
 						}
 						{
 							int numCalcThreads = WekaInstancesBuilder.getNumCalcThreads();
-							
-							
 							JPanel analysisNPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 							analysisNThreadJTextField = new JTextField(""+numCalcThreads);
 							analysisNThreadJTextField.setColumns(5);
@@ -1182,19 +1181,33 @@ public class GUIMain extends javax.swing.JFrame {
 									analysisTrainCVoptionsJPanel.add(analysisKFoldJTextField);
 									
 									analysisTrainCVoptionsJPanel.add(analysisRelaxJLabel);
-									analysisTrainCVoptionsJPanel.add(analysisRelaxJTextField);
-									
+									analysisTrainCVoptionsJPanel.add(analysisRelaxJTextField);									
 								}
 							}
 						}
 						{
+							JPanel analysisClassTestJPanel = new JPanel(new BorderLayout(cellPadding,cellPadding));
 							analysisClassTestDocsJRadioButton = new JRadioButton();
-							options.add(analysisClassTestDocsJRadioButton,BorderLayout.CENTER);
+							analysisClassTestJPanel.add(analysisClassTestDocsJRadioButton,BorderLayout.CENTER);
 							analysisTypeButtonGroup.add(analysisClassTestDocsJRadioButton);
 							analysisClassTestDocsJRadioButton.setText("Train on training corpus and classify test documents");
+							{
+								JPanel analysisClassStatisticsJPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+								
+								analysisClassificationStatisticsJCheckBox = new JCheckBox();
+								analysisClassificationStatisticsJCheckBox.setSelected(false);
+								analysisClassificationStatisticsJCheckBox.setToolTipText("<html>JStylo will provide a confusion matrix and supplementary statistics.<br>" +
+										"Not recommended by default.<br>Only use if the true authors of each document are known and appear in the test document filename in the same" +
+										" format as the author name.<br>" +
+										"Intended for research purposes, not for deanonymization attempts.</html>");
+								analysisClassificationStatisticsJCheckBox.setText("Enable Classification Statistics");
+								analysisClassificationStatisticsJCheckBox.setEnabled(false);
+
+								analysisClassStatisticsJPanel.add(analysisClassificationStatisticsJCheckBox);
+								analysisClassTestJPanel.add(analysisClassStatisticsJPanel,BorderLayout.SOUTH);
+							}
+							options.add(analysisClassTestJPanel,BorderLayout.CENTER);
 						}
-						
-						
 					}
 
 					// post-analysis
