@@ -637,11 +637,8 @@ public class AnalysisTabDriver {
 				content += "\n";
 			}
 			
-			// documents
 			List<Document> trainingDocs = main.ps.getAllTrainDocs();
 			List<Document> testDocs = main.ps.getTestDocs();
-			int numTrainDocs = trainingDocs.size();
-			int numTestDocs = testDocs.size();
 			
 			// feature set
 			content += "Feature set: "+main.cfd.getName()+":\n";

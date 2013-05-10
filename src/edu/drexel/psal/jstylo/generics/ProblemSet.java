@@ -456,8 +456,15 @@ public class ProblemSet {
 	 */
 	public List<Document> getAllTrainDocs() {
 		List<Document> allTrainDocs = new LinkedList<Document>();
-		for (String key: trainDocsMap.keySet())
-			allTrainDocs.addAll(trainDocsMap.get(key));
+		for (String key: trainDocsMap.keySet()){
+			for (Document d:trainDocsMap.get(key)){
+				try {
+					allTrainDocs.add(new Document(d.getFilePath(),key,d.getTitle()));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 		return allTrainDocs;
 	}
 	
@@ -791,9 +798,9 @@ public class ProblemSet {
         }
 	}
 	
-	public static void main(String[] args) throws Exception {
+/*	public static void main(String[] args) throws Exception {
 		ProblemSet ps = new ProblemSet("jsan_resources/problem_sets/amt_imitation_short.xml");
 		System.out.println(ps.toXMLString());
 		ps.writeToXML("d:/tmp/a.xml");
-	}
+	}*/
 }
