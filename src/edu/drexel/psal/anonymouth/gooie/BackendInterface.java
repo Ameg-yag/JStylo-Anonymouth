@@ -301,7 +301,7 @@ public class BackendInterface {
 			DriverDocumentsTab.suggestionCalculator.trackEditSentence(main);
 			GUIUpdateInterface.updateResultsPrepColor(main);
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
-			
+
 			main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument());//must re-set the document after processing (do deal
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSelectedSentence(0);
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];

@@ -43,7 +43,7 @@ public class SuggestionsWindow extends JFrame {
 		this.add(textScrollPane);
 		this.setSize(600, 500);
 		this.setLocationRelativeTo(null);
-		this.setTitle("Suggestions");
+		this.setTitle("General Suggestions");
 		this.setVisible(false);
 	}
 	

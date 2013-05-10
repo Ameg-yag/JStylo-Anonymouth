@@ -70,7 +70,7 @@ public class DriverDocumentsTab {
 	
 	private final static String NAME = "( DriverDocumentsTab ) - ";
 	
-	public final static int UNDOCHARACTERBUFFER = 0;
+	public final static int UNDOCHARACTERBUFFER = 5;
 	public static int currentCharacterBuffer = 0;
 	
 	protected static SentenceTools sentenceTools;
@@ -129,6 +129,8 @@ public class DriverDocumentsTab {
 	
 	private static final Color HILIT_COLOR = new Color(255,0,0,100);//Color.yellow; //new Color(50, 161,227);// Color.blue;
 	protected static DefaultHighlighter.DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
+	protected static DefaultHighlighter.DefaultHighlightPainter painterRemove = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,0,0,128));
+	protected static DefaultHighlighter.DefaultHighlightPainter painterAdd = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,0,255,128));
 	
 //	protected static Highlighter editTracker;
 //	protected static Highlighter removeTracker;
@@ -157,6 +159,7 @@ public class DriverDocumentsTab {
 	protected static int caretPositionPriorToCharInsert = 0;
 	private static Boolean firstRun = true;
 	private static int[] oldSelectionInfo = new int[3];
+	protected static Map<String, int[]> wordsToRemove = new HashMap<String, int[]>();
 	
 	protected static SuggestionCalculator suggestionCalculator;
 	
@@ -217,6 +220,8 @@ public class DriverDocumentsTab {
 		main.fileSaveTestDocMenuItem.setEnabled(b);
 		main.fileSaveAsTestDocMenuItem.setEnabled(b);
 		main.viewClustersMenuItem.setEnabled(b);
+		main.elementsToAddPane.setEnabled(b);
+		main.elementsToRemovePane.setEnabled(b);
 		
 //		main.dictButton.setEnabled(b);
 //		main.editorHelpTabPane.setEnabled(b);
@@ -234,11 +239,11 @@ public class DriverDocumentsTab {
 		//Scanner in = new Scanner(System.in);
 		//in.nextLine();
 
-//		if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
-//			main.versionControl.addVersion(taggedDoc);
-//			currentCharacterBuffer = 0;
-//		} else
-//			currentCharacterBuffer += 1;
+		if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
+			main.versionControl.addVersion(taggedDoc);
+			currentCharacterBuffer = 0;
+		} else
+			currentCharacterBuffer += 1;
 		
 		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
 		//main.documentPane.getCaret().setDot(currentCaretPosition);
@@ -460,6 +465,9 @@ public class DriverDocumentsTab {
 						// clicked then dragged left
 
 					}
+					
+					if (charsInserted > 2 || charsInserted < -2)
+						main.versionControl.addVersion(taggedDoc);
 
 					lastSentNum = currentSentNum;
 					currentSentNum = selectionInfo[0];
@@ -502,11 +510,11 @@ public class DriverDocumentsTab {
 							originalSents.add(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged());
 						}
 						
-						if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
-							main.versionControl.addVersion(taggedDoc);
-							currentCharacterBuffer = 0;
-						} else
-							currentCharacterBuffer += 1;
+//						if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
+//							main.versionControl.addVersion(taggedDoc);
+//							currentCharacterBuffer = 0;
+//						} else
+//							currentCharacterBuffer += 1;
 					}
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
@@ -532,7 +540,7 @@ public class DriverDocumentsTab {
 						
 						if(!inRange) {
 							moveHighlight(main,selectedSentIndexRange,true);
-							main.versionControl.setMostRecentState(taggedDoc);
+//							main.versionControl.setMostRecentState(taggedDoc);
 						} else
 							moveHighlight(main,selectedSentIndexRange,false);
 					}
@@ -573,12 +581,7 @@ public class DriverDocumentsTab {
 				
 				//System.out.println("Caret postion registered at keypressed: old: "+oldCaretPosition);
 			}
-			
-			/*
-			 * TODO: make the highlighter and sentences track when people type. think about copy and paste and cut and paste too.
-			 */
-			
-			
+
 			@Override
 			public void keyReleased(KeyEvent arg0) {  
 				/* 	Code		|	key
@@ -608,26 +611,43 @@ public class DriverDocumentsTab {
 					//Collections.sort(highlightedObjects);
 					if(lastKeyCaretPosition < thisKeyCaretPosition){
 						// cursor has advanced 
-						//System.out.println("Cursor advanced");
-						
-						
+						Iterator<HighlightMapper> hloi = highlightedObjects.iterator();
+						boolean isGone;
+						while(hloi.hasNext()){
+							isGone = false;
+							HighlightMapper tempHm = hloi.next();
+							if((tempHm.getStart() <= thisKeyCaretPosition) && (lastKeyCaretPosition <= tempHm.getEnd())){
+								//System.out.println("FOUND object... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
+								main.getDocumentPane().getHighlighter().removeHighlight(tempHm.getHighlightedObject());
+								isGone = true;
+							}	
+							if ((lastKeyCaretPosition <= tempHm.getStart() && !isGone))
+								tempHm.increment(thisKeyCaretPosition - lastKeyCaretPosition);
+						}
 					}
 					else if(lastKeyCaretPosition > thisKeyCaretPosition){
-						// cursor has gone back
-						//System.out.println("Cursor gone back");
+						Iterator<HighlightMapper> hloi = highlightedObjects.iterator();
+						boolean isGone;
+						while(hloi.hasNext()){
+							isGone = false;
+							HighlightMapper tempHm = hloi.next();
+							if((tempHm.getStart() <= thisKeyCaretPosition) && (thisKeyCaretPosition <= tempHm.getEnd())){
+								//System.out.println("FOUND object ... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
+								main.getDocumentPane().getHighlighter().removeHighlight(tempHm.getHighlightedObject());
+								isGone = true;
+							}	
+							if ((lastKeyCaretPosition <= tempHm.getStart()) && !isGone)
+								tempHm.decrement(lastKeyCaretPosition - thisKeyCaretPosition);
+						}
 					
 					}
 				}
 			}
-			
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 				keyJustTyped = true;
 			}
-				
-			
-		
 		});
 		
 		
@@ -1484,8 +1504,11 @@ public class DriverDocumentsTab {
 //		
 //	}
 //	
-//	public static void dispHighlights(){
-//		Highlighter highlight = GUIMain.inst.documentPane.getHighlighter();
+//	public static void dispHighlights(GUIMain main) {
+//		if (main.elementsToAddPane.isEnabled() && main.elementsToRemovePane.isEnabled()) {
+//			main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
+//		}
+//		Highlighter highlight = GUIMain.inst.getDocumentPane().getHighlighter();
 //		HashMap<Color,ArrayList<int[]>> currentMap = HighlightMapMaker.highlightMap;
 //		int i = 0;
 //		if(!currentMap.isEmpty()){
@@ -1507,11 +1530,7 @@ public class DriverDocumentsTab {
 //				}
 //			}
 //		}
-//		
-//		
 //	}
-//	
-//	
 } 
 
 	class TheHighlighter extends DefaultHighlighter.DefaultHighlightPainter{
@@ -1569,6 +1588,7 @@ public class DriverDocumentsTab {
 		protected static Highlighter removeTracker;
 		protected static Highlighter addTracker;
 
+		
 		/*
 		 * Highlights the sentence that is currently in the editor box in the main document
 		 * no return
@@ -1581,7 +1601,7 @@ public class DriverDocumentsTab {
 			int sentNum = DriverDocumentsTab.currentSentNum;
 			ArrayList<String> sentences=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedSentences();
 			main.getDocumentPane().setHighlighter(editTracker);
-			String newText=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument();
+//			String newText=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument();
 			//main.documentPane.setText(newText);
 			boolean fixTabs=false;
 			//numberTimesFixTabs=0;
@@ -1607,13 +1627,15 @@ public class DriverDocumentsTab {
 			topToAdd=ConsolidationStation.getPriorityWords(ConsolidationStation.authorSampleTaggedDocs, false, .02);
 
 			//TaggedDocument taggedDoc=ConsolidationStation.toModifyTaggedDocs.get(0);
-			int lenPrevSentences=0;
+//			int lenPrevSentences=0;
 			String sentence=sentences.get(sentNum);
 
 			//removeTracker = new DefaultHighlighter();
 			painter2 = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,0,0,128));
 
-			startHighlight = startHighlight;
+//			startHighlight = startHighlight;
+			
+			main.elementsToRemove.removeAllElements();
 
 			ArrayList<ArrayList<Integer>> indexArray=new ArrayList<ArrayList<Integer>>();
 			ArrayList<Integer> tempArray;
@@ -1622,17 +1644,19 @@ public class DriverDocumentsTab {
 			boolean added=false;
 			String setString="",tempString;
 			int arrSize=topToRemove.size();
-			System.out.println("DEBUGGING: " + topToRemove.size());
 			for(int i=0;i<arrSize;i++) {//loops through top to remove list
 				if (!topToRemove.get(i).equals("''") && !topToRemove.get(i).equals("``")) {
 					if (PUNCTUATION.contains(topToRemove.get(i).trim()))
-						setString += "Reduce the number of " + topToRemove.get(i) + "'s you use \n";
+						main.elementsToRemove.add(i, "Reduce the number of " + topToRemove.get(i) + "'s you use");
+//						setString += "Reduce the number of " + topToRemove.get(i) + "'s you use \n";
 					else
-						setString+=topToRemove.get(i)+"\n";//sets the string to return
+						main.elementsToRemove.add(i, topToRemove.get(i));
+//						setString+=topToRemove.get(i)+"\n";//sets the string to return
 				}		
 			}
 
-			main.elementsToRemovePane.setText(setString);
+			main.elementsToRemovePane.clearSelection();
+//			main.elementsToRemovePane.setText(setString);
 			findSynonyms(main,sentence);
 
 			editTracker.removeAllHighlights();
@@ -1641,7 +1665,7 @@ public class DriverDocumentsTab {
 			currentStart=startHighlight;
 			//Logger.logln(NAME+"indexArr "+indexArray.toString(),Logger.LogOut.STDERR);
 			try {
-				for(int i=0;i<outerArrSize;i++){
+				for(int i=0;i<outerArrSize;i++) {
 					currentEnd=indexArray.get(i).get(0);
 					//Logger.logln(NAME+"before first addhighlight: currentStart: "+currentStart+" currentEnd: "+currentEnd);
 					//if(currentStart<currentEnd)
@@ -1670,17 +1694,21 @@ public class DriverDocumentsTab {
 			//addTracker = new DefaultHighlighter();
 			painter3 = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,0,255,128));
 			String setString,tempStr,synSetString = "";
-			//main.addToSentencePane.setHighlighter(addTracker);
+//			main.addToSentencePane.setHighlighter(addTracker);
 			//addTracker.removeAllHighlights();
 
 //			main.elementsToAddPane.repaint();
 
 			setString="";
 			int arrSize=topToAdd.size(), index;
+			main.elementsToAdd.removeAllElements();
+			
 			for(int i=0;i<arrSize;i++){//Sets the topToAddElements box
-				setString+=topToAdd.get(i)+"\n";
+//				setString+=topToAdd.get(i)+"\n";
+				main.elementsToAdd.add(i, topToAdd.get(i));
 			}
-			main.elementsToAddPane.setText(setString);
+			main.elementsToAddPane.clearSelection();
+//			main.elementsToAddPane.setText(setString);
 //			synSetString="";
 //			boolean inSent;
 //			Scanner parser;

@@ -113,11 +113,13 @@ public class DriverTranslationsTab implements ActionListener
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (DriverDocumentsTab.currentCharacterBuffer >= DriverDocumentsTab.UNDOCHARACTERBUFFER) {
-			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
-			DriverDocumentsTab.currentCharacterBuffer = 0;
-		} else
-			DriverDocumentsTab.currentCharacterBuffer += 1;
+		main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
+		DriverDocumentsTab.currentCharacterBuffer = 0;
+//		if (DriverDocumentsTab.currentCharacterBuffer >= DriverDocumentsTab.UNDOCHARACTERBUFFER) {
+//			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
+//			DriverDocumentsTab.currentCharacterBuffer = 0;
+//		} else
+//			DriverDocumentsTab.currentCharacterBuffer += 1;
 		
 		main.saved = false;
 		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(), true);

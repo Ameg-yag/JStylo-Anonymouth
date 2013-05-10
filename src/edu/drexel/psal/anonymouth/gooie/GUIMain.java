@@ -28,6 +28,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -47,6 +48,8 @@ import edu.drexel.psal.anonymouth.gooie.Translation;
 import edu.drexel.psal.anonymouth.gooie.DriverClustersWindow.alignListRenderer;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
+import edu.drexel.psal.anonymouth.utils.IndexFinder;
+import edu.drexel.psal.anonymouth.utils.Word;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -55,6 +58,8 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
@@ -64,11 +69,14 @@ import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.table.*;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Highlighter;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.tree.*;
 
 import net.miginfocom.swing.MigLayout;
@@ -283,12 +291,14 @@ public class GUIMain extends javax.swing.JFrame  {
 		protected JPanel elementsPanel;
 		protected JPanel elementsToAddPanel;
 		protected JLabel elementsToAddLabel;
-		protected JTextPane elementsToAddPane;
+		protected JList<String> elementsToAddPane;
 		protected JScrollPane elementsToAddScrollPane;
 		protected JPanel elementsToRemovePanel;
 		protected JLabel elementsToRemoveLabel;
-		protected JTextPane elementsToRemovePane;
+		protected JList<String> elementsToRemovePane;
 		protected JScrollPane elementsToRemoveScrollPane;
+		protected DefaultListModel<String> elementsToAdd;
+		protected DefaultListModel<String> elementsToRemove;
 		
 	protected JPanel translationsPanel;
 		protected JLabel translationsLabel;
@@ -469,6 +479,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected ResultsWindow resultsWindow;
 	
 	private int resultsHeight;
+	protected Map<Integer, ArrayList<int[]>> highlights = new HashMap<Integer, ArrayList<int[]>>();
 	
 	//used mostly for loading the main document without having to alter the main.ps.testDocAt(0) directly
 	Document mainDocPreview;
@@ -680,7 +691,7 @@ public class GUIMain extends javax.swing.JFrame  {
 				helpMenu.add(helpAboutMenuItem);
 				helpMenu.add(new JSeparator());
 			}
-			helpSuggestionsMenuItem = new JMenuItem("Suggestions");
+			helpSuggestionsMenuItem = new JMenuItem("General Suggestions");
 			helpMenu.add(helpSuggestionsMenuItem);
 			helpMenu.add(new JSeparator());
 			helpMenu.add(helpClustersMenuItem);
@@ -870,6 +881,16 @@ public class GUIMain extends javax.swing.JFrame  {
 			getContentPane().add(rightTabPane, "width ::353, spany"); // MUST be at LEAST 353 for Mac OS X. 
 		if (panelLocations.contains(PropertiesUtil.Location.BOTTOM))
 			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:");
+		
+		rightTabPane.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (rightTabPane.getSelectedIndex() != 1) {
+					elementsToAddPane.clearSelection();
+					elementsToRemovePane.clearSelection();
+				}
+			}
+		});
 		
 		getContentPane().revalidate();
 		getContentPane().repaint();
@@ -1384,11 +1405,51 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToAddLabel.setBorder(rlborder);
 			
 			//--------- Elements to Add Text Pane ------------------
-			elementsToAddPane = new JTextPane();
+			elementsToAddPane = new JList<String>();
 			elementsToAddScrollPane = new JScrollPane(elementsToAddPane);
 			elementsToAddPane.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
-			elementsToAddPane.setText("Please process your document to receive word suggestions");
-			elementsToAddPane.setEditable(false);
+			elementsToAdd = new DefaultListModel<String>();
+			elementsToAdd.add(0, "Please process your document to receive suggestions");
+			elementsToAddPane.setModel(elementsToAdd);
+			elementsToAddPane.setEnabled(false);
+			elementsToAddPane.addListSelectionListener(new ListSelectionListener() {
+				@Override
+				public void valueChanged(ListSelectionEvent e) {
+					System.out.println("HELLO!!!!");
+					elementsToRemovePane.clearSelection();
+					
+					try {
+						for (int i = 0; i < DriverDocumentsTab.highlightedObjects.size(); i++)
+							getDocumentPane().getHighlighter().removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
+						DriverDocumentsTab.highlightedObjects.clear();
+						
+						ArrayList<int[]> index = IndexFinder.findIndices(getDocumentPane().getText(), elementsToAddPane.getSelectedValue());
+						
+						for (int i = 0; i < index.size(); i++) {
+							DriverDocumentsTab.highlightedObjects.add(new HighlightMapper(index.get(0)[i], index.get(0)[i]+elementsToAddPane.getSelectedValue().length(), DriverDocumentsTab.painterAdd));
+							getDocumentPane().getHighlighter().addHighlight(index.get(0)[i], index.get(0)[i]+elementsToAddPane.getSelectedValue().length(), DriverDocumentsTab.painterAdd);
+						}
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+					
+//					getDocumentPane().getHighlighter().removeAllHighlights();
+//					try {
+//						int index = 0;
+//						while (index != -1) {
+//							index = getDocumentPane().getText().indexOf(elementsToAddPane.getSelectedValue(), index);
+//							
+//							if (index != -1) {
+//								getDocumentPane().getHighlighter().addHighlight(index, index+elementsToAddPane.getSelectedValue().length(), DriverDocumentsTab.painterAdd);
+//								index += elementsToAddPane.getSelectedValue().length();
+//							}
+//						}
+//					} catch (Exception e1) {}
+				}
+			});
+			//elementsToAddPane.setText("Please process your document to receive word suggestions");
+			elementsToAddPane.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			elementsToAddPane.setDragEnabled(false);
 			elementsToAddPane.setFocusable(false);
 			
 			//--------- Elements to Remove Label  ------------------
@@ -1400,11 +1461,34 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemoveLabel.setBorder(rlborder);
 			
 			//--------- Elements to Remove Text Pane ------------------
-			elementsToRemovePane = new JTextPane();
+			elementsToRemovePane = new JList<String>();
 			elementsToRemoveScrollPane = new JScrollPane(elementsToRemovePane);
 			elementsToRemovePane.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
-			elementsToRemovePane.setText("Please process your document to receive word removal suggestions");
-			elementsToRemovePane.setEditable(false);
+			elementsToRemove = new DefaultListModel<String>();
+			elementsToRemove.add(0, "Please process your document to receive suggestions");
+			elementsToRemovePane.setModel(elementsToRemove);
+			elementsToRemovePane.setEnabled(false);
+			elementsToRemovePane.addListSelectionListener(new ListSelectionListener() {
+				@Override
+				public void valueChanged(ListSelectionEvent evt) {
+					System.out.println("HELLO!!!!");
+					elementsToAddPane.clearSelection();
+//					try {
+//						int index = 0;
+//						while (index != -1) {
+//							index = getDocumentPane().getText().indexOf(elementsToRemovePane.getSelectedValue(), index);
+//							
+//							if (index != -1) {
+//								getDocumentPane().getHighlighter().addHighlight(index, index+elementsToRemovePane.getSelectedValue().length(), DriverDocumentsTab.painterRemove);
+//								index += elementsToRemovePane.getSelectedValue().length();
+//							}
+//						}
+//					} catch (Exception e) {}
+				}
+			});
+//			elementsToRemovePane.setText("Please process your document to receive word removal suggestions");
+			elementsToRemovePane.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			elementsToRemovePane.setDragEnabled(false);
 			elementsToRemovePane.setFocusable(false);
 			
 			suggestionsPanel.add(elementsToAddLabel, "h " + titleHeight + "!");
@@ -1450,6 +1534,7 @@ public class GUIMain extends javax.swing.JFrame  {
 //			translationsHolderPanel.add(notTranslated, "north, wmax 310, wmin 310");
 			
 			notTranslated = new JTextPane();
+//			notTranslated.setForeground(Color.GRAY);
 			notTranslated.setText("Please process your document to recieve translation suggestions.");
 			notTranslated.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
 			notTranslated.setDragEnabled(false);

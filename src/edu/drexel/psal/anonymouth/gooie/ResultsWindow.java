@@ -7,7 +7,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
@@ -15,6 +14,11 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+/**
+ * Displays an enlarged, more detailed version of the results graph shown in the main window.
+ * @author Marc Barrowclift
+ *
+ */
 public class ResultsWindow extends JDialog {
 
 	private static final long serialVersionUID = 1L;
@@ -28,6 +32,10 @@ public class ResultsWindow extends JDialog {
 	private DefaultCategoryDataset dataSet;
 	private int width;
 	
+	/**
+	 * Constructor
+	 * @param main - An instantace of GUIMain
+	 */
 	public ResultsWindow(GUIMain main) {
 		super(main, "Process Results", Dialog.ModalityType.APPLICATION_MODAL);
 		init();
@@ -42,7 +50,13 @@ public class ResultsWindow extends JDialog {
 		this.setVisible(true);
 		this.repaint();
 	}
-	
+
+	/**
+	 * Should be called only by the resultsMainPanel to get the appropriately sized image for it to display.
+	 * @param width - the width of the resultsMainPanel panel
+	 * @param height - the height the developer is willing the scroll panel to have
+	 * @return panelImage - A BufferedImage of the chart
+	 */
 	public BufferedImage getPanelChart(int width, int height) {
 		if (panelImage == null) {
 			panelChart = ChartFactory.createBarChart(
@@ -55,6 +69,9 @@ public class ResultsWindow extends JDialog {
 		return panelImage; 
 	}
 	
+	/**
+	 * Makes the data set and main chart from the data given. Must be called first before painting any windows or panels.
+	 */
 	public void makeChart() {
 		dataSet = new DefaultCategoryDataset();
 		
@@ -74,6 +91,9 @@ public class ResultsWindow extends JDialog {
 		chartImage = chart.createBufferedImage(width, 478);
 	}
 	
+	/**
+	 * Initializes the data we need.
+	 */
 	@SuppressWarnings("serial")
 	private void init() {
 		authors = new ArrayList<String>();
@@ -95,6 +115,11 @@ public class ResultsWindow extends JDialog {
 		this.setTitle("Process Results");
 	}
 	
+	/**
+	 * Add an attribute to the data set
+	 * @param author - The author name
+	 * @param percentage - the author's percent chance of owning the test document
+	 */
 	public void addAttrib(String author, int percentage) {
 		if (!authors.contains(author)) {
 			authors.add(author);
@@ -113,6 +138,10 @@ public class ResultsWindow extends JDialog {
 			return true;
 	}
 	
+	/**
+	 * Returns the author ArrayList size
+	 * @return
+	 */
 	public int getAuthorSize() {
 		return authors.size();
 	}
