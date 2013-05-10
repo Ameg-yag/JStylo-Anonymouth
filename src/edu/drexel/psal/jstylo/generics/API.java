@@ -63,11 +63,11 @@ public interface API {
 			List<List<EventSet>> culledEventSets) throws Exception;
 	
 	/**
-	 * 
+	 * Takes various parameters related to a document and creates an Instance object from that data.
 	 * @param attributes the data used to construct the Instance object
-	 * @param cumulativeFeatureDriver 
-	 * @param documentData
-	 * @return
+	 * @param cumulativeFeatureDriver driver used to determine the type of feature being added
+	 * @param documentData used to determine the values to assign each attribute
+	 * @return The instance object representing this document
 	 * @throws Exception
 	 */
 	public Instance createInstance(List<Attribute> attributes,
@@ -77,9 +77,10 @@ public interface API {
 	//TODO remove global normalization options
 	
 	/**
+	 * Normalizes all of the features of the specified instance.
 	 * Does not support global normalization baselines!
-	 * @param cumulativeFeatureDriver
-	 * @param instance
+	 * @param cumulativeFeatureDriver the driver used to tell what to normalize and in what fashion. 
+	 * @param instance the object to be normalized
 	 * @throws Exception
 	 */
 	public void normInstance(CumulativeFeatureDriver cumulativeFeatureDriver,
@@ -88,19 +89,19 @@ public interface API {
 	// the full training Instances object is generated
 	
 	/**
+	 * Calculates InfoGain on the instances to provide information on how useful each feature was to identifying the documents.
 	 * returns list of indices of the top N features
-	 * @param insts
-	 * @param apply
-	 * @param N
-	 * @return
+	 * @param insts the instances to calculate over
+	 * @param N The top N features to calculate the infogain over
+	 * @return a list of the top N features
 	 * @throws Exception
 	 */
 	public List<Integer> calcInfoGain(Instances insts, int N) throws Exception;
 	
 	/**
-	 * Modifies the insts object
-	 * @param chosenFeatures
-	 * @param insts
+	 * Removes all but the top N features (as returned by calcInfoGain) from the instances
+	 * @param chosenFeatures the indices of the features to keep
+	 * @param insts the instances to remove infoGain from
 	 * @throws Exception
 	 */
 	public void applyInfoGain(List<Integer> chosenFeatures, Instances insts)
@@ -112,10 +113,10 @@ public interface API {
 	// extractEventSets - same as for training documents
 	
 	/**
-	 * 
-	 * @param relevantEvents
-	 * @param eventSetsToCull
-	 * @return
+	 * Culls the test set using the List\<EventSet\> of the training set
+	 * @param relevantEvents the features from the EventSets which are going to be evaluated
+	 * @param eventSetsToCull The test documents to be culled
+	 * @return the culled test documents
 	 * @throws Exception
 	 */
 	public List<EventSet> cullWithRespectToTraining(
