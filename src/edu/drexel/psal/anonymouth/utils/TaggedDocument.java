@@ -66,6 +66,8 @@ public class TaggedDocument implements Serializable{
 	private String ID; 
 	private int totalSentences=0;
 	public EOSCharacterTracker eosTracker;
+	private double baseline_percent_change_needed = 0; // This may end up over 100%. That's unimportant. This is used to gauge the change that the rest of the document needs -- this is normalized to 100%, effectivley.
+	private boolean can_set_baseline_percent_change_needed = true;
 
 	/**
 	 * Constructor for TaggedDocument
@@ -575,6 +577,41 @@ public class TaggedDocument implements Serializable{
 	}
 	*/
 	
+	/**
+	 * Loops through all topAttribute Attributes in DataAnalyzer, and returns the average percent change needed. This is a first stab at some
+	 * way to deliver a general sense of the degree of anonymity achived at any given point. This method must be called before any changes are made to set 
+	 * a baseline percent change. That number is what everything from that point on gets compared (normalized) to. 
+	 * 
+	 * It is important to note that this does not take into consideration the information gain of any feature. So, the less important features will have the same effect on this number
+	 * as the most important features. This should probably change...
+	 * @param is_initial 'true' if this is the first time the function is being called for this document (basically, if you are calling it to set the document's baseline percent change needed, this should be true. If you want to know how much the document has changed, this should be false. This will be false all the time, except for the first time it's called).
+	 * @return
+	 * The overall percent change that is needed. 
+	 */
+	public double getAvgPercentChangeNeeded(boolean is_initial){
+		int total_attribs = 0;
+		double total_percent_change = 0;
+		for (Attribute attrib : DataAnalyzer.topAttributes){
+			total_percent_change += Math.abs(attrib.getPercentChangeNeeded(false, false, true));
+			total_attribs ++;
+		}
+		double avg_percent_change = total_percent_change/total_attribs;
+		if (is_initial)
+			return avg_percent_change;
+		else{
+			double percent_change_needed = baseline_percent_change_needed - (Math.abs(avg_percent_change - baseline_percent_change_needed)/baseline_percent_change_needed);
+			return percent_change_needed;
+		}
+	}
 	
+	/**
+	 * Sets baseline_percent_change_needed. This is the ONLY time that 'getAvgPercentChangeNeeded' will be called with 'true'.
+	 */
+	public void setBaselinePercentChangeNeeded(){
+		if (can_set_baseline_percent_change_needed){
+			baseline_percent_change_needed = getAvgPercentChangeNeeded(true);
+			can_set_baseline_percent_change_needed = false;
+		}
+	}	
 }
 	

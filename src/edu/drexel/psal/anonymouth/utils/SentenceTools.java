@@ -50,6 +50,15 @@ public class SentenceTools implements Serializable  {
 	 * 		=> any number (but at least one) and combination of question marks and quotation marks, OR
 	 *		=> EXACTLY four periods (because English dictates that if you end a sentence with ellipsis points, you must have four periods: one for the period, and three for the ellipsis points, OR
 	 *		=> any period NOT behind another period AND NOT in front of another period (otherwise, ellipsis points will be matched)
+	 ********
+	 * (NOT YET, but will hopefully do something like this soon:
+	 *	Then, it matches one or more spaces, followed by either a capital letter, or an end of line.
+	 *
+	 * something along these lines:
+	 *	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]{4})|((?<!\\.)\\.(?!\\.))\\s+([A-Z]|$)"); 
+	 *
+	 *	)
+	 *********
 	 */
 	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]{4})|((?<!\\.)\\.(?!\\.))"); 
 	
