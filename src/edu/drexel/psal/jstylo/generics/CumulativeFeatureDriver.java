@@ -98,9 +98,6 @@ public class CumulativeFeatureDriver {
 		this.features = generated.features;
 	}
 	
-	
-		
-	
 	/* ==========
 	 * operations
 	 * ==========

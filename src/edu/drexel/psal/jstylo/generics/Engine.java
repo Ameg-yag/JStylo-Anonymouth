@@ -47,26 +47,48 @@ public class Engine implements API {
 		return CumulativeEventCuller.cull(eventSets,cumulativeFeatureDriver);
 	}
 
-	//TODO this functionality was overlooked in the original wib, as the relevent events were just scraped from the first document
+	//TODO this functionality was overlooked in the original wib, as the relevant events were just scraped from the first document
 	//need to implement functionality for the first time.
 	@Override
 	public List<EventSet> getRelevantEvents( 
 			List<List<EventSet>> culledEventSets,
 			CumulativeFeatureDriver cumulativeFeatureDriver) throws Exception {
 		
-		///CONSTRUCTION
 		List<EventSet> relevantEvents = new LinkedList<EventSet>();
 		
-		//TODO iterate over the culled events. As they have already been culled, all potential events are present.
-		//		Keep doing so, adding events that haven't been found yet to the list.
-		
-		//END CONSTRUCTION
-		
+		//iterate over the List of Lists
+		for (List<EventSet> l: culledEventSets){
+			//iterate over each inner list's eventSets
+			for (EventSet es: l){
+				
+				boolean add = true;
+				
+				for (EventSet esl:relevantEvents){
+					//eventSet check. If true
+						//added equals false
+						//break
+					//else
+						//do nothing
+				}
+				
+				if (add){
+					relevantEvents.add(es);
+				} else {
+					//go through this eventSet and add any events to the relevant EventSet if they aren't already there.
+				}
+				
+				//TODO figure out how to match EventSets
+				
+				//it looks like Event s themselves can be matched via string matching and Event.getEvent()
+				
+			}
+		}
 		return relevantEvents;
 	}
 
 //	@Override //FIXME Had to add in the cfd in order to check if a feature was a hist or not
-	//find out how to convert from Hist to Attribute if possible
+	//also, it is currently taking the number of feature classes from the first List<EventSet>
+	//I believe it was mentioned that this shouldn't be the case, should I give it another parameter: relevantEvents? or...?
 	public List<Attribute> getAttributeList(List<List<EventSet>> culledEventSets, CumulativeFeatureDriver cumulativeFeatureDriver)
 			throws Exception {
 
@@ -156,7 +178,8 @@ public class Engine implements API {
 	}
 
 //	@Override //FIXME had to add a "hasDocTitles" parameter
-	//Also, there are some global parameters which need to be factored out somehow
+	//Also, there are two references to a "Document" type parameter, with the goal of adding the author.
+	//This sounds rather necessary, so perhaps it would be best to pass through the original document as well?
 	public Instance createInstance(List<Attribute> attributes,
 			CumulativeFeatureDriver cumulativeFeatureDriver,
 			List<EventSet> documentData, boolean isSparse, boolean hasDocTitles) throws Exception {
@@ -181,7 +204,7 @@ public class Engine implements API {
 			
 			// update document title FIXME either add this back in if its necessary or delete it if it isn't
 			//the problem: we'd need a "Document" type arg to pass it, which we don't have.
-		/*	if (hasDocTitles)
+			/*if (hasDocTitles)
 				inst.setValue((Attribute) attributes.get(0), documentData.getTitle());
 			*/	
 			
@@ -202,7 +225,6 @@ public class Engine implements API {
 					}				
 				}
 				
-				
 				if (cumulativeFeatureDriver.featureDriverAt(j).isCalcHist()) {
 					
 					// extract absolute frequency from histogram
@@ -221,7 +243,7 @@ public class Engine implements API {
 				}
 			}
 				
-			// update author FIXME find a way to fix if it is needed delte if not
+			// update author FIXME find a way to fix if it is needed delete if not
 			//inst.setValue((Attribute) attributes.get(attributes.size()-1), documentData.getAuthor());
 				
 		}
@@ -229,7 +251,8 @@ public class Engine implements API {
 	}
 
 //	@Override //FIXME needed to add document parameter so that we can read the document to get normalization baselines
-	//Also, there are some global parameters which need to be factored out somehow
+	//Also, there's a "hasDocTitle" parameter which is used to determine if an author should be added or not
+	//should I add that as well or do some kind of check on the document object to see if it has an author?
 	public void normInstance(CumulativeFeatureDriver cfd,
 			Instance instance, Document document) throws Exception {
 
@@ -334,11 +357,9 @@ public class Engine implements API {
 
 			if (norm == NormBaselineEnum.FEATURE_CLASS_IN_DOC) {
 				// use featureClassPerDoc
-
 				for (k=start; k<end; k++)
 						instance.setValue(k, instance.value(k)*factor/((double)featureClassPerInst.get(instance)[i]));
 				
-
 			}  else if (norm == NormBaselineEnum.SENTENCES_IN_DOC) {
 				// use wordsInDoc
 					for (k=start; k<end; k++)
@@ -390,7 +411,6 @@ public class Engine implements API {
 		
 		len = 0;
 		final Map<String,Double> featureTypeBreakdown = new HashMap<String,Double>();
-		double total = 0;
 		String attrName;
 		for (int i=0; i<n-1; i++) {
 			attrName = insts.attribute((int)infoArr[i][1]).name().replaceFirst("(-\\d+)?\\{.*\\}", "");
@@ -401,7 +421,6 @@ public class Engine implements API {
 			} else {
 				featureTypeBreakdown.put(attrName, featureTypeBreakdown.get(attrName)+infoArr[i][0]);
 			}
-			total += infoArr[i][0];
 		}
 		List<String> attrListBreakdown = new ArrayList<String>(featureTypeBreakdown.keySet());
 		Collections.sort(attrListBreakdown,new Comparator<String>() {
