@@ -48,6 +48,8 @@ public class Engine implements API {
 
 	//TODO this functionality was overlooked in the original wib, as the relevant events were just scraped from the first document
 	//need to implement functionality for the first time.
+	//Consider adding more detailed IDs in EventSet so as to make life easier here.
+	//Doing this could allow eventSets to be matched even if their contents do not match.
 	@Override
 	public List<EventSet> getRelevantEvents( 
 			List<List<EventSet>> culledEventSets,
@@ -85,7 +87,7 @@ public class Engine implements API {
 		return relevantEvents;
 	}
 
-//	@Override //FIXME Had to add in the cfd in order to check if a feature was a hist or not
+//	@Override //FIXME Had to add in a cfd in order to check if a feature was a histogram or not
 	//also, it is currently taking the number of feature classes from the first List<EventSet>
 	//I believe it was mentioned that this shouldn't be the case, should I give it another parameter: relevantEvents? or...?
 	public List<Attribute> getAttributeList(List<List<EventSet>> culledEventSets, CumulativeFeatureDriver cumulativeFeatureDriver)
@@ -491,7 +493,7 @@ public class Engine implements API {
 	}
 
 //	@Override //Needs cumulative feature driver to determine if an event is a histogram
-	//not sure about adding non-histograms to the list
+	//Need to do an indices check
 	public List<EventSet> cullWithRespectToTraining(
 			List<EventSet> relevantEvents, List<EventSet> eventSetsToCull,CumulativeFeatureDriver cfd)
 			throws Exception {
@@ -526,7 +528,9 @@ public class Engine implements API {
 						}
 					}
 					
-					//TODO same thing here; need to check to see if this will screw with the indicies
+					//TODO same thing here; need to check to see if this will screw with the indices
+					//it may not, as this is an unordered set
+					//at the same time, it may, as it is a set of a given size
 					if (remove){
 						unknown.removeEvent(e);
 					}
@@ -535,10 +539,7 @@ public class Engine implements API {
 				culledUnknownEventSets.add(unknown);
 			} else {	// one unique numeric event
 
-				// update histogram to null at current position
-				//TODO verify
-				//what I'm doing now is just adding the EventSet as I'd imagine you can't really trim an eventSet with a single value
-				//Need to add a check to see if it is even on the relevantEvent list! If not, don't add, otherwise do.
+				//add non-histogram if it is in the relevantEventSets list
 				if (relevantEvents.contains(eventSetsToCull.get(i)))
 					culledUnknownEventSets.add(eventSetsToCull.get(i));
 			}
@@ -546,14 +547,4 @@ public class Engine implements API {
 		return culledUnknownEventSets;
 	}
 
-	//Delete these once the other methods are modified/can use the @Override. These exist solely to remove the red x on the Engine/prevent Eclipse from complaining when JStylo runs.
-	@Override
-	public List<Attribute> getAttributeList(List<List<EventSet>> culledEventSets)throws Exception {return null;}
-	@Override
-	public Instance createInstance(List<Attribute> attributes,CumulativeFeatureDriver cumulativeFeatureDriver,List<EventSet> documentData, boolean isSparse) throws Exception {return null;}
-	@Override
-	public void normInstance(CumulativeFeatureDriver cumulativeFeatureDriver,Instance instance) throws Exception {}
-	@Override
-	public List<EventSet> cullWithRespectToTraining(List<EventSet> relevantEvents, List<EventSet> eventSetsToCull)throws Exception {return null;}
-	//End delete
 }
