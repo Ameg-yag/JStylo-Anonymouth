@@ -42,8 +42,7 @@ public class Engine implements API {
 	//Done
 	@Override
 	public List<List<EventSet>> cull(List<List<EventSet>> eventSets,
-			CumulativeFeatureDriver cumulativeFeatureDriver) throws Exception {
-		
+			CumulativeFeatureDriver cumulativeFeatureDriver) throws Exception {	
 		return CumulativeEventCuller.cull(eventSets,cumulativeFeatureDriver);
 	}
 
@@ -183,8 +182,7 @@ public class Engine implements API {
 	public Instance createInstance(List<Attribute> attributes,
 			CumulativeFeatureDriver cumulativeFeatureDriver,
 			List<EventSet> documentData, boolean isSparse, boolean hasDocTitles) throws Exception {
-		
-		
+			
 		int numOfFeatureClasses = documentData.size();
 		// initialize vector size (including authorName and title if required) and first indices of feature classes array
 		int vectorSize = (hasDocTitles ? 1 : 0);
@@ -251,8 +249,7 @@ public class Engine implements API {
 	}
 
 //	@Override //FIXME needed to add document parameter so that we can read the document to get normalization baselines
-	//Also, there's a "hasDocTitle" parameter which is used to determine if an author should be added or not
-	//should I add that as well or do some kind of check on the document object to see if it has an author?
+	//Also, there's a "hasDocTitle" parameter which is used to initialize vector size. Either the parameter needs to be added or...?
 	public void normInstance(CumulativeFeatureDriver cfd,
 			Instance instance, Document document) throws Exception {
 
@@ -378,7 +375,7 @@ public class Engine implements API {
 		}
 	}
 
-	//Should work. Most of the code was portable but infoArr was never well documented. Assuming infoArr[i][1] contains an index, it should work as expected. Test to verify.
+	//Done
 	@Override 
 	public List<Integer> calcInfoGain(Instances insts, int N) throws Exception {
 		int len = 0;
@@ -460,13 +457,18 @@ public class Engine implements API {
 		return indicesToKeep;
 	}
 
-	//verify that this is how it should work; that the list<Integer> is of indices. If so, this should be fine. make sure that Attributes are what are being removed.
+	//verify that this is how it should work; that the list<Integer> is of indices to keep.
+	//Check to see if removing an item shifts the indices of all other items. If so, compensate for that.
 	@Override 
 	public void applyInfoGain(List<Integer> chosenFeatures, Instances insts)
 			throws Exception {
 		
 		//for all attributes
 		for (int i=0; i<insts.numAttributes();i++){
+			
+			//TODO make sure that removing the insts doesn't affect the indices. If it does, add something to compensate
+				//such as iterate over the list to keep and modify as appropriate or instead setting the indices to remove to a sentinel
+				//value and then looping through and removing all sentinels after they've all been marked
 			
 			boolean remove = true;
 			
@@ -489,7 +491,7 @@ public class Engine implements API {
 	}
 
 //	@Override //Needs cumulative feature driver to determine if an event is a histogram
-	//other then that looks like it will work as expected
+	//not sure about adding non-histograms to the list
 	public List<EventSet> cullWithRespectToTraining(
 			List<EventSet> relevantEvents, List<EventSet> eventSetsToCull,CumulativeFeatureDriver cfd)
 			throws Exception {
@@ -516,10 +518,29 @@ public class Engine implements API {
 				initSize = unknown.size();
 				for (int k=initSize-1; k>=0; k--) {
 					e = unknown.eventAt(k);
-					if (!relevantEvents.contains(e.getEvent()))
+					boolean remove = true;
+					for (int l = 0; l<unknown.size();l++){
+						if (e.equals(relevantEvents.get(i).eventAt(l))){
+							remove=false;
+							break;
+						}
+					}
+					
+					//TODO same thing here; need to check to see if this will screw with the indicies
+					if (remove){
 						unknown.removeEvent(e);
+					}
+					
 				}
 				culledUnknownEventSets.add(unknown);
+			} else {	// one unique numeric event
+
+				// update histogram to null at current position
+				//TODO verify
+				//what I'm doing now is just adding the EventSet as I'd imagine you can't really trim an eventSet with a single value
+				//Need to add a check to see if it is even on the relevantEvent list! If not, don't add, otherwise do.
+				if (relevantEvents.contains(eventSetsToCull.get(i)))
+					culledUnknownEventSets.add(eventSetsToCull.get(i));
 			}
 		}
 		return culledUnknownEventSets;
