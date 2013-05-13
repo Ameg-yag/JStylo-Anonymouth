@@ -41,9 +41,9 @@ public class Logger {
 	}
 
 	public static void initLogFile() {
-		if (loggerFlag && logFile) {
-			out = fileDirPath+"/"+filePrefix+"_"+date()+"_"+time()+".txt";
-			String msg = "Started log "+out+"\n===================================================\n";
+//		if (loggerFlag && logFile) {
+//			out = fileDirPath+"/"+filePrefix+"_"+date()+"_"+time()+".txt";
+//			String msg = "Started log "+out+"\n===================================================\n";
 //			try {
 //				if (logFile) {
 //					bw = new BufferedWriter(new FileWriter(out));
@@ -53,8 +53,8 @@ public class Logger {
 //				System.out.println("Failed opening log file!");
 //				System.exit(0);
 //			}
-			System.out.println(msg);
-		}
+//			System.out.println(msg);
+//		}
 	}
 	
 	/**

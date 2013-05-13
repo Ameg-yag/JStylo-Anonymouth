@@ -93,8 +93,8 @@ public class DriverDocumentsTab {
 	public static boolean isWorkingOnUpdating = false;
 	// It seems redundant to have these next four variables, but they are used in slightly different ways, and are all necessary.
 	private static int currentCaretPosition = -1;
-	private static int startSelection = -1;
-	private static int endSelection = -1;
+	public static int startSelection = -1;
+	public static int endSelection = -1;
 	private static int lastCaretPosition = -1;
 	private static int thisKeyCaretPosition = -1;
 	private static int lastKeyCaretPosition = -1;
@@ -128,9 +128,9 @@ public class DriverDocumentsTab {
 //	protected static ArrayList<String> topToAdd;
 	
 	private static final Color HILIT_COLOR = new Color(255,0,0,100);//Color.yellow; //new Color(50, 161,227);// Color.blue;
-	protected static DefaultHighlighter.DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
-	protected static DefaultHighlighter.DefaultHighlightPainter painterRemove = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,0,0,128));
-	protected static DefaultHighlighter.DefaultHighlightPainter painterAdd = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,0,255,128));
+	protected static DefaultHighlighter.DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,255,0,128));
+	protected static DefaultHighlighter.DefaultHighlightPainter painterRemove = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
+	protected static DefaultHighlighter.DefaultHighlightPainter painterAdd = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,255,0,128));
 	
 //	protected static Highlighter editTracker;
 //	protected static Highlighter removeTracker;
@@ -162,6 +162,7 @@ public class DriverDocumentsTab {
 	protected static Map<String, int[]> wordsToRemove = new HashMap<String, int[]>();
 	
 	protected static SuggestionCalculator suggestionCalculator;
+	protected static Boolean shouldRememberIndices = true;
 	
 	protected static ActionListener saveAsTestDoc;	
 	
@@ -294,7 +295,9 @@ public class DriverDocumentsTab {
 	 */
 	protected static void moveHighlight(final GUIMain main, int[] bounds, boolean deleteCurrent){
 		if (deleteCurrent){
-			main.getDocumentPane().getHighlighter().removeAllHighlights();
+//			main.getDocumentPane().getHighlighter().removeAllHighlights();
+			if (currentHighlight != null)
+				main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 			try {
 				System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
 				currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
@@ -466,6 +469,10 @@ public class DriverDocumentsTab {
 
 					}
 					
+					if (shouldRememberIndices) {
+						main.versionControl.updateIndices(startSelection, endSelection);
+					}
+					
 					if (charsInserted > 2 || charsInserted < -2)
 						main.versionControl.addVersion(taggedDoc);
 
@@ -545,6 +552,7 @@ public class DriverDocumentsTab {
 							moveHighlight(main,selectedSentIndexRange,false);
 					}
 					
+					
 					sentToTranslate = currentSentNum;
 					if (!inRange)
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
@@ -563,6 +571,7 @@ public class DriverDocumentsTab {
 			public void keyPressed(KeyEvent arg0) {
 				//System.out.println("keyPressed"+System.currentTimeMillis());
 				keyJustPressed = true;
+				shouldRememberIndices = false;
 				// TODO Auto-generated method stub
 				/*
 				if(checkForMouseInfluence == true){
@@ -575,8 +584,8 @@ public class DriverDocumentsTab {
 				}
 				else
 				*/
-					lastKeyCaretPosition = thisKeyCaretPosition;
-						
+
+				lastKeyCaretPosition = thisKeyCaretPosition;		
 					
 				
 				//System.out.println("Caret postion registered at keypressed: old: "+oldCaretPosition);

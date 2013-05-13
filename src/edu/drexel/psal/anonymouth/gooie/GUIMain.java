@@ -508,6 +508,8 @@ public class GUIMain extends javax.swing.JFrame  {
 					@Override
 					public void windowClosing(WindowEvent e) {
 						if (PropertiesUtil.getWarnQuit() && !saved) {
+							inst.toFront();
+							inst.requestFocus();
 							int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
 							if (confirm == 0) {
 								System.exit(0);
@@ -1415,36 +1417,25 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToAddPane.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-					System.out.println("HELLO!!!!");
 					elementsToRemovePane.clearSelection();
 					
 					try {
-						for (int i = 0; i < DriverDocumentsTab.highlightedObjects.size(); i++)
-							getDocumentPane().getHighlighter().removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
+						Highlighter highlight = getDocumentPane().getHighlighter();
+						int highlightedObjectsSize = DriverDocumentsTab.highlightedObjects.size();
+						
+						for (int i = 0; i < highlightedObjectsSize; i++)
+							highlight.removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
 						DriverDocumentsTab.highlightedObjects.clear();
 						
 						ArrayList<int[]> index = IndexFinder.findIndices(getDocumentPane().getText(), elementsToAddPane.getSelectedValue());
-						
-						for (int i = 0; i < index.size(); i++) {
-							DriverDocumentsTab.highlightedObjects.add(new HighlightMapper(index.get(0)[i], index.get(0)[i]+elementsToAddPane.getSelectedValue().length(), DriverDocumentsTab.painterAdd));
-							getDocumentPane().getHighlighter().addHighlight(index.get(0)[i], index.get(0)[i]+elementsToAddPane.getSelectedValue().length(), DriverDocumentsTab.painterAdd);
-						}
+
+						int indexSize = index.size();
+
+						for (int i = 0; i < indexSize; i++)
+							DriverDocumentsTab.highlightedObjects.add(new HighlightMapper(index.get(i)[0], index.get(i)[1], highlight.addHighlight(index.get(i)[0], index.get(i)[1], DriverDocumentsTab.painterAdd)));
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
-					
-//					getDocumentPane().getHighlighter().removeAllHighlights();
-//					try {
-//						int index = 0;
-//						while (index != -1) {
-//							index = getDocumentPane().getText().indexOf(elementsToAddPane.getSelectedValue(), index);
-//							
-//							if (index != -1) {
-//								getDocumentPane().getHighlighter().addHighlight(index, index+elementsToAddPane.getSelectedValue().length(), DriverDocumentsTab.painterAdd);
-//								index += elementsToAddPane.getSelectedValue().length();
-//							}
-//						}
-//					} catch (Exception e1) {}
 				}
 			});
 			//elementsToAddPane.setText("Please process your document to receive word suggestions");
@@ -1471,19 +1462,25 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemovePane.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent evt) {
-					System.out.println("HELLO!!!!");
 					elementsToAddPane.clearSelection();
-//					try {
-//						int index = 0;
-//						while (index != -1) {
-//							index = getDocumentPane().getText().indexOf(elementsToRemovePane.getSelectedValue(), index);
-//							
-//							if (index != -1) {
-//								getDocumentPane().getHighlighter().addHighlight(index, index+elementsToRemovePane.getSelectedValue().length(), DriverDocumentsTab.painterRemove);
-//								index += elementsToRemovePane.getSelectedValue().length();
-//							}
-//						}
-//					} catch (Exception e) {}
+					
+					try {
+						Highlighter highlight = getDocumentPane().getHighlighter();
+						int highlightedObjectsSize = DriverDocumentsTab.highlightedObjects.size();
+
+						for (int i = 0; i < highlightedObjectsSize; i++)
+							highlight.removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
+						DriverDocumentsTab.highlightedObjects.clear();
+						
+						ArrayList<int[]> index = IndexFinder.findIndices(getDocumentPane().getText(), elementsToRemovePane.getSelectedValue());
+						
+						int indexSize = index.size();
+
+						for (int i = 0; i < indexSize; i++)
+							DriverDocumentsTab.highlightedObjects.add(new HighlightMapper(index.get(i)[0], index.get(i)[1], highlight.addHighlight(index.get(i)[0], index.get(i)[1], DriverDocumentsTab.painterRemove)));
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
 				}
 			});
 //			elementsToRemovePane.setText("Please process your document to receive word removal suggestions");

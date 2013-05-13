@@ -27,27 +27,33 @@ public class IndexFinder {
 		int j;
 		int start;
 		int end;
+		int length = theDoc.length();
 		String spaces=" ";
-		theDoc = theDoc.replaceAll("\\p{C}", " ");
+		theDoc = theDoc.replaceAll("\\p{Cf}", " ");
 		try{
-			Pattern wordToFind = Pattern.compile("((\\s|\\b)("+theWord+")(\\s|\\b)){1}+");
-			Matcher theMatch = wordToFind.matcher(theDoc);
-			theMatch.find();
-			if( theMatch.group(2).matches("\\s"))
-				start = theMatch.start()+1;
-			else
-				start = theMatch.start();
-			if(theMatch.group(4).matches("\\s"))
-				end = theMatch.end()-1;
-			else
-				end = theMatch.end();
-			theIndices.add(new int[]{start,end});
-			spaces = " ";
-			for(j=1;j<theWord.length();j++)
-				spaces = spaces +" ";
-			String theDocOne = theDoc.substring(0,start);
-			String theDocTwo = theDoc.substring(end);
-			theDoc = theDocOne+spaces+theDocTwo;
+			while (true) {
+				Pattern wordToFind = Pattern.compile("((\\s|\\b)("+theWord+")(\\s|\\b)){1}+");
+				Matcher theMatch = wordToFind.matcher(theDoc);
+				
+				if (theMatch.find() == false)
+					break;
+
+				if( theMatch.group(2).matches("\\s"))
+					start = theMatch.start()+1;
+				else
+					start = theMatch.start();
+				if(theMatch.group(4).matches("\\s"))
+					end = theMatch.end()-1;
+				else
+					end = theMatch.end();
+				theIndices.add(new int[]{start,end});
+				spaces = " ";
+				for(j=1;j<theWord.length();j++)
+					spaces = spaces +" ";
+				String theDocOne = theDoc.substring(0,start);
+				String theDocTwo = theDoc.substring(end);
+				theDoc = theDocOne+spaces+theDocTwo;
+			}
 		}catch(IllegalStateException e){
 			Logger.logln("'"+theWord+"' - was not matched. Are there symbols or spaces between the single quotes? If so, that may be why.");
 		}
@@ -249,44 +255,4 @@ public class IndexFinder {
 		}
 		return theIndices;
 		}
-
-
-	/**
-	 * finds indices of sentences
-	 * @param theDoc document to search
-	 * @param theList list of sentences to find
-	 * @return
-	 * indices of found sentences, [start,end]
-	 */
-	public static ArrayList<int[]> sentenceIndexFinder(String theDoc, LinkedList<String> theList)
-	{
-		ArrayList<int[]> theIndices = new ArrayList<int[]>();
-		int listLength = theList.size();
-		int i;
-		int j;
-		int start;
-		int end;
-		String temp;
-		String spaces=" ";
-		theDoc.replaceAll("\\p{C}", " ");
-		for(i=0;i<listLength;i++){
-			temp = theList.pop().replaceAll("\\p{C}", " ");
-			//System.out.println("POPPED: "+temp);
-			if(temp == null)
-				break;
-			start = theDoc.indexOf(temp);
-			if(start == -1)
-				continue;
-			end = start+temp.length();
-			spaces = " ";
-			for(j=1;j<temp.length();j++)
-				spaces = spaces +" ";
-			String theDocOne = theDoc.substring(0,start);
-			String theDocTwo = theDoc.substring(end);
-			theDoc = theDocOne+spaces+theDocTwo;
-			//System.out.println("FOUND: start at: "+start+" end at: "+end);
-			theIndices.add(new int[]{start,end});
-		}
-		return theIndices;
-	}
 }

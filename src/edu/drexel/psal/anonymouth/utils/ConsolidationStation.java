@@ -355,10 +355,7 @@ public class ConsolidationStation {
 		 * using a slightly modified version of getAnonymityIndex() called getAnonymity() so that we get the negative range back.
 		 */
 		Collections.sort(words);// sort the words in INCREASING anonymityIndex
-		for (int i = 0; i < words.size(); i++) {
-			System.out.println("DEBUGGING: " + words.get(i).word + " = " + words.get(i).getAnonymity());
-		}
-		
+
 		int mergedNumWords = words.size();
 		if (mergedNumWords <= numToReturn) {
 			Logger.logln("(ConsolidationStation) - The number of priority words to return is greater than the number of words available. Only returning what is available");
@@ -389,7 +386,6 @@ public class ConsolidationStation {
 					break;
 			}	
 		}
-		System.out.println("DEBUGGING = " + toReturn);
 		return toReturn;
 	}
 	

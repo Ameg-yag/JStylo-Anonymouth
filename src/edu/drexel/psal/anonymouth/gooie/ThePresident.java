@@ -112,6 +112,8 @@ public class ThePresident {
 				@Override
 				public void handleQuit(ApplicationEvent e) {
 					if (PropertiesUtil.getWarnQuit() && !GUIMain.saved) {
+						GUIMain.inst.toFront();
+						GUIMain.inst.requestFocus();
 						int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
 						if (confirm == 0) {
 							System.exit(0);
