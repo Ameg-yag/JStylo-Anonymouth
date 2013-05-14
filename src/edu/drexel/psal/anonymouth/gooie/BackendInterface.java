@@ -31,6 +31,7 @@ public class BackendInterface {
 	
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	private ProgressWindow pw;
+	public static Boolean processed = false;
 	
 	protected static BackendInterface bei = new BackendInterface();
 	
@@ -127,14 +128,15 @@ public class BackendInterface {
 		
 		public String getDocFromCurrentTab()
 		{
-			return main.documentPane.getText();
+			return main.getDocumentPane().getText();
 		}
 		
 		public void run()
 		{
 			try
 			{
-				main.documentPane.setEnabled(true);
+				processed = true;
+				main.getDocumentPane().setEnabled(true);
 				DocumentMagician.numProcessRequests++;
 				String tempDoc = "";
 				
@@ -148,17 +150,14 @@ public class BackendInterface {
 					try
 					{
 						wizard.runInitial(magician,main.cfd, main.classifiers.get(0));
-						pw.setText("Extracting and Clustering Features... Done");
 						pw.setText("Initializing Tagger...");
 
 						Tagger.initTagger();
 						
 						pw.setText("Initialize Cluster Viewer...");
 						DriverClustersWindow.initializeClusterViewer(main,false);
-						pw.setText("Initialize Cluster Viewer... Done");
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
-						pw.setText("Classifying Documents... Done");
 					}
 					catch(Exception e){
 						e.printStackTrace();
@@ -187,20 +186,17 @@ public class BackendInterface {
 					else
 					{
 						magician.setModifiedDocument(tempDoc);
-						main.documentPane.setEditable(false);
-						main.documentPane.setEnabled(true);
+						main.getDocumentPane().setEditable(false);
+						main.getDocumentPane().setEnabled(true);
 						
 						pw.setText("Extracting and Clustering Features...");
 						try 
 						{
 							wizard.reRunModified(magician);
-							pw.setText("Extracting and Clustering Features... Done");
 							pw.setText("Initialize Cluster Viewer...");
 							DriverClustersWindow.initializeClusterViewer(main,false);
-							pw.setText("Initialize Cluster Viewer... Done");
 							pw.setText("Classifying Documents...");
 							magician.runWeka();
-							pw.setText("Classifying Documents... Done");
 						} catch (Exception e) {
 							e.printStackTrace();
 							ErrorHandler.fatalError();
@@ -210,7 +206,6 @@ public class BackendInterface {
 						Logger.logln(NAME+" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
 						Logger.logln(NAME+wekaResults.toString());
 						makeResultsTable(wekaResults, main);
-						pw.setText("Setting Results... Done");
 					}
 				}
 				int selectedIndex = 1;
@@ -268,7 +263,7 @@ public class BackendInterface {
 		}
 
 		public void run(){
-			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
+			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded(); // todo figure out why this and/or the two percent change needed calls in TaggedDocument affect AnonymityBar
 
 			//Scanner in = new Scanner(System.in);
 			//in.nextLine();
@@ -289,19 +284,19 @@ public class BackendInterface {
 //			main.prevSentenceButton.setEnabled(false);
 //			main.transButton.setEnabled(false);
 //			main.appendSentenceButton.setEnabled(false);
-			pw.setText("Tagging all documents... Done");
 			
 			//main.editorProgressBar.setIndeterminate(true);	
 			
-			main.resultsTablePane.setOpaque(true);
+//			main.resultsTablePane.setOpaque(true);
 			DriverDocumentsTab.okayToSelectSuggestion = true;
 			
 			if(DriverDocumentsTab.isFirstRun)
-				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), true);
+				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), true);
 			else
-				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.documentPane.getText(), false);
+				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), false);
 
 			pw.stop();
+			
 			main.anonymityDrawingPanel.updateAnonymityBar();
 			main.anonymityDrawingPanel.showPointer(true);
 			for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++) {
@@ -310,11 +305,12 @@ public class BackendInterface {
 			}
 			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
 			DriverDocumentsTab.suggestionCalculator.trackEditSentence(main);
+			GUIUpdateInterface.updateResultsPrepColor(main);
 			
 			DriverDocumentsTab.ignoreNumActions = 1; // must be set to 1, otherwise "....setDot(0)" (2 lines down) will screw things up when it fires the caretUpdate listener.
-			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
-			main.documentPane.getCaret().setDot(0); // NOTE However, THIS DOES fire the caretUpdate, because we are messing with the caret itself.
-			main.documentPane.setCaretPosition(0); // NOTE And then this, again, does not fire the caretUpdate
+			main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
+			main.getDocumentPane().getCaret().setDot(0); // NOTE However, THIS DOES fire the caretUpdate, because we are messing with the caret itself.
+			main.getDocumentPane().setCaretPosition(0); // NOTE And then this, again, does not fire the caretUpdate
 			
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
@@ -325,7 +321,7 @@ public class BackendInterface {
 			DriverDocumentsTab.charsRemoved = 0;	
 			DriverDocumentsTab.caretPositionPriorToCharInsertion = 0;
 			Translator.firstRun = true;
-			//TODO uncomment: GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;
@@ -355,8 +351,8 @@ public class BackendInterface {
 			//main.editorProgressBar.setIndeterminate(false);	
 			
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
-			main.documentPane.setEnabled(true);
-            main.documentPane.setEditable(true);
+			main.getDocumentPane().setEnabled(true);
+            main.getDocumentPane().setEditable(true);
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 //			main.nextSentenceButton.doClick();
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
@@ -412,7 +408,7 @@ public class BackendInterface {
 	
 	public static void makeResultsTable(Map<String,Map<String,Double>> resultMap, GUIMain main)
 	{
-		main.resultsTableModel.getDataVector().removeAllElements();
+//		main.resultsTableModel.getDataVector().removeAllElements();
 		
 		Iterator<String> mapKeyIter = resultMap.keySet().iterator();
 		Map<String,Double> tempMap = resultMap.get(mapKeyIter.next()); 
@@ -447,12 +443,17 @@ public class BackendInterface {
 		
 		for (int i = numAuthors-1; i >= 0; i--)
 		{
-			main.resultsTableModel.addRow(new Object[]{predMap.get(predictions[i]), predictions[i] + "%"});
+//			main.resultsTableModel.addRow(new Object[]{predMap.get(predictions[i]), predictions[i] + "%"});
+			main.resultsWindow.addAttrib(predMap.get(predictions[i]).toString(), (int)(predictions[i] + .5));
 		}
 		
 		DriverDocumentsTab.resultsMaxIndex = maxIndex;
 		DriverDocumentsTab.chosenAuthor = (String)authors[maxIndex];
 		DriverDocumentsTab.maxValue = (Object)biggest;
+		
+		main.resultsWindow.makeChart();
+		main.resultsWindow.drawingPanel.repaint();
+		main.resultsMainPanel.repaint();
 	}
 	
 }

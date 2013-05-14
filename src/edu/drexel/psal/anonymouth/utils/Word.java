@@ -39,7 +39,7 @@ public class Word implements Comparable<Word>, Serializable {
 	}
 	
 	/**
-	 * Constructor for Word
+	 * Constructor for Word. Essentially does a deep copy of the input word.
 	 * @param word
 	 */
 	public Word(Word word){
@@ -81,17 +81,47 @@ public class Word implements Comparable<Word>, Serializable {
 //			totalFeatureOccurrences += wordLevelFeaturesFound.references.get(i).value;
 //		if (totalFeatureOccurrences == 0)
 //				totalFeatureOccurrences = 1; // can't divide by zero..
+//		System.out.println("numFeatures = " + numFeatures);
 		for (i = 0;i<numFeatures;i++){
 			Reference tempFeature = wordLevelFeaturesFound.references.get(i);
 			currentAttrib = DataAnalyzer.topAttributes[tempFeature.index];
 
 			double value=tempFeature.value;
+//			System.out.println("value = " + value);
+//			System.out.println("currentAttrib.getInfoGain()" + currentAttrib.getInfoGain());
+//			System.out.println("currentAttrib.getPercentChangeNeeded(false,true,true)" + currentAttrib.getPercentChangeNeeded(false,true,true));
 			anonymityIndex += (value)*(currentAttrib.getInfoGain())*(currentAttrib.getPercentChangeNeeded(false,true,true));// for 'getPercentChangeNeeded', the first boolean says not to normalize the result to the baslinePercentChangeNeeded, the second says to invert the percentage, and the third says to take the absolute value (ignore direction of change)
 			
+//			System.out.println("anonymityIndex = " + anonymityIndex);
 		}
+//		System.out.println("anonymityIndex = " + anonymityIndex);
 		return anonymityIndex;
 	}
 
+	/**
+	 * Slightly modified version of getAnonymityIndex() such that the call to getPercentChangeNeeded() inside will return negative values
+	 * as well. This is used for us to better gauge what words should be removed.
+	 * @return
+	 */
+	public double getAnonymity() {
+		double anonymityIndex=0;
+		double numFeatures = wordLevelFeaturesFound.length();
+		int i;
+		Attribute currentAttrib;
+
+		for (i = 0;i<numFeatures;i++){
+			Reference tempFeature = wordLevelFeaturesFound.references.get(i);
+			currentAttrib = DataAnalyzer.topAttributes[tempFeature.index];
+
+			double value=tempFeature.value;
+			anonymityIndex += (value)*(currentAttrib.getInfoGain())*(currentAttrib.getPercentChangeNeeded(false,false,false));// for 'getPercentChangeNeeded', the first boolean says not to normalize the result to the baslinePercentChangeNeeded, the second says to invert the percentage, and the third says to take the absolute value (ignore direction of change)
+			
+//			System.out.println("anonymityIndex = " + anonymityIndex);
+		}
+//		System.out.println("anonymityIndex = " + anonymityIndex);
+//		System.out.println("DEBUGING");
+		return anonymityIndex;
+	}
 	
 	/**
 	 * Adds another feature to the SparseReferences instance
@@ -208,8 +238,8 @@ public class Word implements Comparable<Word>, Serializable {
 	 * compares Words based upon Anonymity Index
 	 */
 	public int compareTo(Word notThisWord) {
-		double thisAnonIndex = this.getAnonymityIndex();
-		double thatAnonIndex = notThisWord.getAnonymityIndex();
+		double thisAnonIndex = this.getAnonymity();
+		double thatAnonIndex = notThisWord.getAnonymity();
 		if(thisAnonIndex< thatAnonIndex)
 			return -1;
 		else if (thisAnonIndex == thatAnonIndex)

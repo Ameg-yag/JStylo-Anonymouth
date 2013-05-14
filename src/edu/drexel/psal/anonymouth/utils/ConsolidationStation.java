@@ -343,47 +343,49 @@ public class ConsolidationStation {
 			
 		totalWords += DriverDocumentsTab.taggedDoc.getWordCount();
 		words.addAll(DriverDocumentsTab.taggedDoc.getWords());
-		//System.out.println("-----------------------Printing word list-------------------------");
-		/*for(Word w:words){
-			System.out.println(w.toString());
-		}*/
 		
 		int numToReturn = (int)(totalWords*percentToReturn);
 		ArrayList<String> toReturn = new ArrayList<String>(numToReturn);
 		words = removeDuplicateWords(words);
 		
+		/**
+		 * NOTE: We MUST be using getAnonymity() for both Word's compareTo method and for retrieving the word's anonymity index.
+		 * This is because the old method call to getAnonymityIndex() did not allow the index to be negative. This wouldn't work
+		 * here since we use the more negative the index is to rate how important it is a word be removed. As a result, we are now
+		 * using a slightly modified version of getAnonymityIndex() called getAnonymity() so that we get the negative range back.
+		 */
 		Collections.sort(words);// sort the words in INCREASING anonymityIndex
-		
+
 		int mergedNumWords = words.size();
-		if (mergedNumWords <= numToReturn){
+		if (mergedNumWords <= numToReturn) {
 			Logger.logln("(ConsolidationStation) - The number of priority words to return is greater than the number of words available. Only returning what is available");
 			numToReturn = mergedNumWords;
 		}
+		
+		
 		Word tempWord;
 		if(findTopToRemove){ // then start from index 0, and go up to index (numToReturn-1) words (inclusive)]
-			System.out.println("Finding top to remove");
+//			System.out.println("Finding top to remove");
 			for(int i = 0; i < numToReturn; i++) {
-				System.out.println(words.get(i).word+" "+words.get(i).getAnonymityIndex()); 	
-				if((tempWord=words.get(i)).getAnonymityIndex() <= 0)
-					toReturn.add(tempWord.word);//+" ("+tempWord.getAnonymityIndex()+")");
+//				System.out.println(words.get(i).word+" "+words.get(i).getAnonymity()); 	
+				if((tempWord=words.get(i)).getAnonymity() <= 0)
+					toReturn.add(tempWord.word);//+" ("+tempWord.getAnonymity()+")");
 				else 
 					break;
 			}
 		}
 		else{ // start at the END of the list, and go down to (END-numToReturn) (inclusive)
-			System.out.println("Finding top to add");
+//			System.out.println("Finding top to add");
 			int startIndex = mergedNumWords - 1;
 			int stopIndex = startIndex - numToReturn;
-			for(int i = startIndex; i> stopIndex; i--){
-				//System.out.println("Got here..");
-				//System.out.println(words.get(i).word+" "+words.get(i).getAnonymityIndex());
-				if((tempWord=words.get(i)).getAnonymityIndex()>0)
-					toReturn.add(tempWord.word);//+" ("+tempWord.getAnonymityIndex()+")");
+			for(int i = startIndex; i> stopIndex; i--) {
+//				System.out.println(words.get(i).word+" "+words.get(i).getAnonymity());
+				if((tempWord=words.get(i)).getAnonymity()>0)
+					toReturn.add(tempWord.word);//+" ("+tempWord.getAnonymity()+")");
 				else 
 					break;
 			}	
 		}
-		System.out.println(toReturn);
 		return toReturn;
 	}
 	

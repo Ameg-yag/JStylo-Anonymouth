@@ -48,9 +48,7 @@ public class TaggedDocument implements Serializable{
 	 */
 	private static final long serialVersionUID = 2258415935896292619L;
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
-	protected TaggedSentence currentLiveTaggedSentences;
 	protected ArrayList<TaggedSentence> taggedSentences;
-	//protected ArrayList<String> untaggedSentences;
 	
 	protected String documentTitle = "None";
 	protected String documentAuthor = "None";
@@ -63,7 +61,7 @@ public class TaggedDocument implements Serializable{
 	protected transient List<? extends HasWord> sentenceTokenized;
 	protected transient Tokenizer<? extends HasWord> toke;
 	protected final int PROBABLE_NUM_SENTENCES = 50;
-	protected SentenceTools jigsaw;
+	protected static SentenceTools jigsaw;
 	//protected transient Iterator<String> strIter;
 	private String ID; 
 	private int totalSentences=0;
@@ -78,7 +76,6 @@ public class TaggedDocument implements Serializable{
 		jigsaw = new SentenceTools();
 		eosTracker = new EOSCharacterTracker();
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
-		//currentLiveTaggedSentences = new ArrayList<TaggedSentence>(5); // Most people probably won't try to edit more than 5 sentences at a time.... if they do... they'll just have to wait for the array to grow.
 	}
 	
 	/**

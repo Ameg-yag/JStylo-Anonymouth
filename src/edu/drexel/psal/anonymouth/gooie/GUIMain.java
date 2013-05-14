@@ -15,16 +15,20 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -33,15 +37,19 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
+import edu.drexel.psal.anonymouth.engine.VersionControl;
 import edu.drexel.psal.anonymouth.gooie.Translation;
 import edu.drexel.psal.anonymouth.gooie.DriverClustersWindow.alignListRenderer;
 import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
+import edu.drexel.psal.anonymouth.utils.IndexFinder;
+import edu.drexel.psal.anonymouth.utils.Word;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -50,6 +58,8 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.PopupMenuEvent;
@@ -59,11 +69,14 @@ import javax.swing.event.TableModelListener;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.table.*;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Highlighter;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.tree.*;
 
 import net.miginfocom.swing.MigLayout;
@@ -75,12 +88,14 @@ import weka.classifiers.*;
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 import edu.stanford.nlp.util.PropertiesUtils;
 
+import com.apple.eawt.AppEvent.FullScreenEvent;
 import com.apple.eawt.AppEventListener;
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
 import com.apple.eawt.ApplicationListener;
 import com.apple.eawt.AppEvent.QuitEvent;
+import com.apple.eawt.FullScreenListener;
 import com.apple.eawt.QuitHandler;
 import com.apple.eawt.QuitResponse;
 
@@ -101,6 +116,7 @@ import com.apple.eawt.QuitResponse;
  * JStylo main GUI class.
  * 
  * @author Andrew W.E. McDonald
+ * @author Marc Barrowclift
  */
 //This is a comment from Joe Muoio to see if he can commit changes.
 public class GUIMain extends javax.swing.JFrame  {
@@ -150,7 +166,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	
 	protected final Color ready = new Color(0,255,128);
 	protected final Color notReady = new Color(255,102,102);
-	protected final Color tan = new Color(252,242,206);
+	protected final Color tan = new Color(136,166,233,200);
 
 	// tabs
 	protected JTabbedPane mainJTabbedPane;
@@ -160,17 +176,9 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JPanel editorTab;
 	
 	// documents tab
-	
-	
-	protected JLabel testDocsJLabel;
-	protected JButton trainDocPreviewJButton;
-	protected JButton testDocPreviewJButton;
-	protected JButton trainNameJButton;
-	protected JButton newProblemSetJButton;
+	protected JLabel problemSetLabel;
 	protected JButton loadProblemSetJButton;
 	protected JButton saveProblemSetJButton;
-	protected JButton docTabNextJButton;
-	protected JButton removeAuthorJButton;
 	protected JButton removeTrainDocsJButton;
 	protected JButton addTrainDocsJButton;
 	
@@ -276,12 +284,14 @@ public class GUIMain extends javax.swing.JFrame  {
 		protected JPanel elementsPanel;
 		protected JPanel elementsToAddPanel;
 		protected JLabel elementsToAddLabel;
-		protected JTextPane elementsToAddPane;
+		protected JList<String> elementsToAddPane;
 		protected JScrollPane elementsToAddScrollPane;
 		protected JPanel elementsToRemovePanel;
 		protected JLabel elementsToRemoveLabel;
-		protected JTextPane elementsToRemovePane;
+		protected JList<String> elementsToRemovePane;
 		protected JScrollPane elementsToRemoveScrollPane;
+		protected DefaultListModel<String> elementsToAdd;
+		protected DefaultListModel<String> elementsToRemove;
 		
 	protected JPanel translationsPanel;
 		protected JLabel translationsLabel;
@@ -295,7 +305,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JPanel informationPanel;
 		protected JLabel sentenceEditorLabel;
 		protected JLabel documentViewerLabel;
-		protected JLabel classificationResultsLabel;
+		protected JLabel resultsLabel;
 		protected JTextPane descriptionPane;
 		
 		protected JPanel instructionsPanel;
@@ -330,7 +340,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		private JPanel spacer1;
 		protected JButton restoreSentenceButton;
 		protected JLabel documentLabel;
-		protected JTextPane documentPane;
+		private JTextPane documentPane;
 		protected JScrollPane documentScrollPane;
 //		public JTextPane sentenceEditPane; //============================================ PUBLIC
 //		protected JLabel sentenceBoxLabel;
@@ -356,6 +366,7 @@ public class GUIMain extends javax.swing.JFrame  {
 //		protected JPanel resultsPanel;
 		protected JPanel resultsOptionsPanel;
 		protected JPanel resultsMainPanel;
+		protected JScrollPane resultsScrollPane;
 		protected DefaultComboBoxModel displayComboBoxModel;
 		protected JComboBox displayComboBox;
 		protected JTextArea displayTextArea;
@@ -433,8 +444,12 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JMenuItem helpClustersMenuItem;
 	protected JMenuItem viewMenuItem;
 	protected JMenuItem viewClustersMenuItem;
+	public static JMenuItem viewEnterFullScreenMenuItem;
 	protected JMenuItem helpMenu;
 	protected JMenuItem fileMenu;
+	protected JMenuItem editMenu;
+	public JMenuItem editUndoMenuItem;
+	public JMenuItem editRedoMenuItem;
 //	protected JMenuItem filePrintMenuItem;
 	
 	// random useful variables
@@ -453,6 +468,11 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected ClustersWindow clustersWindow;
 	protected SuggestionsWindow suggestionsWindow;
 	protected ClustersTutorial clustersTutorial;
+	protected VersionControl versionControl;
+	protected ResultsWindow resultsWindow;
+	
+	private int resultsHeight;
+	protected Map<Integer, ArrayList<int[]>> highlights = new HashMap<Integer, ArrayList<int[]>>();
 	
 	//used mostly for loading the main document without having to alter the main.ps.testDocAt(0) directly
 	Document mainDocPreview;
@@ -481,6 +501,8 @@ public class GUIMain extends javax.swing.JFrame  {
 					@Override
 					public void windowClosing(WindowEvent e) {
 						if (PropertiesUtil.getWarnQuit() && !saved) {
+							inst.toFront();
+							inst.requestFocus();
 							int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
 							if (confirm == 0) {
 								System.exit(0);
@@ -505,6 +527,10 @@ public class GUIMain extends javax.swing.JFrame  {
 					@Override
 					public void windowOpened(WindowEvent arg0) {}
 				};
+			
+				if (ThePresident.IS_MAC) {
+					enableOSXFullscreen(inst);
+				}
 				
 				inst.addWindowListener(exitListener);
 				inst.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -514,6 +540,47 @@ public class GUIMain extends javax.swing.JFrame  {
 			}
 		});
 	}
+	
+	/**
+	 * (Thanks to Dyorgio at StackOverflow for the code)
+	 * If the user is on OS X, we will allow them to enter full screen in Anonymouth using OS X's native full screen functionality.
+	 * As of right now it doesn't actually resize the components that much and doesn't add much to the application, but the structure's
+	 * there to allow someone to come in and optimize Anonymouth when in full screen (not to mention just having the functionality makes
+	 * it seem more like a native OS X application).
+	 * 
+	 * This enables full screen for the particular window and also adds a full screen listener so that we may chance components as needed
+	 * depending on what state we are in.
+	 * @param window
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public static void enableOSXFullscreen(Window window) {
+	    try {
+	        Class util = Class.forName("com.apple.eawt.FullScreenUtilities");
+	        Class params[] = new Class[]{Window.class, Boolean.TYPE};
+	        Method method = util.getMethod("setWindowCanFullScreen", params);
+	        method.invoke(util, window, true);
+	        
+	        com.apple.eawt.FullScreenUtilities.addFullScreenListenerTo(window, new FullScreenListener () {
+				@Override
+				public void windowEnteredFullScreen(FullScreenEvent arg0) {
+					GUIMain.viewEnterFullScreenMenuItem.setText("Exit Full Screen");
+				}
+				@Override
+				public void windowEnteringFullScreen(FullScreenEvent arg0) {}
+				@Override
+				public void windowExitedFullScreen(FullScreenEvent arg0) {
+					GUIMain.viewEnterFullScreenMenuItem.setText("Enter Full Screen");
+				}
+				@Override
+				public void windowExitingFullScreen(FullScreenEvent arg0) {}
+			});
+	    } catch (ClassNotFoundException e1) {
+	    	Logger.logln("( GUIMain ) - Failed initializing Anonymouth for full-screen", LogOut.STDERR);
+	    } catch (Exception e) {
+	    	Logger.logln("( GUIMain ) - Failed initializing Anonymouth for full-screen", LogOut.STDERR);
+	    }
+	}
+
 
 	public GUIMain() {
 		super();
@@ -564,6 +631,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			fileLoadProblemSetMenuItem = new JMenuItem("Load Problem Set");
 			fileSaveTestDocMenuItem = new JMenuItem("Save");
 			fileSaveAsTestDocMenuItem = new JMenuItem("Save As...");
+			
 			fileMenu.add(fileSaveProblemSetMenuItem);
 			fileMenu.add(fileLoadProblemSetMenuItem);
 			fileMenu.add(new JSeparator());
@@ -572,18 +640,44 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			menuBar.add(fileMenu);
 			
-			if (!ThePresident.IS_MAC) {
-				JMenu settingsMenu = new JMenu("Settings");
-				settingsGeneralMenuItem = new JMenuItem("Preferences");
-				settingsMenu.add(settingsGeneralMenuItem);
-				menuBar.add(settingsMenu);
-			}
+			editMenu = new JMenu("Edit");
+			editUndoMenuItem = new JMenuItem("Undo");
+			editUndoMenuItem.setEnabled(false);
+			editMenu.add(editUndoMenuItem);
+			editRedoMenuItem = new JMenuItem("Redo");
+			editRedoMenuItem.setEnabled(false);
+			editMenu.add(editRedoMenuItem);
+			menuBar.add(editMenu);
 			
 			viewMenuItem = new JMenu("View");
 			viewClustersMenuItem = new JMenuItem("Clusters");
 			viewMenuItem.add(viewClustersMenuItem);
 			
 			menuBar.add(viewMenuItem);
+			
+			if (ThePresident.IS_MAC) {
+				fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+				
+				viewMenuItem.add(new JSeparator());
+				viewEnterFullScreenMenuItem = new JMenuItem("Enter Full Screen");
+				viewMenuItem.add(viewEnterFullScreenMenuItem);
+				viewEnterFullScreenMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			} else {
+				fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK));
+				fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+				editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
+				editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
+			}
+			
+			if (!ThePresident.IS_MAC) {
+				JMenu settingsMenu = new JMenu("Settings");
+				settingsGeneralMenuItem = new JMenuItem("Preferences");
+				settingsMenu.add(settingsGeneralMenuItem);
+				menuBar.add(settingsMenu);
+			}
 			
 			helpMenu = new JMenu("Help");
 			helpAboutMenuItem = new JMenuItem("About Anonymouth");
@@ -592,7 +686,7 @@ public class GUIMain extends javax.swing.JFrame  {
 				helpMenu.add(helpAboutMenuItem);
 				helpMenu.add(new JSeparator());
 			}
-			helpSuggestionsMenuItem = new JMenuItem("Suggestions");
+			helpSuggestionsMenuItem = new JMenuItem("General Suggestions");
 			helpMenu.add(helpSuggestionsMenuItem);
 			helpMenu.add(new JSeparator());
 			helpMenu.add(helpClustersMenuItem);
@@ -631,6 +725,8 @@ public class GUIMain extends javax.swing.JFrame  {
 			clustersWindow = new ClustersWindow();
 			suggestionsWindow = new SuggestionsWindow();
 			clustersTutorial = new ClustersTutorial();
+			versionControl = new VersionControl(this);
+			resultsWindow = new ResultsWindow(this);
 			
 			// initialize listeners - except for EditorTabDriver!
 			
@@ -640,6 +736,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			DriverResultsTab.initListeners(this);
 			DriverSuggestionsTab.initListeners(this);
 			DriverClustersWindow.initListeners(this);
+			DriverResultsWindow.initListeners(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -679,6 +776,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
 		GUIUpdateInterface.updateClassList(this);
 		GUIUpdateInterface.updateClassPrepColor(this);
+		GUIUpdateInterface.updateResultsPrepColor(this);
 		DriverPreProcessTabClassifiers.tmpClassifier = null;
 	}
 
@@ -779,6 +877,16 @@ public class GUIMain extends javax.swing.JFrame  {
 		if (panelLocations.contains(PropertiesUtil.Location.BOTTOM))
 			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:");
 		
+		rightTabPane.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (rightTabPane.getSelectedIndex() != 1) {
+					elementsToAddPane.clearSelection();
+					elementsToRemovePane.clearSelection();
+				}
+			}
+		});
+		
 		getContentPane().revalidate();
 		getContentPane().repaint();
 	}
@@ -798,10 +906,10 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			anonymityPanel.removeAll();
 			anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(anonymityDrawingPanel, "h 515!");
+			anonymityPanel.add(anonymityDrawingPanel, "growy");
 			anonymityPanel.add(anonymityDescription, "h 90!");
 			anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(resultsMainPanel, "grow");
+			anonymityPanel.add(resultsScrollPane, "grow");
 		}
 		else if (anonymityLocation == PropertiesUtil.Location.TOP)
 		{
@@ -812,37 +920,11 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			anonymityPanel.removeAll();
 			anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(anonymityDrawingPanel, "h 515!");
+			anonymityPanel.add(anonymityDrawingPanel, "growy");
 			anonymityPanel.add(anonymityDescription, "h 70!");
 			anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(resultsMainPanel, "grow");
+			anonymityPanel.add(resultsScrollPane, "grow");
 		}
-		
-//		PropUtil.Location resultsLocation = PropUtil.getResultsTabLocation();
-//		if (resultsLocation == PropUtil.Location.LEFT || resultsLocation == PropUtil.Location.RIGHT)
-//		{
-//			resultsPanel.setLayout(new MigLayout(
-//					"wrap, ins 0, gap 0 0",
-//					"grow, fill",
-//					"[][grow, fill][]"));
-//			
-//			resultsPanel.removeAll();
-//			resultsPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-//			resultsPanel.add(resultsMainPanel, "grow");
-//			resultsPanel.add(new JScrollPane(displayTextArea), "h 150!");
-//		}
-//		else if (resultsLocation == PropUtil.Location.BOTTOM)
-//		{
-//			resultsPanel.setLayout(new MigLayout(
-//					"wrap 2, ins 0, gap 0 0",
-//					"[100:20%:][grow, fill]",
-//					"[][grow, fill]"));
-//			
-//			resultsPanel.removeAll();
-//			resultsPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-//			resultsPanel.add(new JScrollPane(displayTextArea), "grow");
-//			resultsPanel.add(resultsMainPanel, "grow");
-//		}
 	}
 	
 	public boolean documentsAreReady()
@@ -950,6 +1032,19 @@ public class GUIMain extends javax.swing.JFrame  {
 		return ready;
 	}
 	
+	public boolean resultsAreReady() {
+		boolean ready = true;
+		
+		try {
+			if (!resultsWindow.isReady())
+				ready = false;
+		} catch (Exception e) {
+			ready = false;
+		}
+
+		return ready;
+	}
+	
 	/**
 	 * Creates a Pre-Process panel that can be added to the "help area".
 	 * @return editorHelpSettingsPanel
@@ -981,6 +1076,8 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepDocLabel.setOpaque(true);
 			prepDocLabel.setBackground(notReady);
 			
+			problemSetLabel = new JLabel("Problem Set:");
+			
 			// Save Problem Set button
 			saveProblemSetJButton = new JButton("Save");
 			
@@ -991,11 +1088,11 @@ public class GUIMain extends javax.swing.JFrame  {
 			clearProblemSetJButton = new JButton("Clear");
 			
 			// main label
-			mainLabel = new JLabel("Main:");
+			mainLabel = new JLabel("<html><center>Your Document<br>To Anonymize:</center></html>");
 			mainLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			
 			// sample label
-			sampleLabel = new JLabel("Sample:");
+			sampleLabel = new JLabel("<html><center>Your Other<br>Sample Documents:</center></html>");
 			sampleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			
 			// main documents list
@@ -1023,7 +1120,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			removeuserSampleDocJButton = new JButton("-");
 			
 			// train label
-			trainLabel = new JLabel("Other Authors:");
+			trainLabel = new JLabel("<html><center>Documents You Didn't Write<br>(At Least 3 Authors):</center></html>");
 			trainLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			
 			// train tree
@@ -1037,30 +1134,22 @@ public class GUIMain extends javax.swing.JFrame  {
 			// train delete button
 			removeTrainDocsJButton = new JButton("-");
 			
-//			testDocBottom = new JPanel(new FlowLayout());
-//			prepMainDocList.setPreferredSize(new Dimension(100, 15));
-//			prepMainDocList.setMaximumSize(new Dimension(100, 15));
-//			testDocBottom.add(prepMainDocList);
-//			testDocBottom.add(prepSampleDocsScrollPane);
-//			testDocBottom.add(addTestDocJButton);
-//			testDocBottom.add(removeTestDocJButton);
-			
 			prepDocumentsPanel.add(prepDocLabel, "span, h " + titleHeight + "!");
+			prepDocumentsPanel.add(problemSetLabel, "span, w 60::150, growx, alignx 71%, wrap");
 			prepDocumentsPanel.add(saveProblemSetJButton, "span 4, split 3");
 			prepDocumentsPanel.add(loadProblemSetJButton);
-			prepDocumentsPanel.add(clearProblemSetJButton);
+			prepDocumentsPanel.add(clearProblemSetJButton, "wrap");
+			JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+			separator.setPreferredSize(new Dimension(100, 75));
+			prepDocumentsPanel.add(separator, "span 4, wrap");
 			prepDocumentsPanel.add(mainLabel, "span 2");
 			prepDocumentsPanel.add(sampleLabel, "span 2");
 			prepDocumentsPanel.add(prepMainDocScrollPane, "span 2, growy, h 60::180, w 60::150");
-			
-//			prepDocumentsPanel.add(prepMainDocList, "span 2, top, growy, h 60::20, w 0::160");
+
 			prepDocumentsPanel.add(prepSampleDocsScrollPane, "span 2, growy, h 60::180, w 60::150");
 			prepDocumentsPanel.add(addTestDocJButton);
 			prepDocumentsPanel.add(removeTestDocJButton);
-			
-//			prepDocumentsPanel.add(testDocBottom, "span 2, growy, h 60::180");
-//			prepDocumentsPanel.add(prepSampleDocsScrollPane, "span 2, growy, h 60::180");
-//			prepDocumentsPanel.add(adduserSampleDocJButton, "skip 2");
+
 			prepDocumentsPanel.add(adduserSampleDocJButton);
 			prepDocumentsPanel.add(removeuserSampleDocJButton);
 			prepDocumentsPanel.add(trainLabel, "span");
@@ -1111,153 +1200,17 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepClassLabel.setBorder(rlborder);
 			prepClassLabel.setBackground(notReady);
 			
-//			JLabel availLabel = new JLabel("Available:");
-//			availLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//			
-//			JLabel selectedLabel = new JLabel("Selected:");
-//			selectedLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			
-//			classJTree = new JTree();
-//			classJTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-//			prepAvailableClassScrollPane = new JScrollPane(classJTree);
-//			DriverPreProcessTabClassifiers.initMainWekaClassifiersTree(this);
-			
 			classChoice = new JComboBox();
-			
-//			prepAvailableClassScrollPane = new JScrollPane(classChoice);
+
 			DriverPreProcessTabClassifiers.initMainWekaClassifiersTree(this);
 			
-//			DefaultListModel selectedListModel = new DefaultListModel();
-//			classJList = new JList(selectedListModel);
-//			classJList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-//			classJList.setCellRenderer(new DriverClustersTab.alignListRenderer(SwingConstants.CENTER));
-//			prepSelectedClassScrollPane = new JScrollPane(classJList);
-			
-//			classAddJButton = new JButton("Select");
-//			
-//			classRemoveJButton = new JButton("Remove");
-			
 			prepClassifiersPanel.add(prepClassLabel, "span 2, h " + titleHeight + "!");
-//			prepClassifiersPanel.add(availLabel);
-//			prepClassifiersPanel.add(selectedLabel);
 			prepClassifiersPanel.add(classChoice);
-//			prepClassifiersPanel.add(prepAvailableClassScrollPane, "grow, h 150:360:, w 50%::");
-//			prepClassifiersPanel.add(prepSelectedClassScrollPane, "grow, h 150:360:");
-//			prepClassifiersPanel.add(classAddJButton, "gaptop 0, growy 0");
-//			prepClassifiersPanel.add(classRemoveJButton, "gaptop 0, growy 0");
 		}
 		preProcessPanel.add(prepDocumentsPanel, "growx");
 		preProcessPanel.add(prepFeaturesPanel, "growx");
 		preProcessPanel.add(prepClassifiersPanel, "growx");
 	}
-	
-//	private JPanel createInfoTab()
-//	{
-//		//for word wrapping, generally width in style should be 100 less than width of component
-//		String html1 = "<html><body style='width: ";
-//        String html2 = "px'>";
-//		
-//		editorHelpInfoPanel = new JPanel();
-//		editorHelpInfoPanel.setPreferredSize(new java.awt.Dimension(290, 660));
-//		
-//		GridBagLayout infoLayout = new GridBagLayout();
-//		editorHelpInfoPanel.setLayout(infoLayout);
-//		GridBagConstraints IPConst = new GridBagConstraints();
-//		{ //=========== Information Tab ====================
-//			//---------- Instructions Panel ----------------------
-//			instructionsPanel = new JPanel();
-//			instructionsPanel.setPreferredSize(new java.awt.Dimension(290, 660));
-//			
-//			GridBagLayout instructionsLayout = new GridBagLayout();
-//			editorHelpInfoPanel.setLayout(instructionsLayout);
-//			
-//			IPConst.gridx = 0;
-//			IPConst.gridy = 0;
-//			IPConst.gridheight = 1;
-//			IPConst.gridwidth = 1;
-//			editorHelpInfoPanel.add(instructionsPanel, IPConst);
-//			Font titleFont = titleFont;
-//			Font answerFont = new Font("Ariel", Font.PLAIN, 11);
-//			{// ---------- Question One ----------------------
-//				JLabel questionOneTitle = new JLabel();
-//				questionOneTitle.setText("What is this tab?");
-//				questionOneTitle.setFont(titleFont);
-//				questionOneTitle.setPreferredSize(new java.awt.Dimension(290, 20));
-//				IPConst.gridx = 0;
-//				IPConst.gridy = 0;
-//				IPConst.gridheight = 1;
-//				IPConst.gridwidth = 3;
-//				instructionsPanel.add(questionOneTitle, IPConst);
-//			}
-//			{
-//				JLabel questionOneAnswer = new JLabel();
-//				String s = "This is the <b>\"Editor Tab.\"</b> Here is where you edit the document you wish to anonymize. The goal is to edit your document to a point where it is not recognized as your writing, and Anonymouth is here to help you acheive that.";
-//				questionOneAnswer.setText(html1+"170"+html2+s);
-//				questionOneAnswer.setFont(answerFont);
-//				questionOneAnswer.setVerticalAlignment(SwingConstants.TOP);
-//				
-//				questionOneAnswer.setPreferredSize(new java.awt.Dimension(270, 60));
-//				IPConst.gridx = 0;
-//				IPConst.gridy = 1;
-//				IPConst.gridheight = 1;
-//				IPConst.gridwidth = 2;
-//				instructionsPanel.add(questionOneAnswer, IPConst);
-//			}
-//			{// ---------- Question Two ----------------------
-//				JLabel questionTwoTitle = new JLabel();
-//				questionTwoTitle.setText("What should I do first?");
-//				questionTwoTitle.setFont(titleFont);
-//				questionTwoTitle.setPreferredSize(new java.awt.Dimension(290, 20));
-//				IPConst.gridx = 0;
-//				IPConst.gridy = 2;
-//				IPConst.gridheight = 1;
-//				IPConst.gridwidth = 3;
-//				instructionsPanel.add(questionTwoTitle, IPConst);
-//			}
-//			{
-//				JLabel questionTwoAnswer = new JLabel();
-//				String s = "If you have not processed your document yet, do so now by pressing the <b>\"Process\"</b> button. This will let us figure out how anonymous your document currently is.";
-//				questionTwoAnswer.setText(html1+"170"+html2+s);
-//				questionTwoAnswer.setFont(answerFont);
-//				questionTwoAnswer.setVerticalAlignment(SwingConstants.TOP);
-//				
-//				questionTwoAnswer.setPreferredSize(new java.awt.Dimension(270, 60));
-//				IPConst.gridx = 0;
-//				IPConst.gridy = 3;
-//				IPConst.gridheight = 1;
-//				IPConst.gridwidth = 2;
-//				instructionsPanel.add(questionTwoAnswer, IPConst);
-//			}
-//			{// ---------- Question Three ----------------------
-//				JLabel questionThreeTitle = new JLabel();
-//				questionThreeTitle.setText("How do I go about editing my document?");
-//				questionThreeTitle.setFont(titleFont);
-//				questionThreeTitle.setPreferredSize(new java.awt.Dimension(290, 20));
-//				IPConst.gridx = 0;
-//				IPConst.gridy = 4;
-//				IPConst.gridheight = 1;
-//				IPConst.gridwidth = 3;
-//				instructionsPanel.add(questionThreeTitle, IPConst);
-//			}
-//			{
-//				JLabel questionThreeAnswer = new JLabel();
-//				String s = "<p>After you've processed the document, the first sentence should be highlighted and will appear in the <b>\"Sentence\"</b> box."
-//						+ " Edit each sentence one by one, saving your changes as you go. Use the arrow buttons for navigation.</p>"
-//						+ "<br><p>Once you are satisfied with your changes, process the document to see how the anonymity has been affected.</p>";
-//				questionThreeAnswer.setText(html1+"170"+html2+s);
-//				questionThreeAnswer.setFont(answerFont);
-//				questionThreeAnswer.setVerticalAlignment(SwingConstants.TOP);
-//				
-//				questionThreeAnswer.setPreferredSize(new java.awt.Dimension(270, 120));
-//				IPConst.gridx = 0;
-//				IPConst.gridy = 5;
-//				IPConst.gridheight = 1;
-//				IPConst.gridwidth = 2;
-//				instructionsPanel.add(questionThreeAnswer, IPConst);
-//			}
-//			return editorHelpInfoPanel;
-//		} // =========== End Information Tab ==================
-//	}
 	
 	private JPanel createSugTab()
 	{
@@ -1277,11 +1230,40 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToAddLabel.setBorder(rlborder);
 			
 			//--------- Elements to Add Text Pane ------------------
-			elementsToAddPane = new JTextPane();
+			elementsToAddPane = new JList<String>();
 			elementsToAddScrollPane = new JScrollPane(elementsToAddPane);
 			elementsToAddPane.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
-			elementsToAddPane.setText("Please process your document to receive word suggestions");
-			elementsToAddPane.setEditable(false);
+			elementsToAdd = new DefaultListModel<String>();
+			elementsToAdd.add(0, "Please process your document to receive suggestions");
+			elementsToAddPane.setModel(elementsToAdd);
+			elementsToAddPane.setEnabled(false);
+			elementsToAddPane.addListSelectionListener(new ListSelectionListener() {
+				@Override
+				public void valueChanged(ListSelectionEvent e) {
+					elementsToRemovePane.clearSelection();
+					
+					try {
+						Highlighter highlight = getDocumentPane().getHighlighter();
+						int highlightedObjectsSize = DriverDocumentsTab.highlightedObjects.size();
+						
+						for (int i = 0; i < highlightedObjectsSize; i++)
+							highlight.removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
+						DriverDocumentsTab.highlightedObjects.clear();
+						
+						ArrayList<int[]> index = IndexFinder.findIndices(getDocumentPane().getText(), elementsToAddPane.getSelectedValue());
+
+						int indexSize = index.size();
+
+						for (int i = 0; i < indexSize; i++)
+							DriverDocumentsTab.highlightedObjects.add(new HighlightMapper(index.get(i)[0], index.get(i)[1], highlight.addHighlight(index.get(i)[0], index.get(i)[1], DriverDocumentsTab.painterAdd)));
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+			//elementsToAddPane.setText("Please process your document to receive word suggestions");
+			elementsToAddPane.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			elementsToAddPane.setDragEnabled(false);
 			elementsToAddPane.setFocusable(false);
 			
 			//--------- Elements to Remove Label  ------------------
@@ -1293,11 +1275,40 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemoveLabel.setBorder(rlborder);
 			
 			//--------- Elements to Remove Text Pane ------------------
-			elementsToRemovePane = new JTextPane();
+			elementsToRemovePane = new JList<String>();
 			elementsToRemoveScrollPane = new JScrollPane(elementsToRemovePane);
 			elementsToRemovePane.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
-			elementsToRemovePane.setText("Please process your document to receive word removal suggestions");
-			elementsToRemovePane.setEditable(false);
+			elementsToRemove = new DefaultListModel<String>();
+			elementsToRemove.add(0, "Please process your document to receive suggestions");
+			elementsToRemovePane.setModel(elementsToRemove);
+			elementsToRemovePane.setEnabled(false);
+			elementsToRemovePane.addListSelectionListener(new ListSelectionListener() {
+				@Override
+				public void valueChanged(ListSelectionEvent evt) {
+					elementsToAddPane.clearSelection();
+					
+					try {
+						Highlighter highlight = getDocumentPane().getHighlighter();
+						int highlightedObjectsSize = DriverDocumentsTab.highlightedObjects.size();
+
+						for (int i = 0; i < highlightedObjectsSize; i++)
+							highlight.removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
+						DriverDocumentsTab.highlightedObjects.clear();
+						
+						ArrayList<int[]> index = IndexFinder.findIndices(getDocumentPane().getText(), elementsToRemovePane.getSelectedValue());
+						
+						int indexSize = index.size();
+
+						for (int i = 0; i < indexSize; i++)
+							DriverDocumentsTab.highlightedObjects.add(new HighlightMapper(index.get(i)[0], index.get(i)[1], highlight.addHighlight(index.get(i)[0], index.get(i)[1], DriverDocumentsTab.painterRemove)));
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
+			});
+//			elementsToRemovePane.setText("Please process your document to receive word removal suggestions");
+			elementsToRemovePane.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			elementsToRemovePane.setDragEnabled(false);
 			elementsToRemovePane.setFocusable(false);
 			
 			suggestionsPanel.add(elementsToAddLabel, "h " + titleHeight + "!");
@@ -1338,12 +1349,15 @@ public class GUIMain extends javax.swing.JFrame  {
 					"grow, fill",
 					""));
 			
-//			JLabel notTranslated = new JLabel("Sentence has not been translated yet, please\nwait or work on already translated sentences.");
-//			notTranslated.setPreferredSize(new Dimension(400, 300));
-//			translationsHolderPanel.add(notTranslated, "north, wmax 310, wmin 310");
-			
 			notTranslated = new JTextPane();
-			notTranslated.setText("Please process your document to recieve translation suggestions.");
+			
+			if (PropertiesUtil.getDoTranslations()) {
+				notTranslated.setText("Please process your document to recieve translation suggestions.");
+			} else {
+				notTranslated.setText("You have turned translations off.");
+				translationsHolderPanel.add(notTranslated, "");
+			}
+			
 			notTranslated.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
 			notTranslated.setDragEnabled(false);
 			notTranslated.setEditable(false);
@@ -1397,83 +1411,6 @@ public class GUIMain extends javax.swing.JFrame  {
 					"[][grow, fill][]");
 			documentsPanel.setLayout(EBPLayout);
 			{
-//            	sentenceBoxLabel = new JLabel("Sentence:");
-//            	sentenceBoxLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//            	sentenceBoxLabel.setFont(titleFont);
-//            	sentenceBoxLabel.setOpaque(true);
-//            	sentenceBoxLabel.setBackground(tan);
-//            	sentenceBoxLabel.setBorder(rlborder);
-//                
-//                sentencePane = new JScrollPane();
-//                sentenceEditPane = new JTextPane();
-//                sentenceEditPane.setText("Current Sentence.");
-//                sentenceEditPane.setFont(normalFont);
-//                sentenceEditPane.setEditable(true);
-//                sentencePane.setViewportView(sentenceEditPane);
-//                
-//                sentenceOptionsPanel = new JPanel();
-//            	sentenceOptionsPanel.setBackground(optionsColor);
-//            	sentenceOptionsPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-//            	MigLayout sentOptLayout = new MigLayout(
-//            			"fill, wrap 1, gap 0 0, ins 0 n 0 n",
-//            			"fill",
-//            			"10:20:20");
-//            	sentenceOptionsPanel.setLayout(sentOptLayout);
-//            	{
-//                 	JLabel sentOptionsLabel = new JLabel("Sentence Options:");
-//                 	sentOptionsLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//                 	sentOptionsLabel.setFont(titleFont);
-//                   
-//                 	restoreSentenceButton = new JButton("Restore");
-// 					restoreSentenceButton.setToolTipText("Restores the sentence in the \"Current Sentence Box\"" +
-// 														" back to what is highlighted in the document below, reverting any changes.");
-// 					
-//                 	SaveChangesButton = new JButton("Save Changes");
-//                 	SaveChangesButton.setToolTipText("Saves what is in the \"Current Sentence Box\" to the document below.");
-//                 	
-//                 	sentenceOptionsPanel.add(sentOptionsLabel);
-// 					sentenceOptionsPanel.add(restoreSentenceButton);
-//                 	sentenceOptionsPanel.add(SaveChangesButton);
-//                }
-//                
-//                translationsBoxLabel = new JLabel("Translation:");
-//                translationsBoxLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//                translationsBoxLabel.setFont(titleFont);
-//                translationsBoxLabel.setOpaque(true);
-//                translationsBoxLabel.setBackground(tan);
-//                translationsBoxLabel.setBorder(rlborder);
-//                
-//                translationPane = new JScrollPane();
-//                translationEditPane = new JTextPane();
-//                translationEditPane.setText("Current Translation.");
-//                translationEditPane.setFont(normalFont);
-//                translationEditPane.setEditable(true);
-//                translationPane.setViewportView(translationEditPane);
-//            	
-//            	translationOptionsPanel = new JPanel();
-//            	translationOptionsPanel.setBackground(optionsColor);
-//            	translationOptionsPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-//            	MigLayout transOptLayout = new MigLayout(
-//            			"fill, wrap 1, gap 0 0, ins 0 n 0 n",
-//            			"fill",
-//            			"10:20:20");
-//            	translationOptionsPanel.setLayout(transOptLayout);
-//            	{
-//                    JLabel transOptionsLabel = new JLabel("Translation Options:");
-//                    transOptionsLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//                    transOptionsLabel.setFont(new Font("Ariel", Font.BOLD, 11));
-//                    
-//                	copyToSentenceButton = new JButton("Copy To Sentence");
-//                	copyToSentenceButton.setToolTipText("Copies the translation in the \"Translation Box\"" +
-//														" to the \"Current Sentence Box\". Press the \"Restore\" button to undo this.");
-//                    
-//                    JLabel filler = new JLabel();
-//                    
-//                    translationOptionsPanel.add(transOptionsLabel);
-//                    translationOptionsPanel.add(copyToSentenceButton);
-//                    translationOptionsPanel.add(filler);
-//                }
-            	
                 documentLabel = new JLabel("Document:");
                 documentLabel.setHorizontalAlignment(SwingConstants.CENTER);
                 documentLabel.setFont(titleFont);
@@ -1482,83 +1419,25 @@ public class GUIMain extends javax.swing.JFrame  {
                 documentLabel.setBorder(rlborder);
                 
                 documentScrollPane = new JScrollPane();
-                documentPane = new JTextPane();
-                documentPane.setDragEnabled(false);
-                documentPane.setText("This is where the latest version of your document will be.");
-                documentPane.setFont(normalFont);
-                documentPane.setEnabled(false);
-                documentPane.setEditable(false);
-                documentPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
-                documentScrollPane.setViewportView(documentPane);
-                
-//                documentOptionsPanel = new JPanel();
-//                documentOptionsPanel.setBackground(tan);
-//                documentOptionsPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-//                MigLayout DOPLayout = new MigLayout(
-//            			"fill, wrap 1",
-//            			"fill",
-//            			"[20][20][20][20][20][20][20][]");
-//            	documentOptionsPanel.setLayout(DOPLayout);
-//        		{
-//        			JLabel docNameTitleLabel = new JLabel("Name:");
-//        			docNameTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//        			docNameTitleLabel.setFont(titleFont);
-//                    
-//                    docNameLabel = new JLabel(" "); // space is so it doesn't shrivel up
-//                    docNameLabel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-//                    docNameLabel.setBackground(Color.WHITE);
-//                    docNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//                    docNameLabel.setOpaque(true);
-//        			
-//                    JLabel docOptionsLabel = new JLabel("Document Options:");
-//                    docOptionsLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//                    docOptionsLabel.setFont(titleFont);
-//                    
-//                	transButton = new JButton("Translate");
-//                	transButton.setToolTipText("Translates the currently highlighted sentence.");
-//                	
-//                	appendSentenceButton = new JButton("Append Next");
-//                	appendSentenceButton.setToolTipText("Appends the next sentence onto the current sentence.");
-//                	
-//                	dictButton = new JButton("Synonym Dictionary");
-//                	dictButton.setToolTipText("Phrase and Synonym Dictionary.");
-//                	
-                	saveButton = new JButton("Save As...");
-                	saveButton.setToolTipText("Saves the modified document above to a new file.");
-//                	
-                	processButton = new JButton("Process");
-                	processButton.setToolTipText("Processes the document.");
-//                    
-////        			prevSentenceButton = new JButton("<--");
-////        			prevSentenceButton.setHorizontalTextPosition(SwingConstants.CENTER);
-////                    
-////                	nextSentenceButton = new JButton("-->");
-////                	nextSentenceButton.setHorizontalTextPosition(SwingConstants.CENTER);
-//                    
-//                    documentOptionsPanel.add(docNameTitleLabel);
-//                    documentOptionsPanel.add(docNameLabel);
-//                    documentOptionsPanel.add(docOptionsLabel);
-//                	documentOptionsPanel.add(transButton);
-//                	documentOptionsPanel.add(appendSentenceButton);
-//                	documentOptionsPanel.add(dictButton);
-//                	documentOptionsPanel.add(saveButton);
-//                	documentOptionsPanel.add(processButton, "pushy, bottom, h 40!");
-////        			documentOptionsPanel.add(prevSentenceButton, "split 2");
-////                    documentOptionsPanel.add(nextSentenceButton);
-//        		}
-        		
-//                documentsPanel.add(sentenceBoxLabel, "span, grow");
-//                documentsPanel.add(sentencePane, "grow");
-//            	documentsPanel.add(sentenceOptionsPanel, "grow, gapleft 0");
-//                documentsPanel.add(translationsBoxLabel, "span, growx");
-//                documentsPanel.add(translationPane, "grow");
-//            	documentsPanel.add(translationOptionsPanel, "grow, gapleft 0");
+                setDocumentPane(new JTextPane());
+                getDocumentPane().setDragEnabled(false);
+                getDocumentPane().setText("This is where the latest version of your document will be.");
+                getDocumentPane().setFont(normalFont);
+                getDocumentPane().setEnabled(false);
+                getDocumentPane().setEditable(false);
+                getDocumentPane().setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
+                documentScrollPane.setViewportView(getDocumentPane());
+
+                saveButton = new JButton("Save As...");
+                saveButton.setToolTipText("Saves the modified document above to a new file.");
+
+                processButton = new JButton("Process");
+                processButton.setToolTipText("Processes the document.");
+
                 documentsPanel.add(documentLabel, "grow, h " + titleHeight + "!");
-                //documentsPanel.add(processButton, "grow");
                 documentsPanel.add(documentScrollPane, "grow");
                 documentsPanel.add(processButton, "right, split");
                 documentsPanel.add(saveButton, "right");
-            	//documentsPanel.add(documentOptionsPanel, "grow");
 			}
             tabMade = true;
 		}
@@ -1611,27 +1490,26 @@ public class GUIMain extends javax.swing.JFrame  {
 			resultsTableLabel.setBackground(tan);
 			resultsTableLabel.setBorder(rlborder);
 			
-			resultsMainPanel = new JPanel();
-			{
-				makeResultsTable();
-			}
+			makeResultsPanel();
+			resultsMainPanel.setLayout(new MigLayout(
+					"aligny 50%"));
+			resultsMainPanel.setBackground(Color.WHITE);
 			
 			if (location== PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
 			{
-				//anonymityPanel.add(legendPanel);
 				anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(anonymityDrawingPanel, "h 515!");
-				anonymityPanel.add(anonymityDescription, "h 70!");
+				anonymityPanel.add(anonymityDrawingPanel, "");
+				anonymityPanel.add(anonymityDescription, "hmax 70");
 				anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(resultsMainPanel, "grow");
+				anonymityPanel.add(resultsScrollPane, "grow");
 			}
 			else if (location == PropertiesUtil.Location.TOP)
 			{
 				anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(anonymityDrawingPanel, "h 515!");
-				anonymityPanel.add(anonymityDescription, "h 70!");
+				anonymityPanel.add(anonymityDrawingPanel, "");
+				anonymityPanel.add(anonymityDescription, "hmax 70");
 				anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(resultsMainPanel, "grow");
+				anonymityPanel.add(resultsScrollPane, "grow");
 			}
 			else
 				throw new Exception();
@@ -1639,93 +1517,49 @@ public class GUIMain extends javax.swing.JFrame  {
 		return anonymityPanel;
 	}
 	
-	
-	
-//	private JPanel createResultsTab() throws Exception
-//	{
-//		resultsPanel = new JPanel();
-//		PropUtil.Location location = PropUtil.getResultsTabLocation();
-//		if (location == PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
-//			resultsPanel.setLayout(new MigLayout(
-//					"wrap, ins 0, gap 0 0",
-//					"grow, fill",
-//					"[][grow, fill][]"));
-//		else if (location == PropUtil.Location.BOTTOM)
-//			resultsPanel.setLayout(new MigLayout(
-//					"wrap 2, ins 0, gap 0 0",
-//					"[100:20%:][grow, fill]",
-//					"[][grow, fill]"));
-//		else
-//			throw new Exception();
-//		{
-//			resultsTableLabel = new JLabel("Classification Results:");
-//			resultsTableLabel.setHorizontalAlignment(SwingConstants.CENTER);
-//			resultsTableLabel.setFont(titleFont);
-//			resultsTableLabel.setOpaque(true);
-//			resultsTableLabel.setBackground(tan);
-//			resultsTableLabel.setBorder(rlborder);
-//			
-//			displayTextArea = new JTextArea();
-//			
-//			resultsMainPanel = new JPanel();
-//			{
-//				makeResultsTable();
-//			}
-//			
-//			if (location == PropUtil.Location.LEFT || location == PropUtil.Location.RIGHT)
-//			{
-//				resultsPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-//				resultsPanel.add(resultsMainPanel, "grow");
-//				resultsPanel.add(new JScrollPane(displayTextArea), "h 150!");
-//			}
-//			else if (location == PropUtil.Location.BOTTOM)
-//			{
-//				resultsPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-//				resultsPanel.add(new JScrollPane(displayTextArea), "grow");
-//				resultsPanel.add(resultsMainPanel, "grow");
-//			}
-//			else
-//				throw new Exception();
-//		}
-//        
-//        return resultsPanel;
-//	}
-	
-	private void makeResultsTable()
-	{
-		resultsMainPanel.setLayout(new MigLayout(
-				"wrap, ins 0",
-				"grow, fill",
-				"grow, fill"));
-		
-		String[][] row = new String[1][1];
-		row[0] = new String[] {"Waiting", "..."};
-    	String[] header = {"Author:", "Ownership Probability"};
-		
-		// feature description pane--------------------------------------------------
-		resultsTableModel = new DefaultTableModel(row, header){
-			public boolean isCellEditable(int rowIndex, int mColIndex) {
-		        return false;
-		    }
+	private void makeResultsPanel() {
+		resultsMainPanel = new JPanel() {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				Graphics2D g2d = (Graphics2D)g;
+				
+				if (resultsAreReady()) {
+					resultsMainPanel.setPreferredSize(new Dimension(179, 200));
+					resultsLabel.setText("");
+					resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+					
+					if (resultsWindow.getAuthorSize() <= 20) {
+						resultsHeight = 25 * resultsWindow.getAuthorSize();
+					}
+					
+					resultsMainPanel.setPreferredSize(new Dimension(160, resultsHeight));
+					g2d.drawImage(resultsWindow.getPanelChart(170, resultsHeight), -10, -6, null);
+				} else {
+					resultsLabel.setText("<html><center>Please process your<br>document to recieve<br>results.</center></html>");
+				}
+			}
 		};
+		resultsLabel = new JLabel("");
+		resultsLabel.setFont(new Font("Helvatica", Font.PLAIN, 15));
+		resultsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		resultsTable = new JTable(resultsTableModel);
-		try {
-			resultsTable.setDefaultRenderer(String.class, new alignCellRenderer(resultsTable, JLabel.CENTER, "cell"));
-			resultsTable.getTableHeader().setDefaultRenderer(new alignCellRenderer(resultsTable, JLabel.CENTER, "header"));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		resultsTable.setRowSelectionAllowed(false);
-		resultsTable.setColumnSelectionAllowed(false);
-		resultsTable.getColumnModel().getColumn(0).setPreferredWidth(75);
-		resultsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
-		resultsTable.getTableHeader().setReorderingAllowed(false);
-		resultsTablePane = new JScrollPane(resultsTable);
-	    resultsMainPanel.add(resultsTablePane, "grow");
+		resultsMainPanel.setPreferredSize(new Dimension(179, 110));
+		resultsMainPanel.add(resultsLabel);
+		
+		resultsScrollPane = new JScrollPane(resultsMainPanel);
+		resultsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+
 	}
 	
+	public JTextPane getDocumentPane() {
+		return documentPane;
+	}
+
+	public void setDocumentPane(JTextPane documentPane) {
+		this.documentPane = documentPane;
+	}
+
 	/**\
 	 * Aligns the table header and cells to the specified alignment.
 	 * @param table - The table you want to apply this too.

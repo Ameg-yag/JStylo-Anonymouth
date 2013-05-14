@@ -4,6 +4,7 @@ import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
+import edu.drexel.psal.anonymouth.engine.VersionControl;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
@@ -18,8 +19,10 @@ import edu.drexel.psal.jstylo.GUI.DocsTabDriver.ExtFilter;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Event;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -36,6 +39,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.InputMap;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -59,11 +64,15 @@ import com.jgaap.generics.Document;
  * editorTabDriver does the work for the editorTab (Editor) in the main GUI (GUIMain)
  * @author Andrew W.E. McDonald
  * @author Joe Muoio
+ * @author Marc Barrowclift
  * 
  */
 public class DriverDocumentsTab {
 	
 	private final static String NAME = "( DriverDocumentsTab ) - ";
+	
+	public final static int UNDOCHARACTERBUFFER = 5;
+	public static int currentCharacterBuffer = 0;
 	
 	protected static SentenceTools sentenceTools;
 	
@@ -85,8 +94,8 @@ public class DriverDocumentsTab {
 	public static boolean isWorkingOnUpdating = false;
 	// It seems redundant to have these next four variables, but they are used in slightly different ways, and are all necessary.
 	private static int currentCaretPosition = -1;
-	private static int startSelection = -1;
-	private static int endSelection = -1;
+	public static int startSelection = -1;
+	public static int endSelection = -1;
 	private static int lastCaretPosition = -1;
 	private static int thisKeyCaretPosition = -1;
 	private static int lastKeyCaretPosition = -1;
@@ -120,7 +129,9 @@ public class DriverDocumentsTab {
 //	protected static ArrayList<String> topToAdd;
 	
 	private static final Color HILIT_COLOR = new Color(255,0,0,100);//Color.yellow; //new Color(50, 161,227);// Color.blue;
-	protected static DefaultHighlighter.DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
+	protected static DefaultHighlighter.DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,255,0,128));
+	protected static DefaultHighlighter.DefaultHighlightPainter painterRemove = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
+	protected static DefaultHighlighter.DefaultHighlightPainter painterAdd = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,255,0,128));
 	
 //	protected static Highlighter editTracker;
 //	protected static Highlighter removeTracker;
@@ -151,8 +162,10 @@ public class DriverDocumentsTab {
 	protected static int caretPositionPriorToAction = 0;
 	private static Boolean firstRun = true;
 	private static int[] oldSelectionInfo = new int[3];
+	protected static Map<String, int[]> wordsToRemove = new HashMap<String, int[]>();
 	
 	protected static SuggestionCalculator suggestionCalculator;
+	protected static Boolean shouldRememberIndices = true;
 	
 	protected static ActionListener saveAsTestDoc;
 	
@@ -207,7 +220,7 @@ public class DriverDocumentsTab {
 //		main.transButton.setEnabled(b);
 //		main.sentenceEditPane.setEditable(b);
 //		main.translationEditPane.setEditable(b);
-		main.resultsTable.setEnabled(b);
+//		main.resultsTable.setEnabled(b);
 //		main.restoreSentenceButton.setEnabled(b);
 //		main.SaveChangesButton.setEnabled(b);
 //		main.copyToSentenceButton.setEnabled(b);
@@ -215,6 +228,8 @@ public class DriverDocumentsTab {
 		main.fileSaveTestDocMenuItem.setEnabled(b);
 		main.fileSaveAsTestDocMenuItem.setEnabled(b);
 		main.viewClustersMenuItem.setEnabled(b);
+		main.elementsToAddPane.setEnabled(b);
+		main.elementsToRemovePane.setEnabled(b);
 		
 //		main.dictButton.setEnabled(b);
 //		main.editorHelpTabPane.setEnabled(b);
@@ -231,6 +246,11 @@ public class DriverDocumentsTab {
 	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith, boolean shouldUpdate){
 		//Scanner in = new Scanner(System.in);
 		//in.nextLine();
+		if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
+			main.versionControl.addVersion(taggedDoc);
+			currentCharacterBuffer = 0;
+		} else
+			currentCharacterBuffer += 1;
 		
 		System.out.println("\n\ntaggedDoc (pre remove and replace [num sentences == "+taggedDoc.getNumSentences()+"]):\n\n"+taggedDoc.getUntaggedDocument(false)+"\n\n");
 		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
@@ -239,9 +259,9 @@ public class DriverDocumentsTab {
 		//main.documentPane.setCaretPosition(currentCaretPosition);
 		if (shouldUpdate){
 			ignoreNumActions = 3;
-			main.documentPane.setText(taggedDoc.getUntaggedDocument(false)); // NOTE should be false after testing!!!
-			main.documentPane.getCaret().setDot(caretPositionPriorToAction);
-			main.documentPane.setCaretPosition(caretPositionPriorToAction);	
+			main.getDocumentPane().setText(taggedDoc.getUntaggedDocument(false)); // NOTE should be false after testing!!!
+			main.getDocumentPane().getCaret().setDot(caretPositionPriorToAction);
+			main.getDocumentPane().setCaretPosition(caretPositionPriorToAction);	
 		}
 		System.out.println("caretPositionPriorToAction (in removeReplaceAndUpdate): "+caretPositionPriorToAction);
 		int[] selectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
@@ -250,6 +270,8 @@ public class DriverDocumentsTab {
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 		System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
 		moveHighlight(main,selectedSentIndexRange,true);
+		
+		main.versionControl.setMostRecentState(taggedDoc);
 	}
 
 //	protected static void replaceTaggedSentenceAndUpdate(GUIMain main, int sentenceNumberToRemove, TaggedSentence sentenceToReplaceWith, boolean shouldUpdate) {
@@ -278,10 +300,12 @@ public class DriverDocumentsTab {
 	 */
 	protected static void moveHighlight(final GUIMain main, int[] bounds, boolean deleteCurrent){
 		if (deleteCurrent){
-			main.documentPane.getHighlighter().removeAllHighlights();
+//			main.getDocumentPane().getHighlighter().removeAllHighlights();
+			if (currentHighlight != null)
+				main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 			try {
 				System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
-				currentHighlight = main.documentPane.getHighlighter().addHighlight(bounds[0], bounds[1], painter);
+				currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
 			} 
 			catch (BadLocationException err) {
 				err.printStackTrace();
@@ -290,7 +314,7 @@ public class DriverDocumentsTab {
 		else{
 			try {
 				System.out.println("Changing highlight...");
-				main.documentPane.getHighlighter().changeHighlight(currentHighlight,bounds[0], bounds[1]);
+				main.getDocumentPane().getHighlighter().changeHighlight(currentHighlight,bounds[0], bounds[1]);
 			} 
 			catch (BadLocationException err) {
 				err.printStackTrace();
@@ -353,29 +377,67 @@ public class DriverDocumentsTab {
 	}
 
 //	protected void addBindings(GUIMain main) {
-//		InputMap inputMap = main.documentPane.getInputMap();
+//		Action undo = new AbstractAction() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				versionControl.undo();
+//			}
+//		};
+//		
+//		Action redo = new AbstractAction() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				versionControl.redo();
+//			}
+//		};
+//		
+//		Action save = new AbstractAction() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				DriverDocumentsTab.save(GUIMain.inst);
+//			}
+//		};
+//		
+//		Action saveAs = new AbstractAction() {
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				DriverDocumentsTab.saveAsTestDoc.actionPerformed(e);
+//			}
+//		};
+//		
+//		int commandOrControl = 0;
+//		
+//		if (ThePresident.IS_MAC)
+//			commandOrControl = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+//		else
+//			commandOrControl = InputEvent.CTRL_DOWN_MASK;
+//		
+//		KeyStroke commandZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z, commandOrControl);
+//		KeyStroke commandShiftZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | commandOrControl);
+//		KeyStroke commandS = KeyStroke.getKeyStroke(KeyEvent.VK_S, commandOrControl);
+//		KeyStroke commandShiftS = KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | commandOrControl);
+//		
+//		InputMap inputMap = new InputMap();
+//		inputMap.put(commandZ, undo);
+//		inputMap.put(commandShiftZ, redo);
+//		inputMap.put(commandS, save);
+//		inputMap.put(commandShiftS, saveAs);
 //
-//		if (ThePresident.IS_MAC) {
-//			KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.META_MASK);
-//			inputMap.put
-//		}
-//		//Command S to save the document
-//		KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK);
-////		// Ctrl-b to go backward one character
-////		KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK);
-////		inputMap.put(key, DefaultEditorKit.backwardAction);
-////
-////		// Ctrl-f to go forward one character
-////		key = KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK);
-////		inputMap.put(key, DefaultEditorKit.forwardAction);
-////
-////		// Ctrl-p to go up one line
-////		key = KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK);
-////		inputMap.put(key, DefaultEditorKit.upAction);
-////
-////		// Ctrl-n to go down one line
-////		key = KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK);
-////		inputMap.put(key, DefaultEditorKit.downAction);
+//		// Ctrl-b to go backward one character
+//		KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK);
+//		inputMap.put(key, DefaultEditorKit.backwardAction);
+//
+//		// Ctrl-f to go forward one character
+//		key = KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK);
+//		inputMap.put(key, DefaultEditorKit.forwardAction);
+//
+//		// Ctrl-p to go up one line
+//		key = KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK);
+//		inputMap.put(key, DefaultEditorKit.upAction);
+//
+//		// Ctrl-n to go down one line
+//		key = KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK);
+//		inputMap.put(key, DefaultEditorKit.downAction);
 //	}
 
 
@@ -389,7 +451,7 @@ public class DriverDocumentsTab {
 
 		suggestionCalculator = new SuggestionCalculator();
 
-		main.documentPane.addCaretListener(new CaretListener() {
+		main.getDocumentPane().addCaretListener(new CaretListener() {
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				System.out.println("\n\n\ncaretUpdate fired.");
@@ -448,7 +510,7 @@ public class DriverDocumentsTab {
 								// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
 								// for right: read from 'caretPositionPriorToCharRemoval' (where the "sentence" now begins) to 'rightSentInfo[2]' (the end of the sentence) 
 							// Once we have the string, we call removeAndReplace, once for each sentence (String)
-							String docText = main.documentPane.getText();
+							String docText = main.getDocumentPane().getText();
 							String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition+1);
 							taggedDoc.removeAndReplace(leftSentInfo[0], leftSentCurrent);
 							String rightSentCurrent = docText.substring(caretPositionPriorToCharRemoval, rightSentInfo[2]+1);
@@ -490,6 +552,14 @@ public class DriverDocumentsTab {
 					if (currentSentSelectionInfo == null)
 						return; // don't do anything.
 					
+					if (shouldRememberIndices) { // regarding storing indices for 
+						main.versionControl.updateIndices(startSelection, endSelection);
+					}
+					
+					if (charsInserted > 2 || charsInserted < -2)
+						main.versionControl.addVersion(taggedDoc);
+					
+					
 					System.out.printf("previousSentenceNumber == %d\n", currentSentNum);
 					System.out.printf("currentSentSelectionInfo: sentNum == %d, start == %d, end == %d\n",currentSentSelectionInfo[0], currentSentSelectionInfo[1], currentSentSelectionInfo[2]);
 					System.out.printf("selectedSentIndexRange: start == %d,  end == %d\n", selectedSentIndexRange[0], selectedSentIndexRange[1]);
@@ -519,7 +589,14 @@ public class DriverDocumentsTab {
 						}
 					}
 					else if (!firstRun) {
-						if (!originals.keySet().contains(main.documentPane.getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
+						/**
+						 * Exists for the sole purpose of pushing a sentence that has been edited and finished to the appropriate place in
+						 * The Translation.java class so that it can be promptly translated. This will ONLY happen when the user has clicked
+						 * away from the sentence they were editing to work on another one (the reason behind this being we don't want to be
+						 * constantly pushing now sentences to be translated is the user's immediately going to replace them again, we only
+						 * want to translate completed sentences).
+						 */
+						if (!originals.keySet().contains(main.getDocumentPane().getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
 							GUIMain.GUITranslator.replace(taggedDoc.getSentenceNumber(oldSelectionInfo[0]), originals.get(originalSents.get(oldSelectionInfo[0])));//new old
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							originals.remove(originalSents.get(oldSelectionInfo[0]));
@@ -540,7 +617,7 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						System.out.printf("lastSelectedSentIndexRange: start == %d,  end == %d\n", selectedSentIndexRange[0], selectedSentIndexRange[1]);
-						currentSentenceString = main.documentPane.getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
+						currentSentenceString = main.getDocumentPane().getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
 						System.out.println("Current sentence String: \""+currentSentenceString+"\"");
 						System.out.println("taggedDoc, sentNum == "+lastSentNum+": \"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false) + "\"");
 						//If the sentence didn't change, we don't have to remove and replace it
@@ -578,12 +655,13 @@ public class DriverDocumentsTab {
 		/**
 		 * Key listener for the documentPane. Allows tracking the cursor while typing to make sure that indices of sentence start and ends 
 		 */
-		main.documentPane.addKeyListener(new KeyListener(){
+		main.getDocumentPane().addKeyListener(new KeyListener(){
 
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				//System.out.println("keyPressed"+System.currentTimeMillis());
 				keyJustPressed = true;
+				shouldRememberIndices = false;
 				// TODO Auto-generated method stub
 				/*
 				if(checkForMouseInfluence == true){
@@ -620,7 +698,7 @@ public class DriverDocumentsTab {
  				 *
  				 * Codes 
 				 */
-				thisKeyCaretPosition = main.documentPane.getCaretPosition(); // todo maybe we dont need to call for this.. all we might have to do is get the dot position from the CaretListener
+				thisKeyCaretPosition = main.getDocumentPane().getCaretPosition(); // todo maybe we dont need to call for this.. all we might have to do is get the dot position from the CaretListener
 				//System.out.println("Caret postion resitered at keyreleased:  "+currentCaretPosition);
 				if(keyJustTyped == true){
 					keyJustTyped = false;
@@ -637,13 +715,34 @@ public class DriverDocumentsTab {
 					//Collections.sort(highlightedObjects);
 					if(lastKeyCaretPosition < thisKeyCaretPosition){
 						// cursor has advanced 
-						//System.out.println("Cursor advanced");
-						
-						
+						Iterator<HighlightMapper> hloi = highlightedObjects.iterator();
+						boolean isGone;
+						while(hloi.hasNext()){
+							isGone = false;
+							HighlightMapper tempHm = hloi.next();
+							if((tempHm.getStart() <= thisKeyCaretPosition) && (lastKeyCaretPosition <= tempHm.getEnd())){
+								//System.out.println("FOUND object... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
+								main.getDocumentPane().getHighlighter().removeHighlight(tempHm.getHighlightedObject());
+								isGone = true;
+							}	
+							if ((lastKeyCaretPosition <= tempHm.getStart() && !isGone))
+								tempHm.increment(thisKeyCaretPosition - lastKeyCaretPosition);
+						}
 					}
 					else if(lastKeyCaretPosition > thisKeyCaretPosition){
-						// cursor has gone back
-						//System.out.println("Cursor gone back");
+						Iterator<HighlightMapper> hloi = highlightedObjects.iterator();
+						boolean isGone;
+						while(hloi.hasNext()){
+							isGone = false;
+							HighlightMapper tempHm = hloi.next();
+							if((tempHm.getStart() <= thisKeyCaretPosition) && (thisKeyCaretPosition <= tempHm.getEnd())){
+								//System.out.println("FOUND object ... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
+								main.getDocumentPane().getHighlighter().removeHighlight(tempHm.getHighlightedObject());
+								isGone = true;
+							}	
+							if ((lastKeyCaretPosition <= tempHm.getStart()) && !isGone)
+								tempHm.decrement(lastKeyCaretPosition - thisKeyCaretPosition);
+						}
 					
 					}
 				}
@@ -660,7 +759,7 @@ public class DriverDocumentsTab {
 		});
 		
 		
-		main.documentPane.getDocument().addDocumentListener(new DocumentListener(){
+		main.getDocumentPane().getDocument().addDocumentListener(new DocumentListener(){
 		
 			@Override
 			public void insertUpdate(DocumentEvent e) {
@@ -686,7 +785,7 @@ public class DriverDocumentsTab {
 		});
 			
 		
-		main.documentPane.addMouseListener(new MouseListener(){
+		main.getDocumentPane().addMouseListener(new MouseListener(){
 
 			@Override
 			public void mouseClicked(MouseEvent me) {
@@ -796,10 +895,10 @@ public class DriverDocumentsTab {
 						else
 							Logger.logln(NAME+"Repeat processing starting....");
 						
-						main.documentPane.getHighlighter().removeAllHighlights();
+						main.getDocumentPane().getHighlighter().removeAllHighlights();
 						highlightedObjects.clear();
-						main.resultsTablePane.setOpaque(false);
-						main.resultsTable.setOpaque(false);
+//						main.resultsTablePane.setOpaque(false);
+//						main.resultsTable.setOpaque(false);
 						highlightedObjects.clear();
 						okayToSelectSuggestion = false;
 						Logger.logln(NAME+"calling backendInterface for preTargetSelectionProcessing");
@@ -1004,7 +1103,7 @@ public class DriverDocumentsTab {
 						path += ".txt";
 					try {
 						BufferedWriter bw = new BufferedWriter(new FileWriter(path));
-						bw.write(main.documentPane.getText());
+						bw.write(main.getDocumentPane().getText());
 						bw.flush();
 						bw.close();
 						Logger.log("Saved contents of current tab to "+path);
@@ -1034,7 +1133,7 @@ public class DriverDocumentsTab {
     		
     		try {
     			BufferedWriter bw = new BufferedWriter(new FileWriter(path));
-    			bw.write(main.documentPane.getText());
+    			bw.write(main.getDocumentPane().getText());
     			bw.flush();
     			bw.close();
     			Logger.log("Saved contents of document to "+path);
@@ -1513,8 +1612,11 @@ public class DriverDocumentsTab {
 //		
 //	}
 //	
-//	public static void dispHighlights(){
-//		Highlighter highlight = GUIMain.inst.documentPane.getHighlighter();
+//	public static void dispHighlights(GUIMain main) {
+//		if (main.elementsToAddPane.isEnabled() && main.elementsToRemovePane.isEnabled()) {
+//			main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
+//		}
+//		Highlighter highlight = GUIMain.inst.getDocumentPane().getHighlighter();
 //		HashMap<Color,ArrayList<int[]>> currentMap = HighlightMapMaker.highlightMap;
 //		int i = 0;
 //		if(!currentMap.isEmpty()){
@@ -1609,8 +1711,8 @@ public class DriverDocumentsTab {
 			//int sentNum=ConsolidationStation.toModifyTaggedDocs.get(0).getSentNumber();
 			int sentNum = DriverDocumentsTab.getCurrentSentNum();
 			ArrayList<String> sentences=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedSentences(false);
-			main.documentPane.setHighlighter(editTracker);
-			String newText=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument(false);
+			main.getDocumentPane().setHighlighter(editTracker);
+//			String newText=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument();
 			//main.documentPane.setText(newText);
 			boolean fixTabs=false;
 			//numberTimesFixTabs=0;
@@ -1636,13 +1738,15 @@ public class DriverDocumentsTab {
 			topToAdd=ConsolidationStation.getPriorityWords(ConsolidationStation.authorSampleTaggedDocs, false, .02);
 
 			//TaggedDocument taggedDoc=ConsolidationStation.toModifyTaggedDocs.get(0);
-			int lenPrevSentences=0;
+//			int lenPrevSentences=0;
 			String sentence=sentences.get(sentNum);
 
 			//removeTracker = new DefaultHighlighter();
 			painter2 = new DefaultHighlighter.DefaultHighlightPainter(new Color(255,0,0,128));
 
-			startHighlight = startHighlight;
+//			startHighlight = startHighlight;
+			
+			main.elementsToRemove.removeAllElements();
 
 			ArrayList<ArrayList<Integer>> indexArray=new ArrayList<ArrayList<Integer>>();
 			ArrayList<Integer> tempArray;
@@ -1655,22 +1759,25 @@ public class DriverDocumentsTab {
 			for(int i=0;i<arrSize;i++) {//loops through top to remove list
 				if (!topToRemove.get(i).equals("''") && !topToRemove.get(i).equals("``")) {
 					if (PUNCTUATION.contains(topToRemove.get(i).trim()))
-						setString += "Reduce the number of " + topToRemove.get(i) + "'s you use \n";
+						main.elementsToRemove.add(i, "Reduce the number of " + topToRemove.get(i) + "'s you use");
+//						setString += "Reduce the number of " + topToRemove.get(i) + "'s you use \n";
 					else
-						setString+=topToRemove.get(i)+"\n";//sets the string to return
+						main.elementsToRemove.add(i, topToRemove.get(i));
+//						setString+=topToRemove.get(i)+"\n";//sets the string to return
 				}		
 			}
 
-			main.elementsToRemovePane.setText(setString);
+			main.elementsToRemovePane.clearSelection();
+//			main.elementsToRemovePane.setText(setString);
 			findSynonyms(main,sentence);
 
 			editTracker.removeAllHighlights();
-			main.documentPane.repaint();
+			main.getDocumentPane().repaint();
 			int innerArrSize,outerArrSize=indexArray.size(), currentStart,currentEnd;
 			currentStart=startHighlight;
 			//Logger.logln(NAME+"indexArr "+indexArray.toString(),Logger.LogOut.STDERR);
 			try {
-				for(int i=0;i<outerArrSize;i++){
+				for(int i=0;i<outerArrSize;i++) {
 					currentEnd=indexArray.get(i).get(0);
 					//Logger.logln(NAME+"before first addhighlight: currentStart: "+currentStart+" currentEnd: "+currentEnd);
 					//if(currentStart<currentEnd)
@@ -1699,17 +1806,21 @@ public class DriverDocumentsTab {
 			//addTracker = new DefaultHighlighter();
 			painter3 = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,0,255,128));
 			String setString,tempStr,synSetString = "";
-			//main.addToSentencePane.setHighlighter(addTracker);
+//			main.addToSentencePane.setHighlighter(addTracker);
 			//addTracker.removeAllHighlights();
 
 //			main.elementsToAddPane.repaint();
 
 			setString="";
 			int arrSize=topToAdd.size(), index;
+			main.elementsToAdd.removeAllElements();
+			
 			for(int i=0;i<arrSize;i++){//Sets the topToAddElements box
-				setString+=topToAdd.get(i)+"\n";
+//				setString+=topToAdd.get(i)+"\n";
+				main.elementsToAdd.add(i, topToAdd.get(i));
 			}
-			main.elementsToAddPane.setText(setString);
+			main.elementsToAddPane.clearSelection();
+//			main.elementsToAddPane.setText(setString);
 //			synSetString="";
 //			boolean inSent;
 //			Scanner parser;

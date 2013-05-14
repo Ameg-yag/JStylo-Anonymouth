@@ -3,10 +3,8 @@ package edu.drexel.psal.anonymouth.gooie;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.io.File;
 
 import edu.drexel.psal.JSANConstants;
@@ -47,6 +45,7 @@ public class GeneralSettingsFrame extends JDialog {
 	protected JCheckBox autoSave;
 	protected JLabel autoSaveNote;
 	protected JCheckBox warnQuit;
+	protected JCheckBox translations;
 	
 	//Advanced tab
 	protected JPanel advanced;
@@ -58,6 +57,10 @@ public class GeneralSettingsFrame extends JDialog {
 	protected JLabel numOfThreadsNote;
 	protected JButton reset;
 	
+	/**
+	 * CONSTRUCTOR
+	 * @param main - Instance of GUIMain
+	 */
 	public GeneralSettingsFrame(GUIMain main) {
 		super(main, "Preferences", Dialog.ModalityType.APPLICATION_MODAL);
 		init(main);
@@ -128,15 +131,20 @@ public class GeneralSettingsFrame extends JDialog {
 
 			warnQuit = new JCheckBox();
 			warnQuit.setText("Warn about unsaved changes upon exit");
-			if (PropertiesUtil.getWarnQuit() == true)
+			if (PropertiesUtil.getWarnQuit())
 				warnQuit.setSelected(true);
 			
 			autoSave = new JCheckBox();
 			autoSave.setText("Auto-Save anonymized documents upon exit");
-			if (PropertiesUtil.getAutoSave() == true) {
+			if (PropertiesUtil.getAutoSave()) {
 				autoSave.setSelected(true);
 				warnQuit.setEnabled(false);
 			}
+			
+			translations = new JCheckBox();
+			translations.setText("Send sentences to Microsoft Bing© for translation");
+			if (PropertiesUtil.getDoTranslations())
+				translations.setSelected(true);
 			
 			autoSaveNote = new JLabel("Note: Will overwrite working document with changes.");
 			autoSaveNote.setForeground(Color.GRAY);
@@ -154,7 +162,8 @@ public class GeneralSettingsFrame extends JDialog {
 			general.add(test, "alignx 50%, wrap");
 			general.add(autoSave, "wrap");
 			general.add(autoSaveNote, "alignx 50%, wrap");
-			general.add(warnQuit);
+			general.add(warnQuit, "wrap");
+			general.add(translations);
 		}
 		
 		MigLayout advancedLayout = new MigLayout();
@@ -222,6 +231,7 @@ public class GeneralSettingsFrame extends JDialog {
 		ChangeListener maxFeaturesListener;
 		ChangeListener numOfThreadsListener;
 		ActionListener resetListener;
+		ActionListener translationsListener;
 		
 		classifierListener = new ActionListener() {
 			@Override
@@ -303,6 +313,27 @@ public class GeneralSettingsFrame extends JDialog {
 			}
 		};
 		warnQuit.addActionListener(warnQuitListener);
+		
+		translationsListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Logger.logln(NAME+"Translations checkbox clicked");
+				
+				if (translations.isSelected()) {
+					PropertiesUtil.setDoTranslations(true);
+					
+					if (BackendInterface.processed)
+						main.notTranslated.setText("You have turned translations back on.\n\nPlease re-process the document to recieve translations.");
+					else
+						main.notTranslated.setText("Please process your document to recieve translation suggestions.");
+				} else {
+					PropertiesUtil.setDoTranslations(false);
+					main.notTranslated.setText("You have turned translations off.");
+					main.translationsHolderPanel.add(main.notTranslated, "");
+				}
+			}
+		};
+		translations.addActionListener(translationsListener);
 		
 		maxFeaturesListener = new ChangeListener() {
 			@Override

@@ -50,6 +50,9 @@ public class DriverMenu {
 	protected static ActionListener viewClustersListener;
 	protected static ActionListener suggestionsListener;
 	protected static ActionListener helpClustersListener;
+	protected static ActionListener undoListener;
+	protected static ActionListener redoListener;
+	protected static ActionListener fullScreenListener;
 //	protected static ActionListener printMenuItemListener;
 	
 	protected static void initListeners(final GUIMain main)
@@ -133,6 +136,30 @@ public class DriverMenu {
         	}
         };
         main.helpClustersMenuItem.addActionListener(helpClustersListener);
+        
+        undoListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		main.versionControl.undo();
+        	}
+        };
+        main.editUndoMenuItem.addActionListener(undoListener);
+        
+        redoListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		main.versionControl.redo();
+        	}
+        };
+        main.editRedoMenuItem.addActionListener(redoListener);
+        
+        fullScreenListener = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {  		  		
+        		ThePresident.app.requestToggleFullScreen(main);
+        	}
+        };
+        main.viewEnterFullScreenMenuItem.addActionListener(fullScreenListener);
         /*
         printMenuItemListener = new ActionListener() {
         	@Override

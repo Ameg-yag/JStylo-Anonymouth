@@ -54,26 +54,20 @@ public class DriverPreProcessTabFeatures {
 	/**
 	 * Initialize all documents tab listeners.
 	 */
-	protected static void initMainListeners(final GUIMain main) 
-	{
-		featuresLabelClickAL = new MouseListener()
-		{
+	protected static void initMainListeners(final GUIMain main) {
+		featuresLabelClickAL = new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {}
+			@Override
+			public void mousePressed(MouseEvent arg0) {}
 
 			@Override
-			public void mouseClicked(MouseEvent arg0) 
-			{
-				
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) 
-			{
+			public void mouseEntered(MouseEvent arg0) {
 				main.prepFeatLabel.setBackground(Color.YELLOW);
 			}
 
 			@Override
-			public void mouseExited(MouseEvent arg0) 
-			{
+			public void mouseExited(MouseEvent arg0) {
 				if (main.featuresAreReady())
 					main.prepFeatLabel.setBackground(main.ready);
 				else
@@ -82,8 +76,7 @@ public class DriverPreProcessTabFeatures {
 			}
 
 			@Override
-			public void mousePressed(MouseEvent arg0)
-			{
+			public void mouseReleased(MouseEvent arg0) {
 				main.PPSP.tabbedPane.setSelectedComponent(main.PPSP.featPanel);
 				main.PPSP.openWindow();
 				if (main.featuresAreReady())
@@ -91,13 +84,6 @@ public class DriverPreProcessTabFeatures {
 				else
 					main.prepFeatLabel.setBackground(main.notReady);
 			}
-
-			@Override
-			public void mouseReleased(MouseEvent arg0)
-			{
-				
-			}
-			
 		};
 		main.prepFeatLabel.addMouseListener(featuresLabelClickAL);
 		
@@ -118,12 +104,12 @@ public class DriverPreProcessTabFeatures {
 
 				main.featuresSetJComboBox.setSelectedIndex(selected);
 				main.PPSP.featuresSetJComboBox.setSelectedIndex(selected);
-				
+
 				// update tab view
 				GUIUpdateInterface.updateFeatureSetView(main);
 				GUIUpdateInterface.updateFeatPrepColor(main);
-				
-//				PropertiesUtil.setFeature(main.featuresSetJComboBox.getSelectedItem().toString());
+
+				//					PropertiesUtil.setFeature(main.featuresSetJComboBox.getSelectedItem().toString());
 			}
 		});
 	}
@@ -142,7 +128,6 @@ public class DriverPreProcessTabFeatures {
 			{
 				Logger.logln(NAME+"Preset feature set selected in the features tab.");
 				
-				int answer = JOptionPane.YES_OPTION;
 				/*
 				if (!isCFDEmpty(main.cfd)) {
 					answer = JOptionPane.showConfirmDialog(main,
@@ -152,22 +137,18 @@ public class DriverPreProcessTabFeatures {
 				}
 				*/
 
-				if (answer == JOptionPane.YES_OPTION) {
-					int selected = main.PPSP.featuresSetJComboBox.getSelectedIndex() - 1;
-//					if (selected == -1) {
-//						main.cfd = new CumulativeFeatureDriver();
-//					} else {
-						main.cfd = main.presetCFDs.get(selected+1);
-						Logger.logln(NAME+"loaded preset feature set: "+main.cfd.getName());
-//					}
-					main.featuresSetJComboBox.setSelectedIndex(selected+1);
-					main.PPSP.featuresSetJComboBox.setSelectedIndex(selected+1);
-					// update tab view
-					GUIUpdateInterface.updateFeatureSetView(main);
-					GUIUpdateInterface.updateFeatPrepColor(main);
-				} else {
-					Logger.logln(NAME+"Loading preset feature set canceled.");
-				}
+				int selected = main.PPSP.featuresSetJComboBox.getSelectedIndex() - 1;
+				//					if (selected == -1) {
+				//						main.cfd = new CumulativeFeatureDriver();
+				//					} else {
+				main.cfd = main.presetCFDs.get(selected+1);
+				Logger.logln(NAME+"loaded preset feature set: "+main.cfd.getName());
+				//					}
+				main.featuresSetJComboBox.setSelectedIndex(selected+1);
+				main.PPSP.featuresSetJComboBox.setSelectedIndex(selected+1);
+				// update tab view
+				GUIUpdateInterface.updateFeatureSetView(main);
+				GUIUpdateInterface.updateFeatPrepColor(main);
 				
 //				PropertiesUtil.setFeature(main.featuresSetJComboBox.getSelectedItem().toString());
 			}

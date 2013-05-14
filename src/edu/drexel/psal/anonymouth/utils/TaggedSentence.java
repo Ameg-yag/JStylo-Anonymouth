@@ -53,11 +53,8 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 
 	protected ArrayList<TENSE> tense = new ArrayList<TENSE>(PROBABLE_MAX);
 	protected ArrayList<POV> pointOfView = new ArrayList<POV>(PROBABLE_MAX);
-	protected ArrayList<CONJ> conj = new ArrayList<CONJ>(PROBABLE_MAX);
+	protected ArrayList<CONJ> conjugations = new ArrayList<CONJ>(PROBABLE_MAX);
 
-	private static final Pattern punctuationRegex=Pattern.compile("[.?!,\'\";:]{1}"); //NOTE: sometimes you have "...","???", "?!?","!!!", etc. So, limiting this search to one of the characters is bad...
-	private static final Pattern specialCharsRegex=Pattern.compile("[~@#$%^&*-_=+><\\\\[\\\\]{}/\\|]+");
-	private static final Pattern digit=Pattern.compile("[\\d]{1,}");
 
 	protected transient List<? extends HasWord> sentenceTokenized;
 	protected transient Tokenizer<? extends HasWord> toke;
@@ -67,6 +64,14 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	private String[] firstPersonPronouns={"I","me","my","mine","we","us","our","ours"};
 	private String[] secondPersonPronouns={"you","your","yours"};
 
+	
+	private TaggedSentence(int numWords, int numTranslations){
+		wordsInSentence = new ArrayList<Word>(numWords);
+		translationNames = new ArrayList<String>(numTranslations);
+		translations = new ArrayList<TaggedSentence>(numTranslations);
+		
+		
+	}
 
 	/**
 	 * Constructor -- accepts an untagged string.
@@ -77,16 +82,50 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 		wordsInSentence = new ArrayList<Word>(10);
 		this.untagged = untagged;
 	}
-
+	
 	/**
-	 * Constructor -- accepts a TaggedSentence object. (Don't use this if you need to continue to reference/use the input tagged sentence... this may be bad, as the "Word" objects are not copied, just referenced...)
-	 * @param taggedSentence
+	 * Constructor for TaggedSentence. Essentially does a deep copy of the input TaggedSentence
+	 * @param ts 
 	 */
-	public TaggedSentence(TaggedSentence taggedSentence) {
-		sentenceLevelFeaturesFound = new SparseReferences(10); // probably won't find more than 10 features in the sentence.
-		this.untagged=taggedSentence.untagged;
-		this.wordsInSentence=taggedSentence.wordsInSentence;
+	public TaggedSentence(TaggedSentence ts){
+		int i;
+		int numElements;
+		int numWords = ts.wordsInSentence.size();
+		int numTranslations = ts.translations.size();
+		wordsInSentence = new ArrayList<Word>(numWords);
+		translations = new ArrayList<TaggedSentence>(numTranslations);
+		// copy the SparseReferences for the sentence level features
+		sentenceLevelFeaturesFound = new SparseReferences(ts.sentenceLevelFeaturesFound);
 
+		// copy the untagged string
+		untagged = ts.untagged;
+		
+		// then the untagged string with EOS subs
+		untaggedWithEOSSubs = ts.untaggedWithEOSSubs;
+		
+		// Next copy the Word objects that make up the sentence
+		for(i = 0; i < numWords; i++)
+			wordsInSentence.add(new Word(ts.wordsInSentence.get(i)));
+		
+		// Then copy the translation information (language names and translations). Since translationNames is an ArrayList of Strings -- and strings are immutable -- we can just do the equal thing
+		for(i = 0; i < numTranslations; i++)
+			translations.add(new TaggedSentence(ts.translations.get(i)));
+		translationNames = ts.translationNames;
+
+		// copy the ArrayLists of ArrayLists of grammar related concepts
+		// first tenses
+		numElements = ts.tense.size();
+		for(i = 0; i < numElements; i++)
+			tense.add(ts.tense.get(i));
+		// then points of view
+		numElements = ts.pointOfView.size();
+		for(i = 0; i < numElements; i++)
+			pointOfView.add(ts.pointOfView.get(i));
+		// and then conjugations
+		numElements = ts.conjugations.size();
+		for(i = 0; i < numElements; i++)
+			conjugations.add(ts.conjugations.get(i));
+				
 	}
 	
 
@@ -300,7 +339,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 		return pointOfView;
 	}
 	public ArrayList<CONJ> getConj(){
-		return conj;
+		return conjugations;
 	}
 
 	public void setWordList(){
