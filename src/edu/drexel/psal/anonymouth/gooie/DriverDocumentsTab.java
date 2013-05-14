@@ -64,6 +64,7 @@ import com.jgaap.generics.Document;
  * editorTabDriver does the work for the editorTab (Editor) in the main GUI (GUIMain)
  * @author Andrew W.E. McDonald
  * @author Joe Muoio
+ * @author Marc Barrowclift
  * 
  */
 public class DriverDocumentsTab {

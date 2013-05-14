@@ -18,6 +18,8 @@ public class Translator implements Runnable
 	private int currentLangNum = 1;
 	public static ArrayList<String> translatedSentences = new ArrayList<String>(); 
 	public static Boolean finished = false;
+	public static Boolean noInternet = false;
+	public static Boolean translations = true;
 
 	/**
 	 * Class that handles the 2-way translation of a given sentence. It starts a new thread so the main thread
@@ -50,9 +52,14 @@ public class Translator implements Runnable
 		// add the given sentences to the queue
 		sentences.addAll(loaded);
 
-		// start a new thread to begin translation
-		Thread transThread = new Thread(this);
-		transThread.start(); // calls run below
+		if (PropertiesUtil.getDoTranslations()) {
+			translations = true;
+			// start a new thread to begin translation
+			Thread transThread = new Thread(this);
+			transThread.start(); // calls run below
+		} else {
+			translations = false;
+		}
 	}
 
 	@Override
@@ -82,6 +89,20 @@ public class Translator implements Runnable
 				// update the progress label
 
 				String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged().trim(), lang);
+				
+				if (translation == null) {
+					finished = true;
+					noInternet = true;
+					DriverTranslationsTab.showTranslations(sentences.get(0));
+					sentences.removeAll(sentences);
+					currentSentNum = 1;
+					main.translationsProgressBar.setIndeterminate(false);
+					main.translationsProgressBar.setValue(0);
+					main.translationsProgressLabel.setText("No Translations Pending.");
+					main.processButton.setEnabled(true);
+					return;
+				}
+				
 				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
 				currentLangNum++;
 				TaggedSentence taggedTrans = new TaggedSentence(translation);

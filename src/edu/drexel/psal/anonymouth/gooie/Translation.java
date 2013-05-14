@@ -1,52 +1,31 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.memetix.mst.language.Language;
 import com.memetix.mst.translate.Translate;
 
+import edu.drexel.psal.jstylo.generics.Logger;
+import edu.drexel.psal.jstylo.generics.Logger.LogOut;
+
 
 /**
  * @author sadiaafroz
+ * @author Marc Barrowclift
  *
  */
 public class Translation {
 	
 	private final static String NAME = "( Translation ) - ";
-	
-	/*
-	 * ALTERNATE CLIENT ID/SECRET COMBOS (NEW / UNUSED) 
-	 * 	 
-	 * private final static String CLIENT_ID = "weegeemounty";
-	 * private final static String CLIENT_SECRET = "UR0YCU0x20oOSzqt+xtHkT2lhk6RjcKvqEqd/3Hsdvs=";	
-	 * 
-	 * NO GOOD FOR 04/2013 (BUT GOOD AFTER):
-	 * 
-	 * private final static String CLIENT_ID = "drexel1";
-	 * private final static String CLIENT_SECRET = "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=";
-	 * 
-	 * private final static String CLIENT_ID = "drexel4";
-	 * private final static String CLIENT_SECRET = "F5Hw32MSQoTygwLu6YMpHYx9zV3TQVQxqsIIybVCI1Y=";
-	 * 
-	 * private final static String CLIENT_ID = "sheetal57";
-	 * private final static String CLIENT_SECRET = "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=";
-	 * 
-	 * private final static String CLIENT_ID = "drexel2";
-	 * private final static String CLIENT_SECRET = "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=";
-	 * 
-	 * private final static String CLIENT_ID = "ozoxdxie";
-	 * private final static String CLIENT_SECRET = "wU9ROglnO5qzntfRsxkq7WWGp7LAMrz0jdxPEd0t1u8=";	
-	 * 
-	 */
+	private final static int MAXNUMOFTRIES = 5;
 	
 	private static Map<String, String> clientsAndSecrets;
 	private static ArrayList<String> clients;
 	private static int current = 0;
 	private static Boolean translationFound = false;
+	private static int tries = MAXNUMOFTRIES;
 	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
 			Language.CHINESE_SIMPLIFIED, Language.CHINESE_TRADITIONAL,Language.CZECH,
@@ -120,7 +99,7 @@ public class Translation {
 		clients.add("drexel2");
 		clients.add("ozoxdxie");
 		
-		clientsAndSecrets = new HashMap();
+		clientsAndSecrets = new HashMap<String, String>();
 		clientsAndSecrets.put(clients.get(0), "fAjWBltN4QV+0BKqqqg9nmXVMlo5ffa90gxU6wOW55Q=");
 		clientsAndSecrets.put(clients.get(1), "UR0YCU0x20oOSzqt+xtHkT2lhk6RjcKvqEqd/3Hsdvs=");
 		clientsAndSecrets.put(clients.get(2), "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=");
@@ -134,32 +113,37 @@ public class Translation {
 	{   
 	    Translate.setClientId(clients.get(current));
 		Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
-	    
-	    try {
-	    	String backToenglish;
-	    	
-	    	do {
-	    		String translatedText = Translate.execute(original, Language.ENGLISH,other);
-				backToenglish = Translate.execute(translatedText,other,Language.ENGLISH);
+		
+		while (tries > 0) {
+			try {
+		    	String backToenglish;
+		    	
+		    	do {
+		    		String translatedText = Translate.execute(original, Language.ENGLISH,other);
+					backToenglish = Translate.execute(translatedText,other,Language.ENGLISH);
+					
+					if (backToenglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
+						if (current+1 >= clients.size())
+							current = 0;
+						else
+							current++;
+						Translate.setClientId(clients.get(current));
+						Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
+						translationFound = false;
+					} else
+						translationFound = true;
+		    	} while (!translationFound);
 				
-				if (backToenglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
-					if (current+1 >= clients.size())
-						current = 0;
-					else
-						current++;
-					Translate.setClientId(clients.get(current));
-					Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
-					translationFound = false;
-				} else
-					translationFound = true;
-	    	} while (!translationFound);
-			
-			return backToenglish;
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				return backToenglish;
+				
+			} catch (Exception e) {
+				Logger.logln(NAME+"Could not load translations (may not be connected to the internet. Will try again.", LogOut.STDOUT);
+				tries--;
+			}
 		}
+		
+		if (tries <= 0)
+			Logger.logln(NAME+"Tranlations could not be obtained, will now stop.", LogOut.STDERR);
 	    
 	    return null;
 	}

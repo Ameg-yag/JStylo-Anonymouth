@@ -31,6 +31,7 @@ public class BackendInterface {
 	
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	private ProgressWindow pw;
+	public static Boolean processed = false;
 	
 	protected static BackendInterface bei = new BackendInterface();
 	
@@ -134,6 +135,7 @@ public class BackendInterface {
 		{
 			try
 			{
+				processed = true;
 				main.getDocumentPane().setEnabled(true);
 				DocumentMagician.numProcessRequests++;
 				String tempDoc = "";
@@ -320,7 +322,7 @@ public class BackendInterface {
 			DriverDocumentsTab.charsRemoved = 0;	
 			DriverDocumentsTab.caretPositionPriorToCharInsert = 0;
 			Translator.firstRun = true;
-//			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			boolean loadIfExists = false;

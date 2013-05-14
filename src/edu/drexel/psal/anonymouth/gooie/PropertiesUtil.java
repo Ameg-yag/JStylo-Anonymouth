@@ -1,21 +1,12 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import java.awt.Point;
-import java.awt.event.*;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.filechooser.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-
-import com.jgaap.generics.Document;
 
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.jstylo.generics.*;
@@ -36,6 +27,7 @@ public class PropertiesUtil {
 	protected static Boolean defaultWarnQuit = true;
 	protected static int defaultThreads = 4;
 	protected static int defaultFeatures = 1000;
+	protected static Boolean defaultTranslation = true;
 	private static String[] DEFAULT_LOCATIONS = new String[]{"top","left","right","bottom"};
 	
 	public static enum Location // just so you cant mess up the input to methods by spelling stuff wrong
@@ -96,6 +88,44 @@ public class PropertiesUtil {
 		setProbSet(defaultProbSet);
 		setFeature(defaultFeat);
 		setClassifier(defaultClass);
+	}
+	
+	/**
+	 * Sets the user's translate preference.
+	 * @param translate - whether or not the user wants translations
+	 */
+	protected static void setDoTranslations(Boolean translate) {
+		BufferedWriter writer;
+		try {
+			prop.setProperty("translate", translate.toString());
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (Exception e) {
+			Logger.logln(NAME + "Failed setting translations on/off");
+		}
+	}
+	
+	/**
+	 * Gets the user's translate preference
+	 * @return
+	 */
+	protected static Boolean getDoTranslations() {
+		String translate = "";
+		try {
+			translate = prop.getProperty("translate");
+			if (translate == null) {
+				prop.setProperty("translate", defaultTranslation.toString());
+				translate = prop.getProperty("translate");
+			}
+		} catch (NullPointerException e) {
+				prop.setProperty("translate", defaultTranslation.toString());
+				translate = prop.getProperty("translate");
+		}
+		
+		if (translate.equals("true"))
+			return true;
+		else
+			return false;
 	}
 	
 	/**

@@ -16,8 +16,7 @@ import net.miginfocom.swing.MigLayout;
 
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
-public class DriverTranslationsTab implements ActionListener
-{
+public class DriverTranslationsTab implements ActionListener {
 	private static GUIMain main;
 	protected static JPanel[] finalPanels;
 	protected static JLabel[] languageLabels;
@@ -33,24 +32,31 @@ public class DriverTranslationsTab implements ActionListener
 	 * Displays the translations of the given sentence in the translations holder panel.
 	 * @param sentence - the TaggedSentence to show the translations of
 	 */
-	public static void showTranslations(TaggedSentence sentence)
-	{
+	public static void showTranslations(TaggedSentence sentence) {
 		main = GUIMain.inst;
 		DriverTranslationsTab inst = new DriverTranslationsTab();
 		
 		// remove all the current translations shown
 		main.translationsHolderPanel.removeAll();
 		
-		if (Translator.translatedSentences.contains(sentence.getUntagged())) {
-			arrow_up = main.arrow_up;
-			arrow_down = main.arrow_down;
+		if (Translator.noInternet) {
+			main.notTranslated.setText("Translations unavailable: No Internet connection\n\n" +
+					"If you wish to recieve translation suggestions you must connect to the internet" +
+					"and re-process your document.");
+			main.translationsHolderPanel.add(main.notTranslated, "");
+		} else if (!PropertiesUtil.getDoTranslations()) {
+			main.notTranslated.setText("You have turned translations off.");
+			main.translationsHolderPanel.add(main.notTranslated, "");
+		} else if (Translator.translatedSentences.contains(sentence.getUntagged())) {
+			arrow_up = GUIMain.arrow_up;
+			arrow_down = GUIMain.arrow_down;
 			
 			current = sentence;
 
 			// retrieve the translation information
 			ArrayList<String> translationNames = current.getTranslationNames();
 			ArrayList<TaggedSentence> translations = current.getTranslations();
-			translationsMap = new HashMap();
+			translationsMap = new HashMap<String, TaggedSentence>();
 			numTranslations = translations.size();
 
 			// initialize the GUI components
@@ -66,9 +72,9 @@ public class DriverTranslationsTab implements ActionListener
 				// set up title label
 				languageLabels[i] = new JLabel(translationNames.get(i));
 				translationsMap.put(translationNames.get(i), translations.get(i));
-				languageLabels[i].setFont(main.titleFont);
+				languageLabels[i].setFont(GUIMain.titleFont);
 				languageLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
-				languageLabels[i].setBorder(main.rlborder);
+				languageLabels[i].setBorder(GUIMain.rlborder);
 				languageLabels[i].setOpaque(true);
 				languageLabels[i].setBackground(main.tan);
 
@@ -121,9 +127,9 @@ public class DriverTranslationsTab implements ActionListener
 //		} else
 //			DriverDocumentsTab.currentCharacterBuffer += 1;
 		
-		main.saved = false;
+		GUIMain.saved = false;
 		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(), true);
-		main.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
+		GUIMain.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
 		main.anonymityDrawingPanel.updateAnonymityBar();
 		
 		main.translationsHolderPanel.removeAll();
