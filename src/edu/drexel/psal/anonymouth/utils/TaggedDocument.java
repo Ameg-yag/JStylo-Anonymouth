@@ -592,7 +592,13 @@ public class TaggedDocument implements Serializable{
 		int total_attribs = 0;
 		double total_percent_change = 0;
 		for (Attribute attrib : DataAnalyzer.topAttributes){
-			total_percent_change += Math.abs(attrib.getPercentChangeNeeded(false, false, true));
+			System.out.println(attrib.toString());
+			System.out.println("    " + attrib.getPercentChangeNeeded(false, false, true));
+			System.out.println("    " + attrib.getFeatureBaselinePercentChangeNeeded());
+			System.out.println("    " + attrib.getTargetValue());
+			System.out.println("    " + attrib.getToModifyValue());
+			//attrib.getPercentChangeNeeded(false, false, true) always returns non-negative values, Math.abs is not needed.
+			total_percent_change += attrib.getPercentChangeNeeded(false, false, true);
 			total_attribs ++;
 		}
 		double avg_percent_change = total_percent_change/total_attribs;

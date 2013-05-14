@@ -19,6 +19,7 @@ public class Translator implements Runnable
 	public static ArrayList<String> translatedSentences = new ArrayList<String>(); 
 	public static Boolean finished = false;
 	public static Boolean noInternet = false;
+	public static Boolean accountsUsed = false;
 	public static Boolean translations = true;
 
 	/**
@@ -90,16 +91,15 @@ public class Translator implements Runnable
 
 				String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged().trim(), lang);
 				
-				if (translation == null) {
-					finished = true;
+				if (translation.equals("internet")) {
 					noInternet = true;
+					translationsEnded();
 					DriverTranslationsTab.showTranslations(sentences.get(0));
-					sentences.removeAll(sentences);
-					currentSentNum = 1;
-					main.translationsProgressBar.setIndeterminate(false);
-					main.translationsProgressBar.setValue(0);
-					main.translationsProgressLabel.setText("No Translations Pending.");
-					main.processButton.setEnabled(true);
+					return;
+				} else if (translation.equals("account")) {
+					accountsUsed = true;
+					translationsEnded();
+					DriverTranslationsTab.showTranslations(new TaggedSentence(""));
 					return;
 				}
 				
@@ -134,12 +134,16 @@ public class Translator implements Runnable
 			currentLangNum = 1;
 			currentSentNum++;
 		}
+		translationsEnded();
+	}
+	
+	private void translationsEnded() {
 		finished = true;
 		sentences.removeAll(sentences);
+		currentSentNum = 1;
 		main.translationsProgressBar.setIndeterminate(false);
 		main.translationsProgressBar.setValue(0);
 		main.translationsProgressLabel.setText("No Translations Pending.");
-		currentSentNum = 1;
 		main.processButton.setEnabled(true);
 	}
 }

@@ -25,6 +25,8 @@ public class Translation {
 	private static ArrayList<String> clients;
 	private static int current = 0;
 	private static Boolean translationFound = false;
+	private static int accountsTried = 0;
+	private static int numOfAccounts;
 	private static int tries = MAXNUMOFTRIES;
 	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
@@ -107,6 +109,8 @@ public class Translation {
 		clientsAndSecrets.put(clients.get(4), "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=");
 		clientsAndSecrets.put(clients.get(5), "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=");
 		clientsAndSecrets.put(clients.get(6), "wU9ROglnO5qzntfRsxkq7WWGp7LAMrz0jdxPEd0t1u8=");
+		
+		numOfAccounts = clients.size();
 	}
 	
 	public static String getTranslation(String original, Language other)
@@ -130,11 +134,15 @@ public class Translation {
 						Translate.setClientId(clients.get(current));
 						Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
 						translationFound = false;
+						accountsTried++;
 					} else
 						translationFound = true;
-		    	} while (!translationFound);
+		    	} while (!translationFound && accountsTried < numOfAccounts);
 				
-				return backToenglish;
+		    	if (accountsTried >= numOfAccounts)
+		    		break;
+		    	else
+		    		return backToenglish;
 				
 			} catch (Exception e) {
 				Logger.logln(NAME+"Could not load translations (may not be connected to the internet. Will try again.", LogOut.STDOUT);
@@ -142,10 +150,15 @@ public class Translation {
 			}
 		}
 		
-		if (tries <= 0)
-			Logger.logln(NAME+"Tranlations could not be obtained, will now stop.", LogOut.STDERR);
-	    
-	    return null;
+		if (tries <= 0) {
+			Logger.logln(NAME+"Tranlations could not be obtained, no internet connection. Will now stop.", LogOut.STDERR);
+			return "internet";
+		} else if (accountsTried >= numOfAccounts) {
+			Logger.logln(NAME+"Tranlations could not be obtained, all accounts used. Will now stop.", LogOut.STDERR);
+			return "account";
+		} else {
+			return null;
+		}
 	}
 	
 	/**

@@ -44,6 +44,9 @@ public class DriverTranslationsTab implements ActionListener {
 					"If you wish to recieve translation suggestions you must connect to the internet" +
 					"and re-process your document.");
 			main.translationsHolderPanel.add(main.notTranslated, "");
+		} else if (Translator.accountsUsed) {
+			main.notTranslated.setText("All Microsoft Bing© Azure translation accounts used.");
+			main.translationsHolderPanel.add(main.notTranslated, "");
 		} else if (!PropertiesUtil.getDoTranslations()) {
 			main.notTranslated.setText("You have turned translations off.");
 			main.translationsHolderPanel.add(main.notTranslated, "");

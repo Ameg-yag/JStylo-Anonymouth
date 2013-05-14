@@ -195,7 +195,7 @@ public class AnonymityDrawingPanel extends JPanel {
 	public void updateAnonymityBar() {
 		pointer.setPercentages((int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5), (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5));
 		main.anonymityDescription.setText("About " +
-				Integer.toString(main.anonymityDrawingPanel.getAvgPercentChangeNeeded()) +
+				getAvgPercentChangeNeeded() +
 				"% of your document needs to be changed for it to be considered anonymous");
 		repaint();
 	}
@@ -204,6 +204,6 @@ public class AnonymityDrawingPanel extends JPanel {
 	 * Created for a quick and easy way to get the percent that the pointer uses for use in the text description below the bar
 	 */
 	public int getAvgPercentChangeNeeded() {
-		return 100 - pointer.getPercentage();
+		return pointer.getMaxPercentage() - pointer.getPercentage();
 	}
 }
