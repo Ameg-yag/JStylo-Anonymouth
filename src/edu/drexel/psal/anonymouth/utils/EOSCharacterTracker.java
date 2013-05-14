@@ -50,7 +50,7 @@ public class EOSCharacterTracker implements Serializable{
 		boolean haveRemoved = false;
 		for (i=0; i < numEOSes; i++){
 			thisEOSLoc = eoses.get(i).location;
-			System.out.printf("thisEOSLoc: %d, lowerBound: %d, upperBound: %d\n", thisEOSLoc, lowerBound, upperBound);
+			//System.out.printf("thisEOSLoc: %d, lowerBound: %d, upperBound: %d\n", thisEOSLoc, lowerBound, upperBound);
 			if (thisEOSLoc >= lowerBound && thisEOSLoc < upperBound){
 				eoses.remove(i);
 				i--; // decrement 'i' so that we don't miss the object that shifts down into the spot just freed.

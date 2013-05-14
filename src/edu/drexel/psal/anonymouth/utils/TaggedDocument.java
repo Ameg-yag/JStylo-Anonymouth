@@ -346,15 +346,19 @@ public class TaggedDocument implements Serializable{
 	}	
 	
 	/**
-	 * Concatenates TaggedSentences at indices in 'taggedSentenceIndicesToConcat', and then removes the TaggedSentence at index 'taggedSentenceIndicesToConcat[0]', and replaces it with the concatenated TaggedSentence.
+	 * Concatenates the two TaggedSentences (in order), removes the second TaggedSentence, and replaces the first with the concatenated TaggedSentence 
 	 * Takes care of bookkeeping.
-	 * @param taggedSentenceIndicesToConcat
-	 * @return The TaggedSentence that was removed
+	 * @param taggedSentenceOne the first TaggedSentence
+	 * @param tsOneIndex the first TaggedSentence's index in the TaggedDocument
+	 * @param taggedSentenceTwo the second TaggedSentence
+	 * @param tsTwoIndex the second TaggedSentence's index in the TaggedDocument
+	 * @return
 	 */
-	public TaggedSentence concatRemoveAndReplace(int[] taggedSentenceIndicesToConcat){
-		TaggedSentence replaceWith = concatSentences(taggedSentenceIndicesToConcat);
-		System.out.println("*** Replacing: "+taggedSentences.get(taggedSentenceIndicesToConcat[0]).getUntagged(false)+"\n*** With: "+replaceWith.getUntagged(false));
-		return removeAndReplace(taggedSentenceIndicesToConcat[0],replaceWith);
+	public TaggedSentence concatRemoveAndReplace(TaggedSentence taggedSentenceOne, int tsOneIndex, TaggedSentence taggedSentenceTwo, int tsTwoIndex){
+		TaggedSentence replaceWith = concatSentences(taggedSentenceOne, taggedSentenceTwo);
+		removeAndReplace(tsTwoIndex, "");// delete the second sentence
+		System.out.println("*** Replacing: "+taggedSentenceOne.getUntagged(false)+"\n*** With: "+replaceWith.getUntagged(false));
+		return removeAndReplace(tsOneIndex,replaceWith);
 	}
 	
 	
@@ -434,7 +438,7 @@ public class TaggedDocument implements Serializable{
 		TaggedSentence toReplace = taggedSentences.get(sentNumber);
 		Logger.logln(NAME+"removing: "+toReplace.toString());
 		Logger.logln(NAME+"adding: "+sentsToAdd);
-		if(sentsToAdd.matches("\\s*")){//checks to see if the user deleted the current sentence
+		if(sentsToAdd.matches("^\\s*$")){//checks to see if the user deleted the current sentence
 			//CALL COMPARE
 			TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
 			Logger.logln(NAME+"User deleted a sentence.");
@@ -445,14 +449,14 @@ public class TaggedDocument implements Serializable{
 		ArrayList<TaggedSentence> taggedSentsToAdd = makeAndTagSentences(sentsToAdd,false);
 		Scanner s = new Scanner(System.in);
 		TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
-		addTaggedSentence(taggedSentsToAdd.get(0),sentNumber);
+		totalSentences--;
 		//call compare
 		int i;
 		int len = taggedSentsToAdd.size();
-		for(i=1;i<len;i++){
-			sentNumber++;
+		for(i = 0; i < len; i++){
 			//removeTaggedSentence(sentNumber);
 			addTaggedSentence(taggedSentsToAdd.get(i),sentNumber);
+			sentNumber++;
 			totalSentences++;
 		}
 		TaggedSentence concatted = concatSentences(taggedSentsToAdd);
@@ -472,7 +476,7 @@ public class TaggedDocument implements Serializable{
 		TaggedSentence toReplace = taggedSentences.get(sentNumber);
 		Logger.logln(NAME+"removing: "+toReplace.toString());
 		Logger.logln(NAME+"adding: "+toAdd.getUntagged(false));
-		if(toAdd.getUntagged(false).matches("\\s*")){//checks to see if the user deleted the current sentence
+		if(toAdd.getUntagged(false).matches("^\\s*$")){//checks to see if the user deleted the current sentence
 			//CALL COMPARE
 			TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
 			Logger.logln(NAME+"User deleted a sentence.");
@@ -480,10 +484,10 @@ public class TaggedDocument implements Serializable{
 			totalSentences--;
 			return wasReplaced;
 		}
+		// no need to subtract one from totalSentences when removing a sentence, because we are putting a new sentence in its place immediatly 
 		TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
 		addTaggedSentence(toAdd,sentNumber);
-		//call compare
-		totalSentences++;
+		
 		System.out.println("TaggedSent to add: "+toAdd.toString());
 		System.out.println("TaggedSent to remove: "+toReplace.toString());
 		updateReferences(toReplace,toAdd);
@@ -546,10 +550,10 @@ public class TaggedDocument implements Serializable{
 		double totalAI = 0;
 		int numSents = taggedSentences.size();
 		int i;
-		System.out.println("NUMSENTS: " + numSents);
+		//System.out.println("NUMSENTS: " + numSents);
 		for (i = 0; i < numSents; i++){
 			totalAI += taggedSentences.get(i).getSentenceAnonymityIndex();
-			System.out.println("TOTALAI: " + totalAI);
+			//System.out.println("TOTALAI: " + totalAI);
 		}
 		return totalAI;
 	}

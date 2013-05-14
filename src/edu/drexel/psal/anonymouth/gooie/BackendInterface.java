@@ -270,7 +270,7 @@ public class BackendInterface {
 		public void run(){
 			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded();
 
-			Scanner in = new Scanner(System.in);
+			//Scanner in = new Scanner(System.in);
 			//in.nextLine();
 				
 			pw.setText("Target Selected");
@@ -311,20 +311,11 @@ public class BackendInterface {
 			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
 			DriverDocumentsTab.suggestionCalculator.trackEditSentence(main);
 			
-			DriverDocumentsTab.setAllDocTabUseable(true, main);
-			//NOTE make this false when actually using (line below). For testing though, it should be true.
-			DriverDocumentsTab.ignoreNumActions = 1;
-			System.out.println("ignoreNumActions == "+DriverDocumentsTab.ignoreNumActions);
-			in.nextLine();
-			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));//must re-set the document after processing (to deal with unprintable characters)
-			System.out.println("ignoreNumActions == "+DriverDocumentsTab.ignoreNumActions);
-			in.nextLine();
-			main.documentPane.getCaret().setDot(0);
-			System.out.println("ignoreNumActions == "+DriverDocumentsTab.ignoreNumActions);
-			in.nextLine();
-			//main.documentPane.setCaretPosition(0);
-			System.out.println("ignoreNumActions == "+DriverDocumentsTab.ignoreNumActions);
-			in.nextLine();
+			DriverDocumentsTab.ignoreNumActions = 1; // must be set to 1, otherwise "....setDot(0)" (2 lines down) will screw things up when it fires the caretUpdate listener.
+			main.documentPane.setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
+			main.documentPane.getCaret().setDot(0); // NOTE However, THIS DOES fire the caretUpdate, because we are messing with the caret itself.
+			main.documentPane.setCaretPosition(0); // NOTE And then this, again, does not fire the caretUpdate
+			
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
@@ -343,12 +334,13 @@ public class BackendInterface {
 			
 			DocumentTagger docTagger = new DocumentTagger();
 			ArrayList<List<Document>> allDocs = magician.getDocumentSets();
+			/*
 			try{
-				/*
-				 * NOTE: This next line locks up the rest of the method until it's done. Do NOT put anything that needs to be updated
-				 * Immediately after control returns to the GUI from processing after this, it will not be run until every every process here
-				 * is done (It takes a long time)
-				 */
+			
+				  NOTE: This next line locks up the rest of the method until it's done. Do NOT put anything that needs to be updated
+				  Immediately after control returns to the GUI from processing after this, it will not be run until every every process here
+				  is done (It takes a long time)
+				 
 				ConsolidationStation.otherSampleTaggedDocs = docTagger.tagDocs(allDocs.get(0),loadIfExists);
 				ConsolidationStation.authorSampleTaggedDocs = docTagger.tagDocs(allDocs.get(1),loadIfExists);
 				ConsolidationStation.setAllDocsTagged(true);
@@ -357,9 +349,12 @@ public class BackendInterface {
 				Logger.logln(NAME+"Oops something bad happened with the tagging of documents...");
 				e.printStackTrace();
 			}
+			*/
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
 			//main.editorProgressBar.setIndeterminate(false);	
+			
+			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.documentPane.setEnabled(true);
             main.documentPane.setEditable(true);
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
@@ -371,6 +366,7 @@ public class BackendInterface {
 			//Logger.logln(NAME+"Writing TaggedDocument...");
 			//ObjectIO.writeObject(ConsolidationStation.toModifyTaggedDocs.get(0), "toModifyDoc", ThePresident.SER_DIR);
 			//Logger.logln(NAME+"TaggedDocument written...");
+			
 		}
 	}
 	
