@@ -876,7 +876,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			getContentPane().add(rightTabPane, "width :353:353, spany, shrinkprio 2"); // MUST be at LEAST 353 for Mac OS X. 
 		if (panelLocations.contains(PropertiesUtil.Location.BOTTOM))
 			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:, shrinkprio 3");
-		
+
 		rightTabPane.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -1316,12 +1316,10 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			notTranslated = new JTextPane();
 			
-			if (PropertiesUtil.getDoTranslations()) {
+			if (PropertiesUtil.getDoTranslations())
 				notTranslated.setText("Please process your document to recieve translation suggestions.");
-			} else {
+			else
 				notTranslated.setText("You have turned translations off.");
-				translationsHolderPanel.add(notTranslated, "");
-			}
 			
 			notTranslated.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
 			notTranslated.setDragEnabled(false);
