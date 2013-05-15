@@ -94,8 +94,7 @@ public class Engine implements API {
 		return relevantEvents;
 	}
 
-	//TODO we use the List<List<EventSet>> so we can get the author names, relevantEvents doesn't five us that ability
-	//should I pass both or...?
+	//Done
 	@Override
 	public List<Attribute> getAttributeList(List<List<EventSet>> culledEventSets, List<EventSet> relevantEvents, CumulativeFeatureDriver cumulativeFeatureDriver)
 			throws Exception {
@@ -104,7 +103,6 @@ public class Engine implements API {
 		
 		int numOfVectors = culledEventSets.size();
 		List<EventSet> list;
-		List<EventHistogram> histograms;
 		
 		// initialize author name set
 		LinkedList<String> authors = new LinkedList<String>();
@@ -116,14 +114,11 @@ public class Engine implements API {
 		Collections.sort(authors);
 		
 		// initialize Weka attributes vector (but authors attribute will be added last)
-		FastVector attributeList = new FastVector();
+		FastVector attributeList = new FastVector(relevantEvents.size()+1);
 		FastVector authorNames = new FastVector();
 		for (String name: authors)
 			authorNames.addElement(name);
 		Attribute authorNameAttribute = new Attribute("authorName", authorNames);
-		
-		// initialize list of lists of histograms
-		List<EventHistogram> knownEventHists = new ArrayList<EventHistogram>(numOfFeatureClasses);
 		
 		// initialize list of sets of events, which will eventually become the attributes
 		List<Set<Event>> allEvents = new ArrayList<Set<Event>>(numOfFeatureClasses);
@@ -131,10 +126,9 @@ public class Engine implements API {
 		for (int currEventSet=0; currEventSet<numOfFeatureClasses; currEventSet++) {
 			// initialize relevant list of event sets and histograms
 
-			list = new ArrayList<EventSet>(numOfVectors);
+			list = new ArrayList<EventSet>();
 			for (int i=0; i<numOfFeatureClasses; i++)
 				list.add(relevantEvents.get(i));
-			histograms = new ArrayList<EventHistogram>();
 			
 			Set<Event> events = new HashSet<Event>();
 			
@@ -147,31 +141,34 @@ public class Engine implements API {
 						events.add(event);
 						currHist.add(event);
 					}
-					histograms.add(currHist);
 					allEvents.add(currEventSet,events);
 				}
-				
-				// update histograms
-				for (int i=0; i<numOfVectors; i++)
-					knownEventHists.add(currEventSet,histograms.get(i));
 				
 			} else {	// one unique numeric event
 				
 				// generate sole event (extract full event name and remove value)
-				//TODO extract the histogram value and hide it in the name
 				Event event = new Event(list.get(0).eventAt(0).getEvent().replaceAll("\\{.*\\}", "{-}"));
 				events.add(event);
 				allEvents.add(currEventSet,events);
-				
-				// update histogram to null at current position
-				knownEventHists.add(currEventSet,null);
 			}
-			
-			//TODO need to convert events/histograms to Attributes and add to attribute list
-			
-			// add authors attribute as last attribute
-			attributeList.addElement(authorNameAttribute);
 		}
+		
+		//initialize empty attribute list
+		for (int i=0; i<relevantEvents.size(); i++){
+			attributeList.addElement(relevantEvents.get(i));
+		}
+		
+		for (Set<Event> es: allEvents){
+			Iterator iterator = es.iterator();
+			Event nextEvent = (Event) iterator.next();
+			while (iterator.hasNext()){
+				attributeList.addElement(nextEvent);
+				nextEvent=(Event) iterator.next();
+			}
+		}
+		
+		// add authors attribute as last attribute
+		attributeList.addElement(authorNameAttribute);
 		
 		LinkedList<Attribute> attributes = new LinkedList<Attribute>();
 		
@@ -233,7 +230,7 @@ public class Engine implements API {
 					for (Event e: events) {
 						inst.setValue(
 							(Attribute) attributes.get(index++),
-							currHist.getAbsoluteFrequency(e));				// use absolute values, normalize later
+							currHist.getAbsoluteFrequency(e));	// use absolute values, normalize later
 					}
 				} else {
 					
@@ -244,6 +241,13 @@ public class Engine implements API {
 							value);	
 				}
 			}
+			
+			//Initialize attribute list from relevantEvents
+			
+			//go over extracted histograms, add values to the list
+			
+			//go over the list, add them to the instance
+			
 			inst.setValue((Attribute) attributes.get(attributes.size()-1), document.getAuthor());	
 		}
 		return inst;
