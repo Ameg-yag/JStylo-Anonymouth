@@ -2,6 +2,7 @@ package edu.drexel.psal.anonymouth.gooie;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.memetix.mst.language.Language;
@@ -100,6 +101,9 @@ public class Translation {
 		clients.add("sheetal57");
 		clients.add("drexel2");
 		clients.add("ozoxdxie");
+		clients.add("fiskarkwix");
+		clients.add("ewambybambi");
+		clients.add("zarcosmarkos");
 		
 		clientsAndSecrets = new HashMap<String, String>();
 		clientsAndSecrets.put(clients.get(0), "fAjWBltN4QV+0BKqqqg9nmXVMlo5ffa90gxU6wOW55Q=");
@@ -109,7 +113,10 @@ public class Translation {
 		clientsAndSecrets.put(clients.get(4), "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=");
 		clientsAndSecrets.put(clients.get(5), "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=");
 		clientsAndSecrets.put(clients.get(6), "wU9ROglnO5qzntfRsxkq7WWGp7LAMrz0jdxPEd0t1u8=");
-		
+		clientsAndSecrets.put(clients.get(7), "tz1OrF0BdiMdowk7CC3ZpkLA0y23baO1EBWphT+GPL0=");
+		clientsAndSecrets.put(clients.get(8), "THQLVzCfATeZmhiA6UOPXc4ml7FaxcBoP3NJIgCgoRs=");
+		clientsAndSecrets.put(clients.get(9), "Xs7OIXhpL/bxr++EUguRAcD8tsuW3wwThas9gHwCa0o=");
+	
 		numOfAccounts = clients.size();
 	}
 	
@@ -117,16 +124,16 @@ public class Translation {
 	{   
 	    Translate.setClientId(clients.get(current));
 		Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
-		
+	    
 		while (tries > 0) {
 			try {
-		    	String backToenglish;
+		    	String backToEnglish;
 		    	
 		    	do {
 		    		String translatedText = Translate.execute(original, Language.ENGLISH,other);
-					backToenglish = Translate.execute(translatedText,other,Language.ENGLISH);
+					backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
 					
-					if (backToenglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
+					if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
 						if (current+1 >= clients.size())
 							current = 0;
 						else
@@ -142,7 +149,7 @@ public class Translation {
 		    	if (accountsTried >= numOfAccounts)
 		    		break;
 		    	else
-		    		return backToenglish;
+		    		return backToEnglish;
 				
 			} catch (Exception e) {
 				Logger.logln(NAME+"Could not load translations (may not be connected to the internet. Will try again.", LogOut.STDOUT);
@@ -151,10 +158,10 @@ public class Translation {
 		}
 		
 		if (tries <= 0) {
-			Logger.logln(NAME+"Tranlations could not be obtained, no internet connection. Will now stop.", LogOut.STDERR);
+			Logger.logln(NAME+"Translations could not be obtained, no internet connection. Will now stop.", LogOut.STDERR);
 			return "internet";
 		} else if (accountsTried >= numOfAccounts) {
-			Logger.logln(NAME+"Tranlations could not be obtained, all accounts used. Will now stop.", LogOut.STDERR);
+			Logger.logln(NAME+"Translations could not be obtained, all accounts used. Will now stop.", LogOut.STDERR);
 			return "account";
 		} else {
 			return null;
@@ -182,12 +189,11 @@ public class Translation {
     	    		String translatedText = Translate.execute(original, Language.ENGLISH,other);
     				backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
     				
-    				if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request has credentials zero balance.")) {
-    					if (current+1 >= clients.size())
-    						current = 0;
-    					else
-    						current++;
-    					
+    				if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
+    					if ((current+1) >= clients.size())
+							current = 0;
+						else
+							current++;
     					Translate.setClientId(clients.get(current));
     					Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
     					translationFound = false;

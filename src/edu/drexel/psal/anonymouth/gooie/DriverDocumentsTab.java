@@ -146,7 +146,7 @@ public class DriverDocumentsTab {
 	public static TaggedDocument taggedDoc;
 	protected static Map<String, TaggedSentence> originals = new HashMap();
 	protected static ArrayList<String> originalSents = new ArrayList<String>();
-	protected static int currentSentNum = 0;
+	private static int currentSentNum = 0;
 	protected static int lastSentNum = -1;
 	protected static int sentToTranslate = 0;
 	protected static int[] selectedSentIndexRange = new int[]{-2,-2}; 
@@ -157,7 +157,9 @@ public class DriverDocumentsTab {
 	protected static String currentSentenceString = "";
 	protected static Object currentHighlight = null;
 	protected static int ignoreNumActions = 0;
-	protected static int caretPositionPriorToCharInsert = 0;
+	protected static int caretPositionPriorToCharInsertion = 0;
+	protected static int caretPositionPriorToCharRemoval = 0;
+	protected static int caretPositionPriorToAction = 0;
 	private static Boolean firstRun = true;
 	private static int[] oldSelectionInfo = new int[3];
 	protected static Map<String, int[]> wordsToRemove = new HashMap<String, int[]>();
@@ -165,7 +167,11 @@ public class DriverDocumentsTab {
 	protected static SuggestionCalculator suggestionCalculator;
 	protected static Boolean shouldRememberIndices = true;
 	
-	protected static ActionListener saveAsTestDoc;	
+	protected static ActionListener saveAsTestDoc;
+	
+	public static int getCurrentSentNum(){
+		return currentSentNum;
+	}
 	
 	protected static void signalTargetsSelected(GUIMain main, boolean goodToGo){
 		if(goodToGo == true)
@@ -240,35 +246,58 @@ public class DriverDocumentsTab {
 	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith, boolean shouldUpdate){
 		//Scanner in = new Scanner(System.in);
 		//in.nextLine();
-
 		if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
 			main.versionControl.addVersion(taggedDoc);
 			currentCharacterBuffer = 0;
 		} else
 			currentCharacterBuffer += 1;
 		
+		System.out.println("\n\ntaggedDoc (pre remove and replace [num sentences == "+taggedDoc.getNumSentences()+"]):\n\n"+taggedDoc.getUntaggedDocument(false)+"\n\n");
 		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
+		System.out.println("\n\ntaggedDoc (post remove and replace [num sentences == "+taggedDoc.getNumSentences()+"]):\n\n"+taggedDoc.getUntaggedDocument(false)+"\n\n");
 		//main.documentPane.getCaret().setDot(currentCaretPosition);
 		//main.documentPane.setCaretPosition(currentCaretPosition);
+		if (shouldUpdate){
+			ignoreNumActions = 3;
+			main.getDocumentPane().setText(taggedDoc.getUntaggedDocument(false)); // NOTE should be false after testing!!!
+			main.getDocumentPane().getCaret().setDot(caretPositionPriorToAction);
+			main.getDocumentPane().setCaretPosition(caretPositionPriorToAction);	
+		}
+		System.out.println("caretPositionPriorToAction (in removeReplaceAndUpdate): "+caretPositionPriorToAction);
+		int[] selectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
+		currentSentNum = selectionInfo[0];
+		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
+		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
+		System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
+		moveHighlight(main,selectedSentIndexRange,true);
 		
-		update(main, shouldUpdate);		
 		main.versionControl.setMostRecentState(taggedDoc);
 	}
 	
+	/**
+	 * Does the same thing as <code>removeReplaceAndUpdate</code>, except it doesn't remove and replace. 
+	 * It simply updates the text editor box with the contents of <code>taggedDoc</code>,
+	 * sets the caret to <code>caretPositionPriorToCharInsertion</code>,
+	 * and moves the highlight the sentence that the caret has been moved to.
+	 * @param main
+	 * @param shouldUpdate
+	 */
 	public static void update(GUIMain main, Boolean shouldUpdate) {
 		if (shouldUpdate) {
 			ignoreNumActions = 3;
-			main.getDocumentPane().setText(taggedDoc.getUntaggedDocument());
-			main.getDocumentPane().getCaret().setDot(caretPositionPriorToCharInsert);
-			main.getDocumentPane().setCaretPosition(caretPositionPriorToCharInsert);	
+			main.getDocumentPane().setText(taggedDoc.getUntaggedDocument(false));
+			main.getDocumentPane().getCaret().setDot(caretPositionPriorToCharInsertion);
+			main.getDocumentPane().setCaretPosition(caretPositionPriorToCharInsertion);	
 		}
 		
-		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
+		int[] selectionInfo = calculateIndicesOfSentences(caretPositionPriorToCharInsertion)[0];
+		currentSentNum = selectionInfo[0];
 		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 		//System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
 		moveHighlight(main,selectedSentIndexRange,true);
 	}
+
 
 //	protected static void replaceTaggedSentenceAndUpdate(GUIMain main, int sentenceNumberToRemove, TaggedSentence sentenceToReplaceWith, boolean shouldUpdate) {
 //		main.saved = false;
@@ -279,10 +308,10 @@ public class DriverDocumentsTab {
 //		if (shouldUpdate) {
 //			ignoreNumActions = 2;
 //			main.documentPane.setText(taggedDoc.getUntaggedDocument());
-//			main.documentPane.getCaret().setDot(caretPositionPriorToCharInsert);
-//			main.documentPane.setCaretPosition(caretPositionPriorToCharInsert);
+//			main.documentPane.getCaret().setDot(caretPositionPriorToCharInsertion);
+//			main.documentPane.setCaretPosition(caretPositionPriorToCharInsertion);
 //		}
-//		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
+//		int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsertion);
 //		selectedSentIndexRange[0] = selectionInfo[1];
 //		selectedSentIndexRange[1] = selectionInfo[2];
 //		moveHighlight(main, selectedSentIndexRange, true);
@@ -321,40 +350,48 @@ public class DriverDocumentsTab {
 	/**
 	 * Calcualtes the selected sentence number (index in TaggedDocument taggedDoc), start of that sentence in the documentPane, and end of the sentence in the documentPane. 
 	 * Returns all three values in an int array.
-	 * @param currentCaretPosition the position of the caret
-	 * @return an int array such that index 0 is the sentence index, index 1 is the beginning of the sentence (w.r.t. the whole document in the editor), and index 2 is the end of the sentence.
-	 * {sentenceNumber, startHighlight, endHighlight} (where start and end Highlight are the starting and ending indices of the selected sentence).
+	 * @param currentCaretPosition the positions in the document to return sentence indices for
+	 * @return a 2d int array such that each row is an array such that: index 0 is the sentence index, index 1 is the beginning of the sentence (w.r.t. the whole document in the editor), and index 2 is the end of the sentence.
+	 * {sentenceNumber, startHighlight, endHighlight} (where start and end Highlight are the starting and ending indices of the selected sentence). The rows correspond to the order of the input indices
 	 * 
 	 * If 'currentCaretPosition' is past the end of the document (greater than the number of characters in the document), then "null" will be returned.
 	 */
-	public static int[] calculateIndicesOfSelectedSentence(int currentCaretPosition){
+	public static int[][] calculateIndicesOfSentences(int ... positions){
 		// get the lengths of each of the sentences
 		int[] sentenceLengths = taggedDoc.getSentenceLengths();
-		int i = 0;
 		int numSents = sentenceLengths.length;
-		int lengthSoFar = 0;
-		int[] lengthTriangle = new int[numSents]; // index '0' will be the length of sentence 0, index '1' will be the length of sentence '0' plus sentence '1', index '2' will be the lengths of the first three sentences added together, and so on. 
-		int selectedSentence = 0;
-		if(currentCaretPosition > 0){
-			while (lengthSoFar <= currentCaretPosition && i < numSents){
-				//System.out.printf("Sentence # %d has length: %d\n",i,sentenceLengths[i]);
-				lengthSoFar += sentenceLengths[i];
-				lengthTriangle[i] = lengthSoFar;
-				i++;
+		int positionNumber;
+		int numPositions = positions.length;
+		int currentPosition;
+		int[][] results = new int[numPositions][3];
+		for (positionNumber = 0; positionNumber < numPositions; positionNumber++){
+			int i = 0;
+			int lengthSoFar = 0;
+			int[] lengthTriangle = new int[numSents]; // index '0' will be the length of sentence 0, index '1' will be the length of sentence '0' plus sentence '1', index '2' will be the lengths of the first three sentences added together, and so on. 
+			int selectedSentence = 0;
+			currentPosition = positions[positionNumber];
+			if(currentPosition > 0){
+				while (lengthSoFar <= currentPosition && i < numSents){
+					//System.out.printf("Sentence # %d has length: %d\n",i,sentenceLengths[i]);
+					lengthSoFar += sentenceLengths[i];
+					lengthTriangle[i] = lengthSoFar;
+					i++;
+				}
+				selectedSentence = i - 1;// after exiting the loop, 'i' will be one greater than we want it to be.
 			}
-			selectedSentence = i - 1;// after exiting the loop, 'i' will be one greater than we want it to be.
+			int startHighlight = 0;
+			int endHighlight = 0;
+			if (selectedSentence >= numSents)
+				return null; // don't do anything.
+			else if (selectedSentence <= 0)
+				endHighlight = sentenceLengths[0];
+			else{
+				startHighlight = lengthTriangle[selectedSentence-1]; // start highlighting JUST after the previous sentence stops
+				endHighlight = lengthTriangle[selectedSentence]; // stop highlighting when the current sentence stops.
+			}	
+			results[positionNumber] = new int[]{selectedSentence, startHighlight, endHighlight};
 		}
-		int startHighlight = 0;
-		int endHighlight = 0;
-		if (selectedSentence >= numSents)
-			return null; // don't do anything.
-		else if (selectedSentence <= 0)
-			endHighlight = sentenceLengths[0];
-		else{
-			startHighlight = lengthTriangle[selectedSentence-1]; // start highlighting JUST after the previous sentence stops
-			endHighlight = lengthTriangle[selectedSentence]; // stop highlighting when the current sentence stops.
-		}	
-		return new int[]{selectedSentence, startHighlight, endHighlight};
+		return results; 
 	}
 
 
@@ -440,64 +477,139 @@ public class DriverDocumentsTab {
 		suggestionCalculator = new SuggestionCalculator();
 
 		main.getDocumentPane().addCaretListener(new CaretListener() {
-
 			@Override
 			public void caretUpdate(CaretEvent e) {
+				System.out.println("\n\n\ncaretUpdate fired.");
 				if (ignoreNumActions > 0){
+					System.out.println("ignoring caretUpdate...");
 					charsInserted = 0;
 					charsRemoved = 0;
-					//caretPositionPriorToCharInsert = currentCaretPosition;
 					ignoreNumActions--;
 				}
 				else if (taggedDoc != null) { //main.documentPane.getText().length() != 0
+					System.out.println("handling caretUpdate...");
 					boolean setSelectionInfoAndHighlight = true;
 					startSelection = e.getDot();
 					endSelection = e.getMark();
 					currentCaretPosition = startSelection;
-					caretPositionPriorToCharInsert = currentCaretPosition - charsInserted;
-					int[] selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
-					if (selectionInfo == null)
-						return; // don't do anything.
-					if (startSelection == endSelection){
-						// no "selection"
+					int[] currentSentSelectionInfo = null;
+					caretPositionPriorToCharInsertion = currentCaretPosition - charsInserted;
+					caretPositionPriorToCharRemoval = currentCaretPosition + charsRemoved;
+					System.out.printf("caretPositionPriorToCharInsertion == %d, currentCaretPosition == %d, charsInserted == %d\n", caretPositionPriorToCharInsertion, currentCaretPosition, charsInserted);
+					System.out.printf("caretPositionPriorToCharRemoval == %d, currentCaretPosition == %d, charsRemoved == %d\n", caretPositionPriorToCharRemoval, currentCaretPosition, charsRemoved);
+					if (charsRemoved > 0){
+						caretPositionPriorToAction = caretPositionPriorToCharRemoval;
+						System.out.println("characters removed...");
+						// update the EOSTracker, and from the value that it returns we can tell if sentences are being merged (EOS characters are being erased)
+						boolean EOSesRemoved = taggedDoc.eosTracker.removeEOSesInRange( currentCaretPosition, caretPositionPriorToCharRemoval);
+						if (EOSesRemoved){
+							
+							// xxx todo xxx put in a check for:
+								// - if an EOS character was deleted inside of quotation marks, we don't want to delete anything.
+								// - if an EOS character was deleted from a sentence that ends with "?!", we want to wait until the remove both EOS characters (and other similar situations)
+							
+							
+							// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
+							int[][] activatedSentenceInfo = calculateIndicesOfSentences(currentCaretPosition, caretPositionPriorToCharRemoval);
+							int i;
+							int j = 0;
+							int numInfos = activatedSentenceInfo.length;
+							int[] leftSentInfo = activatedSentenceInfo[0];
+							int[] rightSentInfo = activatedSentenceInfo[1];
+							int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
+							int[] taggedSentsToDelete = new int[numToDelete];
+							
+							// Now we list the indices of sentences that need to be removed, which are the ones between the left and right sentence (though not including either the left or the right sentence).
+							for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]; i++){ 
+								taggedSentsToDelete[j] = i;
+								j++;
+							}
+							
+							//First delete what we don't need anymore
+							TaggedSentence[] taggedSentsJustDeleted = taggedDoc.removeTaggedSentences(taggedSentsToDelete); // XXX XXX can stop saving the return value after testing!!!!
+							System.out.println("Just removed the following TaggedSentences:");
+							for(i = 0; i < numToDelete; i++)
+								System.out.println("TS #"+taggedSentsToDelete[i]+" ==> "+taggedSentsJustDeleted[i]);
+							
+							// Then read the remaining strings from "left" and "right" sentence:
+								// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
+								// for right: read from 'caretPositionPriorToCharRemoval' (where the "sentence" now begins) to 'rightSentInfo[2]' (the end of the sentence) 
+							// Once we have the string, we call removeAndReplace, once for each sentence (String)
+							String docText = main.getDocumentPane().getText();
+							String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition+1);
+							taggedDoc.removeAndReplace(leftSentInfo[0], leftSentCurrent);
+							String rightSentCurrent = docText.substring(caretPositionPriorToCharRemoval, rightSentInfo[2]+1);
+							taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);
+							
+							System.out.printf("Merging <%s> (indices: [ %d, %d]) and <%s> (indices: [ %d, %d])\n",leftSentCurrent, leftSentInfo[1], currentCaretPosition+1, rightSentCurrent, caretPositionPriorToCharRemoval, rightSentInfo[2]+1);
+							
+							// Now that we have internally gotten rid of the parts of left and right sentence that no longer exist in the editor box, we merge those two sentences so that they become a single TaggedSentence.
+							taggedDoc.concatRemoveAndReplace( taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(rightSentInfo[0]), rightSentInfo[0]);
+							System.out.printf("Now sentence number '%d' looks like <%s> in the TaggedDocument.\n",leftSentInfo[0],taggedDoc.getTaggedSentences().get(leftSentInfo[0]));
+							
+							// now update the EOSTracker
+							taggedDoc.eosTracker.shiftAllEOSChars(false, caretPositionPriorToCharRemoval, charsRemoved);
+							
+						} else{
+							// update the EOSTracker
+							taggedDoc.eosTracker.shiftAllEOSChars(false, caretPositionPriorToAction, charsRemoved);
+						}
 					}
-					else if (startSelection < endSelection) {
-						// clicked then dragged right
-
+					else if (charsInserted > 0){
+						System.out.println("characters inserted...");
+						caretPositionPriorToAction = caretPositionPriorToCharInsertion;
+						// update the EOSTracker
+						taggedDoc.eosTracker.shiftAllEOSChars(true, caretPositionPriorToAction, charsInserted);
+						boolean EOSesAdded = false;// xxx this line is temporary.
+						if (EOSesAdded){
+							// then we want to wait before creating a new TaggedSentence to see if the user is going to enter more than one EOS character. Only once they stop inputting EOS characters do we want to replace the sentence in the taggedDoc.
+							// This is because if someone enters a ".", and actually wants ellipsis points, "...", or if someone enters a "!", but plans on ending their sentence with "!?", or if someone has an open quote (CHECK FOR THIS), 
+							// then we don't want to create a new sentence until they stop entering EOS characters, or close the quote.
+						}
 					}
-					else if (startSelection > endSelection) {
-						// clicked then dragged left
-
+					else{
+						caretPositionPriorToAction = currentCaretPosition;
 					}
+					// Then update the selection information so that when we move the highlight, it highlights "both" sentences (well, what used to be both sentences, but is now a single sentence)
+					currentSentSelectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
+					System.out.println("caretPositionPriorToAction == "+caretPositionPriorToAction);
 					
-					if (shouldRememberIndices) {
+					if (currentSentSelectionInfo == null)
+						return; // don't do anything.
+					
+					if (shouldRememberIndices) { // regarding storing indices for 
 						main.versionControl.updateIndices(startSelection, endSelection);
 					}
 					
 					if (charsInserted > 2 || charsInserted < -2)
 						main.versionControl.addVersion(taggedDoc);
-
+					
+					
+					System.out.printf("previousSentenceNumber == %d\n", currentSentNum);
+					System.out.printf("currentSentSelectionInfo: sentNum == %d, start == %d, end == %d\n",currentSentSelectionInfo[0], currentSentSelectionInfo[1], currentSentSelectionInfo[2]);
+					System.out.printf("selectedSentIndexRange: start == %d,  end == %d\n", selectedSentIndexRange[0], selectedSentIndexRange[1]);
 					lastSentNum = currentSentNum;
-					currentSentNum = selectionInfo[0];
+					currentSentNum = currentSentSelectionInfo[0];
 
 					boolean inRange = false;
-					/*
-					 * put in a check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
-					 */
-					if ( caretPositionPriorToCharInsert >= selectedSentIndexRange[0] && caretPositionPriorToCharInsert <= selectedSentIndexRange[1]-1) {
+					
+					//check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
+					if ( caretPositionPriorToAction >= selectedSentIndexRange[0] && caretPositionPriorToAction < selectedSentIndexRange[1]) {
 						inRange = true;
 						// Caret is inside range of presently selected sentence.
 						// update from previous caret
 						if (charsInserted > 0 ){// && lastSentNum != -1){
 							keyJustPressed = false;
+							System.out.println("selectedSentIndexRange[1] (pre addition) == "+selectedSentIndexRange[1]);
 							selectedSentIndexRange[1] += charsInserted;
-							//moveHighlight(main,selectedSentIndexRange,false);
+							System.out.println("selectedSentIndexRange[1] (post addition) == "+selectedSentIndexRange[1]);
 							charsInserted = ~-1; // puzzle: what does this mean? (scroll to bottom of file for answer) - AweM
 						}
 						else if (charsRemoved > 0){// && lastSentNum != -1){
 							keyJustPressed = false;
+							System.out.println("selectedSentIndexRange[1] (pre subtraction) == "+selectedSentIndexRange[1]);
 							selectedSentIndexRange[1] -= charsRemoved;
-							//moveHighlight(main,selectedSentIndexRange,false);
+							System.out.println("selectedSentIndexRange[1] (post subtraction) == "+selectedSentIndexRange[1]);
 							charsRemoved = 0;
 						}
 					}
@@ -510,31 +622,31 @@ public class DriverDocumentsTab {
 						 * want to translate completed sentences).
 						 */
 						if (!originals.keySet().contains(main.getDocumentPane().getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
-							main.GUITranslator.replace(taggedDoc.getSentenceNumber(oldSelectionInfo[0]), originals.get(originalSents.get(oldSelectionInfo[0])));//new old
+							GUIMain.GUITranslator.replace(taggedDoc.getSentenceNumber(oldSelectionInfo[0]), originals.get(originalSents.get(oldSelectionInfo[0])));//new old
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							originals.remove(originalSents.get(oldSelectionInfo[0]));
-							originals.put(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged(), taggedDoc.getSentenceNumber(oldSelectionInfo[0]));
+							originals.put(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged(false), taggedDoc.getSentenceNumber(oldSelectionInfo[0]));
 							originalSents.remove(oldSelectionInfo[0]);
-							originalSents.add(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged());
+							originalSents.add(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged(false));
 						}
-						
-//						if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
-//							main.versionControl.addVersion(taggedDoc);
-//							currentCharacterBuffer = 0;
-//						} else
-//							currentCharacterBuffer += 1;
 					}
 					
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
-					if (firstRun){ //NOTE needed a way to make sure that the first time a sentence is clicked, we didn't break stuff... this may not be the best way...
+					
+					// xxx todo xxx get rid of this check (if possible... BEI sets the selectedSentIndexRange)....
+					
+					
+					if (firstRun){ //NOTE needed a way to make sure that the very first time a sentence is clicked (, we didn't break stuff... this may not be the best way...
 						firstRun = false;
 					} else {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
+						System.out.printf("lastSelectedSentIndexRange: start == %d,  end == %d\n", selectedSentIndexRange[0], selectedSentIndexRange[1]);
 						currentSentenceString = main.getDocumentPane().getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
-						
+						System.out.println("Current sentence String: \""+currentSentenceString+"\"");
+						System.out.println("taggedDoc, sentNum == "+lastSentNum+": \"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false) + "\"");
 						//If the sentence didn't change, we don't have to remove and replace it
-						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
+						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 							System.out.println("Hello");
 							main.anonymityDrawingPanel.updateAnonymityBar();
@@ -544,22 +656,24 @@ public class DriverDocumentsTab {
 						
 					}
 					if(setSelectionInfoAndHighlight){
-						selectionInfo = calculateIndicesOfSelectedSentence(caretPositionPriorToCharInsert);
-						selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
-						selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
-						
-						if(!inRange) {
+						currentSentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToAction)[0];
+						System.out.printf("currentSentSelectionInfo (post removeAndReplace): sentNum == %d, start == %d, end == %d\n",currentSentSelectionInfo[0], currentSentSelectionInfo[1], currentSentSelectionInfo[2]);
+						//currentSentNum = currentSentSelectionInfo[0];
+						selectedSentIndexRange[0] = currentSentSelectionInfo[1]; //start highlight
+						selectedSentIndexRange[1] = currentSentSelectionInfo[2]; //end highlight
+						if(!inRange)
 							moveHighlight(main,selectedSentIndexRange,true);
-//							main.versionControl.setMostRecentState(taggedDoc);
-						} else
+						else
 							moveHighlight(main,selectedSentIndexRange,false);
 					}
-					
-					
+					// testing selection with mouse
+					//main.documentPane.setSelectionStart(50);
+					//main.documentPane.setSelectionEnd(100);
+					// end test
 					sentToTranslate = currentSentNum;
 					if (!inRange)
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
-					oldSelectionInfo = selectionInfo;
+					oldSelectionInfo = currentSentSelectionInfo;
 				}
 			}
 		});
@@ -587,13 +701,18 @@ public class DriverDocumentsTab {
 				}
 				else
 				*/
-
-				lastKeyCaretPosition = thisKeyCaretPosition;		
+					lastKeyCaretPosition = thisKeyCaretPosition;
+						
 					
 				
 				//System.out.println("Caret postion registered at keypressed: old: "+oldCaretPosition);
 			}
-
+			
+			/*
+			 * TODO: make the highlighter and sentences track when people type. think about copy and paste and cut and paste too.
+			 */
+			
+			
 			@Override
 			public void keyReleased(KeyEvent arg0) {  
 				/* 	Code		|	key
@@ -655,11 +774,15 @@ public class DriverDocumentsTab {
 					}
 				}
 			}
+			
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 				keyJustTyped = true;
 			}
+				
+			
+		
 		});
 		
 		
@@ -677,7 +800,7 @@ public class DriverDocumentsTab {
 			public void removeUpdate(DocumentEvent e) {
 				//DriverDocumentsTab.displayEditInfo(e);
 				
-				charsInserted = e.getLength();
+				charsRemoved = e.getLength();
 			}
 
 			@Override
@@ -1542,7 +1665,11 @@ public class DriverDocumentsTab {
 //				}
 //			}
 //		}
+//		
+//		
 //	}
+//	
+//	
 } 
 
 	class TheHighlighter extends DefaultHighlighter.DefaultHighlightPainter{
@@ -1600,7 +1727,6 @@ public class DriverDocumentsTab {
 		protected static Highlighter removeTracker;
 		protected static Highlighter addTracker;
 
-		
 		/*
 		 * Highlights the sentence that is currently in the editor box in the main document
 		 * no return
@@ -1610,8 +1736,8 @@ public class DriverDocumentsTab {
 			painter = new DefaultHighlighter.DefaultHighlightPainter(HILIT_COLOR);
 			int startHighlight=0, endHighlight=0;
 			//int sentNum=ConsolidationStation.toModifyTaggedDocs.get(0).getSentNumber();
-			int sentNum = DriverDocumentsTab.currentSentNum;
-			ArrayList<String> sentences=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedSentences();
+			int sentNum = DriverDocumentsTab.getCurrentSentNum();
+			ArrayList<String> sentences=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedSentences(false);
 			main.getDocumentPane().setHighlighter(editTracker);
 //			String newText=ConsolidationStation.toModifyTaggedDocs.get(0).getUntaggedDocument();
 			//main.documentPane.setText(newText);
@@ -1656,6 +1782,7 @@ public class DriverDocumentsTab {
 			boolean added=false;
 			String setString="",tempString;
 			int arrSize=topToRemove.size();
+			System.out.println("DEBUGGING: " + topToRemove.size());
 			for(int i=0;i<arrSize;i++) {//loops through top to remove list
 				if (!topToRemove.get(i).equals("''") && !topToRemove.get(i).equals("``")) {
 					if (PUNCTUATION.contains(topToRemove.get(i).trim()))

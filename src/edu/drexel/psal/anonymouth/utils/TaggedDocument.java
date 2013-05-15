@@ -102,6 +102,7 @@ public class TaggedDocument implements Serializable{
 	public TaggedDocument(String untaggedDocument, String docTitle, String author){
 		this.documentTitle = docTitle;
 		this.documentAuthor = author;
+		eosTracker = new EOSCharacterTracker();
 		this.ID = documentTitle+"_"+documentAuthor;
 		//Logger.logln(NAME+"TaggedDocument ID: "+ID);
 	//	currentLiveTaggedSentences = new ArrayList<TaggedSentence>(5); 
@@ -181,12 +182,12 @@ public class TaggedDocument implements Serializable{
 			tempSent = tempRay[0];
 			tempSentWithEOSSubs = tempRay[1];
 			
-			// todo now deal with EOS.
 			TaggedSentence taggedSentence = new TaggedSentence(tempSent);
 			toke = tlp.getTokenizerFactory().getTokenizer(new StringReader(tempSent));
 			sentenceTokenized = toke.tokenize();
 			taggedSentence.setTaggedSentence(Tagger.mt.tagSentence(sentenceTokenized));
 			consolidateFeatures(taggedSentence);
+			taggedSentence.untaggedWithEOSSubs = tempSentWithEOSSubs;
 			
 			// todo: put stuff here
 			taggedSentences.add(taggedSentence); 
@@ -199,8 +200,28 @@ public class TaggedDocument implements Serializable{
 				totalSentences++;
 				this.taggedSentences.add(taggedSentences.get(i)); 
 			}
+			initializeEOSTracker();
 		}
 		return taggedSentences;
+	}
+	
+	private void initializeEOSTracker(){
+		char[] EOSSubbedDoc = getUntaggedDocument(true).toCharArray();
+		int numChars = EOSSubbedDoc.length;
+		int i;
+		for (i=0; i < numChars; i++){
+			if (EOSSubbedDoc[i] == EOSCharacterTracker.replacementEOS[0]){ // period replacement
+				eosTracker.addEOS(new EOS(EOSSubbedDoc[i],i));
+			}
+			else if (EOSSubbedDoc[i] == EOSCharacterTracker.replacementEOS[1]){ // question mark replacement
+				eosTracker.addEOS(new EOS(EOSSubbedDoc[i],i));
+			}
+			else if (EOSSubbedDoc[i] == EOSCharacterTracker.replacementEOS[2]){ // exclamation point replacement
+				eosTracker.addEOS(new EOS(EOSSubbedDoc[i],i));
+			}
+		}
+		
+		
 	}
 	
 	/**
@@ -216,11 +237,16 @@ public class TaggedDocument implements Serializable{
 	 * returns the untagged sentences of the TaggedDocument
 	 * @return
 	 */
-	public ArrayList<String> getUntaggedSentences()
-	{
+	public ArrayList<String> getUntaggedSentences(boolean returnWithEOSSubs){
 		ArrayList<String> sentences = new ArrayList<String>();
-		for (int i=0;i<taggedSentences.size();i++)
-			sentences.add(taggedSentences.get(i).getUntagged());
+		if (returnWithEOSSubs){
+			for (int i=0;i<taggedSentences.size();i++)
+				sentences.add(taggedSentences.get(i).getUntagged(true));
+		}
+		else{
+			for (int i=0;i<taggedSentences.size();i++)
+				sentences.add(taggedSentences.get(i).getUntagged(false));
+		}
 		return sentences;
 	}
 	
@@ -257,10 +283,12 @@ public class TaggedDocument implements Serializable{
 	
 	/**
 	 * accepts a variable number of TaggedSentences and returns a single TaggedSentence, preserving all original Word objects
+	 * 
+	 * Note that the sentences will be concatenated together in the order that they are passed into the method.
 	 * @param taggedSentences a variable number of TaggedSentences
 	 * @return returns a single tagged sentences with the properties of all the sentences in the list.
 	 */
-	private TaggedSentence concatSentences(TaggedSentence ... taggedSentences){//ArrayList<TaggedSentence> taggedList){
+	public TaggedSentence concatSentences(TaggedSentence ... taggedSentences){//ArrayList<TaggedSentence> taggedList){
 		TaggedSentence toReturn =new TaggedSentence(taggedSentences[0]);
 		int numSents = taggedSentences.length;
 		int i, j;
@@ -273,10 +301,12 @@ public class TaggedDocument implements Serializable{
 	
 	/**
 	 * accepts an ArrayList of TaggedSentences and returns a single TaggedSentence, preserving all original Word objects
+	 * 
+	 * Note that the sentences will be concatenated together in the order that they are passed into the method.
 	 * @param taggedSentences an ArrayList of TaggedSentences
 	 * @return returns a single tagged sentences with the properties of all the sentences in the list.
 	 */
-	private TaggedSentence concatSentences(ArrayList<TaggedSentence> taggedSentences){//ArrayList<TaggedSentence> taggedList){
+	public TaggedSentence concatSentences(ArrayList<TaggedSentence> taggedSentences){//ArrayList<TaggedSentence> taggedList){
 		TaggedSentence toReturn =new TaggedSentence(taggedSentences.get(0));
 		int numSents = taggedSentences.size();
 		int i, j;
@@ -289,6 +319,44 @@ public class TaggedDocument implements Serializable{
 		}
 		return toReturn;
 	}	
+	
+	
+	/**
+	 * Merges the TaggedSentences specified by the indices in 'taggedSentenceIndicesToConcat' into one TaggedSentence.  
+	 * 
+	 * Note that the sentences will be concatenated together in the order that they are passed into the method.
+	 * @param taggedSentenceIndicesToConcat
+	 * @return The TaggedSentence that resulted from the merging
+	 */
+	public TaggedSentence concatSentences(int[] taggedSentenceIndicesToConcat){//ArrayList<TaggedSentence> taggedList){
+		TaggedSentence toReturn =new TaggedSentence(taggedSentences.get(taggedSentenceIndicesToConcat[0]));
+		int numSents = taggedSentenceIndicesToConcat.length;
+		int i, j;
+		TaggedSentence thisTaggedSent;
+		for (i=1;i<numSents;i++){
+			thisTaggedSent = taggedSentences.get(taggedSentenceIndicesToConcat[i]);
+			toReturn.wordsInSentence.addAll(thisTaggedSent.wordsInSentence);
+			toReturn.untagged += thisTaggedSent.untagged;
+			toReturn.sentenceLevelFeaturesFound.merge(thisTaggedSent.sentenceLevelFeaturesFound);
+		}
+		return toReturn;
+	}	
+	
+	/**
+	 * Concatenates the two TaggedSentences (in order), removes the second TaggedSentence, and replaces the first with the concatenated TaggedSentence 
+	 * Takes care of bookkeeping.
+	 * @param taggedSentenceOne the first TaggedSentence
+	 * @param tsOneIndex the first TaggedSentence's index in the TaggedDocument
+	 * @param taggedSentenceTwo the second TaggedSentence
+	 * @param tsTwoIndex the second TaggedSentence's index in the TaggedDocument
+	 * @return
+	 */
+	public TaggedSentence concatRemoveAndReplace(TaggedSentence taggedSentenceOne, int tsOneIndex, TaggedSentence taggedSentenceTwo, int tsTwoIndex){
+		TaggedSentence replaceWith = concatSentences(taggedSentenceOne, taggedSentenceTwo);
+		removeAndReplace(tsTwoIndex, "");// delete the second sentence
+		System.out.println("*** Replacing: "+taggedSentenceOne.getUntagged(false)+"\n*** With: "+replaceWith.getUntagged(false));
+		return removeAndReplace(tsOneIndex,replaceWith);
+	}
 	
 	
 	/**
@@ -334,50 +402,93 @@ public class TaggedDocument implements Serializable{
 	}
 	
 	/**
-	 * removes TaggedSentence at indexToRemove from this TaggedDocument
+	 * removes TaggedSentence at indexToRemove from this TaggedDocument. Does NOT take care of any bookkeeping issues -- should only be called by methods that do (removeAndReplace)
 	 * @param indexToRemove
 	 * @return the removed TaggedSentence
 	 */
-	public TaggedSentence removeTaggedSentence(int indexToRemove){
+	private TaggedSentence removeTaggedSentence(int indexToRemove){
 		return taggedSentences.remove(indexToRemove);
 	}
+	
+	/**
+	 * removes the 'TaggedSentence's at the specified indicesToRemove from this TaggedDocument. Takes care of bookkeeping issues.
+	 * @param indicesToRemove
+	 * @return an array of the removed TaggedSentences
+	 */
+	public TaggedSentence[] removeTaggedSentences(int[] indicesToRemove){
+		int i;
+		int numToRemove = indicesToRemove.length;
+		TaggedSentence[] removed = new TaggedSentence[numToRemove];
+		for (i = 0; i < numToRemove; i++)
+			removed[i] = removeAndReplace(indicesToRemove[i],"");
+		return removed;
+	}
+
 
 	
 	/**
 	 * 
 	 * @param sentsToAdd a String representing the sentence(s) from the editBox
-	 * @return 1 if everything worked as expected. 0 if user deleted a sentence. -1 if user submitted an incomplete sentence
+	 * @return the TaggedSentence that was removed
 	 */
-	public int removeAndReplace(int sentNumber, String sentsToAdd){//, int indexToRemove, int placeToAdd){
+	public TaggedSentence removeAndReplace(int sentNumber, String sentsToAdd){//, int indexToRemove, int placeToAdd){
 		TaggedSentence toReplace = taggedSentences.get(sentNumber);
 		Logger.logln(NAME+"removing: "+toReplace.toString());
 		Logger.logln(NAME+"adding: "+sentsToAdd);
-		if(sentsToAdd.matches("\\s*")){//checks to see if the user deleted the current sentence
+		if(sentsToAdd.matches("^\\s*$")){//checks to see if the user deleted the current sentence
 			//CALL COMPARE
-			removeTaggedSentence(sentNumber);
+			TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
 			Logger.logln(NAME+"User deleted a sentence.");
 			updateReferences(toReplace,new TaggedSentence(""));//all features must be deleted
 			totalSentences--;
-			return 0;
+			return wasReplaced;
 		}
 		ArrayList<TaggedSentence> taggedSentsToAdd = makeAndTagSentences(sentsToAdd,false);
 		Scanner s = new Scanner(System.in);
-		removeTaggedSentence(sentNumber);
-		addTaggedSentence(taggedSentsToAdd.get(0),sentNumber);
+		TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
+		totalSentences--;
 		//call compare
 		int i;
 		int len = taggedSentsToAdd.size();
-		for(i=1;i<len;i++){
-			sentNumber++;
+		for(i = 0; i < len; i++){
 			//removeTaggedSentence(sentNumber);
 			addTaggedSentence(taggedSentsToAdd.get(i),sentNumber);
+			sentNumber++;
 			totalSentences++;
 		}
 		TaggedSentence concatted = concatSentences(taggedSentsToAdd);
 		System.out.println("TaggedSent to add: "+taggedSentsToAdd.get(0).toString());
 		System.out.println("TaggedSent to remove: "+toReplace.toString());
 		updateReferences(toReplace,concatted);
-		return 1;
+		return wasReplaced;
+	}
+	
+	/**
+	 * Removes the TaggedSentence at 'sentNumber', and switches in 'toAdd' in its place. Takes care of all bookkeeping issues.
+	 * @param sentNumber
+	 * @param toAdd
+	 * @return
+	 */
+	public TaggedSentence removeAndReplace(int sentNumber, TaggedSentence toAdd){//, int indexToRemove, int placeToAdd){
+		TaggedSentence toReplace = taggedSentences.get(sentNumber);
+		Logger.logln(NAME+"removing: "+toReplace.toString());
+		Logger.logln(NAME+"adding: "+toAdd.getUntagged(false));
+		if(toAdd.getUntagged(false).matches("^\\s*$")){//checks to see if the user deleted the current sentence
+			//CALL COMPARE
+			TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
+			Logger.logln(NAME+"User deleted a sentence.");
+			updateReferences(toReplace,new TaggedSentence(""));//all features must be deleted
+			totalSentences--;
+			return wasReplaced;
+		}
+		// no need to subtract one from totalSentences when removing a sentence, because we are putting a new sentence in its place immediatly 
+		TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
+		addTaggedSentence(toAdd,sentNumber);
+		
+		System.out.println("TaggedSent to add: "+toAdd.toString());
+		System.out.println("TaggedSent to remove: "+toReplace.toString());
+		updateReferences(toReplace,toAdd);
+		return wasReplaced;
 	}
 	
 //	public void replaceTaggedSentence(int sentNumber, TaggedSentence sentToAdd) {
@@ -410,17 +521,6 @@ public class TaggedDocument implements Serializable{
 		return taggedSentences;
 	}
 	
-	/**
-	 * Returns the TaggedDocument as a string
-	 * @return
-	 */
-	public String getUntaggedDocument(){
-		String str = "";
-		for (int i=0;i<totalSentences;i++){
-			str+=taggedSentences.get(i).getUntagged();
-		}
-		return str;
-	}
 	
 	public String getUntaggedDocument(boolean returnSubEOS){
 		String str = "";
@@ -431,7 +531,7 @@ public class TaggedDocument implements Serializable{
 		}
 		else{
 			for (int i=0;i<totalSentences;i++){
-				str+=taggedSentences.get(i).getUntagged();
+				str+=taggedSentences.get(i).getUntagged(false);
 			}
 		}
 		return str;
@@ -447,8 +547,10 @@ public class TaggedDocument implements Serializable{
 		double totalAI = 0;
 		int numSents = taggedSentences.size();
 		int i;
+		//System.out.println("NUMSENTS: " + numSents);
 		for (i = 0; i < numSents; i++){
 			totalAI += taggedSentences.get(i).getSentenceAnonymityIndex();
+			//System.out.println("TOTALAI: " + totalAI);
 		}
 		return totalAI;
 	}
@@ -475,12 +577,11 @@ public class TaggedDocument implements Serializable{
 				continue; // not really sure how to handle this...
 			anonIndex += (tempAttrib.getTargetValue())*(tempAttrib.getInfoGain()*(Math.abs(tempAttrib.getFeatureBaselinePercentChangeNeeded())));
 		}
-		
 		return anonIndex;
+		
 	}
 	
-	
-	
+
 	public String toString(){
 		String toReturn = "Document Title: "+documentTitle+" Author: "+documentAuthor+"\n";
 		int len = taggedSentences.size();
@@ -565,6 +666,7 @@ public class TaggedDocument implements Serializable{
 		
 	}
 	
+	
 	/*
 	public static void main(String[] args){
 		String text1 = "people enjoy coffee, especially in the mornings, because it helps to wake me up. My dog is fairly small, but she seems not to realize it when she is around bigger dogs. This is my third testing sentence. I hope this works well.";
@@ -574,6 +676,7 @@ public class TaggedDocument implements Serializable{
 		
 	}
 	*/
+	
 	
 	/**
 	 * Loops through all topAttribute Attributes in DataAnalyzer, and returns the average percent change needed. This is a first stab at some
@@ -590,7 +693,7 @@ public class TaggedDocument implements Serializable{
 		int total_attribs = 0;
 		double total_percent_change = 0;
 		for (Attribute attrib : DataAnalyzer.topAttributes){
-			total_percent_change += Math.abs(attrib.getPercentChangeNeeded(false, false, true));
+			total_percent_change += Math.abs(attrib.getPercentChangeNeeded(false,false,true));
 			total_attribs ++;
 		}
 		double avg_percent_change = total_percent_change/total_attribs;
@@ -610,6 +713,8 @@ public class TaggedDocument implements Serializable{
 			baseline_percent_change_needed = getAvgPercentChangeNeeded(true);
 			can_set_baseline_percent_change_needed = false;
 		}
-	}	
+	}
+
+	
 }
 	

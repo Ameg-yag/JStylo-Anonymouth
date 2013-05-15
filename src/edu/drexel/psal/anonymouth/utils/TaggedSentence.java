@@ -127,7 +127,6 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 			conjugations.add(ts.conjugations.get(i));
 				
 	}
-
 	
 
 	/**
@@ -232,6 +231,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 
 		return true;
 	}
+	
 
 	/**
 	 * Retrieves all Reference objects associated with each word in the sentence, and merges them into a single instance of SparseReferences
@@ -447,14 +447,6 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 
 
 	/**
-	 * returns the untagged version of the sentence
-	 * @return
-	 */
-	public String getUntagged(){
-		return untagged;
-	}
-	
-	/**
 	 * if returnWithEOSSubs
 	 * @param returnWithEOSSubs 
 	 * @return
@@ -468,7 +460,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 
 	public String toString(){
 		return "[ untagged: <"+untagged+"> ||| tagged: "+wordsInSentence.toString()+" ||| SparseReferences Object: "+getReferences().toString()+" ]";
-		//||| tense: "+tense.toString()+" ||| point of view: "+pointOfView.toString()+" conjugation(s): "+conjugations.toString()+" ]";// ||| functionWords : "+functionWords.toString()+" ]";
+		//||| tense: "+tense.toString()+" ||| point of view: "+pointOfView.toString()+" conjugation(s): "+conj.toString()+" ]";// ||| functionWords : "+functionWords.toString()+" ]";
 	}
 
 	/* TODO: 'tagged' no longer holds tagged words.
@@ -483,9 +475,6 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 		return wordsToReturn;
 	}
 	*/
-	
-	
-	
 
 }
 
@@ -493,9 +482,9 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 if(temp.tag().startsWith("VB")){
 	//it is a verb 
 	switch(TheTags.valueOf((temp.tag()))){
-	case VB: conjugations.add(CONJ.SIMPLE);//"Verb, base form";
+	case VB: conj.add(CONJ.SIMPLE);//"Verb, base form";
 	case VBD: tense.add(TENSE.PAST);
-				conjugations.add(CONJ.SIMPLE); // "Verb, past tense";
+				conj.add(CONJ.SIMPLE); // "Verb, past tense";
 	//case "VBG": // "Verb, gerund or present participle";
 	//case "VBN": // "Verb, past participle";
 	case VBP: tense.add(TENSE.PRESENT);// "Verb, non-3rd person singular present";

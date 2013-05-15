@@ -50,7 +50,7 @@ public class DriverTranslationsTab implements ActionListener {
 		} else if (!PropertiesUtil.getDoTranslations()) {
 			main.notTranslated.setText("You have turned translations off.");
 			main.translationsHolderPanel.add(main.notTranslated, "");
-		} else if (Translator.translatedSentences.contains(sentence.getUntagged())) {
+		} else if (Translator.translatedSentences.contains(sentence.getUntagged(false))) {
 			arrow_up = GUIMain.arrow_up;
 			arrow_down = GUIMain.arrow_down;
 			
@@ -84,7 +84,7 @@ public class DriverTranslationsTab implements ActionListener {
 				// set up translation text area
 				translationTextAreas[i] = new JTextPane();
 				translationTextAreas[i].setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
-				translationTextAreas[i].setText(translations.get(i).getUntagged().trim());
+				translationTextAreas[i].setText(translations.get(i).getUntagged(false).trim());
 				translationTextAreas[i].setEditable(false);
 
 				translationButtons[i] = new JButton();
@@ -131,7 +131,7 @@ public class DriverTranslationsTab implements ActionListener {
 //			DriverDocumentsTab.currentCharacterBuffer += 1;
 		
 		GUIMain.saved = false;
-		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(), true);
+		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(false), true);
 		GUIMain.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
 		main.anonymityDrawingPanel.updateAnonymityBar();
 		
