@@ -273,6 +273,31 @@ public class DriverDocumentsTab {
 		
 		main.versionControl.setMostRecentState(taggedDoc);
 	}
+	
+	/**
+	 * Does the same thing as <code>removeReplaceAndUpdate</code>, except it doesn't remove and replace. 
+	 * It simply updates the text editor box with the contents of <code>taggedDoc</code>,
+	 * sets the caret to <code>caretPositionPriorToCharInsertion</code>,
+	 * and moves the highlight the sentence that the caret has been moved to.
+	 * @param main
+	 * @param shouldUpdate
+	 */
+	public static void update(GUIMain main, Boolean shouldUpdate) {
+		if (shouldUpdate) {
+			ignoreNumActions = 3;
+			main.getDocumentPane().setText(taggedDoc.getUntaggedDocument(false));
+			main.getDocumentPane().getCaret().setDot(caretPositionPriorToCharInsertion);
+			main.getDocumentPane().setCaretPosition(caretPositionPriorToCharInsertion);	
+		}
+		
+		int[] selectionInfo = calculateIndicesOfSentences(caretPositionPriorToCharInsertion)[0];
+		currentSentNum = selectionInfo[0];
+		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
+		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
+		//System.out.printf("highlighting from %d to %d, selected sent. num is %d\n",selectionInfo[1],selectionInfo[2],selectionInfo[0]);
+		moveHighlight(main,selectedSentIndexRange,true);
+	}
+
 
 //	protected static void replaceTaggedSentenceAndUpdate(GUIMain main, int sentenceNumberToRemove, TaggedSentence sentenceToReplaceWith, boolean shouldUpdate) {
 //		main.saved = false;
@@ -623,6 +648,8 @@ public class DriverDocumentsTab {
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
+							System.out.println("Hello");
+							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
 							main.saved = false;
 						}

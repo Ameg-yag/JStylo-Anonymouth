@@ -592,6 +592,81 @@ public class TaggedDocument implements Serializable{
 		return toReturn;
 	}
 	
+	
+	/**
+	 * Constructor for TaggedDocument. Essentially does a deep copy of the input TaggedDocument.
+	 * @param td
+	 */
+	public TaggedDocument(TaggedDocument td){
+		int i;
+		int j;
+		int numTaggedSents = td.taggedSentences.size();
+		int numArrayLists;
+		int numValues;
+		
+		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
+		// copy TaggedSentences
+		for(i = 0; i < numTaggedSents; i++)
+			taggedSentences.add(new TaggedSentence(td.taggedSentences.get(i)));
+		// copy document author and title (Strings are immutable)
+		documentAuthor = td.documentAuthor;
+		documentTitle = td.documentTitle;
+		
+		// copy the ArrayLists of ArrayLists of grammar related concepts
+		// first tenses
+//		numArrayLists = td.tenses.size();
+//		ArrayList<ArrayList<TENSE>> tempTenses = new ArrayList<ArrayList<TENSE>>(numArrayLists);
+//		for(i = 0; i < numArrayLists; i++){
+//			ArrayList<TENSE> tempOld = td.tenses.get(i);
+//			numValues = tempOld.size();
+//			ArrayList<TENSE> tempPartialTenses = new ArrayList<TENSE>(numValues);
+//			for(j = 0; j < numValues; j++){
+//				tempPartialTenses.add(tempOld.get(j));
+//			}
+//			tempTenses.add(tempPartialTenses);
+//		}
+//		tenses = tempTenses;
+		
+		// then points of view
+//		numArrayLists = td.pointsOfView.size();
+//		ArrayList<ArrayList<POV>> tempPOVs = new ArrayList<ArrayList<POV>>(numArrayLists);
+//		for(i = 0; i < numArrayLists; i++){
+//			ArrayList<POV> tempOld = td.pointsOfView.get(i);
+//			numValues = tempOld.size();
+//			ArrayList<POV> tempPartialPOVs = new ArrayList<POV>(numValues);
+//			for(j = 0; j < numValues; j++){
+//				tempPartialPOVs.add(tempOld.get(j));
+//			}
+//			tempPOVs.add(tempPartialPOVs);
+//		}
+//		pointsOfView = tempPOVs;
+
+		// and then conjugations
+//		numArrayLists = td.conjugations.size();
+//		ArrayList<ArrayList<CONJ>> tempConjugations = new ArrayList<ArrayList<CONJ>>(numArrayLists);
+//		for(i = 0; i < numArrayLists; i++){
+//			ArrayList<CONJ> tempOld = td.conjugations.get(i);
+//			numValues = tempOld.size();
+//			ArrayList<CONJ> tempPartialConjugations= new ArrayList<CONJ>(numValues);
+//			for(j = 0; j < numValues; j++){
+//				tempPartialConjugations.add(tempOld.get(j));
+//			}
+//			tempConjugations.add(tempPartialConjugations);
+//		}
+//		conjugations = tempConjugations;
+		
+		// Next copy the ID (not really sure what this is, but I don't see a good reason to throw it out)
+		ID = td.ID;
+		
+		// Then the total number of sentences (could probably chuck ths)
+		totalSentences = td.totalSentences;
+		
+		// Finally, copy the eosTracker (EOSCharacterTracker)
+		eosTracker = new EOSCharacterTracker(td.eosTracker);
+		
+	}
+	
+	
 	/*
 	public static void main(String[] args){
 		String text1 = "people enjoy coffee, especially in the mornings, because it helps to wake me up. My dog is fairly small, but she seems not to realize it when she is around bigger dogs. This is my third testing sentence. I hope this works well.";

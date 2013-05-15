@@ -44,7 +44,7 @@ public class ThePresident {
 	public static String SER_DIR = "./.serialized_objects/";
 	public static String GRAMMAR_DIR = "grammar_data/";//TODO: put in "options"
 	//public static boolean SHOULD_KEEP_TEMP_CLEAN_DOCS = false; // TODO : put in "options" XXX not used!!
-	public static boolean SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = PropertiesUtil.getAutoSave(); // TODO: put in "options"
+	public static boolean SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = PropertiesUtil.getAutoSave();
 	public static boolean SAVE_TAGGED_DOCUMENTS = true; // TODO: put in "options
 	public static int MAX_FEATURES_TO_CONSIDER = PropertiesUtil.getMaximumFeatures(); // todo: put in 'options', and figure out an optimal number (maybe based upon info gain, total #, etc.)... basically, when the processing time outweighs the benefit, that should be our cutoff.
 	public static int NUM_TAGGING_THREADS = PropertiesUtil.getThreadCount();

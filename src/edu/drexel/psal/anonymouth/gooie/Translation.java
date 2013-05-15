@@ -1,6 +1,5 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +26,8 @@ public class Translation {
 	private static ArrayList<String> clients;
 	private static int current = 0;
 	private static Boolean translationFound = false;
+	private static int accountsTried = 0;
+	private static int numOfAccounts;
 	private static int tries = MAXNUMOFTRIES;
 	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
@@ -115,6 +116,8 @@ public class Translation {
 		clientsAndSecrets.put(clients.get(7), "tz1OrF0BdiMdowk7CC3ZpkLA0y23baO1EBWphT+GPL0=");
 		clientsAndSecrets.put(clients.get(8), "THQLVzCfATeZmhiA6UOPXc4ml7FaxcBoP3NJIgCgoRs=");
 		clientsAndSecrets.put(clients.get(9), "Xs7OIXhpL/bxr++EUguRAcD8tsuW3wwThas9gHwCa0o=");
+	
+		numOfAccounts = clients.size();
 	}
 	
 	public static String getTranslation(String original, Language other)
@@ -124,13 +127,13 @@ public class Translation {
 	    
 		while (tries > 0) {
 			try {
-		    	String backToenglish;
+		    	String backToEnglish;
 		    	
 		    	do {
 		    		String translatedText = Translate.execute(original, Language.ENGLISH,other);
-					backToenglish = Translate.execute(translatedText,other,Language.ENGLISH);
+					backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
 					
-					if (backToenglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
+					if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
 						if (current+1 >= clients.size())
 							current = 0;
 						else
@@ -138,11 +141,15 @@ public class Translation {
 						Translate.setClientId(clients.get(current));
 						Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
 						translationFound = false;
+						accountsTried++;
 					} else
 						translationFound = true;
-		    	} while (!translationFound);
+		    	} while (!translationFound && accountsTried < numOfAccounts);
 				
-				return backToenglish;
+		    	if (accountsTried >= numOfAccounts)
+		    		break;
+		    	else
+		    		return backToEnglish;
 				
 			} catch (Exception e) {
 				Logger.logln(NAME+"Could not load translations (may not be connected to the internet. Will try again.", LogOut.STDOUT);
@@ -150,10 +157,15 @@ public class Translation {
 			}
 		}
 		
-		if (tries <= 0)
-			Logger.logln(NAME+"Tranlations could not be obtained, will now stop.", LogOut.STDERR);
-	    
-	    return null;
+		if (tries <= 0) {
+			Logger.logln(NAME+"Translations could not be obtained, no internet connection. Will now stop.", LogOut.STDERR);
+			return "internet";
+		} else if (accountsTried >= numOfAccounts) {
+			Logger.logln(NAME+"Translations could not be obtained, all accounts used. Will now stop.", LogOut.STDERR);
+			return "account";
+		} else {
+			return null;
+		}
 	}
 	
 	/**
