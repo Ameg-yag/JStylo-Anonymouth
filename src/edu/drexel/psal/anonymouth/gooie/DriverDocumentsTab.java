@@ -536,6 +536,8 @@ public class DriverDocumentsTab {
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged().equals(currentSentenceString)) {
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
+							System.out.println("Hello");
+							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
 							main.saved = false;
 						}

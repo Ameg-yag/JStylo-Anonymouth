@@ -385,7 +385,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		protected JPanel anonymityPanel;
 		protected JLabel anonymityLabel;
 		protected AnonymityDrawingPanel anonymityDrawingPanel;
-		protected JTextPane anonymityDescription;
+		protected JLabel anonymityDescription;
 		
 	//--------------------------------------------------------------------
 		
@@ -470,6 +470,9 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected ClustersTutorial clustersTutorial;
 	protected VersionControl versionControl;
 	protected ResultsWindow resultsWindow;
+	
+	protected JPanel anonymityHoldingPanel;
+	protected JScrollPane anonymityScrollPane;
 	
 	private int resultsHeight;
 	protected Map<Integer, ArrayList<int[]>> highlights = new HashMap<Integer, ArrayList<int[]>>();
@@ -621,6 +624,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			setExtendedState(MAXIMIZED_BOTH);
 			Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 			this.setSize(new Dimension((int)(screensize.width*.75), (int)(screensize.height*.75)));
+			this.setMinimumSize(new Dimension(800, 600));
 			this.setTitle("Anonymouth");
 			this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
 			
@@ -803,7 +807,6 @@ public class GUIMain extends javax.swing.JFrame  {
 		panels.put("Translations", translationsPanel);
 		panels.put("Document", documentsPanel);
 		panels.put("Anonymity", anonymityPanel);
-//		panels.put("Results", resultsPanel);
 		
 		ArrayList<PropertiesUtil.Location> panelLocations = new ArrayList<PropertiesUtil.Location>();
 		panelLocations.add(PropertiesUtil.getPreProcessTabLocation());
@@ -823,7 +826,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		}
 		if (panelLocations.contains(PropertiesUtil.Location.TOP) || panelLocations.contains(PropertiesUtil.Location.BOTTOM))
 		{
-			columnString = columnString.concat("[grow, growprio 110, fill]");
+			columnString = columnString.concat("[grow, fill]");
 			columnNumber++;
 		}
 		if (panelLocations.contains(PropertiesUtil.Location.RIGHT))
@@ -849,9 +852,6 @@ public class GUIMain extends javax.swing.JFrame  {
 				columnString, // column constraints
 				rowString)); // row constraints)
 		
-		//------ fix all the layouts you need to
-		fixLayouts();
-		
 		// ------ add all tabs to their correct tab panes
 		for (int i = 0; i < panels.size(); i++)
 		{
@@ -869,13 +869,13 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 		// ------ add all tab panes, if they need to be added
 		if (panelLocations.contains(PropertiesUtil.Location.LEFT))
-			getContentPane().add(leftTabPane, "width 200!, spany");
+			getContentPane().add(leftTabPane, "width 200!, spany, shrinkprio 1");
 		if (panelLocations.contains(PropertiesUtil.Location.TOP))
-			getContentPane().add(topTabPane, "width 600:100%:, grow");
+			getContentPane().add(topTabPane, "width 100:400:, grow, shrinkprio 3");
 		if (panelLocations.contains(PropertiesUtil.Location.RIGHT))
-			getContentPane().add(rightTabPane, "width ::353, spany"); // MUST be at LEAST 353 for Mac OS X. 
+			getContentPane().add(rightTabPane, "width :353:353, spany, shrinkprio 2"); // MUST be at LEAST 353 for Mac OS X. 
 		if (panelLocations.contains(PropertiesUtil.Location.BOTTOM))
-			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:");
+			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:, shrinkprio 3");
 		
 		rightTabPane.addChangeListener(new ChangeListener() {
 			@Override
@@ -889,42 +889,6 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 		getContentPane().revalidate();
 		getContentPane().repaint();
-	}
-	
-	/**
-	 * Adjusts a tabs layout based on its location property. If this is not done, the tab will be arranged for the wrong location.
-	 */
-	public void fixLayouts()
-	{	
-		PropertiesUtil.Location anonymityLocation = PropertiesUtil.getAnonymityTabLocation();
-		if (anonymityLocation == PropertiesUtil.Location.LEFT || anonymityLocation == PropertiesUtil.Location.RIGHT)
-		{
-			anonymityPanel.setLayout(new MigLayout(
-					"wrap, ins 0, gap 0 0",
-					"grow, fill",
-					"[][grow, fill][]"));
-			
-			anonymityPanel.removeAll();
-			anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(anonymityDrawingPanel, "growy");
-			anonymityPanel.add(anonymityDescription, "h 90!");
-			anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(resultsScrollPane, "grow");
-		}
-		else if (anonymityLocation == PropertiesUtil.Location.TOP)
-		{
-			anonymityPanel.setLayout(new MigLayout(
-					"wrap 2, fill, ins 0, gap 0",
-					"[70%][30%]",
-					"[][][grow, fill]"));
-			
-			anonymityPanel.removeAll();
-			anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(anonymityDrawingPanel, "growy");
-			anonymityPanel.add(anonymityDescription, "h 70!");
-			anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-			anonymityPanel.add(resultsScrollPane, "grow");
-		}
 	}
 	
 	public boolean documentsAreReady()
@@ -1060,10 +1024,10 @@ public class GUIMain extends javax.swing.JFrame  {
 		preProcessPanel.setLayout(settingsLayout);
 		prepDocumentsPanel = new JPanel();
 		MigLayout documentsLayout = new MigLayout(
-				"fill, wrap 4, ins 0, gap 0 5",
-				"grow 25, fill, center");
+				"wrap, ins 0, gap 0 5",
+				"grow, fill, center",
+				"[][grow, fill][]");
 		prepDocumentsPanel.setLayout(documentsLayout);
-		//prepDocumentsPanel.setBorder(BorderFactory.createMatteBorder(1,1,1,1,Color.BLACK));
 		{
 			// Advanced Button
 			prepAdvButton = new JButton("Advanced");
@@ -1077,6 +1041,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepDocLabel.setBackground(notReady);
 			
 			problemSetLabel = new JLabel("Problem Set:");
+			problemSetLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			
 			// Save Problem Set button
 			saveProblemSetJButton = new JButton("Save");
@@ -1134,34 +1099,34 @@ public class GUIMain extends javax.swing.JFrame  {
 			// train delete button
 			removeTrainDocsJButton = new JButton("-");
 			
-			prepDocumentsPanel.add(prepDocLabel, "span, h " + titleHeight + "!");
-			prepDocumentsPanel.add(problemSetLabel, "span, w 60::150, growx, alignx 71%, wrap");
-			prepDocumentsPanel.add(saveProblemSetJButton, "span 4, split 3");
-			prepDocumentsPanel.add(loadProblemSetJButton);
-			prepDocumentsPanel.add(clearProblemSetJButton, "wrap");
+			prepDocumentsPanel.add(prepDocLabel, "h " + titleHeight + "!, wrap");
+			prepDocumentsPanel.add(problemSetLabel, "alignx 50%, wrap");
+			prepDocumentsPanel.add(saveProblemSetJButton, "span 4, split 3, w 20::");
+			prepDocumentsPanel.add(loadProblemSetJButton, "w 20::");
+			prepDocumentsPanel.add(clearProblemSetJButton, "wrap, w 20::");
 			JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
-			separator.setPreferredSize(new Dimension(100, 75));
-			prepDocumentsPanel.add(separator, "span 4, wrap");
-			prepDocumentsPanel.add(mainLabel, "span 2");
-			prepDocumentsPanel.add(sampleLabel, "span 2");
-			prepDocumentsPanel.add(prepMainDocScrollPane, "span 2, growy, h 60::180, w 60::150");
-
-			prepDocumentsPanel.add(prepSampleDocsScrollPane, "span 2, growy, h 60::180, w 60::150");
-			prepDocumentsPanel.add(addTestDocJButton);
-			prepDocumentsPanel.add(removeTestDocJButton);
-
-			prepDocumentsPanel.add(adduserSampleDocJButton);
-			prepDocumentsPanel.add(removeuserSampleDocJButton);
+			prepDocumentsPanel.add(separator, "span 4, wrap, h 13!");
+			prepDocumentsPanel.add(mainLabel, "split, w 50%");
+			prepDocumentsPanel.add(sampleLabel, "wrap, w 50%");
+			prepDocumentsPanel.add(prepMainDocScrollPane, "split, h 20:100:180, w 30:60:150, w 50%");
+			prepDocumentsPanel.add(prepSampleDocsScrollPane, "h 20:100:180, w 30:60:150, wrap, w 50%, wrap");
+			
+			prepDocumentsPanel.add(addTestDocJButton, "split 4, w 10::, gap 0");
+			prepDocumentsPanel.add(removeTestDocJButton, "w 10::, gap 0");
+			prepDocumentsPanel.add(adduserSampleDocJButton, "w 10::, gap 0");
+			prepDocumentsPanel.add(removeuserSampleDocJButton, "wrap, w 10::, gap 0");
+			
 			prepDocumentsPanel.add(trainLabel, "span");
-			prepDocumentsPanel.add(trainCorpusJTreeScrollPane, "span, growy, h 120::");
-			prepDocumentsPanel.add(addTrainDocsJButton, "span 2");
-			prepDocumentsPanel.add(removeTrainDocsJButton, "span 2");
+			prepDocumentsPanel.add(trainCorpusJTreeScrollPane, "span, h 25::345");
+			prepDocumentsPanel.add(addTrainDocsJButton, "split 2, w 10::");
+			prepDocumentsPanel.add(removeTrainDocsJButton, "w 10::");
 		}
 		
 		prepFeaturesPanel = new JPanel();
 		MigLayout featuresLayout = new MigLayout(
-				"fill, wrap 2, ins 0, gap 0 5",
-				"fill");
+				"wrap, ins 0, gap 0 5",
+				"grow, fill",
+				"[][grow, fill][]");
 		prepFeaturesPanel.setLayout(featuresLayout);
 		{
 			prepFeatLabel = new JLabel("Features:");
@@ -1181,16 +1146,16 @@ public class GUIMain extends javax.swing.JFrame  {
 			featuresSetJComboBox = new JComboBox();
 			featuresSetJComboBox.setModel(featuresSetJComboBoxModel);
 			
-			prepFeaturesPanel.add(prepFeatLabel, "span 2, h " + titleHeight + "!");
-			prepFeaturesPanel.add(label);
-			prepFeaturesPanel.add(featuresSetJComboBox);
+			prepFeaturesPanel.add(prepFeatLabel, "h " + titleHeight + "!, wrap");
+			prepFeaturesPanel.add(label, "split");
+			prepFeaturesPanel.add(featuresSetJComboBox, "w 30:100%:");
 		}
 		
 		prepClassifiersPanel = new JPanel();
 		MigLayout classLayout = new MigLayout(
-				"fill, wrap 2, ins 0, gap 0 5",
-				"center, fill, grow",
-				"grow, fill");
+				"wrap, ins 0, gap 0 5",
+				"grow, fill",
+				"[][grow, fill][]");
 		prepClassifiersPanel.setLayout(classLayout);
 		{
 			prepClassLabel = new JLabel("Classifiers:");
@@ -1204,8 +1169,8 @@ public class GUIMain extends javax.swing.JFrame  {
 
 			DriverPreProcessTabClassifiers.initMainWekaClassifiersTree(this);
 			
-			prepClassifiersPanel.add(prepClassLabel, "span 2, h " + titleHeight + "!");
-			prepClassifiersPanel.add(classChoice);
+			prepClassifiersPanel.add(prepClassLabel, "h " + titleHeight + "!, wrap");
+			prepClassifiersPanel.add(classChoice, "w 30:100%:");
 		}
 		preProcessPanel.add(prepDocumentsPanel, "growx");
 		preProcessPanel.add(prepFeaturesPanel, "growx");
@@ -1450,9 +1415,9 @@ public class GUIMain extends javax.swing.JFrame  {
 		anonymityPanel = new JPanel();
 		if (location == PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
 			anonymityPanel.setLayout(new MigLayout(
-					"wrap, ins 0",
+					"wrap, ins 0, gap 0 0",
 					"grow, fill",
-					"0[]0[grow, fill][]0"));
+					"[][grow, fill][]"));
 		else if (location == PropertiesUtil.Location.TOP)
 			anonymityPanel.setLayout(new MigLayout(
 					"wrap 2, fill, ins 0, gap 0",
@@ -1471,19 +1436,24 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			anonymityDrawingPanel = new AnonymityDrawingPanel(this);
 			
-			anonymityDescription = new JTextPane();
-			anonymityDescription.setDragEnabled(false);
-			anonymityDescription.setEditable(false);
-			anonymityDescription.setFocusable(false);
+			anonymityDescription = new JLabel();
 			anonymityDescription.setFont(new Font("Helvatica", Font.PLAIN, 15));
-			anonymityDescription.setText("Test document must be processed to recieve results");
+			anonymityDescription.setText("<html><center>Test document must<br>be processed to<br>recieve results</center></html>");
+//			anonymityDescription.setHorizontalAlignment(SwingConstants.LEFT);
 			
-			StyledDocument doc = anonymityDescription.getStyledDocument();
-			SimpleAttributeSet center = new SimpleAttributeSet();
-			StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
-			doc.setParagraphAttributes(0, doc.getLength(), center, false);
+			anonymityHoldingPanel = new JPanel();
+			anonymityHoldingPanel.setBackground(Color.WHITE);
+			anonymityHoldingPanel.setLayout(new MigLayout(
+					"wrap, ins 0, gap 0 0",
+					"grow, fill",
+					"[][grow, fill][]"));
+			anonymityHoldingPanel.add(anonymityDrawingPanel, "h 494!, pad -10 0");
+			anonymityHoldingPanel.add(anonymityDescription, "alignx 5, growy, w ::150, gap 0 5");
 			
-			resultsTableLabel = new JLabel("Classification Results:");
+			anonymityScrollPane = new JScrollPane(anonymityHoldingPanel);
+			anonymityScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			
+			resultsTableLabel = new JLabel("Results:");
 			resultsTableLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			resultsTableLabel.setFont(titleFont);
 			resultsTableLabel.setOpaque(true);
@@ -1497,26 +1467,16 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			if (location== PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
 			{
-				anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(anonymityDrawingPanel, "");
-				anonymityPanel.add(anonymityDescription, "hmax 70");
-				anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(resultsScrollPane, "grow");
+				anonymityPanel.add(anonymityLabel, "h " + titleHeight + "!, width 100:220:220");
+				anonymityPanel.add(anonymityScrollPane, "h 200::, width 100:220:220");
+				anonymityPanel.add(resultsTableLabel, "h " + titleHeight + "!, width 100:220:220");
+				anonymityPanel.add(resultsScrollPane, "h 80:114:200, width 100:220:220");
 			}
-			else if (location == PropertiesUtil.Location.TOP)
-			{
-				anonymityPanel.add(anonymityLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(anonymityDrawingPanel, "");
-				anonymityPanel.add(anonymityDescription, "hmax 70");
-				anonymityPanel.add(resultsTableLabel, "spanx, grow, h " + titleHeight + "!");
-				anonymityPanel.add(resultsScrollPane, "grow");
-			}
-			else
-				throw new Exception();
 		}
 		return anonymityPanel;
 	}
 	
+	@SuppressWarnings("serial")
 	private void makeResultsPanel() {
 		resultsMainPanel = new JPanel() {
 			public void paintComponent(Graphics g) {
@@ -1524,7 +1484,6 @@ public class GUIMain extends javax.swing.JFrame  {
 				Graphics2D g2d = (Graphics2D)g;
 				
 				if (resultsAreReady()) {
-					resultsMainPanel.setPreferredSize(new Dimension(179, 200));
 					resultsLabel.setText("");
 					resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 					
@@ -1535,7 +1494,7 @@ public class GUIMain extends javax.swing.JFrame  {
 					resultsMainPanel.setPreferredSize(new Dimension(160, resultsHeight));
 					g2d.drawImage(resultsWindow.getPanelChart(170, resultsHeight), -10, -6, null);
 				} else {
-					resultsLabel.setText("<html><center>Please process your<br>document to recieve<br>results.</center></html>");
+					resultsLabel.setText("<html><center>Please process your<br>document to<br>recieve results.</center></html>");
 				}
 			}
 		};
@@ -1543,13 +1502,12 @@ public class GUIMain extends javax.swing.JFrame  {
 		resultsLabel.setFont(new Font("Helvatica", Font.PLAIN, 15));
 		resultsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		resultsMainPanel.setPreferredSize(new Dimension(179, 110));
+		resultsMainPanel.setPreferredSize(new Dimension(175, 110));
 		resultsMainPanel.add(resultsLabel);
 		
 		resultsScrollPane = new JScrollPane(resultsMainPanel);
 		resultsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-
+//		resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 	}
 	
 	public JTextPane getDocumentPane() {

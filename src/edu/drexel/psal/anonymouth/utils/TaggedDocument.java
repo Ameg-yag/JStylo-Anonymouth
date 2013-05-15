@@ -447,10 +447,8 @@ public class TaggedDocument implements Serializable{
 		double totalAI = 0;
 		int numSents = taggedSentences.size();
 		int i;
-		System.out.println("NUMSENTS: " + numSents);
 		for (i = 0; i < numSents; i++){
 			totalAI += taggedSentences.get(i).getSentenceAnonymityIndex();
-			System.out.println("TOTALAI: " + totalAI);
 		}
 		return totalAI;
 	}
@@ -477,8 +475,8 @@ public class TaggedDocument implements Serializable{
 				continue; // not really sure how to handle this...
 			anonIndex += (tempAttrib.getTargetValue())*(tempAttrib.getInfoGain()*(Math.abs(tempAttrib.getFeatureBaselinePercentChangeNeeded())));
 		}
-		return anonIndex;
 		
+		return anonIndex;
 	}
 	
 	
@@ -592,13 +590,7 @@ public class TaggedDocument implements Serializable{
 		int total_attribs = 0;
 		double total_percent_change = 0;
 		for (Attribute attrib : DataAnalyzer.topAttributes){
-			System.out.println(attrib.toString());
-			System.out.println("    " + attrib.getPercentChangeNeeded(false, false, true));
-			System.out.println("    " + attrib.getFeatureBaselinePercentChangeNeeded());
-			System.out.println("    " + attrib.getTargetValue());
-			System.out.println("    " + attrib.getToModifyValue());
-			//attrib.getPercentChangeNeeded(false, false, true) always returns non-negative values, Math.abs is not needed.
-			total_percent_change += attrib.getPercentChangeNeeded(false, false, true);
+			total_percent_change += Math.abs(attrib.getPercentChangeNeeded(false, false, true));
 			total_attribs ++;
 		}
 		double avg_percent_change = total_percent_change/total_attribs;

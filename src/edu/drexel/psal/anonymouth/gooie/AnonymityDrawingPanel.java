@@ -7,15 +7,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
-import java.io.File;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import edu.drexel.psal.JSANConstants;
-import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -82,7 +79,7 @@ public class AnonymityDrawingPanel extends JPanel {
 		public void setPercentages(int percentage, int maxPercentage) {
 			if (maxPercentage >= 0 && percentage >= 0 && percentage <= maxPercentage) {
 				setRatio(percentage, maxPercentage);
-				curPercent = (int)(getRatio() * 100);
+				curPercent = (int)(getRatio() * 100 + .5);
 				maxPercent = 100;
 				
 				setValue();
@@ -135,6 +132,7 @@ public class AnonymityDrawingPanel extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		this.setBackground(Color.WHITE);
+		this.setSize(220, 504);
 		
 		Graphics2D g2d = (Graphics2D)g;
 		g2d.setStroke(new BasicStroke(1f));
@@ -193,10 +191,17 @@ public class AnonymityDrawingPanel extends JPanel {
 	 * for the first time) so that the arrow may move accordingly
 	 */
 	public void updateAnonymityBar() {
-		pointer.setPercentages((int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5), (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5));
-		main.anonymityDescription.setText("About " +
+		int percent = (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5);
+		int max = (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5);
+//		percent = max / percent;
+//		max = 100;
+		
+		System.out.println(percent + " / " + max + " = " + (percent / max));
+		
+		pointer.setPercentages(percent, max);
+		main.anonymityDescription.setText("<html><center>About " +
 				getAvgPercentChangeNeeded() +
-				"% of your document needs to be changed for it to be considered anonymous");
+				"% of your<br>document needs to<br>be changed for it to<br>be considered<br>anonymous</center><html>");
 		repaint();
 	}
 	
