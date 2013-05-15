@@ -112,6 +112,7 @@ public class DriverPreProcessTabDocuments {
 					main.ps = new ProblemSet();
 					main.ps.setTrainCorpusName(main.defaultTrainDocsTreeName);
 					GUIUpdateInterface.updateProblemSet(main);// todo This needs to be fixed.. someone screwed it up.. (see function for where it fails -- there's a note)
+					PropertiesUtil.setProbSet("");
 				}
 			}
 		};
