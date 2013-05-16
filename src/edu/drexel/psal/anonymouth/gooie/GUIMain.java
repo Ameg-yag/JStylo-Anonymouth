@@ -1400,7 +1400,6 @@ public class GUIMain extends javax.swing.JFrame  {
 				
 				if (resultsAreReady()) {
 					resultsLabel.setText("");
-					resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 					
 					if (resultsWindow.getAuthorSize() <= 20) {
 						resultsHeight = 25 * resultsWindow.getAuthorSize();
@@ -1422,6 +1421,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 		resultsScrollPane = new JScrollPane(resultsMainPanel);
 		resultsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 	}
 	
 	public JTextPane getDocumentPane() {
