@@ -1,7 +1,5 @@
 package edu.drexel.psal.anonymouth.engine;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
 
 import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
@@ -154,11 +152,31 @@ public class VersionControl {
 		mostRecentIndices[1] = main.getDocumentPane().getCaret().getMark() - 1;
 	}
 	
+	/**
+	 * Keeps track of the carat location for each undo/redo saved.
+	 * NOTE: Still needs a good deal of work.
+	 * @param start - the location of the carat
+	 * @param end - the end of the highlight (if any, if none pass same value as start)
+	 */
 	public void updateIndices(int start, int end) {
 		if (indicesUndo.isEmpty())
 			return;
 	
 		indicesUndo.get(0)[0] = start;
 		indicesUndo.get(0)[1] = end;
+	}
+	
+	/**
+	 * Clears all stacks, should be used only for pre-processed documents
+	 */
+	public void reset() {
+		undo.clear();
+		redo.clear();
+		indicesUndo.clear();
+		indicesRedo.clear();
+		mostRecentIndices = new int[2];
+		mostRecentState = null;
+		firstRun = true;
+		newRedo = true;
 	}
 }

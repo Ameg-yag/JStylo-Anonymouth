@@ -790,7 +790,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		if (panelLocations.contains(PropertiesUtil.Location.TOP))
 			getContentPane().add(topTabPane, "width 100:400:, grow, shrinkprio 3");
 		if (panelLocations.contains(PropertiesUtil.Location.RIGHT))
-			getContentPane().add(rightTabPane, "width :353:353, spany, shrinkprio 2"); // MUST be at LEAST 353 for Mac OS X. 
+			getContentPane().add(rightTabPane, "width :353:353, spany, shrinkprio 2");
 		if (panelLocations.contains(PropertiesUtil.Location.BOTTOM))
 			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:, shrinkprio 3");
 
@@ -1025,8 +1025,8 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepDocumentsPanel.add(separator, "span 4, wrap, h 13!");
 			prepDocumentsPanel.add(mainLabel, "split, w 50%");
 			prepDocumentsPanel.add(sampleLabel, "wrap, w 50%");
-			prepDocumentsPanel.add(prepMainDocScrollPane, "split, h 20:100:180, w 30:60:150, w 50%");
-			prepDocumentsPanel.add(prepSampleDocsScrollPane, "h 20:100:180, w 30:60:150, wrap, w 50%, wrap");
+			prepDocumentsPanel.add(prepMainDocScrollPane, "split, h 30:100:180, w 30:60:150, w 50%");
+			prepDocumentsPanel.add(prepSampleDocsScrollPane, "h 30:100:180, w 30:60:150, wrap, w 50%, wrap");
 			
 			prepDocumentsPanel.add(addTestDocJButton, "split 4, w 10::, gap 0");
 			prepDocumentsPanel.add(removeTestDocJButton, "w 10::, gap 0");
@@ -1188,7 +1188,6 @@ public class GUIMain extends javax.swing.JFrame  {
 					}
 				}
 			});
-//			elementsToRemovePane.setText("Please process your document to receive word removal suggestions");
 			elementsToRemovePane.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			elementsToRemovePane.setDragEnabled(false);
 			elementsToRemovePane.setFocusable(false);
@@ -1408,7 +1407,10 @@ public class GUIMain extends javax.swing.JFrame  {
 					resultsMainPanel.setPreferredSize(new Dimension(160, resultsHeight));
 					g2d.drawImage(resultsWindow.getPanelChart(170, resultsHeight), -10, -6, null);
 				} else {
-					resultsLabel.setText("<html><center>Please process your<br>document to<br>recieve results.</center></html>");
+					if (DriverDocumentsTab.isFirstRun)
+						resultsLabel.setText("<html><center>Please process your<br>document to<br>recieve results.</center></html>");
+					else
+						resultsLabel.setText("<html><center>Please wait while<br>re-processing</center></html>");
 				}
 			}
 		};

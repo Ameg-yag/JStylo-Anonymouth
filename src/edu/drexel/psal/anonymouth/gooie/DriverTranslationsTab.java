@@ -124,16 +124,13 @@ public class DriverTranslationsTab implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
 		DriverDocumentsTab.currentCharacterBuffer = 0;
-//		if (DriverDocumentsTab.currentCharacterBuffer >= DriverDocumentsTab.UNDOCHARACTERBUFFER) {
-//			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
-//			DriverDocumentsTab.currentCharacterBuffer = 0;
-//		} else
-//			DriverDocumentsTab.currentCharacterBuffer += 1;
 		
 		GUIMain.saved = false;
 		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(false), true);
 		GUIMain.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
+		
 		main.anonymityDrawingPanel.updateAnonymityBar();
+		SuggestionCalculator.placeSuggestions(main);
 		
 		main.translationsHolderPanel.removeAll();
 		main.notTranslated.setText("Sentence has not been translated yet, please wait or work on already translated sentences.");
@@ -142,5 +139,16 @@ public class DriverTranslationsTab implements ActionListener {
 		main.translationsHolderPanel.repaint();
 		
 		main.versionControl.setMostRecentState(DriverDocumentsTab.taggedDoc);
-	}	
+	}
+	
+	/**
+	 * Resets all variables and clears panel of all translations, to be used for re-processing
+	 */
+	public static void reset() {
+		main.translationsHolderPanel.removeAll();
+		if (PropertiesUtil.getDoTranslations()) {
+			main.notTranslated.setText("Document re-processing, please wait.");
+			main.translationsHolderPanel.add(main.notTranslated, "");
+		}
+	}
 }

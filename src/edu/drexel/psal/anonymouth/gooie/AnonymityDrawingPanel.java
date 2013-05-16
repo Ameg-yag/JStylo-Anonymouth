@@ -211,4 +211,14 @@ public class AnonymityDrawingPanel extends JPanel {
 	public int getAvgPercentChangeNeeded() {
 		return pointer.getMaxPercentage() - pointer.getPercentage();
 	}
+	
+	/**
+	 * Resets the bar to it's default values and image, used for reprocessing.
+	 */
+	public void reset() {
+		showPointer(false);
+		pointer.setPercentages(0, 100);
+		main.anonymityDescription.setText("<html><center>Re-processing...<br>Please Wait</center></html>");
+		repaint();
+	}
 }

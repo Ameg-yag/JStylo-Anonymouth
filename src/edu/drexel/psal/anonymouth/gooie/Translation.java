@@ -2,7 +2,6 @@ package edu.drexel.psal.anonymouth.gooie;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.memetix.mst.language.Language;
@@ -116,15 +115,15 @@ public class Translation {
 		clientsAndSecrets.put(clients.get(7), "tz1OrF0BdiMdowk7CC3ZpkLA0y23baO1EBWphT+GPL0=");
 		clientsAndSecrets.put(clients.get(8), "THQLVzCfATeZmhiA6UOPXc4ml7FaxcBoP3NJIgCgoRs=");
 		clientsAndSecrets.put(clients.get(9), "Xs7OIXhpL/bxr++EUguRAcD8tsuW3wwThas9gHwCa0o=");
-	
+		
 		numAccounts = clients.size();
-		tries = numAccounts;
 	}
 	
 	public static String getTranslation(String original, Language other)
 	{   
-	    Translate.setClientId(clients.get(current));
-		Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
+		String clientID = clients.get(current);
+	    Translate.setClientId(clientID);
+		Translate.setClientSecret(clientsAndSecrets.get(clientID));
 	    
 		while (tries > 0) {
 			try {
@@ -135,12 +134,14 @@ public class Translation {
 					backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
 					
 					if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
-						if (current+1 >= clients.size())
+						if (current+1 >= numAccounts)
 							current = 0;
 						else
 							current++;
-						Translate.setClientId(clients.get(current));
-						Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
+						
+						clientID = clients.get(current);
+						Translate.setClientId(clientID);
+						Translate.setClientSecret(clientsAndSecrets.get(clientID));
 						translationFound = false;
 						accountsTried++;
 					} else
@@ -153,6 +154,7 @@ public class Translation {
 		    		return backToEnglish;
 				
 			} catch (Exception e) {
+				e.printStackTrace();
 				Logger.logln(NAME+"Could not load translations (may not be connected to the internet. Will try again.", LogOut.STDOUT);
 				tries--;
 			}
@@ -208,7 +210,6 @@ public class Translation {
     		return translations;
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	
