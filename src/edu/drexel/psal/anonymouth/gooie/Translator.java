@@ -94,7 +94,7 @@ public class Translator implements Runnable
 				if (translation.equals("internet")) {
 					noInternet = true;
 					translationsEnded();
-					DriverTranslationsTab.showTranslations(sentences.get(0));
+					DriverTranslationsTab.showTranslations(new TaggedSentence(""));
 					return;
 				} else if (translation.equals("account")) {
 					accountsUsed = true;
