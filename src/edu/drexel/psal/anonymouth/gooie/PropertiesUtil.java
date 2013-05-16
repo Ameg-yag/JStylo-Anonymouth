@@ -26,7 +26,7 @@ public class PropertiesUtil {
 	protected static Boolean defaultAutoSave = false;
 	protected static Boolean defaultWarnQuit = true;
 	protected static int defaultThreads = 4;
-	protected static int defaultFeatures = 1000;
+	protected static int defaultFeatures = 500;
 	protected static Boolean defaultTranslation = true;
 	private static String[] DEFAULT_LOCATIONS = new String[]{"top","left","right","bottom"};
 	

@@ -12,20 +12,12 @@ import edu.drexel.psal.jstylo.generics.FeatureDriver.ParamTag;
 
 import com.jgaap.generics.*;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Point;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.*;
 
 public class GUIUpdateInterface {
 	
+	@SuppressWarnings("unused")
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
-
-	
-	
 
 	// about dialog
 	// ============
@@ -96,10 +88,11 @@ public class GUIUpdateInterface {
 	/**
 	 * Updates the test documents table with the current problem set. 
 	 */
+	@SuppressWarnings("unchecked")
 	protected static void updateTestDocTable(GUIMain main) 
 	{
-		DefaultListModel dlm = (DefaultListModel)main.prepMainDocList.getModel();
-		DefaultListModel dlm2 = (DefaultListModel)main.PPSP.prepMainDocList.getModel();
+		DefaultListModel<String> dlm = (DefaultListModel<String>)main.prepMainDocList.getModel();
+		DefaultListModel<String> dlm2 = (DefaultListModel<String>)main.PPSP.prepMainDocList.getModel();
 		dlm.removeAllElements();
 		dlm2.removeAllElements();
 		if (main.mainDocReady())
@@ -129,9 +122,10 @@ public class GUIUpdateInterface {
 	/**
 	 * Updates the User Sample documents table with the current problem set. 
 	 */
+	@SuppressWarnings("unchecked")
 	protected static void updateUserSampleDocTable(GUIMain main) {
-		DefaultListModel dlm = (DefaultListModel)main.prepSampleDocsList.getModel();
-		DefaultListModel dlm2 = (DefaultListModel)main.PPSP.prepSampleDocsList.getModel();
+		DefaultListModel<String> dlm = (DefaultListModel<String>)main.prepSampleDocsList.getModel();
+		DefaultListModel<String> dlm2 = (DefaultListModel<String>)main.PPSP.prepSampleDocsList.getModel();
 		dlm.removeAllElements();
 		dlm2.removeAllElements();
 		if (main.sampleDocsReady())
@@ -202,6 +196,7 @@ public class GUIUpdateInterface {
 	/**
 	 * Updates the feature set view when a new feature set is selected / created.
 	 */
+	@SuppressWarnings("unchecked")
 	protected static void updateFeatureSetView(GUIMain main) {
 		CumulativeFeatureDriver cfd = main.cfd;
 		
@@ -357,9 +352,10 @@ public class GUIUpdateInterface {
 	/**
 	 * Updates the list of selected classifiers with respect to the list of classifiers.
 	 */
+	@SuppressWarnings("unchecked")
 	protected static void updateClassList(GUIMain main) {
 //		DefaultListModel model = (DefaultListModel)main.classJList.getModel();
-		DefaultListModel model2 = (DefaultListModel)main.PPSP.classJList.getModel();
+		DefaultListModel<String> model2 = (DefaultListModel<String>)main.PPSP.classJList.getModel();
 		List<Classifier> classifiers = main.classifiers;
 		
 //		model.removeAllElements();

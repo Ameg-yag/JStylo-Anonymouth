@@ -1,41 +1,21 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -44,39 +24,17 @@ import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.anonymouth.engine.VersionControl;
-import edu.drexel.psal.anonymouth.gooie.Translation;
-import edu.drexel.psal.anonymouth.gooie.DriverClustersWindow.alignListRenderer;
-import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
-import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.IndexFinder;
-import edu.drexel.psal.anonymouth.utils.Word;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.plaf.basic.BasicComboPopup;
 import javax.swing.table.*;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Highlighter;
-import javax.swing.text.PlainDocument;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.tree.*;
 
 import net.miginfocom.swing.MigLayout;
@@ -86,18 +44,9 @@ import com.jgaap.generics.Document;
 import weka.classifiers.*;
 
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
-import edu.stanford.nlp.util.PropertiesUtils;
 
 import com.apple.eawt.AppEvent.FullScreenEvent;
-import com.apple.eawt.AppEventListener;
-import com.apple.eawt.Application;
-import com.apple.eawt.ApplicationAdapter;
-import com.apple.eawt.ApplicationEvent;
-import com.apple.eawt.ApplicationListener;
-import com.apple.eawt.AppEvent.QuitEvent;
 import com.apple.eawt.FullScreenListener;
-import com.apple.eawt.QuitHandler;
-import com.apple.eawt.QuitResponse;
 
 
 /**
@@ -121,6 +70,7 @@ import com.apple.eawt.QuitResponse;
 //This is a comment from Joe Muoio to see if he can commit changes.
 public class GUIMain extends javax.swing.JFrame  {
 	
+	private static final long serialVersionUID = 1L;
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 
 	{
@@ -130,16 +80,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		
-		/*InfoNodeLookAndFeel info = new InfoNodeLookAndFeel();
-		try {
-			UIManager.setLookAndFeel(info);
-		} catch (UnsupportedLookAndFeelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 	}
-
 
 	// main instance
 	public static GUIMain inst;
@@ -204,14 +145,12 @@ public class GUIMain extends javax.swing.JFrame  {
 	// Classifiers tab
 	protected JTextField classAvClassArgsJTextField;
 	protected JLabel classAvClassArgsJLabel;
-	protected JComboBox classClassJComboBox;
 	protected JLabel classAvClassJLabel;
 	protected JButton classAddJButton;
 	
 	protected JTextField classSelClassArgsJTextField;
 	protected JLabel classSelClassArgsJLabel;
 	protected JScrollPane classSelClassJScrollPane;
-	protected DefaultComboBoxModel classSelClassJListModel;
 	protected JScrollPane classTreeScrollPane;
 	protected JScrollPane classDescJScrollPane;
 	protected JTextPane classDescJTextPane;
@@ -222,8 +161,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JButton classRemoveJButton;
 	protected JButton classAboutJButton;
 	
-	protected JList classList;
-	protected JComboBox classChoice;
+	protected JComboBox<String> classChoice;
 	
 	// Editor tab
 	
@@ -254,12 +192,12 @@ public class GUIMain extends javax.swing.JFrame  {
 			protected JPanel prepMainDocPanel;
 				protected JLabel prepDocLabel;
 				protected JLabel mainLabel;
-				protected JList prepMainDocList;
+				protected JList<String> prepMainDocList;
 				protected JButton clearProblemSetJButton;
 				protected JScrollPane prepMainDocScrollPane;
 			protected JPanel prepSampleDocsPanel;
 				protected JLabel sampleLabel;
-				protected JList prepSampleDocsList;
+				protected JList<String> prepSampleDocsList;
 				protected JScrollPane prepSampleDocsScrollPane;
 			protected JPanel prepTrainDocsPanel;
 				protected JLabel trainLabel;
@@ -267,8 +205,8 @@ public class GUIMain extends javax.swing.JFrame  {
 				protected JScrollPane trainCorpusJTreeScrollPane;
 		protected JPanel prepFeaturesPanel;
 			protected JLabel prepFeatLabel;
-			protected JComboBox featuresSetJComboBox;
-			protected DefaultComboBoxModel featuresSetJComboBoxModel;
+			protected JComboBox<String> featuresSetJComboBox;
+			protected DefaultComboBoxModel<String> featuresSetJComboBoxModel;
 		protected JPanel prepClassifiersPanel;
 			protected JLabel prepClassLabel;
 			protected JPanel prepAvailableClassPanel;
@@ -277,7 +215,7 @@ public class GUIMain extends javax.swing.JFrame  {
 				protected JComboBox<String> classComboBox;
 				protected JScrollPane prepAvailableClassScrollPane;
 			protected JPanel prepSelectedClassPanel;
-				protected JList classJList;
+				protected JList<String> classJList;
 				protected JScrollPane prepSelectedClassScrollPane;
 	
 	protected JPanel suggestionsPanel;
@@ -327,24 +265,16 @@ public class GUIMain extends javax.swing.JFrame  {
 		protected JPanel sentenceEditingPanel;
 		protected JPanel documentPanel;
 		protected StyledDocument theDocument;
-		//protected JPanel documentOptionsPanel;
-//		protected JLabel docNameLabel;
 		
-//		protected JScrollPane sentencePane;
-//		protected JPanel sentenceOptionsPanel;
-//		protected JPanel translationOptionsPanel;
 		protected JButton removeWordsButton;
 		protected JButton shuffleButton;
 		protected JButton SaveChangesButton;
 		protected JButton copyToSentenceButton;
-		private JPanel spacer1;
 		protected JButton restoreSentenceButton;
 		protected JLabel documentLabel;
 		private JTextPane documentPane;
 		protected JScrollPane documentScrollPane;
-//		public JTextPane sentenceEditPane; //============================================ PUBLIC
-//		protected JLabel sentenceBoxLabel;
-//		protected JPanel sentencePanel;
+
 		protected JPanel sentenceAndSentenceLabelPanel;
 		protected JLabel translationsBoxLabel;
 		protected JScrollPane translationPane;
@@ -353,24 +283,15 @@ public class GUIMain extends javax.swing.JFrame  {
 		private boolean tabMade = false;
 		protected int resultsMaxIndex;
 		protected String chosenAuthor;
-		
-//		protected JButton dictButton;
-//		protected JButton appendSentenceButton;
+
 		protected JButton saveButton;
 		protected JButton processButton;
-//		protected JButton nextSentenceButton;
-//		protected JButton prevSentenceButton;
-//		protected JButton transButton;
 	//---------------------------------------------------------------------
 		protected JTabbedPane bottomTabPane;
-//		protected JPanel resultsPanel;
 		protected JPanel resultsOptionsPanel;
 		protected JPanel resultsMainPanel;
 		protected JScrollPane resultsScrollPane;
-		protected DefaultComboBoxModel displayComboBoxModel;
-		protected JComboBox displayComboBox;
 		protected JTextArea displayTextArea;
-		//protected JLabel classificationLabel;
 		protected JPanel resultsBoxPanel_InnerBottomPanel;
 		protected JTable resultsTable;
 		protected DefaultTableModel resultsTableModel;
@@ -392,9 +313,6 @@ public class GUIMain extends javax.swing.JFrame  {
 		protected JPanel featuresPanel;
 		protected JLabel legendLabel;
 		protected JPanel legendPanel;
-		private String oldEditorBoxDoc = " ";
-		private TableModel oldResultsTableModel = null;
-		private TableCellRenderer tcr = new DefaultTableCellRenderer();
 
 		protected JPanel topPanel;
 		protected JButton refreshButton;
@@ -409,7 +327,6 @@ public class GUIMain extends javax.swing.JFrame  {
 	
 	protected JScrollPane wordsToAddPane;
 	protected JTextField searchInputBox;
-	protected JComboBox highlightSelectionBox;
 	protected JLabel highlightLabel;
 	protected JPanel jPanel_IL3;
 	protected JButton clearHighlightingButton;
@@ -876,7 +793,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			getContentPane().add(rightTabPane, "width :353:353, spany, shrinkprio 2"); // MUST be at LEAST 353 for Mac OS X. 
 		if (panelLocations.contains(PropertiesUtil.Location.BOTTOM))
 			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:, shrinkprio 3");
-		
+
 		rightTabPane.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -1061,14 +978,14 @@ public class GUIMain extends javax.swing.JFrame  {
 			sampleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			
 			// main documents list
-			DefaultListModel mainDocListModel = new DefaultListModel();
-			prepMainDocList = new JList(mainDocListModel);
+			DefaultListModel<String> mainDocListModel = new DefaultListModel<String>();
+			prepMainDocList = new JList<String>(mainDocListModel);
 			prepMainDocList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			prepMainDocScrollPane = new JScrollPane(prepMainDocList);
 			
 			// sample documents list
-			DefaultListModel sampleDocsListModel = new DefaultListModel();
-			prepSampleDocsList = new JList(sampleDocsListModel);
+			DefaultListModel<String> sampleDocsListModel = new DefaultListModel<String>();
+			prepSampleDocsList = new JList<String>(sampleDocsListModel);
 			prepSampleDocsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			prepSampleDocsScrollPane = new JScrollPane(prepSampleDocsList);
 			
@@ -1142,8 +1059,8 @@ public class GUIMain extends javax.swing.JFrame  {
 			for (int i=0; i<presetCFDs.size(); i++)
 				presetCFDsNames[i] = presetCFDs.get(i).getName();
 			
-			featuresSetJComboBoxModel = new DefaultComboBoxModel(presetCFDsNames);
-			featuresSetJComboBox = new JComboBox();
+			featuresSetJComboBoxModel = new DefaultComboBoxModel<String>(presetCFDsNames);
+			featuresSetJComboBox = new JComboBox<String>();
 			featuresSetJComboBox.setModel(featuresSetJComboBoxModel);
 			
 			prepFeaturesPanel.add(prepFeatLabel, "h " + titleHeight + "!, wrap");
@@ -1165,7 +1082,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepClassLabel.setBorder(rlborder);
 			prepClassLabel.setBackground(notReady);
 			
-			classChoice = new JComboBox();
+			classChoice = new JComboBox<String>();
 
 			DriverPreProcessTabClassifiers.initMainWekaClassifiersTree(this);
 			
@@ -1284,6 +1201,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	return suggestionsPanel;
 	}
 	
+	@SuppressWarnings("serial")
 	private JPanel createTransTab()
 	{
 		translationsPanel = new JPanel();
@@ -1316,12 +1234,10 @@ public class GUIMain extends javax.swing.JFrame  {
 			
 			notTranslated = new JTextPane();
 			
-			if (PropertiesUtil.getDoTranslations()) {
+			if (PropertiesUtil.getDoTranslations())
 				notTranslated.setText("Please process your document to recieve translation suggestions.");
-			} else {
+			else
 				notTranslated.setText("You have turned translations off.");
-				translationsHolderPanel.add(notTranslated, "");
-			}
 			
 			notTranslated.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
 			notTranslated.setDragEnabled(false);
@@ -1439,7 +1355,6 @@ public class GUIMain extends javax.swing.JFrame  {
 			anonymityDescription = new JLabel();
 			anonymityDescription.setFont(new Font("Helvatica", Font.PLAIN, 15));
 			anonymityDescription.setText("<html><center>Test document must<br>be processed to<br>recieve results</center></html>");
-//			anonymityDescription.setHorizontalAlignment(SwingConstants.LEFT);
 			
 			anonymityHoldingPanel = new JPanel();
 			anonymityHoldingPanel.setBackground(Color.WHITE);
@@ -1485,7 +1400,6 @@ public class GUIMain extends javax.swing.JFrame  {
 				
 				if (resultsAreReady()) {
 					resultsLabel.setText("");
-					resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 					
 					if (resultsWindow.getAuthorSize() <= 20) {
 						resultsHeight = 25 * resultsWindow.getAuthorSize();
@@ -1507,7 +1421,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		
 		resultsScrollPane = new JScrollPane(resultsMainPanel);
 		resultsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-//		resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 	}
 	
 	public JTextPane getDocumentPane() {

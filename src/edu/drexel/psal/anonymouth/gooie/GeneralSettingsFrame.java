@@ -51,7 +51,7 @@ public class GeneralSettingsFrame extends JDialog {
 	protected JPanel advanced;
 	protected JLabel maxFeatures;
 	protected JSlider maxFeaturesSlider;
-	protected JLabel maxFeaturesNote;
+//	protected JLabel maxFeaturesNote;
 	protected JLabel numOfThreads;
 	protected JSlider numOfThreadsSlider;
 	protected JLabel numOfThreadsNote;
@@ -77,7 +77,7 @@ public class GeneralSettingsFrame extends JDialog {
 		initTabs();
 
 		this.add(tabbedPane);
-		this.setSize(new Dimension(500, 350));
+		this.setSize(new Dimension(500, 370));
 		this.setResizable(false);
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 	}
@@ -86,6 +86,7 @@ public class GeneralSettingsFrame extends JDialog {
 	 * Displays the window
 	 */
 	public void openWindow() {
+		probSetTextPane.setText(PropertiesUtil.getProbSet());
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 		this.setVisible(true);
 	}
@@ -146,7 +147,7 @@ public class GeneralSettingsFrame extends JDialog {
 			if (PropertiesUtil.getDoTranslations())
 				translations.setSelected(true);
 			
-			autoSaveNote = new JLabel("Note: Will overwrite working document with changes.");
+			autoSaveNote = new JLabel("<html><center>Note: Will overwrite original document with changes.<br>THIS ACTION CANNOT BE UNDONE</center></html>");
 			autoSaveNote.setForeground(Color.GRAY);
 
 			general.add(defaultClassifier, "wrap");
@@ -180,8 +181,8 @@ public class GeneralSettingsFrame extends JDialog {
 			maxFeaturesSlider.setValue(PropertiesUtil.getMaximumFeatures());
 			maxFeaturesSlider.setOrientation(SwingConstants.HORIZONTAL);
 			
-			maxFeaturesNote = new JLabel("Note: The recommended number is 1000 for best results");
-			maxFeaturesNote.setForeground(Color.GRAY);
+//			maxFeaturesNote = new JLabel("Note: The recommended number is 1000 for best results");
+//			maxFeaturesNote.setForeground(Color.GRAY);
 			
 			numOfThreads = new JLabel("Number of Threads for Features Extraction = " + PropertiesUtil.getThreadCount());
 			
@@ -203,7 +204,7 @@ public class GeneralSettingsFrame extends JDialog {
 			
 			advanced.add(maxFeatures, "wrap");
 			advanced.add(maxFeaturesSlider, "alignx 50%, wrap");
-			advanced.add(maxFeaturesNote, "alignx 50%, wrap");
+//			advanced.add(maxFeaturesNote, "alignx 50%, wrap");
 			advanced.add(numOfThreads, "wrap");
 			advanced.add(numOfThreadsSlider, "alignx 50%, wrap");
 			advanced.add(numOfThreadsNote, "alignx 50%, wrap");
