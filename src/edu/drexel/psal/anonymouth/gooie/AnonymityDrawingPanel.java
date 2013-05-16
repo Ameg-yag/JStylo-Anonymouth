@@ -13,6 +13,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import edu.drexel.psal.JSANConstants;
+import edu.drexel.psal.jstylo.generics.Logger;
+import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -27,6 +29,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public class AnonymityDrawingPanel extends JPanel {
 	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	private static final long serialVersionUID = 1L;
 	private final int MINY = 50;
 	private final int MAXY = 470; //700 without results part
@@ -122,8 +125,7 @@ public class AnonymityDrawingPanel extends JPanel {
 			barFull = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"barFull.png"));
 			barEmpty = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"barEmpty.png"));
 		} catch (Exception e) {
-			System.err.println("Error loading anonymity bar pictures (See AnonymityDrawingPanel.java)");
-			e.printStackTrace();
+			Logger.logln(NAME+"Error loading anonymity bar pictures (See line 123).", LogOut.STDERR);
 		}
 		
 		pointer = new Pointer();
@@ -193,8 +195,6 @@ public class AnonymityDrawingPanel extends JPanel {
 	public void updateAnonymityBar() {
 		int percent = (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5);
 		int max = (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5);
-//		percent = max / percent;
-//		max = 100;
 		
 		System.out.println(percent + " / " + max + " = " + (percent / max));
 		

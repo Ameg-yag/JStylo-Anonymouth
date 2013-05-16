@@ -86,11 +86,7 @@ public class TaggedDocument implements Serializable{
 		jigsaw = new SentenceTools();
 		eosTracker = new EOSCharacterTracker();
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
-		//currentLiveTaggedSentences = new ArrayList<TaggedSentence>(5); 
 		makeAndTagSentences(untaggedDocument, true);
-		//consolidateFeatures(taggedSentences);
-		//setHashMaps();
-		//setWordsToAddRemove();
 	}
 	 
 	/**
@@ -104,15 +100,10 @@ public class TaggedDocument implements Serializable{
 		this.documentAuthor = author;
 		eosTracker = new EOSCharacterTracker();
 		this.ID = documentTitle+"_"+documentAuthor;
-		//Logger.logln(NAME+"TaggedDocument ID: "+ID);
-	//	currentLiveTaggedSentences = new ArrayList<TaggedSentence>(5); 
+
 		jigsaw = new SentenceTools();
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
 		makeAndTagSentences(untaggedDocument, true);
-		//consolidateFeatures(taggedSentences);
-		//setHashMaps();
-		//setWordsToAddRemove();
-		//Logger.logln(NAME+"Top 100 wordsToRemove: "+wordsToRemove.toString());
 	}
 	
 	/**
@@ -692,7 +683,7 @@ public class TaggedDocument implements Serializable{
 	public double getAvgPercentChangeNeeded(boolean is_initial){
 		int total_attribs = 0;
 		double total_percent_change = 0;
-		for (Attribute attrib : DataAnalyzer.topAttributes){
+		for (Attribute attrib : DataAnalyzer.topAttributes) {
 			total_percent_change += Math.abs(attrib.getPercentChangeNeeded(false,false,true));
 			total_attribs ++;
 		}

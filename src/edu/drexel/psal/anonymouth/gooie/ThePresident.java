@@ -3,28 +3,14 @@ package edu.drexel.psal.anonymouth.gooie;
 import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.Logger;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Scanner;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 
-import com.apple.eawt.AboutHandler;
-import com.apple.eawt.AppEvent.AboutEvent;
-import com.apple.eawt.AppEvent.PreferencesEvent;
-import com.apple.eawt.AppEvent.QuitEvent;
 import com.apple.eawt.Application;
 import com.apple.eawt.ApplicationAdapter;
 import com.apple.eawt.ApplicationEvent;
-import com.apple.eawt.ApplicationListener;
-import com.apple.eawt.PreferencesHandler;
-import com.apple.eawt.QuitHandler;
-import com.apple.eawt.QuitResponse;
 
 /**
  * ThePresident sets up the Application and System fields/preferences prior to calling 'GUIMain'
@@ -49,25 +35,12 @@ public class ThePresident {
 	public static int MAX_FEATURES_TO_CONSIDER = PropertiesUtil.getMaximumFeatures(); // todo: put in 'options', and figure out an optimal number (maybe based upon info gain, total #, etc.)... basically, when the processing time outweighs the benefit, that should be our cutoff.
 	public static int NUM_TAGGING_THREADS = PropertiesUtil.getThreadCount();
 	public static Application app;
-	// test
-	
-	/*
-	public void getDockImage(String name){
-		try{
-			buffImg = new ImageIcon(getClass().getResource(name));
-		} catch (Exception e){
-			e.printStackTrace();
-			//System.exit(5);
-		}
-	}
-	*/
 
 	public void getLogo(String name){
 		try{
 			LOGO = new ImageIcon(getClass().getResource(name), "Anonymouth's Logo");
 		} catch (Exception e){
 			e.printStackTrace();
-			//System.exit(6);
 		}
 	}
 
@@ -89,21 +62,6 @@ public class ThePresident {
 			}catch(Exception e){
 				Logger.logln("Error loading logos");
 			}
-			/*
-			JMenuBar menuBar = new JMenuBar();
-			int numMenus = 3;
-			JMenu[] menu = new JMenu[numMenus];
-			menu[0] = new JMenu();
-			menu[0].setText("File");
-			menu[1] = new JMenu();
-			menu[1].setText("Edit");
-			menu[2] = new JMenu();
-			menu[2].setText("Help");
-			int i;
-			for(i=0;i<numMenus;i++)
-				menuBar.add(menu[i]);
-			app.setDefaultMenuBar(menuBar);
-			 */
 			
 			/**
 			 * The best method I've found yet for handling the OS X menu look and feel, everything works perfectly and it's not deprecated.
