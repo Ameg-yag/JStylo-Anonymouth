@@ -348,7 +348,7 @@ public class DriverDocumentsTab {
 	}
 
 	/**
-	 * Calcualtes the selected sentence number (index in TaggedDocument taggedDoc), start of that sentence in the documentPane, and end of the sentence in the documentPane. 
+	 * Calculates the selected sentence number (index in TaggedDocument taggedDoc), start of that sentence in the documentPane, and end of the sentence in the documentPane. 
 	 * Returns all three values in an int array.
 	 * @param currentCaretPosition the positions in the document to return sentence indices for
 	 * @return a 2d int array such that each row is an array such that: index 0 is the sentence index, index 1 is the beginning of the sentence (w.r.t. the whole document in the editor), and index 2 is the end of the sentence.
@@ -636,9 +636,9 @@ public class DriverDocumentsTab {
 					// xxx todo xxx get rid of this check (if possible... BEI sets the selectedSentIndexRange)....
 					
 					
-					if (firstRun){ //NOTE needed a way to make sure that the very first time a sentence is clicked (, we didn't break stuff... this may not be the best way...
+					//if (firstRun){ //NOTE needed a way to make sure that the very first time a sentence is clicked (, we didn't break stuff... this may not be the best way...
 						firstRun = false;
-					} else {
+					//} else {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						System.out.printf("lastSelectedSentIndexRange: start == %d,  end == %d\n", selectedSentIndexRange[0], selectedSentIndexRange[1]);
@@ -654,7 +654,7 @@ public class DriverDocumentsTab {
 							main.saved = false;
 						}
 						
-					}
+					//}
 					if(setSelectionInfoAndHighlight){
 						currentSentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToAction)[0];
 						System.out.printf("currentSentSelectionInfo (post removeAndReplace): sentNum == %d, start == %d, end == %d\n",currentSentSelectionInfo[0], currentSentSelectionInfo[1], currentSentSelectionInfo[2]);
