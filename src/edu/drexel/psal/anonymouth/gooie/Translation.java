@@ -27,7 +27,7 @@ public class Translation {
 	private static int current = 0;
 	private static Boolean translationFound = false;
 	private static int accountsTried = 0;
-	private static int numOfAccounts;
+	private static int numAccounts;
 	private static int tries = MAXNUMOFTRIES;
 	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
@@ -117,7 +117,8 @@ public class Translation {
 		clientsAndSecrets.put(clients.get(8), "THQLVzCfATeZmhiA6UOPXc4ml7FaxcBoP3NJIgCgoRs=");
 		clientsAndSecrets.put(clients.get(9), "Xs7OIXhpL/bxr++EUguRAcD8tsuW3wwThas9gHwCa0o=");
 	
-		numOfAccounts = clients.size();
+		numAccounts = clients.size();
+		tries = numAccounts;
 	}
 	
 	public static String getTranslation(String original, Language other)
@@ -144,9 +145,9 @@ public class Translation {
 						accountsTried++;
 					} else
 						translationFound = true;
-		    	} while (!translationFound && accountsTried < numOfAccounts);
+		    	} while (!translationFound && accountsTried < numAccounts);
 				
-		    	if (accountsTried >= numOfAccounts)
+		    	if (accountsTried >= numAccounts)
 		    		break;
 		    	else
 		    		return backToEnglish;
@@ -160,7 +161,7 @@ public class Translation {
 		if (tries <= 0) {
 			Logger.logln(NAME+"Translations could not be obtained, no internet connection. Will now stop.", LogOut.STDERR);
 			return "internet";
-		} else if (accountsTried >= numOfAccounts) {
+		} else if (accountsTried >= numAccounts) {
 			Logger.logln(NAME+"Translations could not be obtained, all accounts used. Will now stop.", LogOut.STDERR);
 			return "account";
 		} else {
