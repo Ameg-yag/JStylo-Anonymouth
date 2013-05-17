@@ -1,7 +1,5 @@
 package edu.drexel.psal.anonymouth.engine;
 
-import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,7 +44,6 @@ public class Attribute {
 	private Cluster[] orderedClusters;
 	private double targetClusterMin;
 	private double targetClusterMax;
-	private boolean hasReachedTargetFlag = false;
 	private boolean directionSet = false;
 	private double baselinePercentChangeNeeded = 0; // only for this specific feature
 	private boolean haveSetBaselinePercentChangeNeeded = false;
@@ -168,7 +165,6 @@ public class Attribute {
 				requiredDirectionOfChange = 1;
 			else if (this.targetValue == toModifyValue){
 				requiredDirectionOfChange = 0;
-				hasReachedTargetFlag = true;
 			}
 			else
 				requiredDirectionOfChange = -1;
@@ -323,10 +319,6 @@ public class Attribute {
 	 */
 	public void setToModifyValue(double toModifyValue){
 		this.toModifyValue = toModifyValue;
-		if((this.toModifyValue >= targetValue) && (requiredDirectionOfChange > 0))
-			hasReachedTargetFlag = true;	
-		else if ((this.toModifyValue <= targetValue) && (requiredDirectionOfChange < 0))
-			hasReachedTargetFlag = true;
 	}
 	
 	/**

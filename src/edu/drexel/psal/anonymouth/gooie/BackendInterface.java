@@ -2,13 +2,10 @@ package edu.drexel.psal.anonymouth.gooie;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -17,12 +14,10 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
-import com.jgaap.generics.Document;
 
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
-import edu.drexel.psal.anonymouth.utils.DocumentTagger;
 import edu.drexel.psal.anonymouth.utils.Tagger;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.ProblemSet;
@@ -102,28 +97,21 @@ public class BackendInterface {
 	
 
 	protected static void preTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
-		//Logger
 		(new Thread(bei.new PreTargetSelectionProcessing(main,wizard,magician))).start();
-		
 	}
 	
 	public class PreTargetSelectionProcessing extends GUIThread {
 		
 		private DataAnalyzer wizard;
-		private DocumentMagician magician;
-		//private EditorInnerTabSpawner eits;
-		
+		private DocumentMagician magician;		
 		
 		public PreTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
 			super(main);
-			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
+
 			this.wizard = wizard;
 			this.magician = magician;
 
 			pw.run();
-			
-			//selectedIndex = main.editTP.getSelectedIndex();
-			//this.eits = EditorTabDriver.eitsList.get(selectedIndex);
 		}
 		
 		public String getDocFromCurrentTab()
@@ -217,8 +205,6 @@ public class BackendInterface {
 				DriverDocumentsTab.wizard.setSelectedTargets();
 				DriverDocumentsTab.signalTargetsSelected(main, true);
 
-				//eits.documentPane.setText(tempDoc);	
-				//cpb.setText("Waiting for Target Selection...");
 				}
 				catch (Exception e)
 				{
@@ -241,53 +227,28 @@ public class BackendInterface {
 	
 	
 	
-	protected static void postTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
-		//Logger
-		(new Thread(bei.new PostTargetSelectionProcessing(main,wizard,magician))).start();
+	protected static void postTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard){
+		(new Thread(bei.new PostTargetSelectionProcessing(main,wizard))).start();
 		
 	}
 	
 	public class PostTargetSelectionProcessing extends GUIThread {
 
 		private DataAnalyzer wizard;
-		private DocumentMagician magician;
 
-		public PostTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
+		public PostTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard){
 			super(main);
-			//System.out.println("Entered EditTabProcessButtonClicked - NOTHING ELSE SHOULD HAPPEN UNTIL NEXT MESSAGE FROM THIS CLASS.");
 			this.wizard = wizard;
-			this.magician = magician;
-//			pw.run();
-			//selectedIndex = main.editTP.getSelectedIndex();
-			//this.eits = EditorTabDriver.eitsList.get(selectedIndex);
 		}
 
 		public void run(){
 			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded(); // todo figure out why this and/or the two percent change needed calls in TaggedDocument affect AnonymityBar
-
-			//Scanner in = new Scanner(System.in);
-			//in.nextLine();
 				
 			pw.setText("Target Selected");
-//			TableCellRenderer renderer = new PredictionRenderer(main);
-//			main.resultsTable.setDefaultRenderer(Object.class, renderer);
+
 			DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
 			Logger.logln(NAME+"The Features are: "+DriverDocumentsTab.theFeatures.toString());
-			//main.suggestionTable.setModel(makeSuggestionListTable(EditorTabDriver.theFeatures));
-			//TableColumn tCol = main.suggestionTable.getColumnModel().getColumn(0);
-			//tCol.setMaxWidth(30);
-			//tCol.setMinWidth(30);
-			//tCol.setPreferredWidth(30);
-			// make highlight bar
-			//main.highlightSelectionBox.setModel(makeHighlightBarModel());
-//			main.nextSentenceButton.setEnabled(false);
-//			main.prevSentenceButton.setEnabled(false);
-//			main.transButton.setEnabled(false);
-//			main.appendSentenceButton.setEnabled(false);
-			
-			//main.editorProgressBar.setIndeterminate(true);	
-			
-//			main.resultsTablePane.setOpaque(true);
+
 			DriverDocumentsTab.okayToSelectSuggestion = true;
 			
 			if(DriverDocumentsTab.isFirstRun)
@@ -304,7 +265,7 @@ public class BackendInterface {
 				DriverDocumentsTab.originals.put(DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(i), DriverDocumentsTab.taggedDoc.getTaggedSentences().get(i));
 			}
 			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
-			DriverDocumentsTab.suggestionCalculator.trackEditSentence(main);
+			SuggestionCalculator.trackEditSentence(main);
 			GUIUpdateInterface.updateResultsPrepColor(main);
 			
 			DriverDocumentsTab.ignoreNumActions = 1; // must be set to 1, otherwise "....setDot(0)" (2 lines down) will screw things up when it fires the caretUpdate listener.
@@ -324,45 +285,15 @@ public class BackendInterface {
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
-			boolean loadIfExists = false;
-			
 			DictionaryBinding.init();//initializes the dictionary for wordNEt
 			
-			DocumentTagger docTagger = new DocumentTagger();
-			ArrayList<List<Document>> allDocs = magician.getDocumentSets();
-			/*
-			try{
-			
-				  NOTE: This next line locks up the rest of the method until it's done. Do NOT put anything that needs to be updated
-				  Immediately after control returns to the GUI from processing after this, it will not be run until every every process here
-				  is done (It takes a long time)
-				 
-				ConsolidationStation.otherSampleTaggedDocs = docTagger.tagDocs(allDocs.get(0),loadIfExists);
-				ConsolidationStation.authorSampleTaggedDocs = docTagger.tagDocs(allDocs.get(1),loadIfExists);
-				ConsolidationStation.setAllDocsTagged(true);
-			}
-			catch(Exception e){
-				Logger.logln(NAME+"Oops something bad happened with the tagging of documents...");
-				e.printStackTrace();
-			}
-			*/
-			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
-			//main.editorProgressBar.setIndeterminate(false);	
 			
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.getDocumentPane().setEnabled(true);
             main.getDocumentPane().setEditable(true);
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
-//			main.nextSentenceButton.doClick();
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
-			
-			//cpb.setText("User Editing... Waiting to\"Re-process\"");
-			
-			//Logger.logln(NAME+"Writing TaggedDocument...");
-			//ObjectIO.writeObject(ConsolidationStation.toModifyTaggedDocs.get(0), "toModifyDoc", ThePresident.SER_DIR);
-			//Logger.logln(NAME+"TaggedDocument written...");
-			
 		}
 	}
 	
@@ -408,7 +339,6 @@ public class BackendInterface {
 	
 	public static void makeResultsTable(Map<String,Map<String,Double>> resultMap, GUIMain main)
 	{
-//		main.resultsTableModel.getDataVector().removeAllElements();
 		
 		Iterator<String> mapKeyIter = resultMap.keySet().iterator();
 		Map<String,Double> tempMap = resultMap.get(mapKeyIter.next()); 
@@ -443,7 +373,6 @@ public class BackendInterface {
 		
 		for (int i = numAuthors-1; i >= 0; i--)
 		{
-//			main.resultsTableModel.addRow(new Object[]{predMap.get(predictions[i]), predictions[i] + "%"});
 			main.resultsWindow.addAttrib(predMap.get(predictions[i]).toString(), (int)(predictions[i] + .5));
 		}
 		

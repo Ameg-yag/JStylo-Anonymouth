@@ -153,13 +153,16 @@ public class DriverMenu {
         };
         main.editRedoMenuItem.addActionListener(redoListener);
         
-        fullScreenListener = new ActionListener() {
-        	@Override
-        	public void actionPerformed(ActionEvent e) {  		  		
-        		ThePresident.app.requestToggleFullScreen(main);
-        	}
-        };
-        main.viewEnterFullScreenMenuItem.addActionListener(fullScreenListener);
+        if (ThePresident.IS_MAC) {
+        	fullScreenListener = new ActionListener() {
+            	@Override
+            	public void actionPerformed(ActionEvent e) {  		  		
+            		ThePresident.app.requestToggleFullScreen(main);
+            	}
+            };
+            main.viewEnterFullScreenMenuItem.addActionListener(fullScreenListener);
+        }
+        
         /*
         printMenuItemListener = new ActionListener() {
         	@Override

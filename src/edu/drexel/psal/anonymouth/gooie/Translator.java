@@ -71,9 +71,9 @@ public class Translator implements Runnable
 
 		// set up the progress bar
 		main.translationsProgressBar.setIndeterminate(false);
-		main.translationsProgressBar.setMaximum(sentences.size() * DriverDocumentsTab.translator.getUsedLangs().length);
+		main.translationsProgressBar.setMaximum(sentences.size() * Translation.getUsedLangs().length);
 		// finish set up for translation
-		main.translationsProgressLabel.setText("Sentence: 1/" + sentences.size() + " Languages: 0/"  + DriverDocumentsTab.translator.getUsedLangs().length);
+		main.translationsProgressLabel.setText("Sentence: 1/" + sentences.size() + " Languages: 0/"  + Translation.getUsedLangs().length);
 
 		// translate all languages for each sentence, sorting the list based on anon index after each translation
 		while (!sentences.isEmpty() && currentSentNum <= sentences.size()) {
@@ -125,7 +125,7 @@ public class Translator implements Runnable
 					if (sentences.contains(oldSentence))
 						sentences.remove(oldSentence);
 					else
-						main.translationsProgressBar.setMaximum(sentences.size() * DriverDocumentsTab.translator.getUsedLangs().length);
+						main.translationsProgressBar.setMaximum(sentences.size() * Translation.getUsedLangs().length);
 				
 					if (currentSentNum - 1 >= 1)
 						currentSentNum -= 1;

@@ -175,7 +175,7 @@ public class DriverDocumentsTab {
 	
 	protected static void signalTargetsSelected(GUIMain main, boolean goodToGo){
 		if(goodToGo == true)
-			BackendInterface.postTargetSelectionProcessing(main, wizard, magician);
+			BackendInterface.postTargetSelectionProcessing(main, wizard);
 	}
 	
 	
