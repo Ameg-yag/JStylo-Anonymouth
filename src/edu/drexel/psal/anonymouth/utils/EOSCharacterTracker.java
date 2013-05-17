@@ -70,7 +70,7 @@ public class EOSCharacterTracker implements Serializable{
 				haveRemoved = true;
 			}
 		}
-		shiftAllEOSChars(false, upperBound, (upperBound - lowerBound));
+		//shiftAllEOSChars(false, upperBound, (upperBound - lowerBound));
 		return haveRemoved;
 		
 	}

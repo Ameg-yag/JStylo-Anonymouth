@@ -272,6 +272,7 @@ public class BackendInterface {
 			main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
 			main.getDocumentPane().getCaret().setDot(0); // NOTE However, THIS DOES fire the caretUpdate, because we are messing with the caret itself.
 			main.getDocumentPane().setCaretPosition(0); // NOTE And then this, again, does not fire the caretUpdate
+			DriverDocumentsTab.ignoreNumActions = 0; // must be set back to 0, otherwise, if for some reason setDot(0) DOESNT fire the caretListener (which happens with some frequency), the first click on a sentence will be ignored.
 			
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];

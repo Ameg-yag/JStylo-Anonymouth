@@ -371,7 +371,7 @@ public class DriverDocumentsTab {
 			int selectedSentence = 0;
 			currentPosition = positions[positionNumber];
 			if(currentPosition > 0){
-				while (lengthSoFar <= currentPosition && i < numSents){
+				while (lengthSoFar <= currentPosition && i <= numSents){
 					//System.out.printf("Sentence # %d has length: %d\n",i,sentenceLengths[i]);
 					lengthSoFar += sentenceLengths[i];
 					lengthTriangle[i] = lengthSoFar;
@@ -539,7 +539,7 @@ public class DriverDocumentsTab {
 							String docText = main.getDocumentPane().getText();
 							String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition);
 							taggedDoc.removeAndReplace(leftSentInfo[0], leftSentCurrent);
-							String rightSentCurrent = docText.substring(caretPositionPriorToCharRemoval, rightSentInfo[2]);
+							String rightSentCurrent = docText.substring((caretPositionPriorToCharRemoval-charsRemoved), (rightSentInfo[2]-charsRemoved));//we need to shift our indices over by the number of characters removed.
 							taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);
 							
 							System.out.printf("Merging <%s> (indices: [ %d, %d]) and <%s> (indices: [ %d, %d])\n",leftSentCurrent, leftSentInfo[1], currentCaretPosition+1, rightSentCurrent, caretPositionPriorToCharRemoval, rightSentInfo[2]+1);
@@ -557,6 +557,9 @@ public class DriverDocumentsTab {
 							currentSentNum = currentSentSelectionInfo[0];
 							selectedSentIndexRange[0] = currentSentSelectionInfo[1];
 							selectedSentIndexRange[1] = currentSentSelectionInfo[2];
+							
+							// Now set the number of characters removed to zero because the action has been dealt with, and we don't want the statement further down to execute and screw up our indices. 
+							charsRemoved = 0; 
 							
 						} else{
 							// update the EOSTracker
