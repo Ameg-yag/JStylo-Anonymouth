@@ -87,6 +87,10 @@ public class EOSCharacterTracker implements Serializable{
 	public void shiftAllEOSChars(boolean shiftRight, int startIndex, int shiftAmount){
 		// note: right now, we'll just loop through the whole ArrayList of EOS objects, and check each one to see if its location is >= startIndex. 
 		//There is almost certainly a more efficient way to do this, but as it's a small list, and I just want to get something working, I'm going to leave it like this for now.
+		if (shiftRight)
+			System.out.println("shifting all EOS characters right starting from "+startIndex+" by "+shiftAmount+" places...");
+		else
+			System.out.println("shifting all EOS characters left starting from "+startIndex+" by "+shiftAmount+" places...");
 		int i;
 		int numEOSes = eoses.size();
 		if (shiftRight){ // add shiftAmount

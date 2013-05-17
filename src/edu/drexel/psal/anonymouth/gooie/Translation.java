@@ -116,7 +116,7 @@ public class Translation {
 		clientsAndSecrets.put(clients.get(7), "tz1OrF0BdiMdowk7CC3ZpkLA0y23baO1EBWphT+GPL0=");
 		clientsAndSecrets.put(clients.get(8), "THQLVzCfATeZmhiA6UOPXc4ml7FaxcBoP3NJIgCgoRs=");
 		clientsAndSecrets.put(clients.get(9), "Xs7OIXhpL/bxr++EUguRAcD8tsuW3wwThas9gHwCa0o=");
-	
+		
 		numOfAccounts = clients.size();
 	}
 	
@@ -124,7 +124,7 @@ public class Translation {
 	{   
 	    Translate.setClientId(clients.get(current));
 		Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
-	    
+		
 		while (tries > 0) {
 			try {
 		    	String backToEnglish;

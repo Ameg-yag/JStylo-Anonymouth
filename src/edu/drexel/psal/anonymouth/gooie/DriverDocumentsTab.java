@@ -501,6 +501,7 @@ public class DriverDocumentsTab {
 						caretPositionPriorToAction = caretPositionPriorToCharRemoval;
 						System.out.println("characters removed...");
 						// update the EOSTracker, and from the value that it returns we can tell if sentences are being merged (EOS characters are being erased)
+						// XXX BAD BAD BAD this shifts the EOS chars!!!
 						boolean EOSesRemoved = taggedDoc.eosTracker.removeEOSesInRange( currentCaretPosition, caretPositionPriorToCharRemoval);
 						if (EOSesRemoved){
 							
@@ -536,9 +537,9 @@ public class DriverDocumentsTab {
 								// for right: read from 'caretPositionPriorToCharRemoval' (where the "sentence" now begins) to 'rightSentInfo[2]' (the end of the sentence) 
 							// Once we have the string, we call removeAndReplace, once for each sentence (String)
 							String docText = main.getDocumentPane().getText();
-							String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition+1);
+							String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition);
 							taggedDoc.removeAndReplace(leftSentInfo[0], leftSentCurrent);
-							String rightSentCurrent = docText.substring(caretPositionPriorToCharRemoval, rightSentInfo[2]+1);
+							String rightSentCurrent = docText.substring(caretPositionPriorToCharRemoval, rightSentInfo[2]);
 							taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);
 							
 							System.out.printf("Merging <%s> (indices: [ %d, %d]) and <%s> (indices: [ %d, %d])\n",leftSentCurrent, leftSentInfo[1], currentCaretPosition+1, rightSentCurrent, caretPositionPriorToCharRemoval, rightSentInfo[2]+1);
@@ -548,10 +549,18 @@ public class DriverDocumentsTab {
 							System.out.printf("Now sentence number '%d' looks like <%s> in the TaggedDocument.\n",leftSentInfo[0],taggedDoc.getTaggedSentences().get(leftSentInfo[0]));
 							
 							// now update the EOSTracker
+							System.out.println("---updating EOSTracker---");
 							taggedDoc.eosTracker.shiftAllEOSChars(false, caretPositionPriorToCharRemoval, charsRemoved);
+							
+							// Then update the currentSentSelectionInfo, and fix variables
+							currentSentSelectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
+							currentSentNum = currentSentSelectionInfo[0];
+							selectedSentIndexRange[0] = currentSentSelectionInfo[1];
+							selectedSentIndexRange[1] = currentSentSelectionInfo[2];
 							
 						} else{
 							// update the EOSTracker
+							System.out.println("---updating EOSTracker---");
 							taggedDoc.eosTracker.shiftAllEOSChars(false, caretPositionPriorToAction, charsRemoved);
 						}
 					}
@@ -559,6 +568,7 @@ public class DriverDocumentsTab {
 						System.out.println("characters inserted...");
 						caretPositionPriorToAction = caretPositionPriorToCharInsertion;
 						// update the EOSTracker
+						System.out.println("---updating EOSTracker---");
 						taggedDoc.eosTracker.shiftAllEOSChars(true, caretPositionPriorToAction, charsInserted);
 						boolean EOSesAdded = false;// xxx this line is temporary.
 						if (EOSesAdded){
