@@ -502,7 +502,6 @@ public class DriverDocumentsTab {
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
-							System.out.println("Hello");
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
 							GUIMain.saved = false;
@@ -623,12 +622,9 @@ public class DriverDocumentsTab {
 		/**
 		 * ActionListener for process button (bar).
 		 */
-		main.processButton.addActionListener(new ActionListener() 
-		{
+		main.processButton.addActionListener(new ActionListener() {
 			@Override
-			public synchronized void actionPerformed(ActionEvent event) 
-			{
-				System.out.println("DEBUGGING: CLICKED!!!");
+			public synchronized void actionPerformed(ActionEvent event) {
 				// ----- check if all requirements for processing are met
 				String errorMessage = "";
 				if (!main.mainDocReady())
@@ -646,13 +642,10 @@ public class DriverDocumentsTab {
 				if (errorMessage != "") {
 					JOptionPane.showMessageDialog(main, errorMessage, "Settings Error!",
 							JOptionPane.ERROR_MESSAGE);
-				}
-				else
-				{
+				} else {
 					main.leftTabPane.setSelectedIndex(0);
 					// ----- confirm they want to process
-					if (true) // ---- can be a confirm dialog to make sure they want to process.
-					{
+					if (true) {// ---- can be a confirm dialog to make sure they want to process.
 						// ----- if this is the first run, do everything that needs to be ran the first time
 						if(isFirstRun) {
 							// ----- create the main document and add it to the appropriate array list.
@@ -670,19 +663,15 @@ public class DriverDocumentsTab {
 							noCalcHistFeatures = new ArrayList<FeatureList>(sizeOfCfd);
 							yesCalcHistFeatures = new ArrayList<FeatureList>(sizeOfCfd);
 
-							for(int i = 0; i < sizeOfCfd; i++)
-							{
+							for(int i = 0; i < sizeOfCfd; i++) {
 								String theName = main.cfd.featureDriverAt(i).getName();
 
 								// capitalize the name and replace all " " and "-" with "_"
 								theName = theName.replaceAll("[ -]","_").toUpperCase(); 
-								if(isCalcHist == false)
-								{
+								if(isCalcHist == false) {
 									isCalcHist = main.cfd.featureDriverAt(i).isCalcHist();
 									yesCalcHistFeatures.add(FeatureList.valueOf(theName));
-								} 
-								else 
-								{
+								} else {
 									// these values will go in suggestion list... PLUS any 	
 									noCalcHistFeatures.add(FeatureList.valueOf(theName));
 								}
@@ -710,8 +699,7 @@ public class DriverDocumentsTab {
 
 		saveAsTestDoc = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
+			public void actionPerformed(ActionEvent e) {
 				Logger.logln(NAME+"Save As document button clicked.");
 				JFileChooser save = new JFileChooser();
 				save.setSelectedFile(new File("anonymizedDoc.txt"));
@@ -739,8 +727,7 @@ public class DriverDocumentsTab {
 								"Save Problem Set Failure",
 								JOptionPane.ERROR_MESSAGE);
 					}
-				} 
-				else
+				} else
 					Logger.logln(NAME+"Save As contents of current tab canceled");
 			}
 		};

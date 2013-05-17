@@ -17,6 +17,7 @@ import com.apple.eawt.ApplicationEvent;
  * @author Andrew W.E. McDonald
  *
  */
+@SuppressWarnings("deprecation")
 public class ThePresident {
 
 	//protected static ImageIcon buffImg;
@@ -44,8 +45,6 @@ public class ThePresident {
 		}
 	}
 
-
-	@SuppressWarnings("deprecation")
 	public static void main(String[] args){
 		String OS = System.getProperty("os.name").toLowerCase();
 		ThePresident leader = new ThePresident();
@@ -64,7 +63,7 @@ public class ThePresident {
 			}
 			
 			/**
-			 * The best method I've found yet for handling the OS X menu look and feel, everything works perfectly and it's not deprecated.
+			 * The best method I've found yet for handling the OS X menu look and feel, everything works perfectly.
 			 */
 			app.addApplicationListener(new ApplicationAdapter() {
 				@Override
@@ -72,7 +71,12 @@ public class ThePresident {
 					if (PropertiesUtil.getWarnQuit() && !GUIMain.saved) {
 						GUIMain.inst.toFront();
 						GUIMain.inst.requestFocus();
-						int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+						int confirm = JOptionPane.showOptionDialog(null,
+								"Are You Sure to Close Application?\nYou will lose all unsaved changes.",
+								"Unsaved Changes Warning",
+								JOptionPane.YES_NO_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null, null, null);
 						if (confirm == 0) {
 							System.exit(0);
 						}

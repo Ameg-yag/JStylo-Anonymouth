@@ -45,7 +45,9 @@ public class DriverTranslationsTab implements ActionListener {
 					"and re-process your document.");
 			main.translationsHolderPanel.add(main.notTranslated, "");
 		} else if (Translator.accountsUsed) {
-			main.notTranslated.setText("All Microsoft Bing© Azure translation accounts used.");
+			main.notTranslated.setText("The account used for translations has expired.\n\n" +
+					"In order to continue recieving translations, you must restart in order for the " +
+					"account change to be reflected.");
 			main.translationsHolderPanel.add(main.notTranslated, "");
 		} else if (!PropertiesUtil.getDoTranslations()) {
 			main.notTranslated.setText("You have turned translations off.");

@@ -1,8 +1,11 @@
 package edu.drexel.psal.anonymouth.gooie;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
+
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 import com.memetix.mst.language.Language;
 import com.memetix.mst.translate.Translate;
@@ -10,24 +13,24 @@ import com.memetix.mst.translate.Translate;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
-
 /**
  * @author sadiaafroz
  * @author Marc Barrowclift
- *
  */
 public class Translation {
 	
 	private final static String NAME = "( Translation ) - ";
+	private static final String[] RESTART_OPTIONS = {"Cancel", "Restart"};
 	private final static int MAXNUMOFTRIES = 5;
 	
-	private static Map<String, String> clientsAndSecrets;
+	private static ArrayList<String> secrets;
 	private static ArrayList<String> clients;
+	private static ArrayList<String> availability;
 	private static int current = 0;
-	private static Boolean translationFound = false;
-	private static int accountsTried = 0;
 	private static int numAccounts;
 	private static int tries = MAXNUMOFTRIES;
+	private static int currentMonth;
+	private static int currentDay;
 	
 	private static Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
 			Language.CHINESE_SIMPLIFIED, Language.CHINESE_TRADITIONAL,Language.CZECH,
@@ -92,7 +95,7 @@ public class Translation {
 	}
 
 	private void readyAccountsAndSecrets() {
-		clients = new ArrayList<String>();
+		clients = new ArrayList<String>(10);
 		clients.add("fyberoptikz");
 		clients.add("weegeemounty");
 		clients.add("drexel1");
@@ -104,68 +107,149 @@ public class Translation {
 		clients.add("ewambybambi");
 		clients.add("zarcosmarkos");
 		
-		clientsAndSecrets = new HashMap<String, String>();
-		clientsAndSecrets.put(clients.get(0), "fAjWBltN4QV+0BKqqqg9nmXVMlo5ffa90gxU6wOW55Q=");
-		clientsAndSecrets.put(clients.get(1), "UR0YCU0x20oOSzqt+xtHkT2lhk6RjcKvqEqd/3Hsdvs=");
-		clientsAndSecrets.put(clients.get(2), "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=");
-		clientsAndSecrets.put(clients.get(3), "F5Hw32MSQoTygwLu6YMpHYx9zV3TQVQxqsIIybVCI1Y=");
-		clientsAndSecrets.put(clients.get(4), "+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=");
-		clientsAndSecrets.put(clients.get(5), "KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=");
-		clientsAndSecrets.put(clients.get(6), "wU9ROglnO5qzntfRsxkq7WWGp7LAMrz0jdxPEd0t1u8=");
-		clientsAndSecrets.put(clients.get(7), "tz1OrF0BdiMdowk7CC3ZpkLA0y23baO1EBWphT+GPL0=");
-		clientsAndSecrets.put(clients.get(8), "THQLVzCfATeZmhiA6UOPXc4ml7FaxcBoP3NJIgCgoRs=");
-		clientsAndSecrets.put(clients.get(9), "Xs7OIXhpL/bxr++EUguRAcD8tsuW3wwThas9gHwCa0o=");
-		
 		numAccounts = clients.size();
+		
+		secrets = new ArrayList<String>(10);
+		secrets.add("fAjWBltN4QV+0BKqqqg9nmXVMlo5ffa90gxU6wOW55Q=");
+		secrets.add("UR0YCU0x20oOSzqt+xtHkT2lhk6RjcKvqEqd/3Hsdvs=");
+		secrets.add("+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=");
+		secrets.add("F5Hw32MSQoTygwLu6YMpHYx9zV3TQVQxqsIIybVCI1Y=");
+		secrets.add("+L2MqaOGTDs4NpMTZyJ5IdBWD6CLFi9iV51NJTXLiYE=");
+		secrets.add("KKQWCR7tBFZWA5P6VZzWRWg+5yJ+s1d5+RhcLW6+w3g=");
+		secrets.add("wU9ROglnO5qzntfRsxkq7WWGp7LAMrz0jdxPEd0t1u8=");
+		secrets.add("tz1OrF0BdiMdowk7CC3ZpkLA0y23baO1EBWphT+GPL0=");
+		secrets.add("THQLVzCfATeZmhiA6UOPXc4ml7FaxcBoP3NJIgCgoRs=");
+		secrets.add("Xs7OIXhpL/bxr++EUguRAcD8tsuW3wwThas9gHwCa0o=");
+		
+		Calendar today = Calendar.getInstance();
+		currentMonth = today.get(Calendar.MONTH)+1;
+		currentDay = today.get(Calendar.DAY_OF_MONTH);
+		
+		availability = PropertiesUtil.getClientAvailability();
+		int availSize = availability.size();
+		
+		if (availSize == 0 || availability == null || availability.isEmpty())
+			return;
+		
+		for (int i = 0; i < availSize; i++) {
+			String account = availability.get(i);
+			
+			if (!account.equals("ready")) {
+				String[] date = account.split("/");
+				int month = Integer.parseInt(date[0]);
+				int day = Integer.parseInt(date[1]);
+				
+				if (month - currentMonth != 0 && currentDay > day) {
+					availability.set(i, "ready");
+				} else {
+					clients.remove(i);
+					secrets.remove(i);
+					numAccounts--;
+				}
+			}
+		}
+		
+		current = PropertiesUtil.getCurrentClient();
+		
+		Logger.logln(NAME + availability.toString());
+		Logger.logln(NAME + "Current client = " + current);
 	}
 	
-	public static String getTranslation(String original, Language other)
-	{   
-		String clientID = clients.get(current);
-	    Translate.setClientId(clientID);
-		Translate.setClientSecret(clientsAndSecrets.get(clientID));
-	    
+	public static String getTranslation(String original, Language other) {   
+		Translate.setClientId(clients.get(current));
+		Translate.setClientSecret(secrets.get(current));
+
 		while (tries > 0) {
 			try {
-		    	String backToEnglish;
-		    	
-		    	do {
-		    		String translatedText = Translate.execute(original, Language.ENGLISH,other);
-					backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
+				String translatedText = Translate.execute(original, Language.ENGLISH,other);
+				String backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
+
+				System.out.println(backToEnglish);
+				if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
+					Logger.logln(NAME+"Translations could not be obtained, current account all used. Will now stop.", LogOut.STDERR);
+
+					//Setting the availability to make sure we don't use this client until it's renewed.
+					if (availability.size() == 0) {
+						for (int i = 0; i < numAccounts; i++) {
+							if (i == current)
+								availability.add(Integer.toString(currentMonth) + "/" + Integer.toString(currentDay));
+							else
+								availability.add("ready");
+						}
+					} else {
+						for (int i = 0; i < numAccounts; i++) {
+							if (i == current)
+								availability.set(i, Integer.toString(currentMonth) + "/" + Integer.toString(currentDay));
+							else
+								availability.set(i, "ready");
+						}
+					}
 					
-					if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
-						if (current+1 >= numAccounts)
-							current = 0;
-						else
-							current++;
-						
-						clientID = clients.get(current);
-						Translate.setClientId(clientID);
-						Translate.setClientSecret(clientsAndSecrets.get(clientID));
-						translationFound = false;
-						accountsTried++;
-					} else
-						translationFound = true;
-		    	} while (!translationFound && accountsTried < numAccounts);
-				
-		    	if (accountsTried >= numAccounts)
-		    		break;
-		    	else
-		    		return backToEnglish;
-				
+					System.out.println("Line 177");
+					PropertiesUtil.setClientAvailability(availability);
+
+					//Updating the current client so we pick a good one next time
+					if (current >= numAccounts)
+						current = 0;
+					else
+						current++;
+					System.out.println("Line 185");
+					PropertiesUtil.setCurrentClient(current);
+
+					//Set the appropriate text in the translations panel as a reminder why there aren't translations there.
+					GUIMain.inst.notTranslated.setText("The account used for translations has expired.\n\n" +
+							"In order to continue recieving translations, you must restart in order for the " +
+							"account change to be reflected.");
+					GUIMain.inst.translationsHolderPanel.add(GUIMain.inst.notTranslated, "");
+					Translator.accountsUsed = true;
+
+					System.out.println("Line 195");
+					//Alert the user about what happened and how to handle it
+					int answer = JOptionPane.showOptionDialog(null,
+							"The account currently being used for translations has now expired.\n" +
+									"A new account will now be used in it's place, but Anonymouth must be\n" +
+									"restarted for this change to take effect. Restart now?",
+									"Translations Account Alert",
+									JOptionPane.YES_NO_OPTION,
+									JOptionPane.WARNING_MESSAGE,
+									UIManager.getIcon("OptionPane.warningIcon"), RESTART_OPTIONS, 0);
+
+					if (answer == 1) {
+						if (GUIMain.saved) {
+							System.exit(0);
+						}
+
+						if (PropertiesUtil.getAutoSave()) {
+							DriverDocumentsTab.save(GUIMain.inst);
+							System.exit(0);
+						}
+
+						if (PropertiesUtil.getWarnQuit()) {
+							int restart = JOptionPane.showOptionDialog(null,
+									"Are You Sure to Close Application?\nYou will lose all unsaved changes.",
+									"Unsaved Changes Warning",
+									JOptionPane.YES_NO_OPTION,
+									JOptionPane.QUESTION_MESSAGE,
+									UIManager.getIcon("OptionPane.warningIcon"), null, null);
+							if (restart == JOptionPane.YES_OPTION)
+								System.exit(0);
+						}
+					}
+
+					return "account";
+				}
+
+				return backToEnglish; 
 			} catch (Exception e) {
 				e.printStackTrace();
 				Logger.logln(NAME+"Could not load translations (may not be connected to the internet. Will try again.", LogOut.STDOUT);
 				tries--;
 			}
 		}
-		
+
 		if (tries <= 0) {
 			Logger.logln(NAME+"Translations could not be obtained, no internet connection. Will now stop.", LogOut.STDERR);
 			return "internet";
-		} else if (accountsTried >= numAccounts) {
-			Logger.logln(NAME+"Translations could not be obtained, all accounts used. Will now stop.", LogOut.STDERR);
-			return "account";
 		} else {
 			return null;
 		}
@@ -177,119 +261,37 @@ public class Translation {
 	 * @return 2-way translated sentences for every language available
 	 * @author julman
 	 */
-	public ArrayList<String> getAllTranslations(String original)
-	{
+	public ArrayList<String> getAllTranslations(String original) {
 		Translate.setClientId(clients.get(current));
-		Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
-	    
-	    ArrayList<String> translations = new ArrayList<String>();
-    	try {
-    		String backToEnglish;
-    		
-    		for (Language other:allLangs)
-    	    {
-    			do {
-    	    		String translatedText = Translate.execute(original, Language.ENGLISH,other);
-    				backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
-    				
-    				if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
-    					if ((current+1) >= clients.size())
-							current = 0;
-						else
-							current++;
-    					Translate.setClientId(clients.get(current));
-    					Translate.setClientSecret(clientsAndSecrets.get(clients.get(current)));
-    					translationFound = false;
-    				} else
-    					translationFound = true;
-    	    	} while (!translationFound);
+		Translate.setClientSecret(secrets.get(current));
+
+		ArrayList<String> translations = new ArrayList<String>();
+		try {  		
+			for (Language other:allLangs) {
+				String translatedText = Translate.execute(original, Language.ENGLISH,other);
+				String backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
 
 				translations.add(backToEnglish);
-    	    }
-    		
-    		return translations;
-			
+			}
+
+			return translations;
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-    	
-    	return null;
-    }
+
+		return null;
+	}
 	
-	public static String getName(Language lang)
-	{
+	public static String getName(Language lang) {
 		return names.get(lang);
 	}
 	
-	public static Language[] getAllLangs()
-	{
+	public static Language[] getAllLangs() {
 		return allLangs;
 	}
 	
-	public static Language[] getUsedLangs()
-	{
+	public static Language[] getUsedLangs() {
 		return usedLangs;
 	}
-	
-	/*
-    public static void main(String[] args) throws Exception {
-	    // Set your Windows Azure Marketplace client info - See http://msdn.microsoft.com/en-us/library/hh454950.aspx
-	    Translation t = new Translation();
-	    Language allLangs[] = {Language.ARABIC, Language.BULGARIAN, Language.CATALAN,
-	    		Language.CHINESE_SIMPLIFIED, Language.CHINESE_TRADITIONAL,Language.CZECH,
-	    		Language.DANISH,Language.DUTCH,Language.ESTONIAN,Language.FINNISH,
-	    		Language.FRENCH,Language.GERMAN,Language.GREEK,Language.HAITIAN_CREOLE,
-	    		Language.HEBREW,Language.HINDI,Language.HMONG_DAW,Language.HUNGARIAN,
-	    		Language.INDONESIAN,Language.ITALIAN,Language.JAPANESE,
-	    		Language.KOREAN,Language.LATVIAN,Language.LITHUANIAN,
-	    		Language.NORWEGIAN,Language.POLISH,Language.PORTUGUESE,
-	    		Language.ROMANIAN,Language.RUSSIAN,Language.SLOVAK,
-	    		Language.SLOVENIAN,Language.SPANISH, Language.SWEDISH, 
-	    		Language.THAI, Language.TURKISH, Language.UKRAINIAN, Language.VIETNAMESE};
-
-	    //read file
-	    File original = new File("original_data/a_01.txt");
-	    String output = "translated/"+original.getName();
-	    
-	    List<String> allLines = Util.readFile(original, true);
-	    
-	    String twoWayTranslation = "";
-	    int lineNumber = 0;
-	    
-	    for(String aLine:allLines){
-	    	    if(aLine.length()==0) continue;
-	    	    twoWayTranslation = "Original: "+aLine+"\n";
-	    	    for(Language other:allLangs)
-			    {
-		 	    	twoWayTranslation+=other.name()+":  "+t.getTranslation(aLine, other)+"\n";
-			    }
-	    	    Util.writeFile(twoWayTranslation, output+lineNumber, false);
-	    	    
-	    	    lineNumber++;
-		 	    
-	    }
-	   // System.out.println(translatedText);
-	  }*/
-
 }
-
-/*
-    emails (@gmail.com)
-    OzoXDxiE -> done
-    w3gMTdJp -> done
-	FIKCG9KW -> gmail yes, microsoft no
-	5YBFviQ8 -> done
-	ewvqAbvm -> not done
-	Zj5RR5co -> not done
-	
-	
-	pass
-	
-	jWURke4=s8q@%^n2
-	
-	
-	favorite historical person:
-	
-	wellicantbesureatm
-
-*/
