@@ -11,7 +11,6 @@ import java.awt.event.MouseListener;
  */
 public class DriverResultsWindow {
 
-	private final static String NAME = "( DriverResultsWindow ) - ";
 	protected static MouseListener resultsLabelListener;
 	protected static MouseListener resultsPanelListener;
 	

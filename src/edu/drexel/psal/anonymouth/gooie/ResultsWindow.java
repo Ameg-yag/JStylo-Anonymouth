@@ -1,6 +1,7 @@
 package edu.drexel.psal.anonymouth.gooie;
 
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -22,6 +23,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 public class ResultsWindow extends JDialog {
 
 	private static final long serialVersionUID = 1L;
+	private GUIMain main;
 	private BufferedImage chartImage;
 	private JFreeChart chart;
 	private BufferedImage panelImage;
@@ -38,6 +40,7 @@ public class ResultsWindow extends JDialog {
 	 */
 	public ResultsWindow(GUIMain main) {
 		super(main, "Process Results", Dialog.ModalityType.APPLICATION_MODAL);
+		this.main = main;
 		init();
 		this.setVisible(false);
 	}
@@ -144,5 +147,14 @@ public class ResultsWindow extends JDialog {
 	 */
 	public int getAuthorSize() {
 		return authors.size();
+	}
+	
+	/**
+	 * Resets all values and clears all graphs, to be used for re-processing
+	 */
+	public void reset() {
+		authors.clear();
+		percent.clear();
+		main.resultsMainPanel.setPreferredSize(new Dimension(175, 110));
 	}
 }

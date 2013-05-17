@@ -10,7 +10,6 @@ public class Translator implements Runnable
 {
 	private ArrayList<TaggedSentence> sentences = new ArrayList<TaggedSentence>(); // essentially the priority queue
 	private GUIMain main;
-	public static boolean firstRun = true;
 	public static boolean addSent = false;
 	private TaggedSentence oldSentence;
 	private TaggedSentence newSentence;
@@ -21,6 +20,7 @@ public class Translator implements Runnable
 	public static Boolean noInternet = false;
 	public static Boolean accountsUsed = false;
 	public static Boolean translations = true;
+	private Thread transThread;
 
 	/**
 	 * Class that handles the 2-way translation of a given sentence. It starts a new thread so the main thread
@@ -56,25 +56,35 @@ public class Translator implements Runnable
 		if (PropertiesUtil.getDoTranslations()) {
 			translations = true;
 			// start a new thread to begin translation
-			Thread transThread = new Thread(this);
+			transThread = new Thread(this);
 			transThread.start(); // calls run below
 		} else {
 			translations = false;
 		}
 	}
+	
+	public void reset() {
+		sentences.clear();
+		translatedSentences.clear();
+		finished = false;
+		noInternet = false;
+		accountsUsed = false;
+		translations = true;
+		currentSentNum = 1;
+		currentLangNum = 1;
+		addSent = false;
+	}
 
 	@Override
 	public void run() 
 	{
-		// disable everything to start so there are no interruptions
-		main.processButton.setEnabled(false);
-
 		// set up the progress bar
 		main.translationsProgressBar.setIndeterminate(false);
 		main.translationsProgressBar.setMaximum(sentences.size() * Translation.getUsedLangs().length);
 		// finish set up for translation
 		main.translationsProgressLabel.setText("Sentence: 1/" + sentences.size() + " Languages: 0/"  + Translation.getUsedLangs().length);
 
+		System.out.println("DEBUGGING: " + sentences.size());
 		// translate all languages for each sentence, sorting the list based on anon index after each translation
 		while (!sentences.isEmpty() && currentSentNum <= sentences.size()) {
 			
@@ -88,13 +98,16 @@ public class Translator implements Runnable
 			// Translate the sentence for each language
 			for (Language lang: Translation.getUsedLangs()) {
 				// update the progress label
-
+				System.out.println("HELLO!!!");
+				System.out.println("Executed");
+				
 				String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged(false).trim(), lang);
+				System.out.println("Executed 2");
 				
 				if (translation.equals("internet")) {
 					noInternet = true;
 					translationsEnded();
-					DriverTranslationsTab.showTranslations(sentences.get(0));
+					DriverTranslationsTab.showTranslations(new TaggedSentence(""));
 					return;
 				} else if (translation.equals("account")) {
 					accountsUsed = true;
@@ -102,6 +115,7 @@ public class Translator implements Runnable
 					DriverTranslationsTab.showTranslations(new TaggedSentence(""));
 					return;
 				}
+				System.out.println("Executed 3");
 				
 				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
 				currentLangNum++;
@@ -139,7 +153,7 @@ public class Translator implements Runnable
 	
 	private void translationsEnded() {
 		finished = true;
-		sentences.removeAll(sentences);
+		sentences.clear();
 		currentSentNum = 1;
 		main.translationsProgressBar.setIndeterminate(false);
 		main.translationsProgressBar.setValue(0);

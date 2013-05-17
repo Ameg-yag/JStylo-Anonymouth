@@ -36,7 +36,6 @@ public class BackendInterface {
 		public GUIThread(GUIMain main) {
 			
 			this.main = main;
-			pw = new ProgressWindow("Processing...", main);
 		}
 		
 		public void run() {}
@@ -83,18 +82,18 @@ public class BackendInterface {
 	}
 	
 	public class RunVerboseOutputWindow extends GUIThread{
-		
-			public RunVerboseOutputWindow(GUIMain main) {
+
+		public RunVerboseOutputWindow(GUIMain main) {
 			super(main);
 		}
 
-			public void run() {
-				new Console();
-			}
-		
+		public void run() {
+			new Console();
+		}
+
 	}
-	
-	
+
+
 
 	protected static void preTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
 		(new Thread(bei.new PreTargetSelectionProcessing(main,wizard,magician))).start();
@@ -110,26 +109,23 @@ public class BackendInterface {
 
 			this.wizard = wizard;
 			this.magician = magician;
-
-			pw.run();
 		}
-		
+
 		public String getDocFromCurrentTab()
 		{
 			return main.getDocumentPane().getText();
 		}
-		
-		public void run()
-		{
-			try
-			{
+
+		public void run() {
+			try {
+				pw = new ProgressWindow("Processing...", main);
+				pw.run();
+				
 				processed = true;
-				main.getDocumentPane().setEnabled(true);
 				DocumentMagician.numProcessRequests++;
 				String tempDoc = "";
-				
-				if(DriverDocumentsTab.isFirstRun == true)
-				{
+
+				if (DriverDocumentsTab.isFirstRun == true) {
 					ConsolidationStation.functionWords.run();
 					tempDoc = getDocFromCurrentTab();
 					Logger.logln(NAME+"Process button pressed for first time (initial run) in editor tab");
@@ -146,8 +142,7 @@ public class BackendInterface {
 						DriverClustersWindow.initializeClusterViewer(main,false);
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
-					}
-					catch(Exception e){
+					} catch(Exception e) {
 						e.printStackTrace();
 						ErrorHandler.fatalError();
 					}
@@ -156,30 +151,20 @@ public class BackendInterface {
 					Logger.logln(NAME+" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
 					Logger.logln(NAME+wekaResults.toString());
 					makeResultsTable(wekaResults, main);
-					pw.stop();
-					
-				}
-				else //This reprocesses
-				{
+				} else {
 					Logger.logln(NAME+"Process button pressed to re-process document to modify.");
 					tempDoc = getDocFromCurrentTab();
-					if(tempDoc.equals("") == true)
-					{
+					if(tempDoc.equals("") == true) {
 						JOptionPane.showMessageDialog(null,
 								"It is not possible to process an empty document.",
 								"Document processing error",
 								JOptionPane.ERROR_MESSAGE,
 								GUIMain.iconNO);
-					}
-					else
-					{
+					} else {
 						magician.setModifiedDocument(tempDoc);
-						main.getDocumentPane().setEditable(false);
-						main.getDocumentPane().setEnabled(true);
-						
+
 						pw.setText("Extracting and Clustering Features...");
-						try 
-						{
+						try {
 							wizard.reRunModified(magician);
 							pw.setText("Initialize Cluster Viewer...");
 							DriverClustersWindow.initializeClusterViewer(main,false);
@@ -189,13 +174,14 @@ public class BackendInterface {
 							e.printStackTrace();
 							ErrorHandler.fatalError();
 						}
-						pw.setText("Setting Results...");
+
 						Map<String,Map<String,Double>> wekaResults = magician.getWekaResultList();
 						Logger.logln(NAME+" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
 						Logger.logln(NAME+wekaResults.toString());
 						makeResultsTable(wekaResults, main);
 					}
 				}
+
 				int selectedIndex = 1;
 				int trueIndex = selectedIndex - 1;
 				Logger.logln(NAME+"Cluster Group number '"+trueIndex+"' selected: " + DriverClustersWindow.getStringRep()[selectedIndex]);
@@ -205,23 +191,23 @@ public class BackendInterface {
 				DriverDocumentsTab.wizard.setSelectedTargets();
 				DriverDocumentsTab.signalTargetsSelected(main, true);
 
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-					// Get current size of heap in bytes
-					long heapSize = Runtime.getRuntime().totalMemory();
-	
-					// Get maximum size of heap in bytes. The heap cannot grow beyond this size.
-					// Any attempt will result in an OutOfMemoryException.
-					long heapMaxSize = Runtime.getRuntime().maxMemory();
-	
-					// Get amount of free memory within the heap in bytes. This size will increase
-					// after garbage collection and decrease as new objects are created.
-					long heapFreeSize = Runtime.getRuntime().freeMemory();
-					Logger.logln(NAME+"Something happend. Here are the total, max, and free heap sizes:");
-					Logger.logln(NAME+"Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
-				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				// Get current size of heap in bytes
+				long heapSize = Runtime.getRuntime().totalMemory();
+
+				// Get maximum size of heap in bytes. The heap cannot grow beyond this size.
+				// Any attempt will result in an OutOfMemoryException.
+				long heapMaxSize = Runtime.getRuntime().maxMemory();
+
+				// Get amount of free memory within the heap in bytes. This size will increase
+				// after garbage collection and decrease as new objects are created.
+				long heapFreeSize = Runtime.getRuntime().freeMemory();
+				Logger.logln(NAME+"Something happend. Here are the total, max, and free heap sizes:");
+				Logger.logln(NAME+"Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
+			}
+			
+			pw.stop();
 		}
 	}
 	
@@ -243,8 +229,6 @@ public class BackendInterface {
 
 		public void run(){
 			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded(); // todo figure out why this and/or the two percent change needed calls in TaggedDocument affect AnonymityBar
-				
-			pw.setText("Target Selected");
 
 			DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
 			Logger.logln(NAME+"The Features are: "+DriverDocumentsTab.theFeatures.toString());
@@ -256,43 +240,38 @@ public class BackendInterface {
 			else
 				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), false);
 
-			pw.stop();
-			
 			main.anonymityDrawingPanel.updateAnonymityBar();
 			main.anonymityDrawingPanel.showPointer(true);
-			for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++) {
-				System.out.println("		" + DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(i));
+
+			for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++)
 				DriverDocumentsTab.originals.put(DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(i), DriverDocumentsTab.taggedDoc.getTaggedSentences().get(i));
-			}
+
 			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
-			SuggestionCalculator.trackEditSentence(main);
+			SuggestionCalculator.placeSuggestions(main);
 			GUIUpdateInterface.updateResultsPrepColor(main);
 			
 			DriverDocumentsTab.ignoreNumActions = 1; // must be set to 1, otherwise "....setDot(0)" (2 lines down) will screw things up when it fires the caretUpdate listener.
 			main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
 			main.getDocumentPane().getCaret().setDot(0); // NOTE However, THIS DOES fire the caretUpdate, because we are messing with the caret itself.
 			main.getDocumentPane().setCaretPosition(0); // NOTE And then this, again, does not fire the caretUpdate
-			DriverDocumentsTab.ignoreNumActions = 0; // must be set back to 0, otherwise, if for some reason setDot(0) DOESNT fire the caretListener (which happens with some frequency), the first click on a sentence will be ignored.
+			DriverDocumentsTab.ignoreNumActions = 0; //We MUST reset this to 0 because, for whatever reason, sometimes setDot() does not fire the caret listener, so ignoreNumActions is never reset. This is to ensure it is.
 			
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange, true);
-			
+			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
 			DriverDocumentsTab.charsRemoved = 0;	
 			DriverDocumentsTab.caretPositionPriorToCharInsertion = 0;
-			Translator.firstRun = true;
-			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.isFirstRun = false;	
 			
 			DictionaryBinding.init();//initializes the dictionary for wordNEt
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
-			
-			DriverDocumentsTab.setAllDocTabUseable(true, main);
+
 			main.getDocumentPane().setEnabled(true);
-            main.getDocumentPane().setEditable(true);
+			main.getDocumentPane().setEditable(true);
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 		}
