@@ -13,9 +13,11 @@ import com.memetix.mst.translate.Translate;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
+
 /**
  * @author sadiaafroz
  * @author Marc Barrowclift
+ *
  */
 public class Translation {
 	
@@ -243,7 +245,7 @@ public class Translation {
 				tries--;
 			}
 		}
-
+		
 		if (tries <= 0) {
 			Logger.logln(NAME+"Translations could not be obtained, no internet connection. Will now stop.", LogOut.STDERR);
 			return "internet";
