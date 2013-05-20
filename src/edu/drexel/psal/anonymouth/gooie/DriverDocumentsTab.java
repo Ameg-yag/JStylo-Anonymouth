@@ -700,11 +700,9 @@ public class DriverDocumentsTab {
 		/**
 		 * ActionListener for process button (bar).
 		 */
-		main.processButton.addActionListener(new ActionListener() 
-		{
+		main.processButton.addActionListener(new ActionListener() {
 			@Override
-			public synchronized void actionPerformed(ActionEvent event) 
-			{
+			public synchronized void actionPerformed(ActionEvent event) {
 				// ----- check if all requirements for processing are met
 				String errorMessage = "";
 				if (!main.mainDocReady())
@@ -722,13 +720,10 @@ public class DriverDocumentsTab {
 				if (errorMessage != "") {
 					JOptionPane.showMessageDialog(main, errorMessage, "Settings Error!",
 						    JOptionPane.ERROR_MESSAGE);
-				}
-				else
-				{
+				} else {
 					main.leftTabPane.setSelectedIndex(0);
 					// ----- confirm they want to process
-					if (true) // ---- can be a confirm dialog to make sure they want to process.
-					{
+					if (true) {// ---- can be a confirm dialog to make sure they want to process.
 						// ----- if this is the first run, do everything that needs to be ran the first time
 						if(isFirstRun) {
 							// ----- create the main document and add it to the appropriate array list.
@@ -746,19 +741,15 @@ public class DriverDocumentsTab {
 							noCalcHistFeatures = new ArrayList<FeatureList>(sizeOfCfd);
 							yesCalcHistFeatures = new ArrayList<FeatureList>(sizeOfCfd);
 							
-							for(int i = 0; i < sizeOfCfd; i++)
-							{
+							for(int i = 0; i < sizeOfCfd; i++) {
 								String theName = main.cfd.featureDriverAt(i).getName();
 								
 								// capitalize the name and replace all " " and "-" with "_"
 								theName = theName.replaceAll("[ -]","_").toUpperCase(); 
-								if(isCalcHist == false)
-								{
+								if(isCalcHist == false) {
 									isCalcHist = main.cfd.featureDriverAt(i).isCalcHist();
 									yesCalcHistFeatures.add(FeatureList.valueOf(theName));
-								} 
-								else 
-								{
+								} else {
 									// these values will go in suggestion list... PLUS any 	
 									noCalcHistFeatures.add(FeatureList.valueOf(theName));
 								}
@@ -786,14 +777,13 @@ public class DriverDocumentsTab {
 
 		saveAsTestDoc = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) 
-			{
+			public void actionPerformed(ActionEvent e) {
 				Logger.logln(NAME+"Save As document button clicked.");
 				JFileChooser save = new JFileChooser();
 				save.setSelectedFile(new File("anonymizedDoc.txt"));
 				save.addChoosableFileFilter(new ExtFilter("txt files (*.txt)", "txt"));
 				int answer = save.showSaveDialog(main);
-				
+
 				if (answer == JFileChooser.APPROVE_OPTION) {
 					File f = save.getSelectedFile();
 					String path = f.getAbsolutePath();
@@ -815,8 +805,7 @@ public class DriverDocumentsTab {
 								"Save Problem Set Failure",
 								JOptionPane.ERROR_MESSAGE);
 					}
-				} 
-				else
+				} else
 		            Logger.logln(NAME+"Save As contents of current tab canceled");
 			}
 		};
@@ -1111,11 +1100,9 @@ class SuggestionCalculator {
 		}
 }
 
-	
 /*
  * Answer to puzzle:
  * The "~" is a bitwise "NOT". "-1" (in binary) is represented by all 1's. So, a bitwise 'NOT' makes it equivalent to '0':
  *  
  * ~-1 == 0
  */
-	

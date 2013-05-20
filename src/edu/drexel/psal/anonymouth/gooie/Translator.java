@@ -15,11 +15,11 @@ public class Translator implements Runnable
 	private TaggedSentence newSentence;
 	private int currentSentNum = 1;
 	private int currentLangNum = 1;
-	public static ArrayList<String> translatedSentences = new ArrayList<String>(); 
 	public static Boolean finished = false;
 	public static Boolean noInternet = false;
 	public static Boolean accountsUsed = false;
-	public static Boolean translations = true;
+	public static Boolean stop = false;
+	private int stoppedLangNum = 0;
 	private Thread transThread;
 
 	/**
@@ -28,11 +28,16 @@ public class Translator implements Runnable
 	 * @param sentence String that holds the sentence to be translated
 	 * @param main GUIMain object needed to access fields of the GUI
 	 */
-	public Translator (GUIMain main)
-	{
+	public Translator (GUIMain main) {
 		this.main = main;
 	}
 
+	/**
+	 * Replaces the given "old" sentence in the translation sentence queue with the new sentence and puts the new
+	 * sentence first in the translations queue.
+	 * @param newSentence - The new sentence to get translations for.
+	 * @param oldSentence - The old sentence the new one is replacing.
+	 */
 	public void replace(TaggedSentence newSentence, TaggedSentence oldSentence) {
 		if (sentences.size() >= 1) {
 			addSent = true;
@@ -50,101 +55,108 @@ public class Translator implements Runnable
 	 * If translations are already running, adds new sentences into the front of the queue.
 	 */
 	public void load(ArrayList<TaggedSentence> loaded)  {
-		// add the given sentences to the queue
-		sentences.addAll(loaded);
-
 		if (PropertiesUtil.getDoTranslations()) {
-			translations = true;
-			// start a new thread to begin translation
+			sentences.addAll(loaded);
 			transThread = new Thread(this);
 			transThread.start(); // calls run below
-		} else {
-			translations = false;
 		}
 	}
 	
+	/**
+	 * To be called for re-processing and when the user turns off the translations. This essentially "freezes" the translations so they
+	 * can be picked up right where they left off.
+	 */
+	//TODO Boolean value to completely reset translations for re-processing? Talk to Andrew.
 	public void reset() {
+		stop = true;
+		
 		sentences.clear();
-		translatedSentences.clear();
+		
+		/**
+		 * Not sure if not resetting these will break something down the line, it seems to work fine without it.
+		 * Commented them out so that if the user turns off translations but changes their mind the translations will pick off where they left off AND
+		 * Upon re-processing the document translations will not re-translate sentences that didn't change.
+		 */
+//		translatedSentences.clear();
+//		currentSentNum = 1;
+		
+		stoppedLangNum = currentLangNum;
+		currentLangNum = 1;
 		finished = false;
 		noInternet = false;
 		accountsUsed = false;
-		translations = true;
-		currentSentNum = 1;
-		currentLangNum = 1;
 		addSent = false;
 	}
 
 	@Override
-	public void run() 
-	{
+	public void run() {
+		stop = false; //Just making sure stop is now false since this is a new document translation (if it the code below that turns it off wasn't run).
+		
 		// set up the progress bar
 		main.translationsProgressBar.setIndeterminate(false);
 		main.translationsProgressBar.setMaximum(sentences.size() * Translation.getUsedLangs().length);
 		// finish set up for translation
 		main.translationsProgressLabel.setText("Sentence: 1/" + sentences.size() + " Languages: 0/"  + Translation.getUsedLangs().length);
 
-		System.out.println("DEBUGGING: " + sentences.size());
 		// translate all languages for each sentence, sorting the list based on anon index after each translation
 		while (!sentences.isEmpty() && currentSentNum <= sentences.size()) {
+			if (!sentences.get(currentSentNum - 1).isTranslated()) {
+				// Translate the sentence for each language
+				for (Language lang: Translation.getUsedLangs()) {
+					if (currentLangNum >= stoppedLangNum) {
+						String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged(false).trim(), lang);
+						
+						if (translation.equals("internet")) {
+							noInternet = true;
+							translationsEnded();
+							DriverTranslationsTab.showTranslations(new TaggedSentence(""));
+							return;
+						} else if (translation.equals("account")) {
+							accountsUsed = true;
+							translationsEnded();
+							DriverTranslationsTab.showTranslations(new TaggedSentence(""));
+							return;
+						} else if (stop) {
+							stop = false;
+							translationsEnded();
+							DriverTranslationsTab.showTranslations(new TaggedSentence(""));
+							return;
+						}
+						
+						main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
+						currentLangNum++;
+						TaggedSentence taggedTrans = new TaggedSentence(translation);
+						taggedTrans.tagAndGetFeatures();
+						sentences.get(currentSentNum-1).getTranslations().add(taggedTrans);
+						sentences.get(currentSentNum-1).getTranslationNames().add(Translation.getName(lang));
+						sentences.get(currentSentNum-1).sortTranslations();
+						String one = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(DriverDocumentsTab.sentToTranslate).trim();
+						String two = sentences.get(currentSentNum-1).getUntagged(false).trim();
+						
+						if (one.equals(two))
+							DriverTranslationsTab.showTranslations(sentences.get(currentSentNum-1));
+						
+						if (main.translationsProgressBar.getValue() + 1 <= main.translationsProgressBar.getMaximum())
+							main.translationsProgressBar.setValue(main.translationsProgressBar.getValue() + 1);
+						
+						if (addSent) {
+							addSent = false;
+							sentences.add(currentSentNum, newSentence);
+							if (sentences.contains(oldSentence))
+								sentences.remove(oldSentence);
+							else
+								main.translationsProgressBar.setMaximum(sentences.size() * Translation.getUsedLangs().length);
+						
+							if (currentSentNum - 1 >= 1)
+								currentSentNum -= 1;
+						}
+					} else {
+						currentLangNum++;
+					}
+				}
+				stoppedLangNum = 0;
+			}
 			
-			translatedSentences.add(sentences.get(currentSentNum-1).getUntagged(false));
-			// if the sentence that is about to be translated already has translations, get rid of them
-			if (sentences.get(currentSentNum-1).hasTranslations()) {
-				sentences.get(currentSentNum-1).setTranslations(new ArrayList<TaggedSentence>(Translation.getUsedLangs().length));
-				sentences.get(currentSentNum-1).setTranslationNames(new ArrayList<String>(Translation.getUsedLangs().length));
-			}
-
-			// Translate the sentence for each language
-			for (Language lang: Translation.getUsedLangs()) {
-				// update the progress label
-				System.out.println("HELLO!!!");
-				System.out.println("Executed");
-				
-				String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged(false).trim(), lang);
-				System.out.println("Executed 2");
-				
-				if (translation.equals("internet")) {
-					noInternet = true;
-					translationsEnded();
-					DriverTranslationsTab.showTranslations(new TaggedSentence(""));
-					return;
-				} else if (translation.equals("account")) {
-					accountsUsed = true;
-					translationsEnded();
-					DriverTranslationsTab.showTranslations(new TaggedSentence(""));
-					return;
-				}
-				System.out.println("Executed 3");
-				
-				main.translationsProgressLabel.setText("Sentence: " + currentSentNum + "/" + sentences.size() + " Languages: " + currentLangNum + "/"  + Translation.getUsedLangs().length);
-				currentLangNum++;
-				TaggedSentence taggedTrans = new TaggedSentence(translation);
-				taggedTrans.tagAndGetFeatures();
-				sentences.get(currentSentNum-1).getTranslations().add(taggedTrans);
-				sentences.get(currentSentNum-1).getTranslationNames().add(Translation.getName(lang));
-				sentences.get(currentSentNum-1).sortTranslations();
-				String one = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(DriverDocumentsTab.sentToTranslate).trim();
-				String two = sentences.get(currentSentNum-1).getUntagged(false).trim();
-				
-				if (one.equals(two))
-					DriverTranslationsTab.showTranslations(sentences.get(currentSentNum-1));
-				
-				if (main.translationsProgressBar.getValue() + 1 <= main.translationsProgressBar.getMaximum())
-					main.translationsProgressBar.setValue(main.translationsProgressBar.getValue() + 1);
-				
-				if (addSent) {
-					addSent = false;
-					sentences.add(currentSentNum, newSentence);
-					if (sentences.contains(oldSentence))
-						sentences.remove(oldSentence);
-					else
-						main.translationsProgressBar.setMaximum(sentences.size() * Translation.getUsedLangs().length);
-				
-					if (currentSentNum - 1 >= 1)
-						currentSentNum -= 1;
-				}
-			}
 			currentLangNum = 1;
 			currentSentNum++;
 		}

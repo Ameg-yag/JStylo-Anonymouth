@@ -51,7 +51,6 @@ public class GeneralSettingsFrame extends JDialog {
 	protected JPanel advanced;
 	protected JLabel maxFeatures;
 	protected JSlider maxFeaturesSlider;
-//	protected JLabel maxFeaturesNote;
 	protected JLabel numOfThreads;
 	protected JSlider numOfThreadsSlider;
 	protected JLabel numOfThreadsNote;
@@ -323,11 +322,24 @@ public class GeneralSettingsFrame extends JDialog {
 				if (translations.isSelected()) {
 					PropertiesUtil.setDoTranslations(true);
 					
-					if (BackendInterface.processed)
-						main.notTranslated.setText("You have turned translations back on.\n\nPlease re-process the document to recieve translations.");
-					else
+					if (BackendInterface.processed) {
+						int answer = JOptionPane.showOptionDialog(null,
+								"Being translating now?",
+								"Begin Translations",
+								JOptionPane.YES_NO_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null, null, null);
+						
+						if (answer == JOptionPane.YES_OPTION) {
+							GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+							DriverTranslationsTab.showTranslations(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate));
+						}
+					} else {
 						main.notTranslated.setText("Please process your document to recieve translation suggestions.");
+						main.translationsHolderPanel.add(main.notTranslated, "");
+					}
 				} else {
+					GUIMain.GUITranslator.reset();
 					PropertiesUtil.setDoTranslations(false);
 					main.notTranslated.setText("You have turned translations off.");
 					main.translationsHolderPanel.add(main.notTranslated, "");

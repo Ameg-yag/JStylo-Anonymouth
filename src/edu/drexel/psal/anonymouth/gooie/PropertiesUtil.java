@@ -22,6 +22,7 @@ public class PropertiesUtil {
 	protected static JFileChooser save = new JFileChooser();
 	protected static String defaultClass = "SMO";
 	protected static String defaultFeat = "WritePrints (Limited)";
+	protected static int defaultClient = 0;
 	protected static String defaultProbSet = "";
 	protected static Boolean defaultAutoSave = false;
 	protected static Boolean defaultWarnQuit = true;
@@ -88,6 +89,90 @@ public class PropertiesUtil {
 		setProbSet(defaultProbSet);
 		setFeature(defaultFeat);
 		setClassifier(defaultClass);
+	}
+	
+	/**
+	 * Sets the index of the current client to use for the next time Anonymouth loads.
+	 * @param client - the index of the client wanted.
+	 */
+	protected static void setCurrentClient(int client) {
+		BufferedWriter writer;
+		
+		try {
+			prop.setProperty("curClient", Integer.toString(client));
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (Exception e) {
+			Logger.logln(NAME + "Failed setting the current client");
+		}
+	}
+	
+	/**
+	 * Gets the index of the current client to use for translations
+	 * @return
+	 */
+	protected static int getCurrentClient() {
+		String client;
+		
+		try {
+			client = prop.getProperty("curClient");
+			if (client == null) {
+				prop.setProperty("curClient", Integer.toString(defaultClient));
+				client = prop.getProperty("curClient");
+			}
+		} catch (NullPointerException e) {
+			prop.setProperty("curClient", Integer.toString(defaultClient));
+			client = prop.getProperty("curClient");
+		}
+		
+		return Integer.parseInt(client);
+	}
+	
+	/**
+	 * Sets the client availability
+	 * @param availability - An ArrayList<String> containing one of two values for each client: Either the string "ready" or a date,
+	 * meaning that the client is not ready and will only be available after the specified date.
+	 */
+	protected static void setClientAvailability(ArrayList<String> availability) {
+		BufferedWriter writer;
+		
+		try {
+			prop.setProperty("availability", availability.toString());
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (Exception e) {
+			Logger.logln(NAME + "Failed setting client availability");
+		}
+	}
+	
+	/**
+	 * Returns the client availability list used for translations.
+	 * @return Unlike every other get method here, this return value can be empty if the developer hadn't first set the availability (Since
+	 * there is no "default" availability value to fall back on)
+	 */
+	protected static ArrayList<String> getClientAvailability() {
+		ArrayList<String> availability = new ArrayList<String>(10);
+		
+		try {
+			String[] temp = prop.getProperty("availability").split(",");
+			if (temp != null) {
+				for (int i = 0; i < temp.length; i++) {
+					if (i == 0) {
+						String avail = temp[i].trim();
+						avail = avail.substring(1, avail.length());
+						availability.add(avail);
+					} else if (i == temp.length-1) {
+						String avail = temp[i].trim();
+						avail = avail.substring(0, avail.length()-1);
+						availability.add(avail);
+					} else {
+						availability.add(temp[i].trim());
+					}
+				}
+			}
+		} catch (NullPointerException e) {}
+		
+		return availability;
 	}
 	
 	/**

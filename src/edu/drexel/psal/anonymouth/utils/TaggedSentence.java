@@ -1,30 +1,19 @@
 package edu.drexel.psal.anonymouth.utils;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Pattern;
-
-import com.jgaap.JGAAPConstants;
 
 import edu.stanford.nlp.ling.TaggedWord;
 import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
-import edu.drexel.psal.anonymouth.utils.POS.TheTags;
 
-import edu.drexel.psal.anonymouth.utils.*;
-
-import edu.drexel.psal.jstylo.generics.Logger;
 import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.process.Tokenizer;
-import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import edu.stanford.nlp.trees.PennTreebankLanguagePack;
 import edu.stanford.nlp.trees.TreebankLanguagePack;
 
@@ -35,10 +24,7 @@ import edu.stanford.nlp.trees.TreebankLanguagePack;
  */
 
 public class TaggedSentence implements Comparable<TaggedSentence>, Serializable {
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = -8793730374516462574L;
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected SparseReferences sentenceLevelFeaturesFound;
@@ -55,23 +41,17 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	protected ArrayList<POV> pointOfView = new ArrayList<POV>(PROBABLE_MAX);
 	protected ArrayList<CONJ> conjugations = new ArrayList<CONJ>(PROBABLE_MAX);
 
-
 	protected transient List<? extends HasWord> sentenceTokenized;
 	protected transient Tokenizer<? extends HasWord> toke;
 	protected transient TreebankLanguagePack tlp = new PennTreebankLanguagePack(); 
 
-	private String[] thirdPersonPronouns={"he","she","him", "her","it","his","hers","its","them","they","their","theirs"};
-	private String[] firstPersonPronouns={"I","me","my","mine","we","us","our","ours"};
-	private String[] secondPersonPronouns={"you","your","yours"};
-
-	
-	private TaggedSentence(int numWords, int numTranslations){
+	/*
+	private TaggedSentence(int numWords, int numTranslations) {
 		wordsInSentence = new ArrayList<Word>(numWords);
 		translationNames = new ArrayList<String>(numTranslations);
 		translations = new ArrayList<TaggedSentence>(numTranslations);
-		
-		
 	}
+	*/
 
 	/**
 	 * Constructor -- accepts an untagged string.
@@ -199,6 +179,10 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 		return (translations.size() > 0);
 	}
 
+	public boolean isTranslated() {
+		return (translations.size() >= 15);
+	}
+	
 	/**
 	 * Tags the untagged sentence in this TaggedSentence, and finds the features present in it. 
 	 * For use when <i>not</i> storing TaggedSentence in a TaggedDocument
@@ -308,12 +292,12 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	 * 
 	 * @return sentenceAnonymityIndex
 	 */
-	public double getSentenceAnonymityIndex(){
+	public double getSentenceAnonymityIndex() {
 		double sentenceAnonymityIndex=0;
 		double numFeatures = sentenceLevelFeaturesFound.length();
 		int i;
 		Attribute currentAttrib;
-		int totalFeatureOccurrences = 0;
+//		int totalFeatureOccurrences = 0;
 //		for (i = 0; i < numFeatures; i++)
 //			totalFeatureOccurrences += sentenceLevelFeaturesFound.references.get(i).value;
 //		if (totalFeatureOccurrences == 0)

@@ -423,7 +423,7 @@ public class GUIMain extends javax.swing.JFrame  {
 						if (PropertiesUtil.getWarnQuit() && !saved) {
 							inst.toFront();
 							inst.requestFocus();
-							int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+							int confirm = JOptionPane.showOptionDialog(null, "Are You Sure to Close Application?\nYou will lose all unsaved changes.", "Unsaved Changes Warning", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, UIManager.getIcon("OptionPane.warningIcon"), null, null);
 							if (confirm == 0) {
 								System.exit(0);
 							}
