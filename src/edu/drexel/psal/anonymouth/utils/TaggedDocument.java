@@ -1,31 +1,16 @@
 package edu.drexel.psal.anonymouth.utils;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.jgaap.JGAAPConstants;
 
 import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
-import edu.drexel.psal.anonymouth.gooie.ErrorHandler;
 import edu.drexel.psal.jstylo.generics.Logger;
-import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.process.Tokenizer;
-import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import edu.stanford.nlp.trees.PennTreebankLanguagePack;
 import edu.stanford.nlp.trees.TreebankLanguagePack;
 
@@ -282,7 +267,7 @@ public class TaggedDocument implements Serializable{
 	public TaggedSentence concatSentences(TaggedSentence ... taggedSentences){//ArrayList<TaggedSentence> taggedList){
 		TaggedSentence toReturn =new TaggedSentence(taggedSentences[0]);
 		int numSents = taggedSentences.length;
-		int i, j;
+		int i;
 		for (i=1;i<numSents;i++){
 				toReturn.wordsInSentence.addAll(taggedSentences[i].wordsInSentence);
 				toReturn.untagged += taggedSentences[i].untagged;
@@ -300,7 +285,7 @@ public class TaggedDocument implements Serializable{
 	public TaggedSentence concatSentences(ArrayList<TaggedSentence> taggedSentences){//ArrayList<TaggedSentence> taggedList){
 		TaggedSentence toReturn =new TaggedSentence(taggedSentences.get(0));
 		int numSents = taggedSentences.size();
-		int i, j;
+		int i;
 		TaggedSentence thisTaggedSent;
 		for (i=1;i<numSents;i++){
 			thisTaggedSent = taggedSentences.get(i);
@@ -322,7 +307,7 @@ public class TaggedDocument implements Serializable{
 	public TaggedSentence concatSentences(int[] taggedSentenceIndicesToConcat){//ArrayList<TaggedSentence> taggedList){
 		TaggedSentence toReturn =new TaggedSentence(taggedSentences.get(taggedSentenceIndicesToConcat[0]));
 		int numSents = taggedSentenceIndicesToConcat.length;
-		int i, j;
+		int i;
 		TaggedSentence thisTaggedSent;
 		for (i=1;i<numSents;i++){
 			thisTaggedSent = taggedSentences.get(taggedSentenceIndicesToConcat[i]);
@@ -435,7 +420,7 @@ public class TaggedDocument implements Serializable{
 			return wasReplaced;
 		}
 		ArrayList<TaggedSentence> taggedSentsToAdd = makeAndTagSentences(sentsToAdd,false);
-		Scanner s = new Scanner(System.in);
+
 		TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
 		totalSentences--;
 		//call compare
@@ -590,10 +575,7 @@ public class TaggedDocument implements Serializable{
 	 */
 	public TaggedDocument(TaggedDocument td){
 		int i;
-		int j;
 		int numTaggedSents = td.taggedSentences.size();
-		int numArrayLists;
-		int numValues;
 		
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
 		// copy TaggedSentences

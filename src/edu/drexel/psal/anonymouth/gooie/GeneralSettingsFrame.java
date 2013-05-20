@@ -31,9 +31,18 @@ public class GeneralSettingsFrame extends JDialog {
 	protected GUIMain main;
 	public boolean panelsAreMade = false;
 	protected JTabbedPane tabbedPane;
+	protected GeneralSettingsFrame generalSettingsFrame;
 	
 	//General tab
 	protected JPanel general;
+	protected JCheckBox autoSave;
+	protected JLabel autoSaveNote;
+	protected JCheckBox warnQuit;
+	protected JCheckBox translations;
+	protected Dimension generalDimension;
+	
+	//Defaults tab
+	protected JPanel defaults;
 	protected JLabel defaultClassifier;
 	protected JLabel defaultFeature;
 	protected JLabel defaultProbSet;
@@ -42,10 +51,7 @@ public class GeneralSettingsFrame extends JDialog {
 	protected JButton selectProbSet;
 	protected JTextArea probSetTextPane;
 	protected JScrollPane probSetScrollPane;
-	protected JCheckBox autoSave;
-	protected JLabel autoSaveNote;
-	protected JCheckBox warnQuit;
-	protected JCheckBox translations;
+	protected Dimension defaultsDimension;
 	
 	//Advanced tab
 	protected JPanel advanced;
@@ -55,6 +61,7 @@ public class GeneralSettingsFrame extends JDialog {
 	protected JSlider numOfThreadsSlider;
 	protected JLabel numOfThreadsNote;
 	protected JButton reset;
+	protected Dimension advancedDimension;
 	
 	/**
 	 * CONSTRUCTOR
@@ -75,8 +82,10 @@ public class GeneralSettingsFrame extends JDialog {
 		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
 		initTabs();
 
+		generalSettingsFrame = this;
+		
 		this.add(tabbedPane);
-		this.setSize(new Dimension(500, 390));
+		this.setSize(generalDimension);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 	}
@@ -100,11 +109,46 @@ public class GeneralSettingsFrame extends JDialog {
 		//==========================================================================================
 		tabbedPane = new JTabbedPane();
 		general = new JPanel();
+		defaults= new JPanel();
 		advanced = new JPanel();
 
 		MigLayout generalLayout = new MigLayout();
 		
 		general.setLayout(generalLayout);
+		{
+			warnQuit = new JCheckBox();
+			warnQuit.setText("Warn about unsaved changes upon exit");
+			if (PropertiesUtil.getWarnQuit())
+				warnQuit.setSelected(true);
+			
+			autoSave = new JCheckBox();
+			autoSave.setText("Auto-Save anonymized documents upon exit");
+			if (PropertiesUtil.getAutoSave()) {
+				autoSave.setSelected(true);
+				warnQuit.setEnabled(false);
+			}
+			
+			translations = new JCheckBox();
+			translations.setText("Send sentences to Microsoft Bing© for translation");
+			if (PropertiesUtil.getDoTranslations())
+				translations.setSelected(true);
+			
+			autoSaveNote = new JLabel("<html><center>Note: Will overwrite original document with changes.<br>THIS ACTION CANNOT BE UNDONE</center></html>");
+			autoSaveNote.setForeground(Color.GRAY);
+			
+//			JSeparator test = new JSeparator(JSeparator.HORIZONTAL);
+//			test.setPreferredSize(new Dimension(484, 15));
+//			general.add(test, "alignx 50%, wrap");
+			general.add(autoSave, "wrap");
+			general.add(autoSaveNote, "alignx 50%, wrap");
+			general.add(warnQuit, "wrap");
+			general.add(translations);
+			
+			generalDimension = new Dimension(500, 215);
+		}
+		
+		MigLayout defaultLayout = new MigLayout();
+		defaults.setLayout(defaultLayout);
 		{
 			defaultClassifier = new JLabel("Set Default Classifier:");
 			classComboBox = new JComboBox<String>();
@@ -128,42 +172,16 @@ public class GeneralSettingsFrame extends JDialog {
 			probSetScrollPane.setPreferredSize(new Dimension(420, 20));
 			probSetScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 			probSetScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-			warnQuit = new JCheckBox();
-			warnQuit.setText("Warn about unsaved changes upon exit");
-			if (PropertiesUtil.getWarnQuit())
-				warnQuit.setSelected(true);
 			
-			autoSave = new JCheckBox();
-			autoSave.setText("Auto-Save anonymized documents upon exit");
-			if (PropertiesUtil.getAutoSave()) {
-				autoSave.setSelected(true);
-				warnQuit.setEnabled(false);
-			}
+			defaults.add(defaultClassifier, "wrap");
+			defaults.add(classComboBox, "wrap");
+			defaults.add(defaultFeature, "wrap");
+			defaults.add(featComboBox, "wrap");
+			defaults.add(defaultProbSet, "wrap");
+			defaults.add(selectProbSet, "split 2");
+			defaults.add(probSetScrollPane, "wrap");
 			
-			translations = new JCheckBox();
-			translations.setText("Send sentences to Microsoft Bing© for translation");
-			if (PropertiesUtil.getDoTranslations())
-				translations.setSelected(true);
-			
-			autoSaveNote = new JLabel("<html><center>Note: Will overwrite original document with changes.<br>THIS ACTION CANNOT BE UNDONE</center></html>");
-			autoSaveNote.setForeground(Color.GRAY);
-
-			general.add(defaultClassifier, "wrap");
-			general.add(classComboBox, "wrap");
-			general.add(defaultFeature, "wrap");
-			general.add(featComboBox, "wrap");
-			general.add(defaultProbSet, "wrap");
-			general.add(selectProbSet, "split 2");
-			general.add(probSetScrollPane, "wrap");
-			
-			JSeparator test = new JSeparator(JSeparator.HORIZONTAL);
-			test.setPreferredSize(new Dimension(484, 15));
-			general.add(test, "alignx 50%, wrap");
-			general.add(autoSave, "wrap");
-			general.add(autoSaveNote, "alignx 50%, wrap");
-			general.add(warnQuit, "wrap");
-			general.add(translations);
+			defaultsDimension = new Dimension(500, 240);
 		}
 		
 		MigLayout advancedLayout = new MigLayout();
@@ -209,13 +227,16 @@ public class GeneralSettingsFrame extends JDialog {
 			advanced.add(numOfThreadsNote, "alignx 50%, wrap");
 			
 			JSeparator test = new JSeparator(JSeparator.HORIZONTAL);
-			test.setPreferredSize(new Dimension(484, 30));
-			advanced.add(test, "gaptop 30, alignx 50%, wrap");
-			advanced.add(reset, "gaptop 10, alignx 50%");
+			test.setPreferredSize(new Dimension(484, 15));
+			advanced.add(test, "gaptop 5, alignx 50%, wrap");
+			advanced.add(reset, "gaptop 5, alignx 50%");
+			
+			advancedDimension = new Dimension(500, 275);
 		}
 
 		initListeners();
 		tabbedPane.add("General", general);
+		tabbedPane.add("Defaults", defaults);
 		tabbedPane.add("Advanced", advanced);
 	}
 	
@@ -232,6 +253,24 @@ public class GeneralSettingsFrame extends JDialog {
 		ChangeListener numOfThreadsListener;
 		ActionListener resetListener;
 		ActionListener translationsListener;
+		ChangeListener tabbedPaneListener;
+		
+		tabbedPaneListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (generalSettingsFrame == null)
+					return;
+				
+				if (tabbedPane.getSelectedIndex() == 0) {
+					generalSettingsFrame.setSize(generalDimension);
+				} else if (tabbedPane.getSelectedIndex() == 1) {
+					generalSettingsFrame.setSize(defaultsDimension);
+				} else {
+					generalSettingsFrame.setSize(advancedDimension);
+				}
+			}
+		};
+		tabbedPane.addChangeListener(tabbedPaneListener);
 		
 		classifierListener = new ActionListener() {
 			@Override

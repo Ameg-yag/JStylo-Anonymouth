@@ -1,9 +1,8 @@
 package edu.drexel.psal.anonymouth.engine;
 
 public class FeatureSwapper {
-
 	
-	public FeatureSwapper(){
+	public FeatureSwapper() {
 		
 		
 	}
@@ -21,14 +20,4 @@ public class FeatureSwapper {
 	 * 		=> The lowest probability of authorship combined with the most evenly distributed  
 	 * 		probabilities of ownership for all authors.
 	 */
-	
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// NOTE Auto-generated method stub
-
-	}
-
 }
