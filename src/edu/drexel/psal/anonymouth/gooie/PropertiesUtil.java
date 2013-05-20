@@ -96,11 +96,11 @@ public class PropertiesUtil {
 	 * Sets the font size for the document editor
 	 * @param fontSize - The point-size desired for the font.
 	 */
-	protected static void setFontSize(int fontSize) {
+	protected static void setFontSize(String fontSize) {
 		BufferedWriter writer;
 		
 		try {
-			prop.setProperty("fontSize", Integer.toString(fontSize));
+			prop.setProperty("fontSize", fontSize);
 			writer = new BufferedWriter(new FileWriter(propFileName));
 			prop.store(writer, "User Preferences");
 		} catch (Exception e) {

@@ -147,6 +147,7 @@ public class TaggedDocument implements Serializable{
 	 */
 	public ArrayList<TaggedSentence> makeAndTagSentences(String untagged, boolean appendTaggedSentencesToGlobalArrayList){
 		ArrayList<String[]> untaggedSents = jigsaw.makeSentenceTokens(untagged); 
+		System.out.println("    " + untaggedSents.size());
 		ArrayList<TaggedSentence> taggedSentences = new ArrayList<TaggedSentence>(untaggedSents.size());
 		//sentencesPreTagging = new ArrayList<List<? extends HasWord>>();
 		Iterator<String[]> strRayIter = untaggedSents.iterator();

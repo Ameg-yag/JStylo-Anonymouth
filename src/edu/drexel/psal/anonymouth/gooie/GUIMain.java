@@ -50,17 +50,17 @@ import com.apple.eawt.FullScreenListener;
 
 
 /**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
+ * This code was edited or generated using CloudGarden's Jigloo
+ * SWT/Swing GUI Builder, which is free for non-commercial
+ * use. If Jigloo is being used commercially (ie, by a corporation,
+ * company or business for any purpose whatever) then you
+ * should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details.
+ * Use of Jigloo implies acceptance of these licensing terms.
+ * A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+ * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+ * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+ */
 /**
  * JStylo main GUI class.
  * 
@@ -69,7 +69,7 @@ import com.apple.eawt.FullScreenListener;
  */
 //This is a comment from Joe Muoio to see if he can commit changes.
 public class GUIMain extends javax.swing.JFrame  {
-	
+
 	private static final long serialVersionUID = 1L;
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 
@@ -97,14 +97,14 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected List<Classifier> classifiers;
 	protected Thread analysisThread;
 	protected List<String> results;
-	
+
 	protected PreProcessSettingsFrame PPSP;
 	protected static GeneralSettingsFrame GSP;
 
 	protected String defaultTrainDocsTreeName = "Authors"; 
 	protected Font defaultLabelFont = new Font("Verdana",0,16);
 	protected static int cellPadding = 5;
-	
+
 	protected final Color ready = new Color(0,255,128);
 	protected final Color notReady = new Color(255,102,102);
 	protected final Color tan = new Color(136,166,233,200);
@@ -115,14 +115,14 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JPanel featuresTab;
 	protected JPanel classTab;
 	protected JPanel editorTab;
-	
+
 	// documents tab
 	protected JLabel problemSetLabel;
 	protected JButton loadProblemSetJButton;
 	protected JButton saveProblemSetJButton;
 	protected JButton removeTrainDocsJButton;
 	protected JButton addTrainDocsJButton;
-	
+
 	protected JTable testDocsJTable;
 	protected DefaultTableModel testDocsTableModel;
 	protected JLabel featuresToolsJLabel;
@@ -147,7 +147,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JLabel classAvClassArgsJLabel;
 	protected JLabel classAvClassJLabel;
 	protected JButton classAddJButton;
-	
+
 	protected JTextField classSelClassArgsJTextField;
 	protected JLabel classSelClassArgsJLabel;
 	protected JScrollPane classSelClassJScrollPane;
@@ -160,12 +160,12 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JLabel classSelClassJLabel;
 	protected JButton classRemoveJButton;
 	protected JButton classAboutJButton;
-	
+
 	protected JComboBox<String> classChoice;
-	
+
 	// Editor tab
-	
-	
+
+
 	protected JScrollPane theEditorScrollPane;
 	protected JTable suggestionTable;
 	protected JPanel editorRowTwoButtonBufferPanel;
@@ -185,146 +185,146 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JPanel updaterJPanel;
 	//-------------- HELP TAB PANE STUFF ---------
 	protected JTabbedPane leftTabPane;
-	
+
 	protected JPanel preProcessPanel;
 	protected JButton prepAdvButton;
-		protected JPanel prepDocumentsPanel;
-			protected JPanel prepMainDocPanel;
-				protected JLabel prepDocLabel;
-				protected JLabel mainLabel;
-				protected JList<String> prepMainDocList;
-				protected JButton clearProblemSetJButton;
-				protected JScrollPane prepMainDocScrollPane;
-			protected JPanel prepSampleDocsPanel;
-				protected JLabel sampleLabel;
-				protected JList<String> prepSampleDocsList;
-				protected JScrollPane prepSampleDocsScrollPane;
-			protected JPanel prepTrainDocsPanel;
-				protected JLabel trainLabel;
-				protected JTree trainCorpusJTree;
-				protected JScrollPane trainCorpusJTreeScrollPane;
-		protected JPanel prepFeaturesPanel;
-			protected JLabel prepFeatLabel;
-			protected JComboBox<String> featuresSetJComboBox;
-			protected DefaultComboBoxModel<String> featuresSetJComboBoxModel;
-		protected JPanel prepClassifiersPanel;
-			protected JLabel prepClassLabel;
-			protected JPanel prepAvailableClassPanel;
-				protected JTree classJTree;
-				protected JTextPane classTextPane;
-				protected JComboBox<String> classComboBox;
-				protected JScrollPane prepAvailableClassScrollPane;
-			protected JPanel prepSelectedClassPanel;
-				protected JList<String> classJList;
-				protected JScrollPane prepSelectedClassScrollPane;
-	
+	protected JPanel prepDocumentsPanel;
+	protected JPanel prepMainDocPanel;
+	protected JLabel prepDocLabel;
+	protected JLabel mainLabel;
+	protected JList<String> prepMainDocList;
+	protected JButton clearProblemSetJButton;
+	protected JScrollPane prepMainDocScrollPane;
+	protected JPanel prepSampleDocsPanel;
+	protected JLabel sampleLabel;
+	protected JList<String> prepSampleDocsList;
+	protected JScrollPane prepSampleDocsScrollPane;
+	protected JPanel prepTrainDocsPanel;
+	protected JLabel trainLabel;
+	protected JTree trainCorpusJTree;
+	protected JScrollPane trainCorpusJTreeScrollPane;
+	protected JPanel prepFeaturesPanel;
+	protected JLabel prepFeatLabel;
+	protected JComboBox<String> featuresSetJComboBox;
+	protected DefaultComboBoxModel<String> featuresSetJComboBoxModel;
+	protected JPanel prepClassifiersPanel;
+	protected JLabel prepClassLabel;
+	protected JPanel prepAvailableClassPanel;
+	protected JTree classJTree;
+	protected JTextPane classTextPane;
+	protected JComboBox<String> classComboBox;
+	protected JScrollPane prepAvailableClassScrollPane;
+	protected JPanel prepSelectedClassPanel;
+	protected JList<String> classJList;
+	protected JScrollPane prepSelectedClassScrollPane;
+
 	protected JPanel suggestionsPanel;
-		protected JPanel elementsPanel;
-		protected JPanel elementsToAddPanel;
-		protected JLabel elementsToAddLabel;
-		protected JList<String> elementsToAddPane;
-		protected JScrollPane elementsToAddScrollPane;
-		protected JPanel elementsToRemovePanel;
-		protected JLabel elementsToRemoveLabel;
-		protected JList<String> elementsToRemovePane;
-		protected JScrollPane elementsToRemoveScrollPane;
-		protected DefaultListModel<String> elementsToAdd;
-		protected DefaultListModel<String> elementsToRemove;
-		
+	protected JPanel elementsPanel;
+	protected JPanel elementsToAddPanel;
+	protected JLabel elementsToAddLabel;
+	protected JList<String> elementsToAddPane;
+	protected JScrollPane elementsToAddScrollPane;
+	protected JPanel elementsToRemovePanel;
+	protected JLabel elementsToRemoveLabel;
+	protected JList<String> elementsToRemovePane;
+	protected JScrollPane elementsToRemoveScrollPane;
+	protected DefaultListModel<String> elementsToAdd;
+	protected DefaultListModel<String> elementsToRemove;
+
 	protected JPanel translationsPanel;
-		protected JLabel translationsLabel;
-		protected ScrollablePanel translationsHolderPanel;
-		protected JScrollPane translationsScrollPane;
-		protected JPanel progressPanel;
-		protected JLabel translationsProgressLabel;
-		protected JProgressBar translationsProgressBar;
-		protected JTextPane notTranslated;
-	
+	protected JLabel translationsLabel;
+	protected ScrollablePanel translationsHolderPanel;
+	protected JScrollPane translationsScrollPane;
+	protected JPanel progressPanel;
+	protected JLabel translationsProgressLabel;
+	protected JProgressBar translationsProgressBar;
+	protected JTextPane notTranslated;
+
 	protected JPanel informationPanel;
-		protected JLabel sentenceEditorLabel;
-		protected JLabel documentViewerLabel;
-		protected JLabel resultsLabel;
-		protected JTextPane descriptionPane;
-		
-		protected JPanel instructionsPanel;
-		protected JLabel instructionsLabel;
-		protected JTextPane instructionsPane;
-		protected JScrollPane instructionsScrollPane;
-		protected JPanel synonymsPanel;
-		protected JLabel synonymsLabel;
-		protected JTextPane synonymsPane;
-		protected JScrollPane synonymsScrollPane;
+	protected JLabel sentenceEditorLabel;
+	protected JLabel documentViewerLabel;
+	protected JLabel resultsLabel;
+	protected JTextPane descriptionPane;
+
+	protected JPanel instructionsPanel;
+	protected JLabel instructionsLabel;
+	protected JTextPane instructionsPane;
+	protected JScrollPane instructionsScrollPane;
+	protected JPanel synonymsPanel;
+	protected JLabel synonymsLabel;
+	protected JTextPane synonymsPane;
+	protected JScrollPane synonymsScrollPane;
 	//--------------------------------------------
-		
+
 	//--------------- Editor Tab Pane stuff ----------------------
-		protected JTabbedPane topTabPane;
-		protected JPanel documentsPanel;
-		protected JPanel sentenceAndDocumentPanel;
-		protected JPanel sentenceLabelPanel;
-		
-		protected JPanel sentenceEditingPanel;
-		protected JPanel documentPanel;
-		protected StyledDocument theDocument;
-		
-		protected JButton removeWordsButton;
-		protected JButton shuffleButton;
-		protected JButton SaveChangesButton;
-		protected JButton copyToSentenceButton;
-		protected JButton restoreSentenceButton;
-		protected JLabel documentLabel;
-		private JTextPane documentPane;
-		protected JScrollPane documentScrollPane;
+	protected JTabbedPane topTabPane;
+	protected JPanel documentsPanel;
+	protected JPanel sentenceAndDocumentPanel;
+	protected JPanel sentenceLabelPanel;
 
-		protected JPanel sentenceAndSentenceLabelPanel;
-		protected JLabel translationsBoxLabel;
-		protected JScrollPane translationPane;
-		protected JTextPane translationEditPane;
-		
-		private boolean tabMade = false;
-		protected int resultsMaxIndex;
-		protected String chosenAuthor;
+	protected JPanel sentenceEditingPanel;
+	protected JPanel documentPanel;
+	protected StyledDocument theDocument;
 
-		protected JButton saveButton;
-		protected JButton processButton;
+	protected JButton removeWordsButton;
+	protected JButton shuffleButton;
+	protected JButton SaveChangesButton;
+	protected JButton copyToSentenceButton;
+	protected JButton restoreSentenceButton;
+	protected JLabel documentLabel;
+	private JTextPane documentPane;
+	protected JScrollPane documentScrollPane;
+
+	protected JPanel sentenceAndSentenceLabelPanel;
+	protected JLabel translationsBoxLabel;
+	protected JScrollPane translationPane;
+	protected JTextPane translationEditPane;
+
+	private boolean tabMade = false;
+	protected int resultsMaxIndex;
+	protected String chosenAuthor;
+
+	protected JButton saveButton;
+	protected JButton processButton;
 	//---------------------------------------------------------------------
-		protected JTabbedPane bottomTabPane;
-		protected JPanel resultsOptionsPanel;
-		protected JPanel resultsMainPanel;
-		protected JScrollPane resultsScrollPane;
-		protected JTextArea displayTextArea;
-		protected JPanel resultsBoxPanel_InnerBottomPanel;
-		protected JTable resultsTable;
-		protected DefaultTableModel resultsTableModel;
-		protected JScrollPane resultsTablePane;
-		protected JPanel resultsBoxPanel;
-		protected JLabel resultsTableLabel;
-		protected JPanel resultsTableLabelPanel;
-		protected JPanel resultsBoxAndResultsLabelPanel;
+	protected JTabbedPane bottomTabPane;
+	protected JPanel resultsOptionsPanel;
+	protected JPanel resultsMainPanel;
+	protected JScrollPane resultsScrollPane;
+	protected JTextArea displayTextArea;
+	protected JPanel resultsBoxPanel_InnerBottomPanel;
+	protected JTable resultsTable;
+	protected DefaultTableModel resultsTableModel;
+	protected JScrollPane resultsTablePane;
+	protected JPanel resultsBoxPanel;
+	protected JLabel resultsTableLabel;
+	protected JPanel resultsTableLabelPanel;
+	protected JPanel resultsBoxAndResultsLabelPanel;
 	//---------------------------------------------------------------------
-		
-		protected JTabbedPane rightTabPane;
-		protected JPanel anonymityPanel;
-		protected JLabel anonymityLabel;
-		protected AnonymityDrawingPanel anonymityDrawingPanel;
-		protected JLabel anonymityDescription;
-		
+
+	protected JTabbedPane rightTabPane;
+	protected JPanel anonymityPanel;
+	protected JLabel anonymityLabel;
+	protected AnonymityDrawingPanel anonymityDrawingPanel;
+	protected JLabel anonymityDescription;
+
 	//--------------------------------------------------------------------
-		
-		protected JPanel featuresPanel;
-		protected JLabel legendLabel;
-		protected JPanel legendPanel;
 
-		protected JPanel topPanel;
-		protected JButton refreshButton;
-		protected JPanel secondPanel;
-		
+	protected JPanel featuresPanel;
+	protected JLabel legendLabel;
+	protected JPanel legendPanel;
+
+	protected JPanel topPanel;
+	protected JButton refreshButton;
+	protected JPanel secondPanel;
+
 	//----------------------------------------------------------------------
-	
+
 	protected JPanel editorInfoJPanel;
 	protected JScrollPane editorInteractionScrollPane;
 	protected JScrollPane EditorInfoScrollPane;
 	protected JTabbedPane editTP;
-	
+
 	protected JScrollPane wordsToAddPane;
 	protected JTextField searchInputBox;
 	protected JLabel highlightLabel;
@@ -338,18 +338,18 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JLabel suggestionListLabel;
 	protected JButton verboseButton;
 	protected JScrollPane suggestionListPane;
-	
+
 	// Analysis tab
 	protected JCheckBox analysisOutputAccByClassJCheckBox;
 	protected JCheckBox analysisOutputConfusionMatrixJCheckBox;
 	protected ButtonGroup analysisTypeButtonGroup;
-	
+
 	protected static ImageIcon iconNO;
 	protected static ImageIcon iconFINISHED;
 	public static ImageIcon icon;
 	protected static ImageIcon arrow_up;
 	protected static ImageIcon arrow_down;
-	
+
 	protected JMenuBar menuBar;
 	protected JMenuItem settingsGeneralMenuItem;
 	protected JMenuItem fileSaveProblemSetMenuItem;
@@ -367,17 +367,17 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JMenuItem editMenu;
 	public JMenuItem editUndoMenuItem;
 	public JMenuItem editRedoMenuItem;
-//	protected JMenuItem filePrintMenuItem;
-	
+	//	protected JMenuItem filePrintMenuItem;
+
 	// random useful variables
 	protected static Border rlborder = BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder());
 	protected static Font titleFont = new Font("Ariel", Font.BOLD, 12);
 	protected static String titleHeight = "25";
 	protected static Boolean saved = true;
-	
+
 	// used for translation of sentences
 	protected static Translator GUITranslator;
-	
+
 	// not yet used, may be used to minimize the document, features, or classifiers part of the preprocess panel
 	protected boolean docPPIsShowing = true;
 	protected boolean featPPIsShowing = true;
@@ -387,16 +387,17 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected ClustersTutorial clustersTutorial;
 	protected VersionControl versionControl;
 	protected ResultsWindow resultsWindow;
-	
+
 	protected JPanel anonymityHoldingPanel;
 	protected JScrollPane anonymityScrollPane;
-	
+	protected Font normalFont;
+
 	private int resultsHeight;
 	protected Map<Integer, ArrayList<int[]>> highlights = new HashMap<Integer, ArrayList<int[]>>();
-	
+
 	//used mostly for loading the main document without having to alter the main.ps.testDocAt(0) directly
 	Document mainDocPreview;
-	
+
 	/**
 	 * Auto-generated main method to display this JFrame
 	 */
@@ -447,20 +448,20 @@ public class GUIMain extends javax.swing.JFrame  {
 					@Override
 					public void windowOpened(WindowEvent arg0) {}
 				};
-			
+
 				if (ThePresident.IS_MAC) {
 					enableOSXFullscreen(inst);
 				}
-				
+
 				inst.addWindowListener(exitListener);
 				inst.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-			
+
 				inst.setLocationRelativeTo(null);
 				inst.setVisible(true);
 			}
 		});
 	}
-	
+
 	/**
 	 * (Thanks to Dyorgio at StackOverflow for the code)
 	 * If the user is on OS X, we will allow them to enter full screen in Anonymouth using OS X's native full screen functionality.
@@ -474,13 +475,13 @@ public class GUIMain extends javax.swing.JFrame  {
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public static void enableOSXFullscreen(Window window) {
-	    try {
-	        Class util = Class.forName("com.apple.eawt.FullScreenUtilities");
-	        Class params[] = new Class[]{Window.class, Boolean.TYPE};
-	        Method method = util.getMethod("setWindowCanFullScreen", params);
-	        method.invoke(util, window, true);
-	        
-	        com.apple.eawt.FullScreenUtilities.addFullScreenListenerTo(window, new FullScreenListener () {
+		try {
+			Class util = Class.forName("com.apple.eawt.FullScreenUtilities");
+			Class params[] = new Class[]{Window.class, Boolean.TYPE};
+			Method method = util.getMethod("setWindowCanFullScreen", params);
+			method.invoke(util, window, true);
+
+			com.apple.eawt.FullScreenUtilities.addFullScreenListenerTo(window, new FullScreenListener () {
 				@Override
 				public void windowEnteredFullScreen(FullScreenEvent arg0) {
 					GUIMain.viewEnterFullScreenMenuItem.setText("Exit Full Screen");
@@ -494,11 +495,11 @@ public class GUIMain extends javax.swing.JFrame  {
 				@Override
 				public void windowExitingFullScreen(FullScreenEvent arg0) {}
 			});
-	    } catch (ClassNotFoundException e1) {
-	    	Logger.logln("( GUIMain ) - Failed initializing Anonymouth for full-screen", LogOut.STDERR);
-	    } catch (Exception e) {
-	    	Logger.logln("( GUIMain ) - Failed initializing Anonymouth for full-screen", LogOut.STDERR);
-	    }
+		} catch (ClassNotFoundException e1) {
+			Logger.logln("( GUIMain ) - Failed initializing Anonymouth for full-screen", LogOut.STDERR);
+		} catch (Exception e) {
+			Logger.logln("( GUIMain ) - Failed initializing Anonymouth for full-screen", LogOut.STDERR);
+		}
 	}
 
 
@@ -518,19 +519,19 @@ public class GUIMain extends javax.swing.JFrame  {
 		classifiers = new ArrayList<Classifier>();
 		wib = new WekaInstancesBuilder(true);
 		results = new ArrayList<String>();
-		
+
 		// properties file -----------------------------------
 		BufferedReader propReader = null;
-		
+
 		if (!PropertiesUtil.propFile.exists())
 		{
 			try {PropertiesUtil.propFile.createNewFile();} 
 			catch (IOException e1) {e1.printStackTrace();}
 		}
-		
+
 		try {propReader = new BufferedReader (new FileReader(PropertiesUtil.propFileName));} 
 		catch (FileNotFoundException e) {e.printStackTrace();}
-		
+
 		try {PropertiesUtil.prop.load(propReader);}
 		catch (IOException e) {e.printStackTrace();}
 	}
@@ -544,23 +545,23 @@ public class GUIMain extends javax.swing.JFrame  {
 			this.setMinimumSize(new Dimension(800, 600));
 			this.setTitle("Anonymouth");
 			this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
-			
+
 			menuBar = new JMenuBar();
-			
+
 			fileMenu = new JMenu("File");
 			fileSaveProblemSetMenuItem = new JMenuItem("Save Problem Set");
 			fileLoadProblemSetMenuItem = new JMenuItem("Load Problem Set");
 			fileSaveTestDocMenuItem = new JMenuItem("Save");
 			fileSaveAsTestDocMenuItem = new JMenuItem("Save As...");
-			
+
 			fileMenu.add(fileSaveProblemSetMenuItem);
 			fileMenu.add(fileLoadProblemSetMenuItem);
 			fileMenu.add(new JSeparator());
 			fileMenu.add(fileSaveTestDocMenuItem);
 			fileMenu.add(fileSaveAsTestDocMenuItem);
-			
+
 			menuBar.add(fileMenu);
-			
+
 			editMenu = new JMenu("Edit");
 			editUndoMenuItem = new JMenuItem("Undo");
 			editUndoMenuItem.setEnabled(false);
@@ -569,19 +570,19 @@ public class GUIMain extends javax.swing.JFrame  {
 			editRedoMenuItem.setEnabled(false);
 			editMenu.add(editRedoMenuItem);
 			menuBar.add(editMenu);
-			
+
 			viewMenuItem = new JMenu("View");
 			viewClustersMenuItem = new JMenuItem("Clusters");
 			viewMenuItem.add(viewClustersMenuItem);
-			
+
 			menuBar.add(viewMenuItem);
-			
+
 			if (ThePresident.IS_MAC) {
 				fileSaveAsTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 				fileSaveTestDocMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 				editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 				editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.SHIFT_DOWN_MASK | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-				
+
 				viewMenuItem.add(new JSeparator());
 				viewEnterFullScreenMenuItem = new JMenuItem("Enter Full Screen");
 				viewMenuItem.add(viewEnterFullScreenMenuItem);
@@ -592,14 +593,14 @@ public class GUIMain extends javax.swing.JFrame  {
 				editUndoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK));
 				editRedoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK));
 			}
-			
+
 			if (!ThePresident.IS_MAC) {
 				JMenu settingsMenu = new JMenu("Settings");
 				settingsGeneralMenuItem = new JMenuItem("Preferences");
 				settingsMenu.add(settingsGeneralMenuItem);
 				menuBar.add(settingsMenu);
 			}
-			
+
 			helpMenu = new JMenu("Help");
 			helpAboutMenuItem = new JMenuItem("About Anonymouth");
 			helpClustersMenuItem = new JMenuItem("Clusters Tutorial");
@@ -611,11 +612,11 @@ public class GUIMain extends javax.swing.JFrame  {
 			helpMenu.add(helpSuggestionsMenuItem);
 			helpMenu.add(new JSeparator());
 			helpMenu.add(helpClustersMenuItem);
-			
+
 			menuBar.add(helpMenu);
-			
+
 			this.setJMenuBar(menuBar);
-			
+
 			// ----- create all the tabs based on tab location (for some)
 			// ----- must be done first so the lists and tables below refer to a location (not null)
 			leftTabPane = new JTabbedPane();
@@ -627,30 +628,30 @@ public class GUIMain extends javax.swing.JFrame  {
 			createTransTab();
 			createDocumentTab();
 			createAnonymityTab();
-//			createResultsTab();
-			
+			//			createResultsTab();
+
 			setUpContentPane();
-			
+
 			// final property settings
-			
+
 			DriverDocumentsTab.setAllDocTabUseable(false, this);
-			
+
 			// init all settings panes
-			
+
 			PPSP = new PreProcessSettingsFrame(this);
 			GSP = new GeneralSettingsFrame(this);
-			
+
 			//init default values
 			setDefaultValues();
-			
+
 			clustersWindow = new ClustersWindow();
 			suggestionsWindow = new SuggestionsWindow();
 			clustersTutorial = new ClustersTutorial();
 			versionControl = new VersionControl(this);
 			resultsWindow = new ResultsWindow(this);
-			
+
 			// initialize listeners - except for EditorTabDriver!
-			
+
 			DriverMenu.initListeners(this);
 			DriverDocumentsTab.initListeners(this);
 			DriverPreProcessTab.initListeners(this);
@@ -662,7 +663,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Loads up the last saved prop file (if able) and sets all the documents from that prop file automatically. It also checks
 	 * what the last used feature and classifier were and (if able) set them over the default values.
@@ -671,10 +672,10 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected void setDefaultValues() throws Exception {
 		if (PropertiesUtil.getProbSet() != "") {
 			String problemSetPath = PropertiesUtil.prop.getProperty("recentProbSet");
-			
+
 			PropertiesUtil.setProbSet(problemSetPath);
 			Logger.logln(NAME+"Trying to load problem set at: " + problemSetPath);
-			
+
 			try {
 				ps = new ProblemSet(problemSetPath);
 				GUIUpdateInterface.updateProblemSet(this);
@@ -688,7 +689,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		cfd = presetCFDs.get(featuresSetJComboBox.getSelectedIndex());
 		GUIUpdateInterface.updateFeatureSetView(this);
 		GUIUpdateInterface.updateFeatPrepColor(this);
-		
+
 		classChoice.setSelectedItem(PropertiesUtil.getClassifier());
 		DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
 		DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
@@ -708,7 +709,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected void setUpContentPane() throws Exception
 	{
 		getContentPane().removeAll();
-		
+
 		// ------- initialize PARALLEL arrays for the panels, their names, and their locations
 		ArrayList<String> panelNames = new ArrayList<String>();
 		panelNames.add("Pre-Process");
@@ -717,14 +718,14 @@ public class GUIMain extends javax.swing.JFrame  {
 		panelNames.add("Document");
 		panelNames.add("Anonymity");
 		panelNames.add("Results");
-		
+
 		HashMap<String, JPanel> panels = new HashMap<String, JPanel>(6);
 		panels.put("Pre-Process", preProcessPanel);
 		panels.put("Suggestions", suggestionsPanel);
 		panels.put("Translations", translationsPanel);
 		panels.put("Document", documentsPanel);
 		panels.put("Anonymity", anonymityPanel);
-		
+
 		ArrayList<PropertiesUtil.Location> panelLocations = new ArrayList<PropertiesUtil.Location>();
 		panelLocations.add(PropertiesUtil.getPreProcessTabLocation());
 		panelLocations.add(PropertiesUtil.getSuggestionsTabLocation());
@@ -732,7 +733,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		panelLocations.add(PropertiesUtil.getDocumentsTabLocation());
 		panelLocations.add(PropertiesUtil.getAnonymityTabLocation());
 		panelLocations.add(PropertiesUtil.getResultsTabLocation());
-		
+
 		// ----- form the column specifications
 		String columnString = "";
 		int columnNumber = 0;
@@ -751,7 +752,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			columnString = columnString.concat("[]");
 			columnNumber++;
 		}
-		
+
 		// ----- form the row specifications
 		String rowString = "";
 		if (panelLocations.contains(PropertiesUtil.Location.TOP))
@@ -762,13 +763,13 @@ public class GUIMain extends javax.swing.JFrame  {
 		{
 			rowString = rowString.concat("[150:25%:]");
 		}
-		
+
 		// ------ set the content pane layout based on the tab locations
 		getContentPane().setLayout(new MigLayout(
 				"wrap " + columnNumber + ", gap 10 10", // layout constraints
 				columnString, // column constraints
 				rowString)); // row constraints)
-		
+
 		// ------ add all tabs to their correct tab panes
 		for (int i = 0; i < panels.size(); i++)
 		{
@@ -783,7 +784,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			else
 				throw new Exception();
 		}
-		
+
 		// ------ add all tab panes, if they need to be added
 		if (panelLocations.contains(PropertiesUtil.Location.LEFT))
 			getContentPane().add(leftTabPane, "width 200!, spany, shrinkprio 1");
@@ -803,11 +804,11 @@ public class GUIMain extends javax.swing.JFrame  {
 				}
 			}
 		});
-		
+
 		getContentPane().revalidate();
 		getContentPane().repaint();
 	}
-	
+
 	public boolean documentsAreReady()
 	{
 		boolean ready = true;
@@ -822,10 +823,10 @@ public class GUIMain extends javax.swing.JFrame  {
 		catch (Exception e){
 			return false;
 		}
-		
+
 		return ready;
 	}
-	
+
 	public boolean mainDocReady()
 	{
 		if (ps.hasTestDocs())
@@ -833,7 +834,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		else
 			return false;
 	}
-	
+
 	public boolean sampleDocsReady()
 	{
 		try
@@ -846,7 +847,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			return false;
 		}
 	}
-	
+
 	public boolean trainDocsReady()
 	{
 		try
@@ -876,17 +877,17 @@ public class GUIMain extends javax.swing.JFrame  {
 					}
 				}
 			}
-			
+
 			return result;
 		} catch (Exception e) {
 			return false;
 		}
 	}
-	
+
 	public boolean featuresAreReady()
 	{
 		boolean ready = true;
-		
+
 		try {
 			if (cfd.numOfFeatureDrivers() == 0)
 				ready = false;
@@ -894,14 +895,14 @@ public class GUIMain extends javax.swing.JFrame  {
 		catch (Exception e){
 			return false;
 		}
-		
+
 		return ready;
 	}
-	
+
 	public boolean classifiersAreReady()
 	{
 		boolean ready = true;
-		
+
 		try {
 			if (classifiers.isEmpty())
 				ready = false;
@@ -909,13 +910,13 @@ public class GUIMain extends javax.swing.JFrame  {
 		catch (Exception e){
 			return false;
 		}
-		
+
 		return ready;
 	}
-	
+
 	public boolean resultsAreReady() {
 		boolean ready = true;
-		
+
 		try {
 			if (!resultsWindow.isReady())
 				ready = false;
@@ -925,7 +926,7 @@ public class GUIMain extends javax.swing.JFrame  {
 
 		return ready;
 	}
-	
+
 	/**
 	 * Creates a Pre-Process panel that can be added to the "help area".
 	 * @return editorHelpSettingsPanel
@@ -948,7 +949,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		{
 			// Advanced Button
 			prepAdvButton = new JButton("Advanced");
-			
+
 			// Documents Label
 			prepDocLabel = new JLabel("Documents:");
 			prepDocLabel.setFont(titleFont);
@@ -956,66 +957,66 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepDocLabel.setBorder(rlborder);
 			prepDocLabel.setOpaque(true);
 			prepDocLabel.setBackground(notReady);
-			
+
 			problemSetLabel = new JLabel("Problem Set:");
 			problemSetLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			
+
 			// Save Problem Set button
 			saveProblemSetJButton = new JButton("Save");
-			
+
 			// load problem set button
 			loadProblemSetJButton = new JButton("Load");
-			
+
 			// Save Problem Set button
 			clearProblemSetJButton = new JButton("Clear");
-			
+
 			// main label
 			mainLabel = new JLabel("<html><center>Your Document<br>To Anonymize:</center></html>");
 			mainLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			
+
 			// sample label
 			sampleLabel = new JLabel("<html><center>Your Other<br>Sample Documents:</center></html>");
 			sampleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			
+
 			// main documents list
 			DefaultListModel<String> mainDocListModel = new DefaultListModel<String>();
 			prepMainDocList = new JList<String>(mainDocListModel);
 			prepMainDocList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			prepMainDocScrollPane = new JScrollPane(prepMainDocList);
-			
+
 			// sample documents list
 			DefaultListModel<String> sampleDocsListModel = new DefaultListModel<String>();
 			prepSampleDocsList = new JList<String>(sampleDocsListModel);
 			prepSampleDocsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			prepSampleDocsScrollPane = new JScrollPane(prepSampleDocsList);
-			
+
 			// main add button
 			addTestDocJButton = new JButton("+");
-			
+
 			// main delete button
 			removeTestDocJButton = new JButton("-");
-			
+
 			// sample add button
 			adduserSampleDocJButton = new JButton("+");
-			
+
 			// sample delete button
 			removeuserSampleDocJButton = new JButton("-");
-			
+
 			// train label
 			trainLabel = new JLabel("<html><center>Documents You Didn't Write<br>(At Least 3 Authors):</center></html>");
 			trainLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			
+
 			// train tree
 			DefaultMutableTreeNode top = new DefaultMutableTreeNode(ps.getTrainCorpusName(), true);
 			trainCorpusJTree = new JTree(top, true);
 			trainCorpusJTreeScrollPane = new JScrollPane(trainCorpusJTree);
-			
+
 			// train add button
 			addTrainDocsJButton = new JButton("+");
-			
+
 			// train delete button
 			removeTrainDocsJButton = new JButton("-");
-			
+
 			prepDocumentsPanel.add(prepDocLabel, "h " + titleHeight + "!, wrap");
 			prepDocumentsPanel.add(problemSetLabel, "alignx 50%, wrap");
 			prepDocumentsPanel.add(saveProblemSetJButton, "span 4, split 3, w 20::");
@@ -1027,18 +1028,18 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepDocumentsPanel.add(sampleLabel, "wrap, w 50%");
 			prepDocumentsPanel.add(prepMainDocScrollPane, "split, h 30:100:180, w 30:60:150, w 50%");
 			prepDocumentsPanel.add(prepSampleDocsScrollPane, "h 30:100:180, w 30:60:150, wrap, w 50%, wrap");
-			
+
 			prepDocumentsPanel.add(addTestDocJButton, "split 4, w 10::, gap 0");
 			prepDocumentsPanel.add(removeTestDocJButton, "w 10::, gap 0");
 			prepDocumentsPanel.add(adduserSampleDocJButton, "w 10::, gap 0");
 			prepDocumentsPanel.add(removeuserSampleDocJButton, "wrap, w 10::, gap 0");
-			
+
 			prepDocumentsPanel.add(trainLabel, "span");
 			prepDocumentsPanel.add(trainCorpusJTreeScrollPane, "span, h 25::345");
 			prepDocumentsPanel.add(addTrainDocsJButton, "split 2, w 10::");
 			prepDocumentsPanel.add(removeTrainDocsJButton, "w 10::");
 		}
-		
+
 		prepFeaturesPanel = new JPanel();
 		MigLayout featuresLayout = new MigLayout(
 				"wrap, ins 0, gap 0 5",
@@ -1052,22 +1053,22 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepFeatLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			prepFeatLabel.setBorder(rlborder);
 			prepFeatLabel.setBackground(notReady);
-			
+
 			JLabel label = new JLabel("Feature Set:");
-			
+
 			String[] presetCFDsNames = new String[presetCFDs.size()];
 			for (int i=0; i<presetCFDs.size(); i++)
 				presetCFDsNames[i] = presetCFDs.get(i).getName();
-			
+
 			featuresSetJComboBoxModel = new DefaultComboBoxModel<String>(presetCFDsNames);
 			featuresSetJComboBox = new JComboBox<String>();
 			featuresSetJComboBox.setModel(featuresSetJComboBoxModel);
-			
+
 			prepFeaturesPanel.add(prepFeatLabel, "h " + titleHeight + "!, wrap");
 			prepFeaturesPanel.add(label, "split");
 			prepFeaturesPanel.add(featuresSetJComboBox, "w 30:100%:");
 		}
-		
+
 		prepClassifiersPanel = new JPanel();
 		MigLayout classLayout = new MigLayout(
 				"wrap, ins 0, gap 0 5",
@@ -1081,11 +1082,11 @@ public class GUIMain extends javax.swing.JFrame  {
 			prepClassLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			prepClassLabel.setBorder(rlborder);
 			prepClassLabel.setBackground(notReady);
-			
+
 			classChoice = new JComboBox<String>();
 
 			DriverPreProcessTabClassifiers.initMainWekaClassifiersTree(this);
-			
+
 			prepClassifiersPanel.add(prepClassLabel, "h " + titleHeight + "!, wrap");
 			prepClassifiersPanel.add(classChoice, "w 30:100%:");
 		}
@@ -1093,7 +1094,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		preProcessPanel.add(prepFeaturesPanel, "growx");
 		preProcessPanel.add(prepClassifiersPanel, "growx");
 	}
-	
+
 	private JPanel createSugTab()
 	{
 		suggestionsPanel = new JPanel();
@@ -1110,7 +1111,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToAddLabel.setOpaque(true);
 			elementsToAddLabel.setBackground(tan);
 			elementsToAddLabel.setBorder(rlborder);
-			
+
 			//--------- Elements to Add Text Pane ------------------
 			elementsToAddPane = new JList<String>();
 			elementsToAddScrollPane = new JScrollPane(elementsToAddPane);
@@ -1123,15 +1124,15 @@ public class GUIMain extends javax.swing.JFrame  {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
 					elementsToRemovePane.clearSelection();
-					
+
 					try {
 						Highlighter highlight = getDocumentPane().getHighlighter();
 						int highlightedObjectsSize = DriverDocumentsTab.highlightedObjects.size();
-						
+
 						for (int i = 0; i < highlightedObjectsSize; i++)
 							highlight.removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
 						DriverDocumentsTab.highlightedObjects.clear();
-						
+
 						ArrayList<int[]> index = IndexFinder.findIndices(getDocumentPane().getText(), elementsToAddPane.getSelectedValue());
 
 						int indexSize = index.size();
@@ -1147,7 +1148,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToAddPane.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			elementsToAddPane.setDragEnabled(false);
 			elementsToAddPane.setFocusable(false);
-			
+
 			//--------- Elements to Remove Label  ------------------
 			elementsToRemoveLabel = new JLabel("Elements To Remove:");
 			elementsToRemoveLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1155,7 +1156,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemoveLabel.setOpaque(true);
 			elementsToRemoveLabel.setBackground(tan);
 			elementsToRemoveLabel.setBorder(rlborder);
-			
+
 			//--------- Elements to Remove Text Pane ------------------
 			elementsToRemovePane = new JList<String>();
 			elementsToRemoveScrollPane = new JScrollPane(elementsToRemovePane);
@@ -1168,7 +1169,7 @@ public class GUIMain extends javax.swing.JFrame  {
 				@Override
 				public void valueChanged(ListSelectionEvent evt) {
 					elementsToAddPane.clearSelection();
-					
+
 					try {
 						Highlighter highlight = getDocumentPane().getHighlighter();
 						int highlightedObjectsSize = DriverDocumentsTab.highlightedObjects.size();
@@ -1176,9 +1177,9 @@ public class GUIMain extends javax.swing.JFrame  {
 						for (int i = 0; i < highlightedObjectsSize; i++)
 							highlight.removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
 						DriverDocumentsTab.highlightedObjects.clear();
-						
+
 						ArrayList<int[]> index = IndexFinder.findIndices(getDocumentPane().getText(), elementsToRemovePane.getSelectedValue());
-						
+
 						int indexSize = index.size();
 
 						for (int i = 0; i < indexSize; i++)
@@ -1191,23 +1192,23 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemovePane.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			elementsToRemovePane.setDragEnabled(false);
 			elementsToRemovePane.setFocusable(false);
-			
+
 			suggestionsPanel.add(elementsToAddLabel, "h " + titleHeight + "!");
 			suggestionsPanel.add(elementsToAddScrollPane, "growx, height 50%");
 			suggestionsPanel.add(elementsToRemoveLabel, "h " + titleHeight + "!");
 			suggestionsPanel.add(elementsToRemoveScrollPane, "growx, height 50%");
 		}//============ End Suggestions Tab =================
-	return suggestionsPanel;
+		return suggestionsPanel;
 	}
-	
+
 	@SuppressWarnings("serial")
 	private JPanel createTransTab()
 	{
 		translationsPanel = new JPanel();
 		translationsPanel.setLayout(new MigLayout(
-					"wrap, ins 0, gap 0 0",
-					"grow, fill",
-					"[][grow, fill][]"));
+				"wrap, ins 0, gap 0 0",
+				"grow, fill",
+				"[][grow, fill][]"));
 		{ // --------------translation panel components
 			translationsLabel = new JLabel("Translations:");
 			translationsLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1215,7 +1216,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			translationsLabel.setOpaque(true);
 			translationsLabel.setBackground(tan);
 			translationsLabel.setBorder(rlborder);
-			
+
 			translationsHolderPanel = new ScrollablePanel()
 			{
 				public boolean getScrollableTracksViewportWidth()
@@ -1230,23 +1231,23 @@ public class GUIMain extends javax.swing.JFrame  {
 					"wrap, ins 0, gap 0",
 					"grow, fill",
 					""));
-			
+
 			notTranslated = new JTextPane();
-			
+
 			if (PropertiesUtil.getDoTranslations())
 				notTranslated.setText("Please process your document to recieve translation suggestions.");
 			else
 				notTranslated.setText("You have turned translations off.");
-			
+
 			notTranslated.setBorder(BorderFactory.createEmptyBorder(1,3,1,3));
 			notTranslated.setDragEnabled(false);
 			notTranslated.setEditable(false);
 			notTranslated.setFocusable(false);
 			translationsHolderPanel.add(notTranslated);
-			
+
 			translationsScrollPane = new JScrollPane(translationsHolderPanel);
 			translationsScrollPane.setOpaque(true);
-			
+
 			progressPanel = new JPanel();
 			progressPanel.setLayout(new MigLayout(
 					"wrap, fill, ins 0",
@@ -1259,30 +1260,30 @@ public class GUIMain extends javax.swing.JFrame  {
 				translationsProgressTitleLabel.setOpaque(true);
 				translationsProgressTitleLabel.setBackground(tan);
 				translationsProgressTitleLabel.setBorder(rlborder);
-				
+
 				translationsProgressLabel = new JLabel("No Translations Pending.");
 				translationsProgressLabel.setHorizontalAlignment(SwingConstants.CENTER);
-				
+
 				translationsProgressBar = new JProgressBar();
-				
+
 				progressPanel.add(translationsProgressTitleLabel, "grow, h 25!");
 				progressPanel.add(translationsProgressLabel, "grow");
 				progressPanel.add(translationsProgressBar, "grow");
 			}
-			
+
 			translationsPanel.add(translationsLabel, "grow, h 25!");
 			translationsPanel.add(translationsScrollPane, "grow");
 			translationsPanel.add(progressPanel, "grow");
 		}
 		return translationsPanel;
 	}
-	
+
 	private JPanel createDocumentTab()
 	{
 		Logger.logln(NAME+"Creating Documents Tab...");
 		if(tabMade == false)
 		{
-			Font normalFont = new Font("Ariel", Font.PLAIN, 11);
+			normalFont = new Font("Ariel", Font.PLAIN, PropertiesUtil.getFontSize());
 			
 			documentsPanel = new JPanel();
 			MigLayout EBPLayout = new MigLayout(
@@ -1291,39 +1292,43 @@ public class GUIMain extends javax.swing.JFrame  {
 					"[][grow, fill][]");
 			documentsPanel.setLayout(EBPLayout);
 			{
-                documentLabel = new JLabel("Document:");
-                documentLabel.setHorizontalAlignment(SwingConstants.CENTER);
-                documentLabel.setFont(titleFont);
-                documentLabel.setOpaque(true);
-                documentLabel.setBackground(tan);
-                documentLabel.setBorder(rlborder);
-                
-                documentScrollPane = new JScrollPane();
-                setDocumentPane(new JTextPane());
-                getDocumentPane().setDragEnabled(false);
-                getDocumentPane().setText("This is where the latest version of your document will be.");
-                getDocumentPane().setFont(normalFont);
-                getDocumentPane().setEnabled(false);
-                getDocumentPane().setEditable(false);
-                getDocumentPane().setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
-                documentScrollPane.setViewportView(getDocumentPane());
+				documentLabel = new JLabel("Document:");
+				documentLabel.setHorizontalAlignment(SwingConstants.CENTER);
+				documentLabel.setFont(titleFont);
+				documentLabel.setOpaque(true);
+				documentLabel.setBackground(tan);
+				documentLabel.setBorder(rlborder);
 
-                saveButton = new JButton("Save As...");
-                saveButton.setToolTipText("Saves the modified document above to a new file.");
+				documentScrollPane = new JScrollPane();
+				setDocumentPane(new JTextPane());
+				getDocumentPane().setDragEnabled(false);
+				getDocumentPane().setText("This is where the latest version of your document will be.");
+				getDocumentPane().setFont(normalFont);
+				getDocumentPane().setEnabled(false);
+				getDocumentPane().setEditable(false);
+				getDocumentPane().setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
 
-                processButton = new JButton("Process");
-                processButton.setToolTipText("Processes the document.");
+				//InputFilter documentFilter = new InputFilter();
+				//((AbstractDocument)documentPane.getDocument()).setDocumentFilter(documentFilter);
 
-                documentsPanel.add(documentLabel, "grow, h " + titleHeight + "!");
-                documentsPanel.add(documentScrollPane, "grow");
-                documentsPanel.add(processButton, "right, split");
-                documentsPanel.add(saveButton, "right");
+				documentScrollPane.setViewportView(getDocumentPane());
+
+				saveButton = new JButton("Save As...");
+				saveButton.setToolTipText("Saves the modified document above to a new file.");
+
+				processButton = new JButton("Process");
+				processButton.setToolTipText("Processes the document.");
+
+				documentsPanel.add(documentLabel, "grow, h " + titleHeight + "!");
+				documentsPanel.add(documentScrollPane, "grow");
+				documentsPanel.add(processButton, "right, split");
+				documentsPanel.add(saveButton, "right");
 			}
-            tabMade = true;
+			tabMade = true;
 		}
 		return documentsPanel;
 	}
-	
+
 	private JPanel createAnonymityTab() throws Exception
 	{
 		PropertiesUtil.Location location = PropertiesUtil.getAnonymityTabLocation();
@@ -1340,7 +1345,7 @@ public class GUIMain extends javax.swing.JFrame  {
 					"[][][grow, fill]"));
 		else
 			throw new Exception();
-		
+
 		{ // --------------anonymity panel components
 			anonymityLabel = new JLabel("Anonymity:");
 			anonymityLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1348,13 +1353,13 @@ public class GUIMain extends javax.swing.JFrame  {
 			anonymityLabel.setOpaque(true);
 			anonymityLabel.setBackground(tan);
 			anonymityLabel.setBorder(rlborder);
-			
+
 			anonymityDrawingPanel = new AnonymityDrawingPanel(this);
-			
+
 			anonymityDescription = new JLabel();
 			anonymityDescription.setFont(new Font("Helvatica", Font.PLAIN, 15));
 			anonymityDescription.setText("<html><center>Test document must<br>be processed to<br>recieve results</center></html>");
-			
+
 			anonymityHoldingPanel = new JPanel();
 			anonymityHoldingPanel.setBackground(Color.WHITE);
 			anonymityHoldingPanel.setLayout(new MigLayout(
@@ -1363,22 +1368,22 @@ public class GUIMain extends javax.swing.JFrame  {
 					"[][grow, fill][]"));
 			anonymityHoldingPanel.add(anonymityDrawingPanel, "h 494!, pad -10 0");
 			anonymityHoldingPanel.add(anonymityDescription, "alignx 5, growy, w ::150, gap 0 5");
-			
+
 			anonymityScrollPane = new JScrollPane(anonymityHoldingPanel);
 			anonymityScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-			
+
 			resultsTableLabel = new JLabel("Results:");
 			resultsTableLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			resultsTableLabel.setFont(titleFont);
 			resultsTableLabel.setOpaque(true);
 			resultsTableLabel.setBackground(tan);
 			resultsTableLabel.setBorder(rlborder);
-			
+
 			makeResultsPanel();
 			resultsMainPanel.setLayout(new MigLayout(
 					"aligny 50%"));
 			resultsMainPanel.setBackground(Color.WHITE);
-			
+
 			if (location== PropertiesUtil.Location.LEFT || location == PropertiesUtil.Location.RIGHT)
 			{
 				anonymityPanel.add(anonymityLabel, "h " + titleHeight + "!, width 100:220:220");
@@ -1389,21 +1394,21 @@ public class GUIMain extends javax.swing.JFrame  {
 		}
 		return anonymityPanel;
 	}
-	
+
 	@SuppressWarnings("serial")
 	private void makeResultsPanel() {
 		resultsMainPanel = new JPanel() {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				Graphics2D g2d = (Graphics2D)g;
-				
+
 				if (resultsAreReady()) {
 					resultsLabel.setText("");
-					
+
 					if (resultsWindow.getAuthorSize() <= 20) {
 						resultsHeight = 25 * resultsWindow.getAuthorSize();
 					}
-					
+
 					resultsMainPanel.setPreferredSize(new Dimension(160, resultsHeight));
 					g2d.drawImage(resultsWindow.getPanelChart(170, resultsHeight), -10, -6, null);
 				} else {
@@ -1417,15 +1422,15 @@ public class GUIMain extends javax.swing.JFrame  {
 		resultsLabel = new JLabel("");
 		resultsLabel.setFont(new Font("Helvatica", Font.PLAIN, 15));
 		resultsLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		
+
 		resultsMainPanel.setPreferredSize(new Dimension(175, 110));
 		resultsMainPanel.add(resultsLabel);
-		
+
 		resultsScrollPane = new JScrollPane(resultsMainPanel);
 		resultsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		resultsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 	}
-	
+
 	public JTextPane getDocumentPane() {
 		return documentPane;
 	}
@@ -1442,146 +1447,146 @@ public class GUIMain extends javax.swing.JFrame  {
 	 */
 	public static class alignCellRenderer implements TableCellRenderer {
 
-	    DefaultTableCellRenderer defaultRenderer;
-	    DefaultTableCellRenderer headerRenderer;
-	    String type;
+		DefaultTableCellRenderer defaultRenderer;
+		DefaultTableCellRenderer headerRenderer;
+		String type;
 
 		public alignCellRenderer(JTable table, int alignment, String type) throws Exception 
 		{
 			this.type = type;
 			if (type == "cell")
 			{
-		        defaultRenderer = (DefaultTableCellRenderer)table.getDefaultRenderer(String.class);
-		        defaultRenderer.setHorizontalAlignment(alignment);
+				defaultRenderer = (DefaultTableCellRenderer)table.getDefaultRenderer(String.class);
+				defaultRenderer.setHorizontalAlignment(alignment);
 			}
 			else if (type == "header")
 			{
 				headerRenderer = (DefaultTableCellRenderer)table.getTableHeader().getDefaultRenderer();
-		        headerRenderer.setHorizontalAlignment(alignment);
+				headerRenderer.setHorizontalAlignment(alignment);
 			}
 			else
 				throw new Exception();
-	    }
+		}
 
-	    @Override
-	    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,boolean hasFocus, int row, int col) 
-	    {
-	    	// bad input is caught in constructor
-	    	if (type == "cell")
-	    		return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-	    	else
-	    		return headerRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-	    }
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,boolean hasFocus, int row, int col) 
+		{
+			// bad input is caught in constructor
+			if (type == "cell")
+				return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+			else
+				return headerRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+		}
 	}
-	
+
 	/**
 	 * Class for resizing table columns to fit the data/header.
 	 * Call ColumnsAutoSizer.sizeColumnsToFit(table); in tabledChanged when adding a TableModelListener.
 	 * @author Jeff
 	 *
 	 */
-	
+
 	//http://bosmeeuw.wordpress.com/2011/08/07/java-swing-automatically-resize-table-columns-to-their-contents/
 	public static class ColumnsAutoSizer 
 	{
-	    public static void sizeColumnsToFit(JTable table) 
-	    {
-	        sizeColumnsToFit(table, 5);
-	    }
-	    
-	    public static void sizeColumnsToFit(JTable table, int columnMargin) 
-	    {
-	        JTableHeader tableHeader = table.getTableHeader();
-	        if(tableHeader == null) 
-	        {
-	            // can't auto size a table without a header
-	            return;
-	        }
-	        FontMetrics headerFontMetrics = tableHeader.getFontMetrics(tableHeader.getFont());
-	        int[] minWidths = new int[table.getColumnCount()];
-	        int[] maxWidths = new int[table.getColumnCount()];
-	        for(int columnIndex = 0; columnIndex < table.getColumnCount(); columnIndex++) 
-	        {
-	            int headerWidth = headerFontMetrics.stringWidth(table.getColumnName(columnIndex));
-	            minWidths[columnIndex] = headerWidth + columnMargin;
-	            int maxWidth = getMaximalRequiredColumnWidth(table, columnIndex, headerWidth);
-	            maxWidths[columnIndex] = Math.max(maxWidth, minWidths[columnIndex]) + columnMargin;
-	        }
-	        adjustMaximumWidths(table, minWidths, maxWidths);
-	        for(int i = 0; i < minWidths.length; i++) 
-	        {
-	            if(minWidths[i] > 0) 
-	            {
-	                table.getColumnModel().getColumn(i).setMinWidth(minWidths[i]);
-	            }
-	            if(maxWidths[i] > 0) 
-	            {
-	                table.getColumnModel().getColumn(i).setMaxWidth(maxWidths[i]);
-	                table.getColumnModel().getColumn(i).setWidth(maxWidths[i]);
-	            }
-	        }
-	    }
-	    private static void adjustMaximumWidths(JTable table, int[] minWidths, int[] maxWidths) 
-	    {
-	        if(table.getWidth() > 0) {
-	            // to prevent infinite loops in exceptional situations
-	            int breaker = 0;
-	            // keep stealing one pixel of the maximum width of the highest column until we can fit in the width of the table
-	            while(sum(maxWidths) > table.getWidth() && breaker < 10000) 
-	            {
-	                int highestWidthIndex = findLargestIndex(maxWidths);
-	                maxWidths[highestWidthIndex] -= 1;
-	                maxWidths[highestWidthIndex] = Math.max(maxWidths[highestWidthIndex], minWidths[highestWidthIndex]);
-	                breaker++;
-	            }
-	        }
-	    }
-	    private static int getMaximalRequiredColumnWidth(JTable table, int columnIndex, int headerWidth) 
-	    {
-	        int maxWidth = headerWidth;
-	        TableColumn column = table.getColumnModel().getColumn(columnIndex);
-	        TableCellRenderer cellRenderer = column.getCellRenderer();
-	        if(cellRenderer == null) 
-	        {
-	            cellRenderer = new DefaultTableCellRenderer();
-	        }
-	        for(int row = 0; row < table.getModel().getRowCount(); row++) 
-	        {
-	            Component rendererComponent = cellRenderer.getTableCellRendererComponent(table,
-	                table.getModel().getValueAt(row, columnIndex),
-	                false,
-	                false,
-	                row,
-	                columnIndex);
-	            double valueWidth = rendererComponent.getPreferredSize().getWidth();
-	            maxWidth = (int) Math.max(maxWidth, valueWidth);
-	        }
-	        return maxWidth;
-	    }
-	    private static int findLargestIndex(int[] widths) 
-	    {
-	        int largestIndex = 0;
-	        int largestValue = 0;
-	        for(int i = 0; i < widths.length; i++) 
-	        {
-	            if(widths[i] > largestValue) 
-	            {
-	                largestIndex = i;
-	                largestValue = widths[i];
-	            }
-	        }
-	        return largestIndex;
-	    }
+		public static void sizeColumnsToFit(JTable table) 
+		{
+			sizeColumnsToFit(table, 5);
+		}
 
-	    private static int sum(int[] widths) 
-	    {
-	        int sum = 0;
-	        for(int width : widths) 
-	        {
-	            sum += width;
-	        }
-	        return sum;
-	    }
+		public static void sizeColumnsToFit(JTable table, int columnMargin) 
+		{
+			JTableHeader tableHeader = table.getTableHeader();
+			if(tableHeader == null) 
+			{
+				// can't auto size a table without a header
+				return;
+			}
+			FontMetrics headerFontMetrics = tableHeader.getFontMetrics(tableHeader.getFont());
+			int[] minWidths = new int[table.getColumnCount()];
+			int[] maxWidths = new int[table.getColumnCount()];
+			for(int columnIndex = 0; columnIndex < table.getColumnCount(); columnIndex++) 
+			{
+				int headerWidth = headerFontMetrics.stringWidth(table.getColumnName(columnIndex));
+				minWidths[columnIndex] = headerWidth + columnMargin;
+				int maxWidth = getMaximalRequiredColumnWidth(table, columnIndex, headerWidth);
+				maxWidths[columnIndex] = Math.max(maxWidth, minWidths[columnIndex]) + columnMargin;
+			}
+			adjustMaximumWidths(table, minWidths, maxWidths);
+			for(int i = 0; i < minWidths.length; i++) 
+			{
+				if(minWidths[i] > 0) 
+				{
+					table.getColumnModel().getColumn(i).setMinWidth(minWidths[i]);
+				}
+				if(maxWidths[i] > 0) 
+				{
+					table.getColumnModel().getColumn(i).setMaxWidth(maxWidths[i]);
+					table.getColumnModel().getColumn(i).setWidth(maxWidths[i]);
+				}
+			}
+		}
+		private static void adjustMaximumWidths(JTable table, int[] minWidths, int[] maxWidths) 
+		{
+			if(table.getWidth() > 0) {
+				// to prevent infinite loops in exceptional situations
+				int breaker = 0;
+				// keep stealing one pixel of the maximum width of the highest column until we can fit in the width of the table
+				while(sum(maxWidths) > table.getWidth() && breaker < 10000) 
+				{
+					int highestWidthIndex = findLargestIndex(maxWidths);
+					maxWidths[highestWidthIndex] -= 1;
+					maxWidths[highestWidthIndex] = Math.max(maxWidths[highestWidthIndex], minWidths[highestWidthIndex]);
+					breaker++;
+				}
+			}
+		}
+		private static int getMaximalRequiredColumnWidth(JTable table, int columnIndex, int headerWidth) 
+		{
+			int maxWidth = headerWidth;
+			TableColumn column = table.getColumnModel().getColumn(columnIndex);
+			TableCellRenderer cellRenderer = column.getCellRenderer();
+			if(cellRenderer == null) 
+			{
+				cellRenderer = new DefaultTableCellRenderer();
+			}
+			for(int row = 0; row < table.getModel().getRowCount(); row++) 
+			{
+				Component rendererComponent = cellRenderer.getTableCellRendererComponent(table,
+						table.getModel().getValueAt(row, columnIndex),
+						false,
+						false,
+						row,
+						columnIndex);
+				double valueWidth = rendererComponent.getPreferredSize().getWidth();
+				maxWidth = (int) Math.max(maxWidth, valueWidth);
+			}
+			return maxWidth;
+		}
+		private static int findLargestIndex(int[] widths) 
+		{
+			int largestIndex = 0;
+			int largestValue = 0;
+			for(int i = 0; i < widths.length; i++) 
+			{
+				if(widths[i] > largestValue) 
+				{
+					largestIndex = i;
+					largestValue = widths[i];
+				}
+			}
+			return largestIndex;
+		}
+
+		private static int sum(int[] widths) 
+		{
+			int sum = 0;
+			for(int width : widths) 
+			{
+				sum += width;
+			}
+			return sum;
+		}
 	}
 
 }
