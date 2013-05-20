@@ -338,6 +338,14 @@ public class DriverDocumentsTab {
 		 ************************************************************************************************************************************************/	
 
 		suggestionCalculator = new SuggestionCalculator();
+		
+		/*
+		 * 
+		 * xxx xxx xxx xxx xxx xxx xxx
+		 * todo todo intercept keys with document thing
+		 * xxx xxx xxx xxx xxx xxx xxx
+		 * 
+		 */
 
 		main.getDocumentPane().addCaretListener(new CaretListener() {
 			@Override
@@ -364,7 +372,7 @@ public class DriverDocumentsTab {
 						caretPositionPriorToAction = caretPositionPriorToCharRemoval;
 						System.out.println("characters removed...");
 						// update the EOSTracker, and from the value that it returns we can tell if sentences are being merged (EOS characters are being erased)
-						boolean EOSesRemoved = taggedDoc.eosTracker.removeEOSesInRange( currentCaretPosition, caretPositionPriorToCharRemoval);
+						boolean EOSesRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition, caretPositionPriorToCharRemoval);
 						if (EOSesRemoved){
 							
 							// xxx todo xxx put in a check for:
@@ -412,7 +420,7 @@ public class DriverDocumentsTab {
 							
 							// now update the EOSTracker
 							System.out.println("---updating EOSTracker---");
-							taggedDoc.eosTracker.shiftAllEOSChars(false, caretPositionPriorToCharRemoval, charsRemoved);
+							taggedDoc.specialCharTracker.shiftAllEOSChars(false, caretPositionPriorToCharRemoval, charsRemoved);
 							
 							// Then update the currentSentSelectionInfo, and fix variables
 							currentSentSelectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
@@ -426,15 +434,16 @@ public class DriverDocumentsTab {
 						} else{
 							// update the EOSTracker
 							System.out.println("---updating EOSTracker---");
-							taggedDoc.eosTracker.shiftAllEOSChars(false, caretPositionPriorToAction, charsRemoved);
+							taggedDoc.specialCharTracker.shiftAllEOSChars(false, caretPositionPriorToAction, charsRemoved);
 						}
 					}
 					else if (charsInserted > 0){
 						System.out.println("characters inserted...");
 						caretPositionPriorToAction = caretPositionPriorToCharInsertion;
-						// update the EOSTracker
+						// update the EOSTracker. First shift the current EOS objects, and then create a new one 
 						System.out.println("---updating EOSTracker---");
-						taggedDoc.eosTracker.shiftAllEOSChars(true, caretPositionPriorToAction, charsInserted);
+						taggedDoc.specialCharTracker.shiftAllEOSChars(true, caretPositionPriorToAction, charsInserted);
+						// MUST ADD EOS
 						boolean EOSesAdded = false;// xxx this line is temporary.
 						if (EOSesAdded){
 							// then we want to wait before creating a new TaggedSentence to see if the user is going to enter more than one EOS character. Only once they stop inputting EOS characters do we want to replace the sentence in the taggedDoc.
@@ -522,7 +531,6 @@ public class DriverDocumentsTab {
 						//If the sentence didn't change, we don't have to remove and replace it
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
 							removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
-							System.out.println("Hello");
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
 							GUIMain.saved = false;

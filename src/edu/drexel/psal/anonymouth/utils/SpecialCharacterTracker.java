@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * @author Andrew W.E. McDonald
  *
  */
-public class EOSCharacterTracker implements Serializable{
+public class SpecialCharacterTracker implements Serializable{
 	
 	/**
 	 * 
@@ -26,28 +26,37 @@ public class EOSCharacterTracker implements Serializable{
 	/**
 	 * Constructor
 	 */
-	public EOSCharacterTracker(){
+	public SpecialCharacterTracker(){
 		eoses = new ArrayList<EOS>(100); //note at this point, it's unlikely that we'll have more than 100 sentences.. but this should eventually be changed to some global parameter than is relative to the length of the document or something.
 	}
 	
 	/**
-	 * Constructor for EOSCharacterTracker. Essentially does a deep copy of the input EOSCharacterTracker.
+	 * Constructor for SpecialCharacterTracker. Essentially does a deep copy of the input SpecialCharacterTracker.
 	 * @param eosCT
 	 */
-	public EOSCharacterTracker( EOSCharacterTracker eosCT){
+	public SpecialCharacterTracker( SpecialCharacterTracker sct){
 		int i;
-		int numEOSes = eosCT.eoses.size();
+		int numEOSes = sct.eoses.size();
 		eoses = new ArrayList<EOS>(numEOSes);
 		for( i = 0; i < numEOSes; i++)
-			eoses.add(new EOS(eosCT.eoses.get(i)));
+			eoses.add(new EOS(sct.eoses.get(i)));
 	}
 	
 	/**
 	 * Adds the EOS eos to the EOS ArrayList
 	 * @param eos
 	 */
-	public void addEOS(EOS eos){
-		eoses.add(eos);
+	public void addEOS(char eosChar, int location){
+		eoses.add(new EOS(eosChar, location));
+	}
+	
+	public void addParens(int openParen, int closeParen){
+		// todo this.
+	}
+	
+	public void addQuotes(int openQuote, int closeQuote){
+		// todo this too.
+		
 	}
 	
 	/**
@@ -114,12 +123,12 @@ public class EOSCharacterTracker implements Serializable{
 	 */
 	public static void main(String[] args) {
 		// NOTE Auto-generated method stub
-		EOSCharacterTracker ect = new EOSCharacterTracker();
-		ect.addEOS(new EOS('.',5));
-		ect.addEOS(new EOS('!',7));
-		ect.addEOS(new EOS('?',9));
-		ect.addEOS(new EOS('!',6));
-		ect.addEOS(new EOS('.',12));
+		SpecialCharacterTracker ect = new SpecialCharacterTracker();
+		ect.addEOS('.',5);
+		ect.addEOS('!',7);
+		ect.addEOS('?',9);
+		ect.addEOS('!',6);
+		ect.addEOS('.',12);
 		System.out.println(ect.toString());
 		ect.shiftAllEOSChars(true, 4, 5);
 		System.out.println(ect.toString());
@@ -131,7 +140,7 @@ public class EOSCharacterTracker implements Serializable{
 	}
 	
 	/**
-	 * Returns a string representation of this EOSCharacterTracker
+	 * Returns a string representation of this SpecialCharacterTracker
 	 */
 	public String toString(){
 		int i;
@@ -145,6 +154,8 @@ public class EOSCharacterTracker implements Serializable{
 	}
 
 }
+
+enum Specials {EOS, PARENS, QUOTES};
 
 /**
  * Holds the EOS character at a given location in a document, with respect to the beginning of the document.

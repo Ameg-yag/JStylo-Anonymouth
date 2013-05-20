@@ -65,7 +65,7 @@ public class TaggedDocument implements Serializable{
 	//protected transient Iterator<String> strIter;
 	private String ID; 
 	private int totalSentences=0;
-	public EOSCharacterTracker eosTracker;
+	public SpecialCharacterTracker specialCharTracker;
 	private double baseline_percent_change_needed = 0; // This may end up over 100%. That's unimportant. This is used to gauge the change that the rest of the document needs -- this is normalized to 100%, effectivley.
 	private boolean can_set_baseline_percent_change_needed = true;
 
@@ -74,7 +74,7 @@ public class TaggedDocument implements Serializable{
 	 */
 	public TaggedDocument(){
 		jigsaw = new SentenceTools();
-		eosTracker = new EOSCharacterTracker();
+		specialCharTracker = new SpecialCharacterTracker();
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
 	}
 	
@@ -84,7 +84,7 @@ public class TaggedDocument implements Serializable{
 	 */
 	public TaggedDocument(String untaggedDocument){
 		jigsaw = new SentenceTools();
-		eosTracker = new EOSCharacterTracker();
+		specialCharTracker = new SpecialCharacterTracker();
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
 		makeAndTagSentences(untaggedDocument, true);
 	}
@@ -98,7 +98,7 @@ public class TaggedDocument implements Serializable{
 	public TaggedDocument(String untaggedDocument, String docTitle, String author){
 		this.documentTitle = docTitle;
 		this.documentAuthor = author;
-		eosTracker = new EOSCharacterTracker();
+		specialCharTracker = new SpecialCharacterTracker();
 		this.ID = documentTitle+"_"+documentAuthor;
 
 		jigsaw = new SentenceTools();
@@ -191,24 +191,24 @@ public class TaggedDocument implements Serializable{
 				totalSentences++;
 				this.taggedSentences.add(taggedSentences.get(i)); 
 			}
-			initializeEOSTracker();
+			initializeSpecialCharTracker();
 		}
 		return taggedSentences;
 	}
 	
-	private void initializeEOSTracker(){
+	private void initializeSpecialCharTracker(){
 		char[] EOSSubbedDoc = getUntaggedDocument(true).toCharArray();
 		int numChars = EOSSubbedDoc.length;
 		int i;
 		for (i=0; i < numChars; i++){
-			if (EOSSubbedDoc[i] == EOSCharacterTracker.replacementEOS[0]){ // period replacement
-				eosTracker.addEOS(new EOS(EOSSubbedDoc[i],i));
+			if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[0]){ // period replacement
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i);
 			}
-			else if (EOSSubbedDoc[i] == EOSCharacterTracker.replacementEOS[1]){ // question mark replacement
-				eosTracker.addEOS(new EOS(EOSSubbedDoc[i],i));
+			else if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[1]){ // question mark replacement
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i);
 			}
-			else if (EOSSubbedDoc[i] == EOSCharacterTracker.replacementEOS[2]){ // exclamation point replacement
-				eosTracker.addEOS(new EOS(EOSSubbedDoc[i],i));
+			else if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[2]){ // exclamation point replacement
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i);
 			}
 		}
 		
@@ -652,8 +652,8 @@ public class TaggedDocument implements Serializable{
 		// Then the total number of sentences (could probably chuck ths)
 		totalSentences = td.totalSentences;
 		
-		// Finally, copy the eosTracker (EOSCharacterTracker)
-		eosTracker = new EOSCharacterTracker(td.eosTracker);
+		// Finally, copy the specialCharTracker (SpecialCharacterTracker)
+		specialCharTracker = new SpecialCharacterTracker(td.specialCharTracker);
 		
 	}
 	
