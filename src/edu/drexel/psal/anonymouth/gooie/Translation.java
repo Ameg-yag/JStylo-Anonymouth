@@ -164,7 +164,6 @@ public class Translation {
 				String translatedText = Translate.execute(original, Language.ENGLISH,other);
 				String backToEnglish = Translate.execute(translatedText,other,Language.ENGLISH);
 
-				System.out.println(backToEnglish);
 				if (backToEnglish.contains("TranslateApiException: The Azure Market Place Translator Subscription associated with the request credentials has zero balance.")) {
 					Logger.logln(NAME+"Translations could not be obtained, current account all used. Will now stop.", LogOut.STDERR);
 
@@ -185,7 +184,6 @@ public class Translation {
 						}
 					}
 					
-					System.out.println("Line 177");
 					PropertiesUtil.setClientAvailability(availability);
 
 					//Updating the current client so we pick a good one next time
@@ -193,7 +191,7 @@ public class Translation {
 						current = 0;
 					else
 						current++;
-					System.out.println("Line 185");
+
 					PropertiesUtil.setCurrentClient(current);
 
 					//Set the appropriate text in the translations panel as a reminder why there aren't translations there.
@@ -203,7 +201,6 @@ public class Translation {
 					GUIMain.inst.translationsHolderPanel.add(GUIMain.inst.notTranslated, "");
 					Translator.accountsUsed = true;
 
-					System.out.println("Line 195");
 					//Alert the user about what happened and how to handle it
 					int answer = JOptionPane.showOptionDialog(null,
 							"The account currently being used for translations has now expired.\n" +

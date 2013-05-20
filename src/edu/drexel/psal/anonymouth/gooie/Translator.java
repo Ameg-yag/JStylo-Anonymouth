@@ -15,13 +15,11 @@ public class Translator implements Runnable
 	private TaggedSentence newSentence;
 	private int currentSentNum = 1;
 	private int currentLangNum = 1;
-	public static ArrayList<String> translatedSentences = new ArrayList<String>(); 
 	public static Boolean finished = false;
 	public static Boolean noInternet = false;
 	public static Boolean accountsUsed = false;
 	public static Boolean stop = false;
 	private int stoppedLangNum = 0;
-	private int stoppedSentNum = 0;
 	private Thread transThread;
 
 	/**
@@ -72,9 +70,6 @@ public class Translator implements Runnable
 	public void reset() {
 		stop = true;
 		
-		//This is needed to ensure that the translations pick off right at the sentence it was working on before it was stopped
-		stoppedSentNum = currentSentNum;
-		
 		sentences.clear();
 		
 		/**
@@ -84,20 +79,6 @@ public class Translator implements Runnable
 		 */
 //		translatedSentences.clear();
 //		currentSentNum = 1;
-		
-		/**
-		 * While we don't want to clear the enter array (as mentioned above), we DO want to make sure that we don't have any translated
-		 * sentences in translatedSentences that are no longer in the document to keep things clean, otherwise we risk the possibility
-		 * of this array list getting large when it doesn't need to/shouldn't be.
-		 * 
-		 * Not sure if keeping this or not, TODO Talk to Andrew about this.
-		 */
-//		int translatedSentsLength = translatedSentences.size();
-//		for (int i = 0; i < translatedSentsLength; i++) {
-//			if (!DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).contains(translatedSentences.get(i))) {
-//				translatedSentences.remove(i);
-//			}
-//		}
 		
 		stoppedLangNum = currentLangNum;
 		currentLangNum = 1;
@@ -119,12 +100,7 @@ public class Translator implements Runnable
 
 		// translate all languages for each sentence, sorting the list based on anon index after each translation
 		while (!sentences.isEmpty() && currentSentNum <= sentences.size()) {
-			if (!translatedSentences.contains(sentences.get(currentSentNum-1).getUntagged(false)) || stoppedSentNum == currentSentNum) {
-				if (stoppedSentNum != currentSentNum)
-					translatedSentences.add(sentences.get(currentSentNum-1).getUntagged(false));
-				else
-					stoppedSentNum = 0;
-
+			if (!sentences.get(currentSentNum - 1).isTranslated()) {
 				// Translate the sentence for each language
 				for (Language lang: Translation.getUsedLangs()) {
 					if (currentLangNum >= stoppedLangNum) {

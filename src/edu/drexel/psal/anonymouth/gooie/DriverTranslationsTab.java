@@ -52,7 +52,7 @@ public class DriverTranslationsTab implements ActionListener {
 		} else if (!PropertiesUtil.getDoTranslations()) {
 			main.notTranslated.setText("You have turned translations off.");
 			main.translationsHolderPanel.add(main.notTranslated, "");
-		} else if (Translator.translatedSentences.contains(sentence.getUntagged(false))) {
+		} else if (sentence.hasTranslations()) {
 			arrow_up = GUIMain.arrow_up;
 			arrow_down = GUIMain.arrow_down;
 			
