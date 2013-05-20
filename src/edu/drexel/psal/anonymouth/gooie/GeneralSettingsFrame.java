@@ -76,7 +76,7 @@ public class GeneralSettingsFrame extends JDialog {
 		initTabs();
 
 		this.add(tabbedPane);
-		this.setSize(new Dimension(500, 370));
+		this.setSize(new Dimension(500, 390));
 		this.setResizable(false);
 		this.setLocationRelativeTo(null); // makes it form in the center of the screen
 	}
