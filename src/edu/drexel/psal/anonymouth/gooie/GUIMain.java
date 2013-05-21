@@ -33,6 +33,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.*;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.Highlighter;
 import javax.swing.text.StyledDocument;
 import javax.swing.tree.*;
@@ -374,6 +375,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected static Font titleFont = new Font("Ariel", Font.BOLD, 12);
 	protected static String titleHeight = "25";
 	protected static Boolean saved = true;
+	public static Boolean processed = false;
 
 	// used for translation of sentences
 	protected static Translator GUITranslator;
@@ -1308,8 +1310,8 @@ public class GUIMain extends javax.swing.JFrame  {
 				getDocumentPane().setEditable(false);
 				getDocumentPane().setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
 
-				//InputFilter documentFilter = new InputFilter();
-				//((AbstractDocument)documentPane.getDocument()).setDocumentFilter(documentFilter);
+				InputFilter documentFilter = new InputFilter();
+				((AbstractDocument)documentPane.getDocument()).setDocumentFilter(documentFilter);
 
 				documentScrollPane.setViewportView(getDocumentPane());
 

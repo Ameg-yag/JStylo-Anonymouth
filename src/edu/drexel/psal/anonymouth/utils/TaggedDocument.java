@@ -188,13 +188,13 @@ public class TaggedDocument implements Serializable{
 		int i;
 		for (i=0; i < numChars; i++){
 			if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[0]){ // period replacement
-				specialCharTracker.addEOS(EOSSubbedDoc[i],i);
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1);
 			}
 			else if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[1]){ // question mark replacement
-				specialCharTracker.addEOS(EOSSubbedDoc[i],i);
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1);
 			}
 			else if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[2]){ // exclamation point replacement
-				specialCharTracker.addEOS(EOSSubbedDoc[i],i);
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1);
 			}
 		}
 		

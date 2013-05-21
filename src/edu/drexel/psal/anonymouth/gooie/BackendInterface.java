@@ -274,6 +274,8 @@ public class BackendInterface {
 			main.getDocumentPane().setEditable(true);
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
+			
+			main.processed = true; 
 		}
 	}
 	

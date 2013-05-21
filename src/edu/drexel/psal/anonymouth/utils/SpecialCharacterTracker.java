@@ -134,9 +134,9 @@ public class SpecialCharacterTracker implements Serializable{
 		System.out.println(ect.toString());
 		ect.removeEOSesInRange(11, 15);
 		System.out.println(ect.toString());
-		System.out.println(ect.realEOS[0] == ect.replacementEOS[0]);
-		System.out.println(ect.realEOS[1] == ect.replacementEOS[1]);
-		System.out.println(ect.realEOS[2] == ect.replacementEOS[2]);
+		System.out.println(SpecialCharacterTracker.realEOS[0] == SpecialCharacterTracker.replacementEOS[0]);
+		System.out.println(SpecialCharacterTracker.realEOS[1] == SpecialCharacterTracker.replacementEOS[1]);
+		System.out.println(SpecialCharacterTracker.realEOS[2] == SpecialCharacterTracker.replacementEOS[2]);
 	}
 	
 	/**
