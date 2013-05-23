@@ -18,6 +18,7 @@ import edu.drexel.psal.jstylo.generics.Logger;
  * 				instead. I sadly can't figure out how to have it keep it a full sentence though while keeping the "This.... another sentence"
  * 				splitting functionality.
  * 2) Adding/removing abbreviations.
+ * 3) TODO Adding quotes needs to be handled properly
  */
 public class InputFilter extends DocumentFilter{
 	

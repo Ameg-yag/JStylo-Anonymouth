@@ -146,8 +146,8 @@ public class TaggedDocument implements Serializable{
 	 * @return the TaggedSentences
 	 */
 	public ArrayList<TaggedSentence> makeAndTagSentences(String untagged, boolean appendTaggedSentencesToGlobalArrayList){
-		ArrayList<String[]> untaggedSents = jigsaw.makeSentenceTokens(untagged); 
-		System.out.println("    " + untaggedSents.size());
+		ArrayList<String[]> untaggedSents = jigsaw.makeSentenceTokens(untagged);
+		
 		ArrayList<TaggedSentence> taggedSentences = new ArrayList<TaggedSentence>(untaggedSents.size());
 		//sentencesPreTagging = new ArrayList<List<? extends HasWord>>();
 		Iterator<String[]> strRayIter = untaggedSents.iterator();
@@ -410,9 +410,10 @@ public class TaggedDocument implements Serializable{
 	 */
 	public TaggedSentence removeAndReplace(int sentNumber, String sentsToAdd){//, int indexToRemove, int placeToAdd){
 		TaggedSentence toReplace = taggedSentences.get(sentNumber);
-		Logger.logln(NAME+"removing: "+toReplace.toString());
+		Logger.logln(NAME+"removing: "+toReplace.getUntagged(false));
 		Logger.logln(NAME+"adding: "+sentsToAdd);
-		if(sentsToAdd.matches("^\\s*$")){//checks to see if the user deleted the current sentence
+		
+		if (sentsToAdd.matches("^\\s*$")) {//checks to see if the user deleted the current sentence
 			//CALL COMPARE
 			TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
 			Logger.logln(NAME+"User deleted a sentence.");
@@ -420,6 +421,7 @@ public class TaggedDocument implements Serializable{
 			totalSentences--;
 			return wasReplaced;
 		}
+		
 		ArrayList<TaggedSentence> taggedSentsToAdd = makeAndTagSentences(sentsToAdd,false);
 
 		TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
@@ -434,8 +436,7 @@ public class TaggedDocument implements Serializable{
 			totalSentences++;
 		}
 		TaggedSentence concatted = concatSentences(taggedSentsToAdd);
-		System.out.println("TaggedSent to add: "+taggedSentsToAdd.get(0).toString());
-		System.out.println("TaggedSent to remove: "+toReplace.toString());
+
 		updateReferences(toReplace,concatted);
 		return wasReplaced;
 	}

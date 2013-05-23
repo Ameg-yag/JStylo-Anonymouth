@@ -195,9 +195,7 @@ public class AnonymityDrawingPanel extends JPanel {
 	public void updateAnonymityBar() {
 		int percent = (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5);
 		int max = (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5);
-		
-		System.out.println(percent + " / " + max + " = " + (percent / max));
-		
+				
 		pointer.setPercentages(percent, max);
 		main.anonymityDescription.setText("<html><center>About " +
 				getAvgPercentChangeNeeded() +

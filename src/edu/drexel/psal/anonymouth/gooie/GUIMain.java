@@ -375,7 +375,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected static Font titleFont = new Font("Ariel", Font.BOLD, 12);
 	protected static String titleHeight = "25";
 	protected static Boolean saved = true;
-	public static Boolean processed = false;
+	protected static Boolean processed = false;
 
 	// used for translation of sentences
 	protected static Translator GUITranslator;

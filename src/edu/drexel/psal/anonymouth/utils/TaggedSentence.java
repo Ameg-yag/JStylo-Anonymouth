@@ -244,7 +244,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	 * Returns the length of the sentence (number of characters).
 	 * @return
 	 */
-	public int getLength(){
+	public int getLength() {
 		return untagged.length();
 	}
 	

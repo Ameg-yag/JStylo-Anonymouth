@@ -1,29 +1,13 @@
 package edu.drexel.psal.anonymouth.utils;
 
-import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.swing.JOptionPane;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
 
 import com.jgaap.generics.Document;
 
@@ -42,8 +26,6 @@ public class SentenceTools implements Serializable  {
 	 */
 	private static final long serialVersionUID = -5007508872576011005L;
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
-	private int currentStart = 0;
-	private int currentStop = 0;
 	
 	/**
 	 * This pattern, "EOS_chars" matches:
@@ -61,7 +43,7 @@ public class SentenceTools implements Serializable  {
 	 *********
 	 */
 	private static final Pattern EOS_chars = Pattern.compile("([?!]+)|([.]{4,})|((?<!\\.)\\.(?!\\.))"); 
-	
+	private String EOS = ".?!";
 	
 	/**
 	 * the "sentence_quote" pattern matches any number and combination of "?" and "!" characters, OR four periods, OR a <i>single</i> period (specifically, any period that isn't followed by, or that follows, another period). (because ellipses points don't indicate an end of sentence UNLESS there are 4 ellipses points [one for the period, and three for the ellipsis]),
@@ -88,17 +70,10 @@ public class SentenceTools implements Serializable  {
 	public static final String p_EXCLAMATION_REPLACEMENT ="˩";//"ǃ";
 	public static final String p_QUESTION_REPLACEMENT ="ʔ";
 	private static int MAX_SENTENCES = 500;
-	private int numSentences;
-	private boolean shouldInitialize = true;
 	//private ArrayList<String> sentsToEdit = new ArrayList<String>(MAX_SENTENCES);
-	private ArrayList<String> editedSents = new ArrayList<String>(MAX_SENTENCES);
-	private int currentSentence =0;
-	private int nextSentence = 0;
-	private String editedText = "" ;
 	private static int sentNumber = -1;
 	private int totalSentences = 0;
 	
-	private boolean mustAddToIndex = false;
 	private String[] notEndsOfSentence = {"Dr.","Mr.","Mrs.","Ms.","St.","vs.","U.S.","Sr.","Sgt.","R.N.","pt.","mt.","mts.","M.D.","Ltd.","Jr.","Lt.","Hon.","i.e.","e.x.","e.g.","inc.",
 			"et al.","est.","ed.","D.C.","B.C.","B.S.","Ph.D.","B.A.","A.B.","A.D.","A.M.","P.M.","Ln.","fig.","p.","pp.","ref.","r.b.i.","V.P.","yr.","yrs.","etc."};
 	
@@ -109,8 +84,7 @@ public class SentenceTools implements Serializable  {
 	 * @param text
 	 * @return
 	 */
-	public ArrayList<String[]> makeSentenceTokens(String text){
-		Scanner scan = new Scanner(System.in);
+	public ArrayList<String[]> makeSentenceTokens(String text) {
 		ArrayList<String> sents = new ArrayList<String>(MAX_SENTENCES);
 		ArrayList<String[]> finalSents = new ArrayList<String[]>(MAX_SENTENCES);
 		boolean mergeNext=false;
@@ -122,10 +96,8 @@ public class SentenceTools implements Serializable  {
 		int quoteAtEnd;
 		int citationAtEnd;
 		String temp;
-		int closingQuoteIndex = 0;
 		text = text.replaceAll("\u201C","\"");
 		text = text.replaceAll("\u201D","\"");
-		text = text.replaceAll("^(\\t|\\n|\\r)","");
 		text = text.replaceAll("\\p{Cf}","");// replace unicode format characters that will ruin the regular expressions (because non-printable characters in the document still take up indices, but you won't know they're there untill you "arrow" though the document and have to hit the same arrow twice to move past a certain point.
 		// Note that we must use "Cf" rather than "C". If we use "C" or "Cc" (which includes control characters), we remove our newline characters and this screws up the document.
 		// "Cf" is "other, format". "Cc" is "other, control". Using "C" will match both of them.
@@ -135,15 +107,17 @@ public class SentenceTools implements Serializable  {
 		String replacementString = "";
 		String safeString = "";
 		
-		for(notEOSNumber = 0; notEOSNumber < numNotEOS; notEOSNumber++){
+		for (notEOSNumber = 0; notEOSNumber < numNotEOS; notEOSNumber++) {
 			replacementString = notEndsOfSentence[notEOSNumber].replaceAll("\\.",t_PERIOD_REPLACEMENT);
 			//System.out.println("REPLACEMENT: "+replacementString);
 			safeString = notEndsOfSentence[notEOSNumber].replaceAll("\\.","\\\\.");
 			//System.out.println(safeString);
 			text = text.replaceAll("(?i)\\b"+safeString,replacementString); // the "(?i)" tells Java to do a case-insensitive search.
 		}
+		
 		Matcher sent = EOS_chars.matcher(text);
 		boolean foundEOS = sent.find(currentStart); // xxx TODO xxx take this EOS character, and if not in quotes, swap it for a permanent replacement, and create and add an EOS to the calling TaggedDocument's eosTracker.
+
 		Matcher sentEnd;
 		Matcher citationFinder;
 		boolean hasCitation = false;
@@ -153,9 +127,22 @@ public class SentenceTools implements Serializable  {
 		boolean foundQuote = false;
 		boolean isSentence;
 		boolean foundAtLeastOneEOS = foundEOS;
+		
+		/**
+		 * Needed otherwise when the user has text like below:
+		 * 		This is my sentence one. This is "My sentence?" two. This is the last sentence.
+		 * and they begin to delete the EOS character as such:
+		 * 		This is my sentence one. This is "My sentence?" two This is the last sentence.
+		 * Everything gets screwed up. This is because the operations below operate as expected only when there actually is an EOS character
+		 * at the end of the text, it expects it there in order to function properly. Now usually if there is no EOS character at the end it wouldn't
+		 * matter since the while loop and !foundAtLeastOneEOS conditional are executed properly, BUT as you can see the quotes, or more notably the EOS character inside
+		 * the quotes, triggers this initial test and thus the operation breaks. This is here just to make sure that does not happen.
+		 */
+		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
+		
 		String currentEOS;
-		while (foundEOS == true){
-			//System.out.println(sent.group(0));
+		while (foundEOS == true) {
+			System.out.println("Not sure what this is = " + sent.group(0));
 			currentEOS = sent.group(0);
 			currentStop = sent.end();
 			//System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
@@ -177,7 +164,7 @@ public class SentenceTools implements Serializable  {
 					//System.out.println("Found quote!!! here it is: "+temp.charAt(charNum)+" ... in position: "+lastQuoteAt+" ... foundQuote is: "+foundQuote);
 				}
 			}
-			if(foundQuote == true && ((closingQuoteIndex = temp.indexOf("\"",lastQuoteAt+1)) == -1)){ // then we found an EOS character that shouldn't split a sentence because it's within an open quote.
+			if(foundQuote == true && ((temp.indexOf("\"",lastQuoteAt+1)) == -1)){ // then we found an EOS character that shouldn't split a sentence because it's within an open quote.
 				if((currentStop = text.indexOf("\"",currentStart +lastQuoteAt+1)) == -1){
 					currentStop = text.length(); // if we can't find a closing quote in the rest of the input text, then we assume the author forgot to put a closing quote, and act like it's at the end of the input text.
 				}
@@ -192,12 +179,11 @@ public class SentenceTools implements Serializable  {
 			//sentEnd = sentence_quote.matcher(safeString);	
 			quoteAtEnd = 0;
 			citationAtEnd = 0;
-			if (foundQuote){
+			if (foundQuote) {
 				sentEnd = sentence_quote.matcher(text);	
-				System.out.println("substring from currentStop-2  (currentStop == "+currentStop+" to end is: "+text.substring(currentStop-2)+"\n\n");
 				isSentence = sentEnd.find(currentStop-2); // -2 so that we match the EOS character before the quotes (not -1 because currentStop is one greater than the last index of the string -- due to the way substring works, which is includes the first index, and excludes the end index: [start,end).)
-				System.out.println("RESULT OF sentence_quote matching: "+isSentence+" ==> attempted to match: "+safeString+" ====> from: "+text);
-				if(isSentence == true){ // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
+
+				if (isSentence == true) { // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
 					// Then we want to split this up into two sentences (it's possible to have a sentence like this: He said, "Hello.")
 					//System.out.println("start: "+sentEnd.start()+" ... end: "+sentEnd.end());
 					currentStop = text.indexOf("\"",sentEnd.start())+1;
@@ -213,7 +199,7 @@ public class SentenceTools implements Serializable  {
 			citationFinder = citation.matcher(text.substring(currentStop));	
 			hasCitation = citationFinder.find(); // -2 so that we match the EOS character before the quotes (not -1 because currentStop is one greater than the last index of the string -- due to the way substring works, which is includes the first index, and excludes the end index: [start,end).)
 			//System.out.println("RESULT OF citation matching: "+hasCitation+" ==> attempted to match: "+safeString+" ====> from: "+text);
-			if(hasCitation == true){ // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
+			if (hasCitation == true) { // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
 				// Then we want to split this up into two sentences (it's possible to have a sentence like this: He said, "Hello.")
 				//System.out.println("start: "+(citationFinder.start()+currentStop)+" ... end: "+(citationFinder.end()+currentStop-1));
 				currentStop = text.indexOf(")",citationFinder.start()+currentStop)+1;
@@ -222,17 +208,16 @@ public class SentenceTools implements Serializable  {
 				citationAtEnd = citationFinder.group(0).length() - 1;// citationFinder will match either the last EOS character or "double" quote, so we subtract one to negate that
 			}	
 			
-			
-			if(mergeWithLast){
+			if (mergeWithLast) {
 				mergeWithLast=false;
 				String prev=sents.remove(sents.size()-1);
 				safeString=prev+safeString;
 			}
-			if (mergeNext && !forceNoMerge){//makes the merge happen on the next pass through
+			
+			if (mergeNext && !forceNoMerge) {//makes the merge happen on the next pass through
 				mergeNext=false;
 				mergeWithLast=true;
-			}
-			else{
+			} else {
 				forceNoMerge = false;
 				//System.out.println("Actual: "+safeString);
 				safeString_subbedEOS = subOutEOSChars(currentEOS, safeString, quoteAtEnd + citationAtEnd);
@@ -247,21 +232,23 @@ public class SentenceTools implements Serializable  {
 			sents.add(safeString);
 			//// xxx xxx xxx return the safeString_subbedEOS too!!!!
 			//System.out.println("start minus one: "+(currentStart-1)+" stop: "+currentStop);
-			if(currentStart < 0 || currentStop < 0){
+			if (currentStart < 0 || currentStop < 0) {
 				Logger.logln(NAME+"Something went really wrong making sentence tokens.");
 				ErrorHandler.fatalError();
 			}
 			//System.out.println("The rest of the text: "+text.substring(currentStart));
 			currentStart = currentStop+1;
-			if(currentStart >= lenText){
+			if (currentStart >= lenText) {
 				foundEOS = false;
 				continue;
 			}
+			
 			foundEOS = sent.find(currentStart);
+			System.out.println("foundEOS = " + foundEOS);
 		}
 		
-		
-		if (!foundAtLeastOneEOS){
+		if (!foundAtLeastOneEOS || !EOSAtSentenceEnd) {
+			System.out.println("HERE");
 			ArrayList<String[]> wrapper = new ArrayList<String[]>(1);
 			wrapper.add(new String[]{text,text});
 			return wrapper;
@@ -314,22 +301,18 @@ public class SentenceTools implements Serializable  {
 	}
 	
 	public void setSentenceCounter(int sentNumber){
-		this.sentNumber = sentNumber;
+		SentenceTools.sentNumber = sentNumber;
 	}
 	
 	public static Document removeUnicodeControlChars(Document dirtyDoc){
-		String newFile =  "./temp/"+dirtyDoc.getTitle();
-		
 		Document cleanDoc = new Document();
 		try {
 			dirtyDoc.load();
 			cleanDoc.setText((dirtyDoc.stringify()).replaceAll("\\p{C}&&[^\\t\\n\\r]"," ").toCharArray());
 			cleanDoc.setAuthor(dirtyDoc.getAuthor());
 			cleanDoc.setTitle(dirtyDoc.getTitle());
-			FileWriter fw = new FileWriter(new File("./temp/"+dirtyDoc.getTitle()));
 			return cleanDoc;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Logger.logln("(SentenceTools) - ERROR! Could not load document: "+dirtyDoc.getTitle()+" (SentenceTools.removeUnicodeControlChars)");
 			return dirtyDoc;
@@ -358,8 +341,7 @@ public class SentenceTools implements Serializable  {
 		//testText = " Or maybe, he did understand, but had more to share with humanity before his inevitable death. Maybe still, he was forecasting his own suicide twenty-eight years before it happened. No matter what Hemingway might have felt at the time, the deep nothingness that he shows in 'A Clean Well-Lighted Place,' is a nothingness that pervades the story and becomes more apparent to the characters as they age as humans do not last forever. Ernest Hemingway wrote much about the struggle to cope with the nothingness in the world, but eventually succumbed to the nothingness that he wrote about.";
 		//testText=" After living so long, the old man lacks some of the gifts that people are born with that the young man takes for granted. The old man�s long life shows that as humans age, the length of time they have been around not only ages their body, but it ages their soul.";
 		ArrayList<String[]> sTok=ss.makeSentenceTokens(testText);
-		for (String[] s: sTok)
-			System.out.println(s[0]+" <=> "+s[1]);
+
 		Object[] arr = sTok.toArray();
 		try {
 			OutputStreamWriter outStream=new OutputStreamWriter(System.out,"UTF8");
