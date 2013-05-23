@@ -71,21 +71,6 @@ public class InputFilter extends DocumentFilter{
 	}
 	
 	/**
-	 * Keeps track of whether or not the user is entering an abbreviation or not and will only call removeReplaceAndUpdate when we are sure they are in fact
-	 * not typing an abbreviation and want to end the sentence.
-	 * @param text - The text the user typed
-	 */
-	private void checkAddingAbbreviations(String text) {
-		String textBeforePeriod = GUIMain.inst.getDocumentPane().getText().substring(DriverDocumentsTab.startSelection-2, DriverDocumentsTab.startSelection);
-		if (textBeforePeriod.substring(1, 2).equals(".") && !EOS.contains(text)) {			
-			for (int i = 0; i < notEndsOfSentence.length; i++) {
-				if (notEndsOfSentence[i].contains(textBeforePeriod))
-					DriverDocumentsTab.shouldUpdate = false;
-			}
-		}
-	}
-	
-	/**
 	 * Keeps track of whether or not the user may be typing ellipses and only removeReplaceAndUpdate's when we are sure they have completed
 	 * Typing EOS characters and are beginning a new sentence.
 	 * @param text - The text the user typed
@@ -104,7 +89,6 @@ public class InputFilter extends DocumentFilter{
 		//if the user previously entered an EOS character and the new character is not an EOS character, then we should update
 		if (watchForEOS && !isEOS) {
 			watchForEOS = false;
-			
 			/**
 			 * NOTE: We must NOT call removeReplaceAndUpdate() directly since the currentSentenceString variable that's used for the
 			 * call's parameter is not updated yet (for example, the text here in InputFilter my read "TEST.... A sentence", but the
@@ -113,6 +97,21 @@ public class InputFilter extends DocumentFilter{
 			 * it to from the InputFilter.
 			 */
 			DriverDocumentsTab.shouldUpdate = true;
+		}
+	}
+	
+	/**
+	 * Keeps track of whether or not the user is entering an abbreviation or not and will only call removeReplaceAndUpdate when we are sure they are in fact
+	 * not typing an abbreviation and want to end the sentence.
+	 * @param text - The text the user typed
+	 */
+	private void checkAddingAbbreviations(String text) {
+		String textBeforePeriod = GUIMain.inst.getDocumentPane().getText().substring(DriverDocumentsTab.startSelection-2, DriverDocumentsTab.startSelection);
+		if (textBeforePeriod.substring(1, 2).equals(".") && !EOS.contains(text)) {			
+			for (int i = 0; i < notEndsOfSentence.length; i++) {
+				if (notEndsOfSentence[i].contains(textBeforePeriod))
+					DriverDocumentsTab.shouldUpdate = false;
+			}
 		}
 	}
 	

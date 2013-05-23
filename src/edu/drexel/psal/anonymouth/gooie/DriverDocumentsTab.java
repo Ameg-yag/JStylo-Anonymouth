@@ -135,6 +135,7 @@ public class DriverDocumentsTab {
 	protected static Boolean EOSesRemoved = false;
 	protected static Boolean changedCaret = false;
 	protected static String newLine = System.lineSeparator();
+	protected static Boolean ignoreHighlight = false;
 	
 	protected static ActionListener saveAsTestDoc;
 	
@@ -252,18 +253,19 @@ public class DriverDocumentsTab {
 		try {
 			System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
 
-			if (currentSentNum != 0) {
-				//if (selectedSentIndexRange[0] != currentCaretPosition) {
-				if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) {
-					if (selectedSentIndexRange[0]+1 != currentCaretPosition)
-						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+2, bounds[1], painter);
-				} else {
-					if (main.getDocumentPane().getText().substring(selectedSentIndexRange[0], selectedSentIndexRange[0]+1).equals(" "))
-						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+1, bounds[1], painter);
-					else
-						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
-				}
-				//}
+			if (currentSentNum != 0) { //if it's not the first sentence (assuming there's not going to be a space/tab before it TODO make this not suck)
+				if (selectedSentIndexRange[0] != currentCaretPosition && !ignoreHighlight) { //if the user is not selecting a sentence, don't highlight it.
+					if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) { // if the sentence is preceded by a newline, we need to modify this a bit
+						if (selectedSentIndexRange[0]+1 != currentCaretPosition)
+							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+2, bounds[1], painter);
+					} else {
+						if (main.getDocumentPane().getText().substring(selectedSentIndexRange[0], selectedSentIndexRange[0]+1).equals(" "))
+							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+1, bounds[1], painter);
+						else
+							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
+					}
+				} else
+					ignoreHighlight = true;
 			} else
 				currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
 		} 
@@ -362,7 +364,7 @@ public class DriverDocumentsTab {
 					int[] currentSentSelectionInfo = null;
 					caretPositionPriorToCharInsertion = currentCaretPosition - charsInserted;
 					caretPositionPriorToCharRemoval = currentCaretPosition + charsRemoved;
-
+					
 					if (charsRemoved > 0) {
 						if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
 							main.versionControl.addVersion(taggedDoc);
@@ -505,8 +507,10 @@ public class DriverDocumentsTab {
 						 * all screwed up. This is to ensure that no matter what, when a sentence is created and we know it's a sentence it gets processed.
 						 */
 						if (changedCaret && InputFilter.isEOS) {
+							System.out.println("Really should be highlighting now");
 							changedCaret = false;
 							shouldUpdate = true;
+							ignoreHighlight = false;
 						}
 						
 						/**
@@ -530,14 +534,25 @@ public class DriverDocumentsTab {
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
 					
 					// xxx todo xxx get rid of this check (if possible... BEI sets the selectedSentIndexRange)....
-					
-					
 					if (firstRun){ //NOTE needed a way to make sure that the very first time a sentence is clicked (, we didn't break stuff... this may not be the best way...
 						firstRun = false;
 					} else {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.getDocumentPane().getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
+						
+						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
+							main.anonymityDrawingPanel.updateAnonymityBar();
+							setSelectionInfoAndHighlight = false;
+							GUIMain.saved = false;
+						}
+						
+						System.out.println(lastCaretLocation + " " + currentCaretPosition);
+						if (currentCaretPosition-1 != lastCaretLocation) {
+							System.out.println("Yup, should be highlighting now");
+							shouldUpdate = true;
+							ignoreHighlight = false;
+						}
 					}
 					
 					if (setSelectionInfoAndHighlight) {
@@ -547,6 +562,7 @@ public class DriverDocumentsTab {
 						moveHighlight(main,selectedSentIndexRange);
 					}
 
+					lastCaretLocation = currentCaretPosition;
 					sentToTranslate = currentSentNum;
 					if (!inRange)
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
@@ -554,8 +570,6 @@ public class DriverDocumentsTab {
 					if (shouldUpdate) {
 						shouldUpdate = false;
 						GUIMain.saved = false;
-						main.anonymityDrawingPanel.updateAnonymityBar();
-						setSelectionInfoAndHighlight = false;
 						removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 					}
 					
@@ -578,6 +592,10 @@ public class DriverDocumentsTab {
 						arg0.getKeyCode() == KeyEvent.VK_UP ||
 						arg0.getKeyCode() == KeyEvent.VK_DOWN)
 					changedCaret = true;
+				if (arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+					System.out.println("HELLOOOO!");
+					ignoreHighlight = false;
+				}
 //				keyJustPressed = true;
 				shouldRememberIndices = false;
 				lastKeyCaretPosition = thisKeyCaretPosition;

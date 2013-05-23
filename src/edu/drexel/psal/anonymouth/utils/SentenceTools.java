@@ -142,7 +142,6 @@ public class SentenceTools implements Serializable  {
 		
 		String currentEOS;
 		while (foundEOS == true) {
-			System.out.println("Not sure what this is = " + sent.group(0));
 			currentEOS = sent.group(0);
 			currentStop = sent.end();
 			//System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
@@ -244,11 +243,9 @@ public class SentenceTools implements Serializable  {
 			}
 			
 			foundEOS = sent.find(currentStart);
-			System.out.println("foundEOS = " + foundEOS);
 		}
 		
 		if (!foundAtLeastOneEOS || !EOSAtSentenceEnd) {
-			System.out.println("HERE");
 			ArrayList<String[]> wrapper = new ArrayList<String[]>(1);
 			wrapper.add(new String[]{text,text});
 			return wrapper;
