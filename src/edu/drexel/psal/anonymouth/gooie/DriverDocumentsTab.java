@@ -136,6 +136,7 @@ public class DriverDocumentsTab {
 	protected static Boolean changedCaret = false;
 	protected static String newLine = System.lineSeparator();
 	protected static Boolean ignoreHighlight = false;
+	protected static Boolean deleting = false;
 	
 	protected static ActionListener saveAsTestDoc;
 	
@@ -254,7 +255,7 @@ public class DriverDocumentsTab {
 			System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
 
 			if (currentSentNum != 0) { //if it's not the first sentence (assuming there's not going to be a space/tab before it TODO make this not suck)
-				if (selectedSentIndexRange[0] != currentCaretPosition && !ignoreHighlight) { //if the user is not selecting a sentence, don't highlight it.
+				if ((selectedSentIndexRange[0] != currentCaretPosition && !ignoreHighlight) || deleting) { //if the user is not selecting a sentence, don't highlight it.
 					if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) { // if the sentence is preceded by a newline, we need to modify this a bit
 						if (selectedSentIndexRange[0]+1 != currentCaretPosition)
 							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+2, bounds[1], painter);
@@ -382,7 +383,6 @@ public class DriverDocumentsTab {
 						Boolean EOSJustRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition-1, caretPositionPriorToCharRemoval-1);
 
 						if (EOSJustRemoved) {
-							System.out.println("Period deleted!");
 							// xxx todo xxx put in a check for:
 								// - if an EOS character was deleted inside of quotation marks, we don't want to delete anything.
 								// - if an EOS character was deleted from a sentence that ends with "?!", we want to wait until the remove both EOS characters (and other similar situations)
@@ -406,7 +406,7 @@ public class DriverDocumentsTab {
 								}
 								
 								//First delete what we don't need anymore
-//								TaggedSentence[] taggedSentsJustDeleted = taggedDoc.removeTaggedSentences(taggedSentsToDelete); // XXX XXX can stop saving the return value after testing!!!!
+								taggedDoc.removeTaggedSentences(taggedSentsToDelete); // XXX XXX can stop saving the return value after testing!!!!
 								
 								// Then read the remaining strings from "left" and "right" sentence:
 									// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
@@ -414,14 +414,9 @@ public class DriverDocumentsTab {
 								// Once we have the string, we call removeAndReplace, once for each sentence (String)
 								String docText = main.getDocumentPane().getText();
 								String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition);
-								System.out.println("Beginning Remove and replace");
 								taggedDoc.removeAndReplace(leftSentInfo[0], leftSentCurrent);
-								System.out.println("Ending Remove and replace");
 								String rightSentCurrent = docText.substring((caretPositionPriorToCharRemoval-charsRemoved), (rightSentInfo[2]-charsRemoved));//we need to shift our indices over by the number of characters removed.
-								System.out.println("Beginning second remove and replace");
-								taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);
-								System.out.println("Ending second remove and replace");
-								
+								taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);								
 								
 								// Now that we have internally gotten rid of the parts of left and right sentence that no longer exist in the editor box, we merge those two sentences so that they become a single TaggedSentence.
 								taggedDoc.concatRemoveAndReplace( taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(rightSentInfo[0]), rightSentInfo[0]);
@@ -507,7 +502,6 @@ public class DriverDocumentsTab {
 						 * all screwed up. This is to ensure that no matter what, when a sentence is created and we know it's a sentence it gets processed.
 						 */
 						if (changedCaret && InputFilter.isEOS) {
-							System.out.println("Really should be highlighting now");
 							changedCaret = false;
 							shouldUpdate = true;
 							ignoreHighlight = false;
@@ -534,7 +528,7 @@ public class DriverDocumentsTab {
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
 					
 					// xxx todo xxx get rid of this check (if possible... BEI sets the selectedSentIndexRange)....
-					if (firstRun){ //NOTE needed a way to make sure that the very first time a sentence is clicked (, we didn't break stuff... this may not be the best way...
+					if (firstRun) { //NOTE needed a way to make sure that the very first time a sentence is clicked (, we didn't break stuff... this may not be the best way...
 						firstRun = false;
 					} else {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
@@ -547,9 +541,7 @@ public class DriverDocumentsTab {
 							GUIMain.saved = false;
 						}
 						
-						System.out.println(lastCaretLocation + " " + currentCaretPosition);
 						if (currentCaretPosition-1 != lastCaretLocation) {
-							System.out.println("Yup, should be highlighting now");
 							shouldUpdate = true;
 							ignoreHighlight = false;
 						}
@@ -586,16 +578,15 @@ public class DriverDocumentsTab {
 
 			@Override
 			public void keyPressed(KeyEvent arg0) {
-				//System.out.println("keyPressed"+System.currentTimeMillis());
 				if (arg0.getKeyCode() == KeyEvent.VK_RIGHT ||
 						arg0.getKeyCode() == KeyEvent.VK_LEFT ||
 						arg0.getKeyCode() == KeyEvent.VK_UP ||
 						arg0.getKeyCode() == KeyEvent.VK_DOWN)
 					changedCaret = true;
-				if (arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-					System.out.println("HELLOOOO!");
-					ignoreHighlight = false;
-				}
+				if (arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE)
+					deleting = true;
+				else
+					deleting = false;
 //				keyJustPressed = true;
 				shouldRememberIndices = false;
 				lastKeyCaretPosition = thisKeyCaretPosition;
@@ -708,6 +699,7 @@ public class DriverDocumentsTab {
 			@Override
 			public void mouseReleased(MouseEvent me) {
 				changedCaret = true;
+				deleting = false;
 			}
 
 			@Override
