@@ -18,6 +18,7 @@ import edu.drexel.psal.jstylo.generics.Logger;
 /**
  * Retrieves sentences from a text and places them into an arraylist.
  * @author Andrew W.E. McDonald
+ * @author Marc Barrowclift
  *
  */
 public class SentenceTools implements Serializable  {

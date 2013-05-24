@@ -2,23 +2,20 @@ package edu.drexel.psal.anonymouth.engine;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.jstylo.generics.CumulativeFeatureDriver;
-import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
+import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.jstylo.generics.WekaInstancesBuilder;
 import com.jgaap.generics.*;
 
-import weka.core.FastVector;
 import weka.core.Instances;
 
 /**
  * Constructs instances using Weka and JStylo. Features are extracted.
  * @author Andrew W.E. McDonald
+ * @author Marc Barrowclift
  *
  */
 public class InstanceConstructor {
@@ -102,30 +99,38 @@ public class InstanceConstructor {
 	 */
 	public boolean runInstanceBuilder(List<Document> trainDocs,List<Document> testDocs){
 		Logger.logln(NAME+"Runnng JStylo WekaInstancesBuilder from runInstanceBuilder in InstanceConstructor");
-			int eye = 0;
-		if(printStuff == true){
+		int eye = 0;
+		if (printStuff == true) {
 			char[] cRay = testDocs.get(0).getProcessedText();
 			System.out.println("PRE-INSTANCE BUILDING:\n");
 			for(eye = 0;eye<cRay.length;eye++)
 				System.out.print(cRay[eye]);
 			System.out.println();
 		}
-		try{
-
-		wid.prepareTrainingSet(trainDocs, theseFeaturesCfd);
-	
-		//if(overrideAttributes == true)
-			//wid.forceAttributeList(forcedAttributes);
-		//else
-		//	forcedAttributes =(FastVector) wid.getActualAttributeList().copy();
-		wid.prepareTestSet(testDocs);
-		}
-		catch(Exception e){
-			Logger.logln(NAME+"Could not prepare either test or training set.");
-			e.printStackTrace();
-			return false;
-		}
 		
+		/**
+		 * Try catch in place to handle the occasional OutOfMemoryError - Java Heap Space error that's been plaguing Anonymouth.
+		 * While it's clear the issue is somewhere within WekaInstancesBuilder in JStylo, I don't feel comfortable messing around
+		 * in JStylo's low level code. So instead, we're simply catching the error if it does arise and then trying again since,
+		 * most of the time, it's just fine.
+		 */
+		Boolean outOfMemoryExceptionThrown = false;
+		do {
+			try {
+				wid.prepareTrainingSet(trainDocs, theseFeaturesCfd);
+
+				//if(overrideAttributes == true)
+				//wid.forceAttributeList(forcedAttributes);
+				//else
+				//	forcedAttributes =(FastVector) wid.getActualAttributeList().copy();
+				wid.prepareTestSet(testDocs);
+				outOfMemoryExceptionThrown = false;
+			} catch(Exception e) {
+				Logger.logln(NAME+"Could not prepare either test or training set, out of memory, will go again.", LogOut.STDERR);
+				outOfMemoryExceptionThrown = true;
+			}
+		} while (outOfMemoryExceptionThrown);
+
 		// Initialize two new instances to hold training and testing instances (attributes and data)
 		trainingDat=wid.getTrainingSet();
 		//System.out.println(trainingDat.toString());
@@ -148,13 +153,24 @@ public class InstanceConstructor {
 	
 	public boolean onlyBuildTrain(List<Document> trainDocs){
 		Logger.logln(NAME+"Only building train set");
-		try{
-			wid.prepareTrainingSet(trainDocs, theseFeaturesCfd);
-		}
-		catch(Exception e){
-			Logger.logln(NAME+"Could not prepare training set");
-			e.printStackTrace();
-		}
+		
+		/**
+		 * Try catch in place to handle the occasional OutOfMemoryError - Java Heap Space error that's been plaguing Anonymouth.
+		 * While it's clear the issue is somewhere within WekaInstancesBuilder in JStylo, I don't feel comfortable messing around
+		 * in JStylo's low level code. So instead, we're simply catching the error if it does arise and then trying again since,
+		 * most of the time, it's just fine.
+		 */
+		Boolean outOfMemoryExceptionThrown = false;
+		do {
+			try {
+				wid.prepareTrainingSet(trainDocs, theseFeaturesCfd);
+				outOfMemoryExceptionThrown = false;
+			} catch(Exception e) {
+				Logger.logln(NAME+"Could not prepare training set, out of memory, will go again.", LogOut.STDERR);
+				outOfMemoryExceptionThrown = true;
+			}
+		} while (outOfMemoryExceptionThrown);
+		
 		trainingDat=wid.getTrainingSet();
 		setAttributes=getAttributes(trainingDat);
 		trainingInstances=getInstances(trainingDat);

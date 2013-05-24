@@ -6,8 +6,6 @@ package edu.drexel.psal.anonymouth.utils;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import edu.drexel.psal.jstylo.generics.Logger;
-
 /**
  * @author Andrew W.E. McDonald
  *
@@ -188,26 +186,4 @@ class EOS implements Serializable {
 	public String toString(){
 		return "[ "+eos+", "+location+" ]";
 	}	
-}
-
-class Parentheses implements Serializable {
-
-	private static final long serialVersionUID = -7823318033706091154L;
-	private static final String NAME = "( Parenthesis ) - ";
-	protected int opening;
-	protected int closing;
-	
-	public Parentheses(int opening, int closing) {
-		if (opening < closing) {
-			this.opening = opening;
-			this.closing = closing;
-		} else {
-			Logger.logln(NAME + "Parentheses indices are not accepted, opening paren after indices of given closing paren");
-		}
-	}
-
-	public String toString() {
-		return "( " + opening + ", " + closing + " )";
-	}
-}
-	
+}	
