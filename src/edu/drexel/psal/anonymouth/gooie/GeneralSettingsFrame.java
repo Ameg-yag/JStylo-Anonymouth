@@ -116,7 +116,7 @@ public class GeneralSettingsFrame extends JDialog {
 		defaults= new JPanel();
 		advanced = new JPanel();
 
-		MigLayout generalLayout = new MigLayout();
+		MigLayout generalLayout = new MigLayout("fill");
 		
 		general.setLayout(generalLayout);
 		{

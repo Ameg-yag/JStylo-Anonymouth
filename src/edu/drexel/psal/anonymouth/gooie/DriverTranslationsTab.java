@@ -81,7 +81,7 @@ public class DriverTranslationsTab implements ActionListener {
 				languageLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
 				languageLabels[i].setBorder(GUIMain.rlborder);
 				languageLabels[i].setOpaque(true);
-				languageLabels[i].setBackground(main.tan);
+				languageLabels[i].setBackground(main.blue);
 
 				// set up translation text area
 				translationTextAreas[i] = new JTextPane();

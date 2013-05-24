@@ -106,9 +106,9 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected Font defaultLabelFont = new Font("Verdana",0,16);
 	protected static int cellPadding = 5;
 
-	protected final Color ready = new Color(0,255,128);
-	protected final Color notReady = new Color(255,102,102);
-	protected final Color tan = new Color(136,166,233,200);
+	protected final Color ready = new Color(0,255,128,200);
+	protected final Color notReady = new Color(255,102,102,200);
+	protected final Color blue = new Color(136,166,233,200);
 
 	// tabs
 	protected JTabbedPane mainJTabbedPane;
@@ -796,7 +796,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			getContentPane().add(rightTabPane, "width :353:353, spany, shrinkprio 2");
 		if (panelLocations.contains(PropertiesUtil.Location.BOTTOM))
 			getContentPane().add(bottomTabPane, "width 600:100%:, height 150:25%:, shrinkprio 3");
-
+		
 		rightTabPane.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -1111,7 +1111,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToAddLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			elementsToAddLabel.setFont(titleFont);
 			elementsToAddLabel.setOpaque(true);
-			elementsToAddLabel.setBackground(tan);
+			elementsToAddLabel.setBackground(blue);
 			elementsToAddLabel.setBorder(rlborder);
 
 			//--------- Elements to Add Text Pane ------------------
@@ -1156,7 +1156,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemoveLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			elementsToRemoveLabel.setFont(titleFont);
 			elementsToRemoveLabel.setOpaque(true);
-			elementsToRemoveLabel.setBackground(tan);
+			elementsToRemoveLabel.setBackground(blue);
 			elementsToRemoveLabel.setBorder(rlborder);
 
 			//--------- Elements to Remove Text Pane ------------------
@@ -1216,7 +1216,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			translationsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			translationsLabel.setFont(titleFont);
 			translationsLabel.setOpaque(true);
-			translationsLabel.setBackground(tan);
+			translationsLabel.setBackground(blue);
 			translationsLabel.setBorder(rlborder);
 
 			translationsHolderPanel = new ScrollablePanel()
@@ -1260,7 +1260,7 @@ public class GUIMain extends javax.swing.JFrame  {
 				translationsProgressTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 				translationsProgressTitleLabel.setFont(titleFont);
 				translationsProgressTitleLabel.setOpaque(true);
-				translationsProgressTitleLabel.setBackground(tan);
+				translationsProgressTitleLabel.setBackground(blue);
 				translationsProgressTitleLabel.setBorder(rlborder);
 
 				translationsProgressLabel = new JLabel("No Translations Pending.");
@@ -1298,7 +1298,7 @@ public class GUIMain extends javax.swing.JFrame  {
 				documentLabel.setHorizontalAlignment(SwingConstants.CENTER);
 				documentLabel.setFont(titleFont);
 				documentLabel.setOpaque(true);
-				documentLabel.setBackground(tan);
+				documentLabel.setBackground(blue);
 				documentLabel.setBorder(rlborder);
 
 				documentScrollPane = new JScrollPane();
@@ -1353,7 +1353,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			anonymityLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			anonymityLabel.setFont(titleFont);
 			anonymityLabel.setOpaque(true);
-			anonymityLabel.setBackground(tan);
+			anonymityLabel.setBackground(blue);
 			anonymityLabel.setBorder(rlborder);
 
 			anonymityDrawingPanel = new AnonymityDrawingPanel(this);
@@ -1378,7 +1378,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			resultsTableLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			resultsTableLabel.setFont(titleFont);
 			resultsTableLabel.setOpaque(true);
-			resultsTableLabel.setBackground(tan);
+			resultsTableLabel.setBackground(blue);
 			resultsTableLabel.setBorder(rlborder);
 
 			makeResultsPanel();

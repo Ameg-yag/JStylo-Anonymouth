@@ -371,6 +371,6 @@ public class GUIUpdateInterface {
 		if (main.resultsAreReady())
 			main.resultsTableLabel.setBackground(main.ready);
 		else
-			main.resultsTableLabel.setBackground(main.tan);
+			main.resultsTableLabel.setBackground(main.blue);
 	}
 }
