@@ -138,7 +138,7 @@ public class SentenceTools implements Serializable  {
 		 * matter since the while loop and !foundAtLeastOneEOS conditional are executed properly, BUT as you can see the quotes, or more notably the EOS character inside
 		 * the quotes, triggers this initial test and thus the operation breaks. This is here just to make sure that does not happen.
 		 */
-		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
+//		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
 		
 		String currentEOS;
 		while (foundEOS == true) {
@@ -245,7 +245,7 @@ public class SentenceTools implements Serializable  {
 			foundEOS = sent.find(currentStart);
 		}
 		
-		if (!foundAtLeastOneEOS || !EOSAtSentenceEnd) {
+		if (!foundAtLeastOneEOS) {
 			ArrayList<String[]> wrapper = new ArrayList<String[]>(1);
 			wrapper.add(new String[]{text,text});
 			return wrapper;

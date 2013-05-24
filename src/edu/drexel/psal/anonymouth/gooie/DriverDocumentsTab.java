@@ -137,6 +137,8 @@ public class DriverDocumentsTab {
 	protected static String newLine = System.lineSeparator();
 	protected static Boolean ignoreHighlight = false;
 	protected static Boolean deleting = false;
+	protected static Boolean charsWereInserted = false;
+	protected static Boolean charsWereRemoved = false;
 	
 	protected static ActionListener saveAsTestDoc;
 	
@@ -389,37 +391,44 @@ public class DriverDocumentsTab {
 							
 							try {
 								// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
+								System.out.println("currentCaretPosition = " + currentCaretPosition + " < " + caretPositionPriorToCharRemoval);
 								int[][] activatedSentenceInfo = calculateIndicesOfSentences(currentCaretPosition, caretPositionPriorToCharRemoval);
 								int i;
 								int j = 0;
 //								int numInfos = activatedSentenceInfo.length;
 								int[] leftSentInfo = activatedSentenceInfo[0];
+								System.out.println("leftSentInfo[0] = " + leftSentInfo[0] + " leftSentInfo[1] = " + leftSentInfo[1] + " leftSentInfo[2] = " + leftSentInfo[2]);
 								int[] rightSentInfo = activatedSentenceInfo[1];
+								System.out.println("rightSentInfo[0] = " + rightSentInfo[0] + " rightSentInfo[1] = " + rightSentInfo[1] + " rightSentInfo[2] = " + rightSentInfo[2]);
 
-								int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
-								int[] taggedSentsToDelete = new int[numToDelete];
-								
-								// Now we list the indices of sentences that need to be removed, which are the ones between the left and right sentence (though not including either the left or the right sentence).
-								for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]; i++){ 
-									taggedSentsToDelete[j] = i;
-									j++;
+								if (!(rightSentInfo[0] == 0 && leftSentInfo[0] == 0)) {
+									int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
+									int[] taggedSentsToDelete = new int[numToDelete];
+									
+									// Now we list the indices of sentences that need to be removed, which are the ones between the left and right sentence (though not including either the left or the right sentence).
+									for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]; i++){ 
+										taggedSentsToDelete[j] = i;
+										j++;
+									}
+									
+									//First delete what we don't need anymore
+									taggedDoc.removeTaggedSentences(taggedSentsToDelete); // XXX XXX can stop saving the return value after testing!!!!
+									
+									// Then read the remaining strings from "left" and "right" sentence:
+										// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
+										// for right: read from 'caretPositionPriorToCharRemoval' (where the "sentence" now begins) to 'rightSentInfo[2]' (the end of the sentence) 
+									// Once we have the string, we call removeAndReplace, once for each sentence (String)
+									String docText = main.getDocumentPane().getText();
+									String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition);
+									taggedDoc.removeAndReplace(leftSentInfo[0], leftSentCurrent);
+									String rightSentCurrent = docText.substring((caretPositionPriorToCharRemoval-charsRemoved), (rightSentInfo[2]-charsRemoved));//we need to shift our indices over by the number of characters removed.
+									taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);								
+									
+									// Now that we have internally gotten rid of the parts of left and right sentence that no longer exist in the editor box, we merge those two sentences so that they become a single TaggedSentence.
+									taggedDoc.concatRemoveAndReplace( taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(rightSentInfo[0]), rightSentInfo[0]);
+								} else {
+									System.out.println("Bounced out");
 								}
-								
-								//First delete what we don't need anymore
-								taggedDoc.removeTaggedSentences(taggedSentsToDelete); // XXX XXX can stop saving the return value after testing!!!!
-								
-								// Then read the remaining strings from "left" and "right" sentence:
-									// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
-									// for right: read from 'caretPositionPriorToCharRemoval' (where the "sentence" now begins) to 'rightSentInfo[2]' (the end of the sentence) 
-								// Once we have the string, we call removeAndReplace, once for each sentence (String)
-								String docText = main.getDocumentPane().getText();
-								String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition);
-								taggedDoc.removeAndReplace(leftSentInfo[0], leftSentCurrent);
-								String rightSentCurrent = docText.substring((caretPositionPriorToCharRemoval-charsRemoved), (rightSentInfo[2]-charsRemoved));//we need to shift our indices over by the number of characters removed.
-								taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);								
-								
-								// Now that we have internally gotten rid of the parts of left and right sentence that no longer exist in the editor box, we merge those two sentences so that they become a single TaggedSentence.
-								taggedDoc.concatRemoveAndReplace( taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(rightSentInfo[0]), rightSentInfo[0]);
 							} catch (Exception e1) {
 								e1.printStackTrace();
 							}
@@ -485,13 +494,15 @@ public class DriverDocumentsTab {
 						inRange = true;
 						// Caret is inside range of presently selected sentence.
 						// update from previous caret
-						if (charsInserted > 0 ){// && lastSentNum != -1){
+						if (charsInserted > 0 ) {// && lastSentNum != -1){
 							selectedSentIndexRange[1] += charsInserted;
 							charsInserted = ~-1; // puzzle: what does this mean? (scroll to bottom of file for answer) - AweM
+							charsWereInserted = true;
 						}
 						else if (charsRemoved > 0){// && lastSentNum != -1){
 							selectedSentIndexRange[1] -= charsRemoved;
 							charsRemoved = 0;
+							charsWereRemoved = true;
 						}
 					} else if (!firstRun) {
 						/**
@@ -535,13 +546,19 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.getDocumentPane().getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
 						
+						System.out.println("Current sentence String: \""+currentSentenceString+"\"");
+						System.out.println("taggedDoc, sentNum == "+lastSentNum+": \"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false) + "\"");
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
 							GUIMain.saved = false;
 						}
 						
-						if (currentCaretPosition-1 != lastCaretLocation) {
+						System.out.println("currentCaretPosition = " + currentCaretPosition + " and lastCaretLocation = " + lastCaretLocation);
+						if ((currentCaretPosition-1 != lastCaretLocation && charsWereInserted) || (currentCaretPosition != lastCaretLocation-1) && charsWereRemoved) {
+							System.out.println("IS IT THIS ONE?");
+							charsWereInserted = false;
+							charsWereRemoved = false;
 							shouldUpdate = true;
 							ignoreHighlight = false;
 						}
@@ -559,6 +576,7 @@ public class DriverDocumentsTab {
 					if (!inRange)
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 					
+					System.out.println("shouldUpdate = " + shouldUpdate);
 					if (shouldUpdate) {
 						shouldUpdate = false;
 						GUIMain.saved = false;

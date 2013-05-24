@@ -136,6 +136,7 @@ public class InputFilter extends DocumentFilter{
 			}
 		}
 		
+		System.out.println("InputFilter update? = " + DriverDocumentsTab.shouldUpdate);
 		fb.remove(offset, length);
 	}
 	
@@ -167,8 +168,10 @@ public class InputFilter extends DocumentFilter{
 		String textBeforeDeletion = GUIMain.inst.getDocumentPane().getText().substring(offset-2, offset+1);
 
 		for (int i = 0; i < notEndsOfSentence.length; i++) {
-			if (notEndsOfSentence[i].contains(textBeforeDeletion))
+			if (notEndsOfSentence[i].contains(textBeforeDeletion)) {
 				DriverDocumentsTab.shouldUpdate = false;
+				System.out.println("Found something");
+			}
 		}		
 	}
 }
