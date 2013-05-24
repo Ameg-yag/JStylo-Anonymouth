@@ -18,7 +18,8 @@ import edu.drexel.psal.jstylo.generics.Logger;
  * 				instead. I sadly can't figure out how to have it keep it a full sentence though while keeping the "This.... another sentence"
  * 				splitting functionality.
  * 2) Adding/removing abbreviations.
- * 3) TODO Adding quotes needs to be handled properly
+ * 3) Adding/removing quotes (handled inherently by a combination of the two checks above and by existing code in SentenceTools)
+ * 4) Adding/removing parentheses (handled primarily by SentenceTools)
  */
 public class InputFilter extends DocumentFilter{
 	
@@ -27,31 +28,6 @@ public class InputFilter extends DocumentFilter{
 	private Boolean watchForEOS = false; //Lets us know if the previous character(s) were EOS characters.
 	public static Boolean isEOS = false; //keeps track of whether or not the current character is an EOS character.
 	private String[] notEndsOfSentence = {"U.S.","R.N.","M.D.","i.e.","e.x.","e.g.","D.C.","B.C.","B.S.","Ph.D.","B.A.","A.B.","A.D.","A.M.","P.M.","r.b.i.","V.P."}; //we only need to worry about these kinds of abbreviations since SentenceTools takes care of the others
-	
-	/*
-	 * 
-	 * After this InputFilter (DocumentFilter) has been added to the documentPane (via main.getDocumentPane().setDocumentFilter(<intance of this class>)),
-	 * All text entered will go through here. 
-	 * 
-	 * We want to do things like:
-	 * 		-> Know if someone is inputting more than one EOS character (e.g. "???", "!?", "....", "...") -- 4 periods is ellipsis with period, 3 is just ellipsis
-	 * 		-> Know if someone is editing within quotes, or within parenthesis
-	 * 		-> Know if someone is removing more than one EOS character (see example above)
-	 * 		-> *** Know if someone is adding in an abbreviation (see list of abbreviations in SentenceTools) ***
-	 * 		-> Other edit things that we think of (there is a piece of paper near my area titled "Editing Issues" or something. That has a list of everything I could think of EXCEPT the abbreviations thing -- I just thought of that now)
-	 * 
-	 * When we see the user inputting or removing characters that could cause problems for our SentenceTools/TaggedSentence/TaggedDocument classes,
-	 * we want to intercept the keys being input, and wait until we can determine what the user is inputting, so we can deliver the most complete sentence possible to our SentenceTools class.
-	 * 
-	 * If we don't do this, we'll have sentences (TaggedSentences) in our TaggedDocument that are single periods and other things that clearly aren't sentences.
-	 * 
-	 * Also, As you add support for handing various types of things (like multiple periods), create a list at the top of the class (just do it in the class Javadoc thing under "Supported actions:") 
-	 * that says what types of actions this filter will support, so it's easier to keep track of what is supported and what needs to be added.
-	 * 
-	 * NOTE : Finally, for each bit of code you write that deals with certain actions, please please add comments that say what each bit does. 
-	 * (see my code in DriverDocumentsTab from line 383 to 432). I (and other people) would very much appricate it if you could get into the habbit of always documenting your code like that.
-	 * 
-	 */
 	
 	/**
 	 * If the user types a character or pastes in text this will get called BEFORE updating the documentPane and firing the listeners.
@@ -136,7 +112,6 @@ public class InputFilter extends DocumentFilter{
 			}
 		}
 		
-		System.out.println("InputFilter update? = " + DriverDocumentsTab.shouldUpdate);
 		fb.remove(offset, length);
 	}
 	
@@ -168,10 +143,8 @@ public class InputFilter extends DocumentFilter{
 		String textBeforeDeletion = GUIMain.inst.getDocumentPane().getText().substring(offset-2, offset+1);
 
 		for (int i = 0; i < notEndsOfSentence.length; i++) {
-			if (notEndsOfSentence[i].contains(textBeforeDeletion)) {
+			if (notEndsOfSentence[i].contains(textBeforeDeletion))
 				DriverDocumentsTab.shouldUpdate = false;
-				System.out.println("Found something");
-			}
 		}		
 	}
 }

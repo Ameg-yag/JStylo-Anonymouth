@@ -259,13 +259,15 @@ public class DriverDocumentsTab {
 			if (currentSentNum != 0) { //if it's not the first sentence (assuming there's not going to be a space/tab before it TODO make this not suck)
 				if ((selectedSentIndexRange[0] != currentCaretPosition && !ignoreHighlight) || deleting) { //if the user is not selecting a sentence, don't highlight it.
 					if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) { // if the sentence is preceded by a newline, we need to modify this a bit
-						if (selectedSentIndexRange[0]+1 != currentCaretPosition)
+						if (selectedSentIndexRange[0]+1 != currentCaretPosition) //If the user is actually selecting the sentence
 							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+2, bounds[1], painter);
 					} else {
-						if (main.getDocumentPane().getText().substring(selectedSentIndexRange[0], selectedSentIndexRange[0]+1).equals(" "))
-							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+1, bounds[1], painter);
-						else
-							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
+						int temp = 0;
+						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) { //we want to not highlight whitespace before the actual sentence.
+							temp++;
+						}
+	
+						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
 					}
 				} else
 					ignoreHighlight = true;
@@ -385,21 +387,13 @@ public class DriverDocumentsTab {
 						Boolean EOSJustRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition-1, caretPositionPriorToCharRemoval-1);
 
 						if (EOSJustRemoved) {
-							// xxx todo xxx put in a check for:
-								// - if an EOS character was deleted inside of quotation marks, we don't want to delete anything.
-								// - if an EOS character was deleted from a sentence that ends with "?!", we want to wait until the remove both EOS characters (and other similar situations)
-							
 							try {
 								// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
-								System.out.println("currentCaretPosition = " + currentCaretPosition + " < " + caretPositionPriorToCharRemoval);
 								int[][] activatedSentenceInfo = calculateIndicesOfSentences(currentCaretPosition, caretPositionPriorToCharRemoval);
 								int i;
 								int j = 0;
-//								int numInfos = activatedSentenceInfo.length;
 								int[] leftSentInfo = activatedSentenceInfo[0];
-								System.out.println("leftSentInfo[0] = " + leftSentInfo[0] + " leftSentInfo[1] = " + leftSentInfo[1] + " leftSentInfo[2] = " + leftSentInfo[2]);
 								int[] rightSentInfo = activatedSentenceInfo[1];
-								System.out.println("rightSentInfo[0] = " + rightSentInfo[0] + " rightSentInfo[1] = " + rightSentInfo[1] + " rightSentInfo[2] = " + rightSentInfo[2]);
 
 								if (!(rightSentInfo[0] == 0 && leftSentInfo[0] == 0)) {
 									int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
@@ -426,11 +420,9 @@ public class DriverDocumentsTab {
 									
 									// Now that we have internally gotten rid of the parts of left and right sentence that no longer exist in the editor box, we merge those two sentences so that they become a single TaggedSentence.
 									taggedDoc.concatRemoveAndReplace( taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(rightSentInfo[0]), rightSentInfo[0]);
-								} else {
-									System.out.println("Bounced out");
 								}
 							} catch (Exception e1) {
-								e1.printStackTrace();
+								Logger.logln(NAME + "A fatal error occured when attempting to delete an EOS character in DriverDocumentsTab, the editor will no longer highlight or function properly.");
 							}
 							
 							// now update the EOSTracker
@@ -546,17 +538,13 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.getDocumentPane().getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
 						
-						System.out.println("Current sentence String: \""+currentSentenceString+"\"");
-						System.out.println("taggedDoc, sentNum == "+lastSentNum+": \"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false) + "\"");
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
 							GUIMain.saved = false;
 						}
 						
-						System.out.println("currentCaretPosition = " + currentCaretPosition + " and lastCaretLocation = " + lastCaretLocation);
-						if ((currentCaretPosition-1 != lastCaretLocation && charsWereInserted) || (currentCaretPosition != lastCaretLocation-1) && charsWereRemoved) {
-							System.out.println("IS IT THIS ONE?");
+						if ((currentCaretPosition-1 != lastCaretLocation && !charsWereRemoved) || (currentCaretPosition != lastCaretLocation-1) && !charsWereInserted) {
 							charsWereInserted = false;
 							charsWereRemoved = false;
 							shouldUpdate = true;
@@ -576,7 +564,6 @@ public class DriverDocumentsTab {
 					if (!inRange)
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 					
-					System.out.println("shouldUpdate = " + shouldUpdate);
 					if (shouldUpdate) {
 						shouldUpdate = false;
 						GUIMain.saved = false;

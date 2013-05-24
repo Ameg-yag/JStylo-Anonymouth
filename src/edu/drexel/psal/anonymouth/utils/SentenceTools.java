@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import com.jgaap.generics.Document;
 
 import edu.drexel.psal.anonymouth.gooie.ErrorHandler;
+import edu.drexel.psal.anonymouth.gooie.InputFilter;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 /**
@@ -54,6 +55,7 @@ public class SentenceTools implements Serializable  {
 	 */
 	private static final Pattern sentence_quote = Pattern.compile("([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))\\s*\"\\s*([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))?\\s*($|[A-Z]|\\(((\\s*[A-Za-z.]*\\s*(et\\.?\\s*al\\.)?\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*)|(\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*[A-Za-z.]*\\s*(et\\.?\\s*al\\.)?\\s*))\\))"); 
 	
+	private static final Pattern sentence_parentheses = Pattern.compile("([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))\\s*\\(\\s*([?!]+|[.]{4}|(?<!\\.)\\.(?!\\.))?\\s*($|[A-Z]|\\(((\\s*[A-Za-z.]*\\s*(et\\.?\\s*al\\.)?\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*)|(\\s*[0-9]*\\s*[-,]*\\s*[0-9]*\\s*[A-Za-z.]*\\s*(et\\.?\\s*al\\.)?\\s*))\\))");
 	/**
 	 * the pattern 'citation' forces the match to begin at the start of the input (via the anchor), and matches zero or one occurrences EOS character, and then searches for citations that begin with an opening parenthesis,
 	 * match either a word (a name) followed by "et al." [or et. al.", even though it's wrong] (or not) followed by a number, or two numbers separated by a dash, and finishing with a closing parenthesis. 
@@ -94,6 +96,7 @@ public class SentenceTools implements Serializable  {
 		int currentStop = 0;
 		String safeString_subbedEOS;
 		int quoteAtEnd;
+		int parenAtEnd;
 		int citationAtEnd;
 		String temp;
 		text = text.replaceAll("\u201C","\"");
@@ -124,7 +127,9 @@ public class SentenceTools implements Serializable  {
 		int charNum = 0;
 		int lenTemp = 0;
 		int lastQuoteAt = 0;
+		int lastParenAt = 0;
 		boolean foundQuote = false;
+		boolean foundParentheses = false;
 		boolean isSentence;
 		boolean foundAtLeastOneEOS = foundEOS;
 		
@@ -138,7 +143,11 @@ public class SentenceTools implements Serializable  {
 		 * matter since the while loop and !foundAtLeastOneEOS conditional are executed properly, BUT as you can see the quotes, or more notably the EOS character inside
 		 * the quotes, triggers this initial test and thus the operation breaks. This is here just to make sure that does not happen.
 		 */
-//		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
+		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
+		
+		//Needed so that if we are deleting abbreviations like "Ph.D." this is not triggered.
+		if (!EOSAtSentenceEnd && !InputFilter.isEOS)
+			EOSAtSentenceEnd = true;
 		
 		String currentEOS;
 		while (foundEOS == true) {
@@ -149,27 +158,47 @@ public class SentenceTools implements Serializable  {
 			//System.out.println(temp);
 			lenTemp = temp.length();
 			lastQuoteAt = 0;
+			lastParenAt = 0;
 			foundQuote = false;
-			for(charNum =0; charNum < lenTemp; charNum++){
-				if(temp.charAt(charNum) == '\"'){
+			foundParentheses = false;
+			
+			for(charNum = 0; charNum < lenTemp; charNum++){
+				if (temp.charAt(charNum) == '\"') {
 					lastQuoteAt = charNum;
-					if(foundQuote == true){
+					
+					if (foundQuote == true)
 						foundQuote = false;
-						
-					}
-					else{
+					else
 						foundQuote = true;
-					}
-					//System.out.println("Found quote!!! here it is: "+temp.charAt(charNum)+" ... in position: "+lastQuoteAt+" ... foundQuote is: "+foundQuote);
+				}
+				
+				if (temp.charAt(charNum) == '(') {
+					lastParenAt = charNum;
+					
+					if (foundParentheses)
+						foundParentheses = false;
+					else
+						foundParentheses = true;
 				}
 			}
-			if(foundQuote == true && ((temp.indexOf("\"",lastQuoteAt+1)) == -1)){ // then we found an EOS character that shouldn't split a sentence because it's within an open quote.
-				if((currentStop = text.indexOf("\"",currentStart +lastQuoteAt+1)) == -1){
+			
+			if (foundQuote == true && ((temp.indexOf("\"",lastQuoteAt+1)) == -1)) { // then we found an EOS character that shouldn't split a sentence because it's within an open quote.
+				if ((currentStop = text.indexOf("\"",currentStart +lastQuoteAt+1)) == -1) {
 					currentStop = text.length(); // if we can't find a closing quote in the rest of the input text, then we assume the author forgot to put a closing quote, and act like it's at the end of the input text.
 				}
 				else{
 					currentStop +=1;
 					mergeNext=true;// the EOS character we are looking for is not in this section of text (section being defined as a substring of 'text' between two EOS characters.)
+				}
+			}
+			safeString = text.substring(currentStart-1,currentStop);
+			
+			if (foundParentheses && ((temp.indexOf(")", lastParenAt+1)) == -1)) {
+				if ((currentStop = text.indexOf(")", currentStart + lastParenAt + 1)) == -1)
+					currentStop = text.length();
+				else {
+					currentStop += 1;
+					mergeNext = true;
 				}
 			}
 			safeString = text.substring(currentStart-1,currentStop);
@@ -190,6 +219,20 @@ public class SentenceTools implements Serializable  {
 					forceNoMerge = true;
 					mergeNext = false;
 					quoteAtEnd = 1;
+				}
+			}
+			
+			parenAtEnd = 0;
+			if (foundParentheses) {
+				sentEnd = sentence_parentheses.matcher(text);
+				isSentence = sentEnd.find(currentStop-2);
+				
+				if (isSentence == true) {
+					currentStop = text.indexOf(")", sentEnd.start()) + 1;
+					safeString = text.substring(currentStart-1, currentStop);
+					forceNoMerge = true;
+					mergeNext = false;
+					parenAtEnd = 1;
 				}
 			}
 			//System.out.println("POST quote finder: "+safeString);
@@ -219,7 +262,7 @@ public class SentenceTools implements Serializable  {
 			} else {
 				forceNoMerge = false;
 				//System.out.println("Actual: "+safeString);
-				safeString_subbedEOS = subOutEOSChars(currentEOS, safeString, quoteAtEnd + citationAtEnd);
+				safeString_subbedEOS = subOutEOSChars(currentEOS, safeString, quoteAtEnd + citationAtEnd + parenAtEnd);
 				//System.out.println("SubbedEOS: "+safeString_subbedEOS);
 				safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
 				safeString_subbedEOS = safeString_subbedEOS.replaceAll(t_PERIOD_REPLACEMENT,".");
@@ -245,7 +288,7 @@ public class SentenceTools implements Serializable  {
 			foundEOS = sent.find(currentStart);
 		}
 		
-		if (!foundAtLeastOneEOS) {
+		if (!foundAtLeastOneEOS || !EOSAtSentenceEnd) {
 			ArrayList<String[]> wrapper = new ArrayList<String[]>(1);
 			wrapper.add(new String[]{text,text});
 			return wrapper;
