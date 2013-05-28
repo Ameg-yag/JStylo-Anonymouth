@@ -105,8 +105,8 @@ public class DriverTranslationsTab implements ActionListener {
 						"");
 				finalPanels[i] = new JPanel(layout);
 				finalPanels[i].add(languageLabels[i], "grow, h 20!, north");
-				finalPanels[i].add(translationButtons[i], "west, wmax 30, wmin 30"); //50 //25
-				finalPanels[i].add(translationTextAreas[i], "east, wmin 283, wmax 283"); //263 //288
+				finalPanels[i].add(translationButtons[i], "west, w 30!");
+				finalPanels[i].add(translationTextAreas[i], "east, w 100:283:283");
 
 				// add final panel to the translations list panel
 				main.translationsHolderPanel.add(finalPanels[i], "");
@@ -128,6 +128,7 @@ public class DriverTranslationsTab implements ActionListener {
 		DriverDocumentsTab.currentCharacterBuffer = 0;
 		
 		GUIMain.saved = false;
+		InputFilter.ignoreTranslation = true;
 		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(false), true);
 		GUIMain.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
 		

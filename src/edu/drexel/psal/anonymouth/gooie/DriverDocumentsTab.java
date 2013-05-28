@@ -271,8 +271,9 @@ public class DriverDocumentsTab {
 					}
 				} else
 					ignoreHighlight = true;
-			} else
+			} else {
 				currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
+			}
 		} 
 		catch (BadLocationException err) {
 			err.printStackTrace();
@@ -359,6 +360,8 @@ public class DriverDocumentsTab {
 				System.out.println("======================================================================================");
 				if (ignoreNumActions > 0) {
 					charsInserted = 0;
+					charsWereRemoved = false;
+					charsWereInserted = false;
 					charsRemoved = 0;
 					ignoreNumActions--;
 				} else if (taggedDoc != null) { //main.documentPane.getText().length() != 0
@@ -473,7 +476,7 @@ public class DriverDocumentsTab {
 						main.versionControl.updateIndices(startSelection, endSelection);
 					}
 					
-					if (charsInserted > 2 || charsInserted < -2)
+					if (charsInserted > 2 || charsRemoved > 2)
 						main.versionControl.addVersion(taggedDoc);
 					
 					lastSentNum = currentSentNum;
@@ -544,7 +547,7 @@ public class DriverDocumentsTab {
 							GUIMain.saved = false;
 						}
 						
-						if ((currentCaretPosition-1 != lastCaretLocation && !charsWereRemoved) || (currentCaretPosition != lastCaretLocation-1) && !charsWereInserted) {
+						if ((currentCaretPosition-1 != lastCaretLocation && !charsWereRemoved && charsWereInserted) || (currentCaretPosition != lastCaretLocation-1) && !charsWereInserted && charsWereRemoved) {
 							charsWereInserted = false;
 							charsWereRemoved = false;
 							shouldUpdate = true;
@@ -958,9 +961,6 @@ class SuggestionCalculator {
 		main.elementsToAdd.removeAllElements();
 
 		//Adding new suggestions
-		editTracker = new DefaultHighlighter();
-		main.getDocumentPane().setHighlighter(editTracker);
-
 		topToRemove=ConsolidationStation.getPriorityWords(ConsolidationStation.toModifyTaggedDocs, true, .2);
 		topToAdd=ConsolidationStation.getPriorityWords(ConsolidationStation.authorSampleTaggedDocs, false, .02);
 

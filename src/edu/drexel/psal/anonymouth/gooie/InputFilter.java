@@ -27,6 +27,7 @@ public class InputFilter extends DocumentFilter{
 	private String EOS = ".?!"; //Quick and dirty way to identify EOS characters.
 	private Boolean watchForEOS = false; //Lets us know if the previous character(s) were EOS characters.
 	public static Boolean isEOS = false; //keeps track of whether or not the current character is an EOS character.
+	public static Boolean ignoreTranslation = false;
 	private String[] notEndsOfSentence = {"U.S.","R.N.","M.D.","i.e.","e.x.","e.g.","D.C.","B.C.","B.S.","Ph.D.","B.A.","A.B.","A.D.","A.M.","P.M.","r.b.i.","V.P."}; //we only need to worry about these kinds of abbreviations since SentenceTools takes care of the others
 	
 	/**
@@ -98,7 +99,7 @@ public class InputFilter extends DocumentFilter{
 		if (length == 1) { //If the user is just deleting character by character
 			DriverDocumentsTab.shouldUpdate = false;
 			DriverDocumentsTab.EOSesRemoved = false;
-			
+
 			checkRemoveEllipses(offset);
 			checkRemoveAbbreviations(offset);
 		} else { //If the user selected and deleted a section of text greater than a single character
@@ -106,15 +107,16 @@ public class InputFilter extends DocumentFilter{
 			 * I know this looks goofy, but without some sort of check to make sure that the document is done processing, this would fire
 			 * removeReplaceAndUpdate() in DriverDocumentsTab and screw all the highlighting up. There may be a better way to do this...
 			 */
-			if (GUIMain.processed) {
+			if (GUIMain.processed && !ignoreTranslation) {
 				DriverDocumentsTab.shouldUpdate = true; //We want to update no matter what since the user is dealing with a chunk of text
 				Logger.logln(NAME + "User deleted multiple characters in text, will update");
-			}
+			} else
+				ignoreTranslation = false;
 		}
-		
+
 		fb.remove(offset, length);
 	}
-	
+
 	/**
 	 * Pretty much the same thing as checkAddingEllipses only it's not receiving text, but checking the document pane at the indices given for
 	 * the text instead of getting it as a parameter. Essentially checkAddingEllipses but backwards.
