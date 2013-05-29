@@ -205,6 +205,8 @@ public class DriverDocumentsTab {
 	 */
 	protected static void removeReplaceAndUpdate(GUIMain main, int sentenceNumberToRemove, String sentenceToReplaceWith, boolean shouldUpdate) {
 		taggedDoc.removeAndReplace(sentenceNumberToRemove, sentenceToReplaceWith);
+		System.out.println("   To Remove = \"" + taggedDoc.getSentenceNumber(sentenceNumberToRemove).getUntagged(false) + "\"");
+		System.out.println("   To Add = \"" + sentenceToReplaceWith + "\"");
 
 		if (shouldUpdate) {
 			ignoreNumActions = 3;
@@ -213,8 +215,13 @@ public class DriverDocumentsTab {
 			main.getDocumentPane().setCaretPosition(caretPositionPriorToAction);	
 		}
 		
+//		System.out.println("   currentCaretPosition = " + currentCaretPosition);
+//		for (int i = 0; i < taggedDoc.getUntaggedSentences(false).size(); i++) {
+//			System.out.println("Sentences: " + taggedDoc.getUntaggedSentences(false).get(i));
+//		}
 		int[] selectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
 		currentSentNum = selectionInfo[0];
+//		System.out.println("   currentSentNum = " + currentSentNum);
 		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 		moveHighlight(main,selectedSentIndexRange);
@@ -238,6 +245,7 @@ public class DriverDocumentsTab {
 		
 		int[] selectionInfo = calculateIndicesOfSentences(caretPositionPriorToCharInsertion)[0];
 		currentSentNum = selectionInfo[0];
+//		System.out.println(currentSentNum);
 		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 
@@ -251,16 +259,28 @@ public class DriverDocumentsTab {
 	 * @param end
 	 */
 	protected static void moveHighlight(final GUIMain main, int[] bounds) {
+		if (main.getDocumentPane().getCaret().getDot() != main.getDocumentPane().getCaret().getMark()) {
+			main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
+			return;
+		}
+		
 		if (currentHighlight != null)
 			main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 		try {
 			System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
 
 			if (currentSentNum != 0) { //if it's not the first sentence (assuming there's not going to be a space/tab before it TODO make this not suck)
+//				System.out.println("   selectedSentIndexRange[0] = " + selectedSentIndexRange[0]);
+//				System.out.println("   currentCaretPosition = " + currentCaretPosition);
+//				System.out.println("   ignoreHighlight = " + ignoreHighlight);
+//				System.out.println("   InputFilter.isEOS = " + InputFilter.isEOS);
+//				System.out.println("   Deleteing = " + deleting);
 				if ((selectedSentIndexRange[0] != currentCaretPosition && !ignoreHighlight) || deleting) { //if the user is not selecting a sentence, don't highlight it.
 					if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) { // if the sentence is preceded by a newline, we need to modify this a bit
-						if (selectedSentIndexRange[0]+1 != currentCaretPosition) //If the user is actually selecting the sentence
+						if (selectedSentIndexRange[0]+1 != currentCaretPosition) { //If the user is actually selecting the sentence
 							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+2, bounds[1], painter);
+//							System.out.println("Should be highlighting");
+						}
 					} else {
 						int temp = 0;
 						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) { //we want to not highlight whitespace before the actual sentence.
@@ -268,11 +288,14 @@ public class DriverDocumentsTab {
 						}
 	
 						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
+//						System.out.println("Should be highlighting");
 					}
-				} else
+				} else {
 					ignoreHighlight = true;
+				}
 			} else {
 				currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
+//				System.out.println("Should be highlighting");
 			}
 		} 
 		catch (BadLocationException err) {
@@ -358,6 +381,7 @@ public class DriverDocumentsTab {
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				System.out.println("======================================================================================");
+//				System.out.println("ignoreNumActions = " + ignoreNumActions);
 				if (ignoreNumActions > 0) {
 					charsInserted = 0;
 					charsWereRemoved = false;
@@ -409,7 +433,7 @@ public class DriverDocumentsTab {
 									}
 									
 									//First delete what we don't need anymore
-									taggedDoc.removeTaggedSentences(taggedSentsToDelete); // XXX XXX can stop saving the return value after testing!!!!
+									taggedDoc.removeTaggedSentences(taggedSentsToDelete);
 									
 									// Then read the remaining strings from "left" and "right" sentence:
 										// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
@@ -425,7 +449,7 @@ public class DriverDocumentsTab {
 									taggedDoc.concatRemoveAndReplace( taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(rightSentInfo[0]), rightSentInfo[0]);
 								}
 							} catch (Exception e1) {
-								Logger.logln(NAME + "A fatal error occured when attempting to delete an EOS character in DriverDocumentsTab, the editor will no longer highlight or function properly.");
+								Logger.logln(NAME + "A fatal error occured when attempting to delete an EOS character in DriverDocumentsTab, the editor will no longer highlight or function properly.", LogOut.STDERR);
 							}
 							
 							// now update the EOSTracker
@@ -465,6 +489,7 @@ public class DriverDocumentsTab {
 					try {
 						//Try-catch in place just in case the user tried clicking on an area that does not contain sentences.
 						currentSentSelectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
+//						System.out.println("Current sentence selected = " + currentSentSelectionInfo[0]);
 					} catch (ArrayIndexOutOfBoundsException exception) {
 						return;
 					}
@@ -493,11 +518,13 @@ public class DriverDocumentsTab {
 							selectedSentIndexRange[1] += charsInserted;
 							charsInserted = ~-1; // puzzle: what does this mean? (scroll to bottom of file for answer) - AweM
 							charsWereInserted = true;
+							charsWereRemoved = false;
 						}
 						else if (charsRemoved > 0){// && lastSentNum != -1){
 							selectedSentIndexRange[1] -= charsRemoved;
 							charsRemoved = 0;
 							charsWereRemoved = true;
+							charsWereInserted = false;
 						}
 					} else if (!firstRun) {
 						/**
@@ -507,7 +534,11 @@ public class DriverDocumentsTab {
 						 * sentence after typing a period INSTEAD of finishing the sentence with a space or continuing the EOS characters, the sentence replacement will get
 						 * all screwed up. This is to ensure that no matter what, when a sentence is created and we know it's a sentence it gets processed.
 						 */
+//						System.out.println("DEBUGGING: changedCaret = " + changedCaret);
+//						System.out.println("DEBUGGING: InputFilter.isEOS = " + InputFilter.isEOS);
 						if (changedCaret && InputFilter.isEOS) {
+//							System.out.println("Look for me here");
+							InputFilter.isEOS = false;
 							changedCaret = false;
 							shouldUpdate = true;
 							ignoreHighlight = false;
@@ -541,13 +572,20 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.getDocumentPane().getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
 						
+//						System.out.println("lastSentNum = " + taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false));
+//						System.out.println("currentSentenceString = " + currentSentenceString);
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
 							GUIMain.saved = false;
 						}
 						
+//						System.out.println("\nDEBUGGING currentCaretPosition = " + currentCaretPosition);
+//						System.out.println("DEBUGGING lastCaretLocation = " + lastCaretLocation);
+//						System.out.println("DEBUGGING charsWereRemoved = " + charsWereRemoved);
+//						System.out.println("DEBUGGING charsWereInserted = " + charsWereInserted);
 						if ((currentCaretPosition-1 != lastCaretLocation && !charsWereRemoved && charsWereInserted) || (currentCaretPosition != lastCaretLocation-1) && !charsWereInserted && charsWereRemoved) {
+//							System.out.println("Look for me");
 							charsWereInserted = false;
 							charsWereRemoved = false;
 							shouldUpdate = true;
@@ -555,6 +593,7 @@ public class DriverDocumentsTab {
 						}
 					}
 					
+//					System.out.println("Move highlight? = " + setSelectionInfoAndHighlight);
 					if (setSelectionInfoAndHighlight) {
 						currentSentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToAction)[0];
 						selectedSentIndexRange[0] = currentSentSelectionInfo[1]; //start highlight
@@ -566,10 +605,17 @@ public class DriverDocumentsTab {
 					sentToTranslate = currentSentNum;
 					if (!inRange)
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
-					
+//					
+//					System.out.println("current sentence string: " + currentSentenceString);
+//					System.out.println("Should update? = " + shouldUpdate);
+//					System.out.println("DEBUGGING: \"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false) + "\"");
+//					System.out.println("DEBUGGING: \"" + currentSentenceString + "\"");
 					if (shouldUpdate) {
+//						System.out.println("HELLO");
 						shouldUpdate = false;
 						GUIMain.saved = false;
+//						System.out.println("lastSentNum = " + lastSentNum);
+//						System.out.println("currentSentenceString = " + currentSentenceString);
 						removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 					}
 					

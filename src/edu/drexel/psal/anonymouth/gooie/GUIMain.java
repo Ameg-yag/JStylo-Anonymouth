@@ -25,6 +25,7 @@ import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.anonymouth.engine.VersionControl;
 import edu.drexel.psal.anonymouth.utils.IndexFinder;
+import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -389,6 +390,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected ClustersTutorial clustersTutorial;
 	protected VersionControl versionControl;
 	protected ResultsWindow resultsWindow;
+	protected RightClickMenu rightClickMenu;
 
 	protected JPanel anonymityHoldingPanel;
 	protected JScrollPane anonymityScrollPane;
@@ -651,6 +653,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			clustersTutorial = new ClustersTutorial();
 			versionControl = new VersionControl(this);
 			resultsWindow = new ResultsWindow(this);
+			rightClickMenu = new RightClickMenu(this);
 
 			// initialize listeners - except for EditorTabDriver!
 
@@ -684,6 +687,11 @@ public class GUIMain extends javax.swing.JFrame  {
 			} catch (Exception exc) {
 				Logger.logln(NAME+"Failed loading problemSet path \""+problemSetPath+"\"", LogOut.STDOUT);
 			}
+		}
+		
+		if (prepMainDocList.getModel().getSize() != 0) {
+			addTestDocJButton.setEnabled(false);
+			PPSP.addTestDocJButton.setEnabled(false);
 		}
 
 		featuresSetJComboBox.setSelectedItem(PropertiesUtil.getFeature());

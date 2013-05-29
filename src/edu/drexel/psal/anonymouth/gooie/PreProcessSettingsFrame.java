@@ -1,68 +1,25 @@
 package edu.drexel.psal.anonymouth.gooie;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.*;
 
 import edu.drexel.psal.JSANConstants;
-import edu.drexel.psal.jstylo.generics.*;
-import edu.drexel.psal.jstylo.generics.Logger.LogOut;
-import edu.drexel.psal.anonymouth.gooie.Translation;
-import edu.drexel.psal.anonymouth.gooie.DriverPreProcessTabDocuments.ExtFilter;
-import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 
 import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.*;
 import javax.swing.tree.*;
 
 import net.miginfocom.swing.MigLayout;
 
-import com.jgaap.generics.Document;
-
-import weka.classifiers.*;
-
-import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
-
 public class PreProcessSettingsFrame extends JDialog {
-	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
+	private static final long serialVersionUID = 1L;
+	//private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	// features tab
 	protected static int cellPadding = 5;
 
@@ -83,8 +40,8 @@ public class PreProcessSettingsFrame extends JDialog {
 	protected JButton featuresEditJButton;
 	protected JButton featuresRemoveJButton;
 	protected JButton featuresAddJButton;
-	protected JList featuresJList;
-	protected DefaultComboBoxModel featuresJListModel;
+	protected JList<String> featuresJList;
+	protected DefaultComboBoxModel<String> featuresJListModel;
 	protected JLabel featuresFeaturesJLabel;
 	protected JTextPane featuresSetDescJTextPane;
 	protected JScrollPane featuresSetDescJScrollPane;
@@ -95,8 +52,8 @@ public class PreProcessSettingsFrame extends JDialog {
 	protected JButton featuresSaveSetJButton;
 	protected JButton featuresLoadSetFromFileJButton;
 	protected JButton featuresAddSetJButton;
-	protected JComboBox featuresSetJComboBox;
-	protected DefaultComboBoxModel featuresSetJComboBoxModel;
+	protected JComboBox<String> featuresSetJComboBox;
+	protected DefaultComboBoxModel<String> featuresSetJComboBoxModel;
 	protected JLabel featuresSetJLabel;
 	protected JButton featuresAboutJButton;
 	protected JLabel featuresListLabel;
@@ -105,14 +62,14 @@ public class PreProcessSettingsFrame extends JDialog {
 	// Calssifiers tab
 	protected JTextField classAvClassArgsJTextField;
 	protected JLabel classAvClassArgsJLabel;
-	protected JComboBox classClassJComboBox;
+	protected JComboBox<String> classClassJComboBox;
 	protected JLabel classAvClassJLabel;
 	protected JButton classAddJButton;
 
 	protected JTextField classSelClassArgsJTextField;
 	protected JLabel classSelClassArgsJLabel;
 	protected JScrollPane classSelClassJScrollPane;
-	protected DefaultListModel classSelClassJListModel;
+	protected DefaultListModel<String> classSelClassJListModel;
 	protected JScrollPane classTreeScrollPane;
 	protected JScrollPane classDescJScrollPane;
 	protected JTextPane classDescJTextPane;
@@ -133,7 +90,7 @@ public class PreProcessSettingsFrame extends JDialog {
 				protected JLabel prepDocLabel;
 				protected JButton loadProblemSetJButton;
 				protected JButton saveProblemSetJButton;
-				protected JList prepMainDocList;
+				protected JList<String> prepMainDocList;
 				protected JScrollPane prepMainDocScrollPane;
 				protected JPanel mainDocSettingsPanel;
 					protected JLabel mainDocSettingsFullPathLabel;
@@ -142,7 +99,7 @@ public class PreProcessSettingsFrame extends JDialog {
 				protected JButton removeTestDocJButton;
 				protected JButton addTestDocJButton;
 			protected JPanel prepSampleDocsPanel;
-				protected JList prepSampleDocsList;
+				protected JList<String> prepSampleDocsList;
 				protected JScrollPane prepSampleDocsScrollPane;
 				protected JPanel sampleDocSettingsPanel;
 					protected JLabel sampleDocSettingsFullPathLabel;
@@ -167,7 +124,7 @@ public class PreProcessSettingsFrame extends JDialog {
 				protected JTree classJTree;
 				protected JScrollPane prepAvailableClassScrollPane;
 			protected JPanel prepSelectedClassPanel;
-				protected JList classJList;
+				protected JList<String> classJList;
 				protected JScrollPane prepSelectedClassScrollPane;
 	
 	protected JPanel editorHelpSugPanel;
@@ -186,7 +143,7 @@ public class PreProcessSettingsFrame extends JDialog {
 		protected JLabel translationsLabel;
 		protected JTable translationsTable;
 		protected JScrollPane translationsScrollPane;
-		protected JComboBox translationsComboBox;
+		protected JComboBox<String> translationsComboBox;
 	
 	protected JPanel editorHelpInfoPanel;
 		protected JLabel sentenceEditorLabel;
@@ -305,14 +262,12 @@ public class PreProcessSettingsFrame extends JDialog {
 				"grow, fill",
 				"[30][grow, fill]");
 		docPanel.setLayout(docLayout);
-		//prepDocumentsPanel.setBorder(BorderFactory.createMatteBorder(1,1,1,1,Color.BLACK));
 		{
 			// Documents Label-----------------------------
 			prepDocLabel = new JLabel("Documents:");
 			prepDocLabel.setFont(new Font("Ariel", Font.BOLD, 15));
 			prepDocLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			//prepDocLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-			prepDocLabel.setBorder(main.rlborder);
+			prepDocLabel.setBorder(GUIMain.rlborder);
 			prepDocLabel.setOpaque(true);
 			if (main.documentsAreReady())
 				prepDocLabel.setBackground(main.ready);
@@ -351,7 +306,7 @@ public class PreProcessSettingsFrame extends JDialog {
 				mainLabel.setOpaque(true);
 				mainLabel.setBackground(main.blue);
 				mainLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-				mainLabel.setBorder(main.rlborder);
+				mainLabel.setBorder(GUIMain.rlborder);
 				
 				// sample label--------------------------------
 				JLabel sampleLabel = new JLabel("Sample:");
@@ -360,7 +315,7 @@ public class PreProcessSettingsFrame extends JDialog {
 				sampleLabel.setOpaque(true);
 				sampleLabel.setBackground(main.blue);
 				//sampleLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-				sampleLabel.setBorder(main.rlborder);
+				sampleLabel.setBorder(GUIMain.rlborder);
 				
 				// train label----------------------------------
 				JLabel trainLabel = new JLabel("Other Authors:");
@@ -369,18 +324,18 @@ public class PreProcessSettingsFrame extends JDialog {
 				trainLabel.setOpaque(true);
 				trainLabel.setBackground(main.blue);
 				trainLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-				trainLabel.setBorder(main.rlborder);
+				trainLabel.setBorder(GUIMain.rlborder);
 				
 				
 				// main documents list---------------------------------------------
-				DefaultListModel mainDocListModel = new DefaultListModel();
-				prepMainDocList = new JList(mainDocListModel);
+				DefaultListModel<String> mainDocListModel = new DefaultListModel<String>();
+				prepMainDocList = new JList<String>(mainDocListModel);
 				prepMainDocList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 				prepMainDocScrollPane = new JScrollPane(prepMainDocList);
 				
 				// sample documents list-----------------------------------------
-				DefaultListModel sampleDocsListModel = new DefaultListModel();
-				prepSampleDocsList = new JList(sampleDocsListModel);
+				DefaultListModel<String> sampleDocsListModel = new DefaultListModel<String>();
+				prepSampleDocsList = new JList<String>(sampleDocsListModel);
 				prepSampleDocsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 				prepSampleDocsScrollPane = new JScrollPane(prepSampleDocsList);
 				
@@ -412,14 +367,14 @@ public class PreProcessSettingsFrame extends JDialog {
 				//mainDocSettingsPanel.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
 				mainDocSettingsPanel.setLayout(new MigLayout("wrap 1", "grow", "top"));
 				{
-					mainDocSettingsFullPathLabel = new JLabel("Location:");
-					mainDocSettingsPanel.add(mainDocSettingsFullPathLabel);
-					
-					mainDocSettingsSizeLabel = new JLabel("Size:");
-					mainDocSettingsPanel.add(mainDocSettingsSizeLabel);
-					
-					mainDocSettingsLastModifiedLabel = new JLabel("Last Modified:");
-					mainDocSettingsPanel.add(mainDocSettingsLastModifiedLabel);
+//					mainDocSettingsFullPathLabel = new JLabel("Location:");
+//					mainDocSettingsPanel.add(mainDocSettingsFullPathLabel);
+//					
+//					mainDocSettingsSizeLabel = new JLabel("Size:");
+//					mainDocSettingsPanel.add(mainDocSettingsSizeLabel);
+//					
+//					mainDocSettingsLastModifiedLabel = new JLabel("Last Modified:");
+//					mainDocSettingsPanel.add(mainDocSettingsLastModifiedLabel);
 				}
 				
 				// sample doc settings panel-------------------------------------------
@@ -427,14 +382,14 @@ public class PreProcessSettingsFrame extends JDialog {
 				//sampleDocSettingsPanel.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
 				sampleDocSettingsPanel.setLayout(new MigLayout("wrap 1", "grow", "top"));
 				{
-					sampleDocSettingsFullPathLabel = new JLabel("Location:");
-					sampleDocSettingsPanel.add(sampleDocSettingsFullPathLabel);
-					
-					sampleDocSettingsSizeLabel = new JLabel("Size:");
-					sampleDocSettingsPanel.add(sampleDocSettingsSizeLabel);
-					
-					sampleDocSettingsLastModifiedLabel = new JLabel("Last Modified:");
-					sampleDocSettingsPanel.add(sampleDocSettingsLastModifiedLabel);
+//					sampleDocSettingsFullPathLabel = new JLabel("Location:");
+//					sampleDocSettingsPanel.add(sampleDocSettingsFullPathLabel);
+//					
+//					sampleDocSettingsSizeLabel = new JLabel("Size:");
+//					sampleDocSettingsPanel.add(sampleDocSettingsSizeLabel);
+//					
+//					sampleDocSettingsLastModifiedLabel = new JLabel("Last Modified:");
+//					sampleDocSettingsPanel.add(sampleDocSettingsLastModifiedLabel);
 				}
 				
 				// train doc settings panel-------------------------------------------
@@ -442,23 +397,23 @@ public class PreProcessSettingsFrame extends JDialog {
 				//trainDocSettingsPanel.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK));
 				trainDocSettingsPanel.setLayout(new MigLayout("wrap 1", "grow", "top"));
 				{
-					trainDocSettingsFullPathLabel = new JLabel("Location:");
-					trainDocSettingsPanel.add(trainDocSettingsFullPathLabel);
-					
-					trainDocSettingsSizeLabel = new JLabel("Size:");
-					trainDocSettingsPanel.add(trainDocSettingsSizeLabel);
-					
-					trainDocSettingsLastModifiedLabel = new JLabel("Last Modified:");
-					trainDocSettingsPanel.add(trainDocSettingsLastModifiedLabel);
+//					trainDocSettingsFullPathLabel = new JLabel("Location:");
+//					trainDocSettingsPanel.add(trainDocSettingsFullPathLabel);
+//					
+//					trainDocSettingsSizeLabel = new JLabel("Size:");
+//					trainDocSettingsPanel.add(trainDocSettingsSizeLabel);
+//					
+//					trainDocSettingsLastModifiedLabel = new JLabel("Last Modified:");
+//					trainDocSettingsPanel.add(trainDocSettingsLastModifiedLabel);
 				}
 				
 				docMainPanel.add(docMainTopPanel, "span");
 				docMainPanel.add(mainLabel);
 				docMainPanel.add(sampleLabel);
 				docMainPanel.add(trainLabel);
-				docMainPanel.add(prepMainDocScrollPane, "grow, h 100::, w 100::");
-				docMainPanel.add(prepSampleDocsScrollPane, "grow, h 100::, w 100::");
-				docMainPanel.add(trainCorpusJTreeScrollPane, "grow, h 100::, w 100::");
+				docMainPanel.add(prepMainDocScrollPane, "grow, h 100:500:, w 32%!"); //w 100::
+				docMainPanel.add(prepSampleDocsScrollPane, "grow, h 100:500:, w 32%!"); //w 100::
+				docMainPanel.add(trainCorpusJTreeScrollPane, "grow, h 100:500:, w 32%!"); //w 100::
 				docMainPanel.add(addTestDocJButton, "split 2, w 100::");
 				docMainPanel.add(removeTestDocJButton, "w 100::");
 				docMainPanel.add(adduserSampleDocJButton, "split 2, w 100::");
@@ -489,8 +444,7 @@ public class PreProcessSettingsFrame extends JDialog {
 			prepFeatLabel = new JLabel("Features:");
 			prepFeatLabel.setFont(new Font("Ariel", Font.BOLD, 15));
 			prepFeatLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			//prepFeatLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-			prepFeatLabel.setBorder(main.rlborder);
+			prepFeatLabel.setBorder(GUIMain.rlborder);
 			prepFeatLabel.setOpaque(true);
 			if (main.featuresAreReady())
 				prepFeatLabel.setBackground(main.ready);
@@ -501,7 +455,7 @@ public class PreProcessSettingsFrame extends JDialog {
 			featMainPanel = new JPanel();
 			featMainPanel.setLayout(new MigLayout(
 					"fill, wrap 4, gap 0 0",
-					"[150!]20[left][150:40%:, fill][300:60%:, fill]",
+					"[200!]20[left][150:40%:, fill][300:60%:, fill]",
 					"[][][20!][40!][20!][20!]20[33%, fill][33%, fill][33%, fill]"));
 			{
 				JPanel featMainTopPanel = new JPanel();
@@ -518,8 +472,8 @@ public class PreProcessSettingsFrame extends JDialog {
 					for (int i=0; i<main.presetCFDs.size(); i++)
 						presetCFDsNames[i] = main.presetCFDs.get(i).getName();
 			
-					featuresSetJComboBoxModel = new DefaultComboBoxModel(presetCFDsNames);
-					featuresSetJComboBox = new JComboBox();
+					featuresSetJComboBoxModel = new DefaultComboBoxModel<String>(presetCFDsNames);
+					featuresSetJComboBox = new JComboBox<String>();
 					featuresSetJComboBox.setModel(featuresSetJComboBoxModel);
 					featMainTopPanel.add(featuresSetJComboBox, "grow");
 					
@@ -550,20 +504,18 @@ public class PreProcessSettingsFrame extends JDialog {
 				featuresListLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				featuresListLabel.setOpaque(true);
 				featuresListLabel.setBackground(main.blue);
-				//featuresListLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-				featuresListLabel.setBorder(main.rlborder);
+				featuresListLabel.setBorder(GUIMain.rlborder);
 				
 				featuresInfoLabel = new JLabel("Feature Information:");
 				featuresInfoLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				featuresInfoLabel.setHorizontalAlignment(JLabel.CENTER);
 				featuresInfoLabel.setOpaque(true);
 				featuresInfoLabel.setBackground(main.blue);
-				//featuresInfoLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-				featuresInfoLabel.setBorder(main.rlborder);
+				featuresInfoLabel.setBorder(GUIMain.rlborder);
 				
 				// features list--------------------------------------------------
-				featuresJListModel = new DefaultComboBoxModel();
-				featuresJList = new JList(featuresJListModel);
+				featuresJListModel = new DefaultComboBoxModel<String>();
+				featuresJList = new JList<String>(featuresJListModel);
 				JScrollPane featuresListJScrollPane = new JScrollPane(featuresJList);
 				
 				// feature name label--------------------------------------------------
@@ -609,6 +561,8 @@ public class PreProcessSettingsFrame extends JDialog {
 				
 				// feature description pane--------------------------------------------------
 				featuresFeatureExtractorContentJTableModel = new DefaultTableModel(toolsTableFiller, toolsTableHeaderFiller){
+					private static final long serialVersionUID = 1L;
+
 					public boolean isCellEditable(int rowIndex, int mColIndex) {
 				        return false;
 				    }
@@ -620,6 +574,8 @@ public class PreProcessSettingsFrame extends JDialog {
 				
 				// feature description pane--------------------------------------------------
 				featuresFeatureExtractorConfigJTableModel = new DefaultTableModel(configTableFiller, configTableHeaderFiller){
+					private static final long serialVersionUID = 1L;
+
 					public boolean isCellEditable(int rowIndex, int mColIndex) {
 				        return false;
 				    }
@@ -634,6 +590,8 @@ public class PreProcessSettingsFrame extends JDialog {
 				
 				// feature description pane--------------------------------------------------
 				featuresCanonJTableModel = new DefaultTableModel(toolsTableFiller, toolsTableHeaderFiller){
+					private static final long serialVersionUID = 1L;
+
 					public boolean isCellEditable(int rowIndex, int mColIndex) {
 				        return false;
 				    }
@@ -645,6 +603,8 @@ public class PreProcessSettingsFrame extends JDialog {
 				
 				// feature description pane--------------------------------------------------
 				featuresCanonConfigJTableModel = new DefaultTableModel(configTableFiller, configTableHeaderFiller){
+					private static final long serialVersionUID = 1L;
+
 					public boolean isCellEditable(int rowIndex, int mColIndex) {
 				        return false;
 				    }
@@ -659,6 +619,8 @@ public class PreProcessSettingsFrame extends JDialog {
 				
 				// feature description pane--------------------------------------------------
 				featuresCullJTableModel = new DefaultTableModel(toolsTableFiller, toolsTableHeaderFiller){
+					private static final long serialVersionUID = 1L;
+
 					public boolean isCellEditable(int rowIndex, int mColIndex) {
 				        return false;
 				    }
@@ -670,6 +632,8 @@ public class PreProcessSettingsFrame extends JDialog {
 				
 				// feature description pane--------------------------------------------------
 				featuresCullConfigJTableModel = new DefaultTableModel(configTableFiller, configTableHeaderFiller){
+					private static final long serialVersionUID = 1L;
+
 					public boolean isCellEditable(int rowIndex, int mColIndex) {
 				        return false;
 				    }
@@ -680,9 +644,9 @@ public class PreProcessSettingsFrame extends JDialog {
 				featuresCullConfigJTable.setColumnSelectionAllowed(false);
 				
 				featMainPanel.add(featMainTopPanel, "spanx, growx, gapbottom 20");
-				featMainPanel.add(featuresListLabel, "w 150!");
+				featMainPanel.add(featuresListLabel, "w 200!");
 				featMainPanel.add(featuresInfoLabel, "spanx, growx");
-				featMainPanel.add(featuresListJScrollPane, "spany, growy, w 150!");
+				featMainPanel.add(featuresListJScrollPane, "spany, growy, w 200!");
 				featMainPanel.add(featuresFeatureNameJLabel);
 				featMainPanel.add(new JScrollPane(featuresFeatureNameJTextPane), "span 2, grow");
 				featMainPanel.add(featuresFeatureDescJLabel);
@@ -712,17 +676,6 @@ public class PreProcessSettingsFrame extends JDialog {
 			            }
 			        });
 				}
-				
-				
-				
-//				featuresAddJButton = new JButton("Add");
-//				featMainPanel.add(featuresAddJButton);
-//				
-//				featuresRemoveJButton = new JButton("Remove");
-//				featMainPanel.add(featuresAddJButton);
-//				
-//				featuresEditJButton = new JButton("Edit");
-//				featMainPanel.add(featuresAddJButton);
 			}
 			
 			featPanel.add(prepFeatLabel, "span, h 30!");
@@ -746,8 +699,7 @@ public class PreProcessSettingsFrame extends JDialog {
 			prepClassLabel = new JLabel("Classifiers:");
 			prepClassLabel.setFont(new Font("Ariel", Font.BOLD, 15));
 			prepClassLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			//prepClassLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-			prepClassLabel.setBorder(main.rlborder);
+			prepClassLabel.setBorder(GUIMain.rlborder);
 			prepClassLabel.setOpaque(true);
 			if (main.classifiersAreReady())
 				prepClassLabel.setBackground(main.ready);
@@ -759,7 +711,7 @@ public class PreProcessSettingsFrame extends JDialog {
 			classMainPanel.setLayout(new MigLayout(
 					"fill, wrap 2, ins 0 0",
 					"grow, fill",
-					"[20]0[60%, fill][20][20]20[20]0[40%, fill]"));
+					"[20]0[65%, fill][20][20]20[20]0[40%, fill]"));
 			{
 
 				classAvClassJLabel = new JLabel("Available WEKA Classifiers:");
@@ -767,24 +719,22 @@ public class PreProcessSettingsFrame extends JDialog {
 				classAvClassJLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				classAvClassJLabel.setOpaque(true);
 				classAvClassJLabel.setBackground(main.blue);
-				//classAvClassJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-				classAvClassJLabel.setBorder(main.rlborder);
+				classAvClassJLabel.setBorder(GUIMain.rlborder);
 				
 				classSelClassJLabel = new JLabel("Selected WEKA Classifiers:");
 				classSelClassJLabel.setHorizontalAlignment(JLabel.CENTER);
 				classSelClassJLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				classSelClassJLabel.setOpaque(true);
 				classSelClassJLabel.setBackground(main.blue);
-				//classSelClassJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-				classSelClassJLabel.setBorder(main.rlborder);
+				classSelClassJLabel.setBorder(GUIMain.rlborder);
 				
 				classJTree = new JTree();
 				classJTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 				classTreeScrollPane = new JScrollPane(classJTree);
 				DriverPreProcessTabClassifiers.initAdvWekaClassifiersTree(this);
 				
-				classSelClassJListModel = new DefaultListModel();
-				classJList = new JList(classSelClassJListModel);
+				classSelClassJListModel = new DefaultListModel<String>();
+				classJList = new JList<String>(classSelClassJListModel);
 				classJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 				classSelClassJScrollPane = new JScrollPane(classJList);
 				
@@ -805,8 +755,7 @@ public class PreProcessSettingsFrame extends JDialog {
 				classDescJLabel.setFont(new Font("Ariel", Font.BOLD, 12));
 				classDescJLabel.setOpaque(true);
 				classDescJLabel.setBackground(main.blue);
-				//classDescJLabel.setBorder(BorderFactory.createRaisedBevelBorder());
-				classDescJLabel.setBorder(main.rlborder);
+				classDescJLabel.setBorder(GUIMain.rlborder);
 				
 				classDescJTextPane = new JTextPane();
 				classDescJTextPane.setEditable(false);

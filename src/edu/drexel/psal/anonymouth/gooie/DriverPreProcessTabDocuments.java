@@ -205,7 +205,6 @@ public class DriverPreProcessTabDocuments {
 				if (answer == JFileChooser.APPROVE_OPTION) {
 					File f = PropertiesUtil.save.getSelectedFile();
 					String path = f.getAbsolutePath();
-					String filename = f.getName();
 
 					PropertiesUtil.setProbSet(PropertiesUtil.save.getSelectedFile().getAbsolutePath());
 					
@@ -247,8 +246,8 @@ public class DriverPreProcessTabDocuments {
 			{
 				Logger.logln(NAME+"'Add Document(s)...' button clicked under the 'Test Documents' section on the documents tab.");
 				
-				DefaultListModel dlm = (DefaultListModel)main.prepMainDocList.getModel();
-				DefaultListModel dlm2 = (DefaultListModel)main.PPSP.prepMainDocList.getModel();
+				DefaultListModel<String> dlm = (DefaultListModel<String>)main.prepMainDocList.getModel();
+				DefaultListModel<String> dlm2 = (DefaultListModel<String>)main.PPSP.prepMainDocList.getModel();
 				if (dlm.getSize() == 0 && dlm2.getSize() == 0) {
 					JFileChooser open = new JFileChooser();
 					open.setMultiSelectionEnabled(true); //false since we will only allow one test doc to be entered at a time
@@ -283,6 +282,8 @@ public class DriverPreProcessTabDocuments {
 						}
 						
 						GUIUpdateInterface.updateTestDocTable(main);
+						main.addTestDocJButton.setEnabled(false);
+						main.PPSP.addTestDocJButton.setEnabled(false);
 
 					} else {
 						Logger.logln(NAME+"Load test documents canceled");
@@ -330,6 +331,8 @@ public class DriverPreProcessTabDocuments {
 						GUIUpdateInterface.updateTestDocTable(main);
 						GUIUpdateInterface.clearDocPreview(main);
 						System.out.println("Should have cleared");
+						main.addTestDocJButton.setEnabled(true);
+						main.PPSP.addTestDocJButton.setEnabled(true);
 					} 
 					else 
 					{
@@ -367,7 +370,6 @@ public class DriverPreProcessTabDocuments {
 					for (File file: files)
 						msg += "\t\t> "+file.getAbsolutePath()+"\n";
 					Logger.log(msg);
-					
 					
 					String path;
 					ArrayList<String> allUserSampleDocPaths = new ArrayList<String>();
@@ -556,6 +558,7 @@ public class DriverPreProcessTabDocuments {
 					if (paths[0].getPath().length == 1) { //Deleting everything
 						removingAll = true;
 						DefaultMutableTreeNode root = (DefaultMutableTreeNode)paths[0].getPath()[0];
+						@SuppressWarnings("unchecked")
 						Enumeration<DefaultMutableTreeNode> authors = root.children();
 						while (authors.hasMoreElements())
 							selectedDocs.add(authors.nextElement());
@@ -827,6 +830,8 @@ public class DriverPreProcessTabDocuments {
 					}
 					
 					GUIUpdateInterface.updateTestDocTable(main);
+					main.addTestDocJButton.setEnabled(false);
+					main.PPSP.addTestDocJButton.setEnabled(false);
 
 				} else {
 					Logger.logln(NAME+"Load test documents canceled");
@@ -871,6 +876,8 @@ public class DriverPreProcessTabDocuments {
 						
 						GUIUpdateInterface.updateTestDocTable(main);
 						GUIUpdateInterface.clearDocPreview(main);
+						main.addTestDocJButton.setEnabled(true);
+						main.PPSP.addTestDocJButton.setEnabled(true);
 					} 
 					else 
 					{
@@ -1282,6 +1289,7 @@ public class DriverPreProcessTabDocuments {
 							if (paths[0].getPath().length == 1) { //Deleting everything
 								removingAll = true;
 								DefaultMutableTreeNode root = (DefaultMutableTreeNode)paths[0].getPath()[0];
+								@SuppressWarnings("unchecked")
 								Enumeration<DefaultMutableTreeNode> authors = root.children();
 								while (authors.hasMoreElements())
 									selectedDocs.add(authors.nextElement());

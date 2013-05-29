@@ -135,8 +135,6 @@ public class TaggedDocument implements Serializable{
 	public void consolidateFeatures(TaggedSentence ts){
 		ConsolidationStation.featurePacker(ts);
 	}
-
-		
 	
 	/**
 	 * Takes a String of sentences (can be an entire document), breaks it up into individual sentences (sentence tokens), breaks those up into tokens, and then tags them (via MaxentTagger).
@@ -188,17 +186,34 @@ public class TaggedDocument implements Serializable{
 		int i;
 		for (i=0; i < numChars; i++){
 			if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[0]){ // period replacement
-				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1);
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1,false);
 			}
 			else if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[1]){ // question mark replacement
-				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1);
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1,false);
 			}
 			else if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[2]){ // exclamation point replacement
-				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1);
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1,false);
+			}
+		}
+	}
+	
+	public TaggedSentence getTaggedSentenceAt(int index) {
+		int size = taggedSentences.size();
+		int newIndex = 0;
+		int pastIndex = 0;
+		TaggedSentence returnValue = null;
+		
+		for (int i = 0; i < size; i++) {
+			newIndex = taggedSentences.get(i).getUntagged(false).length() + pastIndex;
+			if (index >= pastIndex && index <= newIndex) {
+				returnValue = taggedSentences.get(i);
+				break;
+			} else {
+				pastIndex += newIndex;
 			}
 		}
 		
-		
+		return returnValue;
 	}
 	
 	/**
@@ -439,6 +454,29 @@ public class TaggedDocument implements Serializable{
 
 		updateReferences(toReplace,concatted);
 		return wasReplaced;
+	}
+	
+	public int removeMultipleAndReplace(ArrayList<TaggedSentence> sentsToRemove, TaggedSentence sentToAdd) {
+		int size = sentsToRemove.size();
+		int startingSentence = 0;
+		
+		for (int i = 0; i < size; i++) {
+			if (i == 0) {
+				startingSentence = taggedSentences.indexOf(sentsToRemove.get(i));
+			}
+			taggedSentences.remove(sentsToRemove.get(i));
+			totalSentences--;
+		}
+		
+		addTaggedSentence(sentToAdd, startingSentence);
+		totalSentences++;
+		
+		//TODO is this okay?
+		for (int j = 0; j < size; j++) {
+			updateReferences(sentsToRemove.get(j), sentToAdd);
+		}
+		
+		return startingSentence;
 	}
 	
 	/**

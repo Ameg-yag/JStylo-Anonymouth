@@ -146,10 +146,14 @@ public class SentenceTools implements Serializable  {
 		 */
 		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
 		
+		System.out.println("\"" + text + "\"");
+		System.out.println(text.substring(lenText-1, lenText));
+		System.out.println(EOSAtSentenceEnd);
 		//Needed so that if we are deleting abbreviations like "Ph.D." this is not triggered.
 		if (!EOSAtSentenceEnd && !InputFilter.isEOS)
 			EOSAtSentenceEnd = true;
-		
+
+		System.out.println(EOSAtSentenceEnd);
 		String currentEOS;
 		while (foundEOS == true) {
 			currentEOS = sent.group(0);
