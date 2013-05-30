@@ -59,35 +59,40 @@ public class SpecialCharacterTracker implements Serializable {
 		
 	}
 	
-//	public void setIgnore(int location, boolean b) {
-//		int length = eoses.size();
-//		
-//		for (int i = 0; i < length; i++) {
-//			if (location-1 == eoses.get(i).location) {
-//				eoses.get(i).setIgnore(b);
-//			}
-//		}
-//	}
+	public void setIgnore(int location, boolean b) {
+		int length = eoses.size();
+		
+		for (int i = 0; i < length; i++) {
+			if (location-1 == eoses.get(i).location) {
+				eoses.get(i).setIgnore(b);
+			}
+		}
+	}
 	
-//	public boolean EOSAtIndex(int index) {
-//		boolean result = false;
-//		int length = eoses.size();
-//
-//		if (length == 0) {
-//			result = true;
-//		} else {
-//			for (int i = 0; i < length; i++) {
-//				if (index-1 == eoses.get(i).location) {
-//					if (!eoses.get(i).ignore) {
-//						result = true;
-//					}
-//					break;
-//				}
-//			}
-//		}
-//
-//		return result;
-//	}
+	public boolean EOSAtIndex(int index) {
+		boolean result = false;
+		int length = eoses.size();
+
+		System.out.println("--------------");
+		if (length == 0) {
+			result = true;
+		} else {
+			System.out.println("index = " + index);
+			for (int i = 0; i < length; i++) {
+				System.out.println("   " + eoses.get(i).location);
+				if (index-1 == eoses.get(i).location) {
+					if (!eoses.get(i).ignore) {
+						System.out.println("RESULT SET TO TRUE");
+						System.out.println("EOS location = " + eoses.get(i).location);
+						result = true;
+					}
+					break;
+				}
+			}
+		}
+
+		return result;
+	}
 	
 	/**
 	 * Removes the EOS objects located between [lowerBound, upperBound) ==> [inclusive, exclusive)
@@ -193,7 +198,7 @@ class EOS implements Serializable {
 	private static final long serialVersionUID = -3147071940148952343L;
 	protected char eos;
 	protected int location;
-//	protected boolean ignore;
+	protected boolean ignore;
 	
 	/**
 	 * Constructor
@@ -203,7 +208,7 @@ class EOS implements Serializable {
 	public EOS( char eos, int location, boolean ignore) {
 		this.eos = eos;
 		this.location = location;
-//		this.ignore = ignore;
+		this.ignore = ignore;
 	}
 	
 	public EOS( EOS eosObj) {
@@ -215,7 +220,7 @@ class EOS implements Serializable {
 		return "[ "+eos+", "+location+" ]";
 	}
 	
-//	public void setIgnore(boolean b) {
-//		ignore = b;
-//	}
+	public void setIgnore(boolean b) {
+		ignore = b;
+	}
 }	

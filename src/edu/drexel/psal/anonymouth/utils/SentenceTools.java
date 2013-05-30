@@ -13,6 +13,7 @@ import com.jgaap.generics.Document;
 
 import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.ErrorHandler;
+import edu.drexel.psal.anonymouth.gooie.GUIMain;
 import edu.drexel.psal.anonymouth.gooie.InputFilter;
 import edu.drexel.psal.jstylo.generics.Logger;
 
@@ -120,26 +121,35 @@ public class SentenceTools implements Serializable  {
 		
 		Matcher sent = EOS_chars.matcher(text);
 		boolean foundEOS = sent.find(currentStart); // xxx TODO xxx take this EOS character, and if not in quotes, swap it for a permanent replacement, and create and add an EOS to the calling TaggedDocument's eosTracker.
-//		boolean continueLoop = true;
-//		if (foundEOS) {
-//			int index = 0;
-//			try {
-//				do {
-//					index = sent.start() + index;
-//					if (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(index)) {
-//						foundEOS = false;
-//					} else {
-//						foundEOS = true;
-//						break;
-//					}
-//					index ++;
-//					sent = EOS_chars.matcher(text.substring(index, lenText));
-//					continueLoop = sent.find(0);
-//				} while (index < lenText-1 && continueLoop);
-//			} catch (IllegalStateException e) {}
-//		}
-//		sent = EOS_chars.matcher(text);
-//		sent.find(currentStart);
+		boolean continueLoop = true;
+		int buffer = 0;
+		if (foundEOS) {
+			int index = 0;
+			int mark = GUIMain.inst.getDocumentPane().getCaret().getMark();
+			int dot = GUIMain.inst.getDocumentPane().getCaret().getDot();
+			System.out.println("index = GUIMain.inst.getDocumentPane().getCaret().getMark() = " + mark + " GUIMain.inst.getDocumentPane().getCaret().getDot() = " + dot);
+			if (GUIMain.inst.getDocumentPane().getCaret().getMark() <= GUIMain.inst.getDocumentPane().getCaret().getDot()) {
+				buffer = mark;
+			} else {
+				buffer = dot;
+			}
+			try {
+				do {
+					index = sent.start() + index;
+					if (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(index+buffer)) {
+						foundEOS = false;
+					} else {
+						foundEOS = true;
+						break;
+					}
+					index ++;
+					sent = EOS_chars.matcher(text.substring(index, lenText));
+					continueLoop = sent.find(0);
+				} while (index < lenText-1 && continueLoop);
+			} catch (IllegalStateException e) {}
+		}
+		sent = EOS_chars.matcher(text);
+		sent.find(currentStart);
 		
 		Matcher sentEnd;
 		Matcher citationFinder;
@@ -163,9 +173,10 @@ public class SentenceTools implements Serializable  {
 		 * matter since the while loop and !foundAtLeastOneEOS conditional are executed properly, BUT as you can see the quotes, or more notably the EOS character inside
 		 * the quotes, triggers this initial test and thus the operation breaks. This is here just to make sure that does not happen.
 		 */
-//		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText).trim()) && DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(sent.end()-1);
-		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
+		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText).trim()) && DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(sent.end()-1+buffer);
+//		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
 
+		System.out.println("EOSAtSentenceEnd = " + EOSAtSentenceEnd + " foundEOS = " + foundEOS);
 		//Needed so that if we are deleting abbreviations like "Ph.D." this is not triggered.
 		if (!EOSAtSentenceEnd && !InputFilter.isEOS)
 			EOSAtSentenceEnd = true;
@@ -175,10 +186,10 @@ public class SentenceTools implements Serializable  {
 			currentEOS = sent.group(0);
 			currentStop = sent.end();
 			
-//			while (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(currentStop-1) && currentStop != lenText) {
-//				sent.find(currentStop+1);
-//				currentStop = sent.end();
-//			}
+			while (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(currentStop-1+buffer) && currentStop != lenText) {
+				sent.find(currentStop+1);
+				currentStop = sent.end();
+			}
 
 			temp = text.substring(currentStart-1,currentStop);
 			lenTemp = temp.length();

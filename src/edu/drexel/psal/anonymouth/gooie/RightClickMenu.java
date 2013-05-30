@@ -32,10 +32,10 @@ public class RightClickMenu extends JPopupMenu {
 	 * CONSTRUCTOR
 	 */
 	public RightClickMenu(GUIMain main) {
-//		combineSentences = new JMenuItem("Make a single sentence");
-//		this.add(combineSentences);
-//		this.main = main;
-//		initListeners();
+		combineSentences = new JMenuItem("Make a single sentence");
+		this.add(combineSentences);
+		this.main = main;
+		initListeners();
 	}
 
 	/**
@@ -54,22 +54,24 @@ public class RightClickMenu extends JPopupMenu {
 				for (int i = 0; i < size; i++) {
 					length = sentences.get(i)[0].length() + pastLength;
 					char character = main.getDocumentPane().getText().charAt(length-1+PopupListener.mark);
-//					System.out.println("Character Check: \"" + character + "\"");
-//					System.out.println("Surrounding: \"" + main.getDocumentPane().getText().substring(length-5+PopupListener.mark, length+1+PopupListener.mark) + "\"");
+					System.out.println("Character Check: \"" + character + "\"");
+					System.out.println("Surrounding: \"" + main.getDocumentPane().getText().substring(length-5+PopupListener.mark, length+1+PopupListener.mark) + "\"");
 					if ((character == '.' || character == '!' || character == '?') && size-1 != i) {
-//						DriverDocumentsTab.taggedDoc.specialCharTracker.setIgnore(length - 1 + PopupListener.mark, true);
+						DriverDocumentsTab.taggedDoc.specialCharTracker.setIgnore(length - 1 + PopupListener.mark, true);
 					}
 					
-//					System.out.println("Sentence: " + main.getDocumentPane().getText().substring(pastLength+PopupListener.mark, length+PopupListener.mark));
+//					System.out.println("Sentence: \"" + main.getDocumentPane().getText().substring(pastLength+PopupListener.mark, length+PopupListener.mark) + "\"");
+//					System.out.println("length = " + length + " PopupListener.mark = " + PopupListener.mark);
+					
 					taggedSentences.add(DriverDocumentsTab.taggedDoc.getTaggedSentenceAt(length + PopupListener.mark));
 					length += pastLength;
 					pastLength = length;
 				}
 				
-//				System.out.println(taggedSentences.size());
-//				for (int j = 0; j < taggedSentences.size(); j++) {
-//					System.out.println("\"" + taggedSentences.get(j).getUntagged(false) + "\"");
-//				}
+				System.out.println(taggedSentences.size());
+				for (int j = 0; j < taggedSentences.size(); j++) {
+					System.out.println("\"" + taggedSentences.get(j).getUntagged(false) + "\"");
+				}
 				
 				InputFilter.ignoreTranslation = true;
 				
@@ -137,6 +139,8 @@ class PopupListener extends MouseAdapter {
 			String text = main.getDocumentPane().getText().substring(mark, main.getDocumentPane().getCaret().getDot());
 			rightClickMenu.sentences = sentenceTools.makeSentenceTokens(text);
 			
+			System.out.println("\"" + text + "\"");
+			System.out.println(rightClickMenu.sentences.size());
 			if (rightClickMenu.sentences.size() > 1)
 				rightClickMenu.enableCombineSentences(true);
 			else

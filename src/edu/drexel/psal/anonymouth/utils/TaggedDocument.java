@@ -201,18 +201,22 @@ public class TaggedDocument implements Serializable{
 		int size = taggedSentences.size();
 		int newIndex = 0;
 		int pastIndex = 0;
+		int length = 0;
 		TaggedSentence returnValue = null;
 		
 		for (int i = 0; i < size; i++) {
-			newIndex = taggedSentences.get(i).getUntagged(false).length() + pastIndex;
+			length = taggedSentences.get(i).getUntagged(false).length();
+			newIndex = length + pastIndex;
+			System.out.println(pastIndex + " < " + index + " < " + newIndex);
 			if (index >= pastIndex && index <= newIndex) {
 				returnValue = taggedSentences.get(i);
 				break;
 			} else {
-				pastIndex += newIndex;
+				pastIndex += length;
 			}
 		}
 		
+		System.out.println(returnValue);
 		return returnValue;
 	}
 	

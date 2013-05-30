@@ -267,6 +267,8 @@ public class DriverDocumentsTab {
 		if (currentHighlight != null)
 			main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 		try {
+			System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
+
 			if (currentSentNum != 0) { //if it's not the first sentence (assuming there's not going to be a space/tab before it TODO make this not suck)
 				if ((selectedSentIndexRange[0] != currentCaretPosition && !ignoreHighlight) || deleting) { //if the user is not selecting a sentence, don't highlight it.
 					if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) { // if the sentence is preceded by a newline, we need to modify this a bit
@@ -585,6 +587,7 @@ public class DriverDocumentsTab {
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 
 					if (shouldUpdate) {
+						System.out.println("UPDATING");
 						shouldUpdate = false;
 						GUIMain.saved = false;
 						removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
