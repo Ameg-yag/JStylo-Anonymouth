@@ -59,43 +59,35 @@ public class SpecialCharacterTracker implements Serializable {
 		
 	}
 	
-	public void setIgnore(int location, boolean b) {
-		int length = eoses.size();
-		
-		for (int i = 0; i < length; i++) {
-			if (location-1 == eoses.get(i).location) {
-				eoses.get(i).setIgnore(b);
-			}
-		}
-	}
+//	public void setIgnore(int location, boolean b) {
+//		int length = eoses.size();
+//		
+//		for (int i = 0; i < length; i++) {
+//			if (location-1 == eoses.get(i).location) {
+//				eoses.get(i).setIgnore(b);
+//			}
+//		}
+//	}
 	
-	public boolean EOSAtIndex(int index) {
-		boolean result = false;
-		int length = eoses.size();
-
-//		System.out.println("-----------------");
-		if (length == 0) {
-			result = true;
-		} else {
-			for (int i = 0; i < length; i++) {
-//				System.out.println(index-1);
-//				System.out.println("   " + eoses.get(i).location);
-//				System.out.println("   " + eoses.get(i).ignore);
-				if (index-1 == eoses.get(i).location) {
-					if (!eoses.get(i).ignore) {
-						result = true;
-					}
-					break;
-				}
-				
-//				if (i == length - 1) {
-//					result = true;
+//	public boolean EOSAtIndex(int index) {
+//		boolean result = false;
+//		int length = eoses.size();
+//
+//		if (length == 0) {
+//			result = true;
+//		} else {
+//			for (int i = 0; i < length; i++) {
+//				if (index-1 == eoses.get(i).location) {
+//					if (!eoses.get(i).ignore) {
+//						result = true;
+//					}
+//					break;
 //				}
-			}
-		}
-//		System.out.println("result = " + result);
-		return result;
-	}
+//			}
+//		}
+//
+//		return result;
+//	}
 	
 	/**
 	 * Removes the EOS objects located between [lowerBound, upperBound) ==> [inclusive, exclusive)
@@ -107,11 +99,8 @@ public class SpecialCharacterTracker implements Serializable {
 		int numEOSes = eoses.size();
 		int thisEOSLoc;
 		boolean haveRemoved = false;
-//		System.out.println(lowerBound + " " + upperBound);
 		for (i=0; i < numEOSes; i++) {
-//			System.out.println("HELLO: " + eoses.get(i));
 			thisEOSLoc = eoses.get(i).location;
-			//System.out.printf("thisEOSLoc: %d, lowerBound: %d, upperBound: %d\n", thisEOSLoc, lowerBound, upperBound);
 			if (thisEOSLoc >= lowerBound && thisEOSLoc < upperBound) {
 				eoses.remove(i);
 				i--; // decrement 'i' so that we don't miss the object that shifts down into the spot just freed.
@@ -119,12 +108,8 @@ public class SpecialCharacterTracker implements Serializable {
 				haveRemoved = true;
 			}
 		}
-		//shiftAllEOSChars(false, upperBound, (upperBound - lowerBound));
-//		for (i = 0; i < eoses.size(); i++) {
-//			System.out.println("HELLO2: " + eoses.get(i));
-//		}
-		return haveRemoved;
-		
+
+		return haveRemoved;		
 	}
 	
 	/**
@@ -208,7 +193,7 @@ class EOS implements Serializable {
 	private static final long serialVersionUID = -3147071940148952343L;
 	protected char eos;
 	protected int location;
-	protected boolean ignore;
+//	protected boolean ignore;
 	
 	/**
 	 * Constructor
@@ -218,7 +203,7 @@ class EOS implements Serializable {
 	public EOS( char eos, int location, boolean ignore) {
 		this.eos = eos;
 		this.location = location;
-		this.ignore = ignore;
+//		this.ignore = ignore;
 	}
 	
 	public EOS( EOS eosObj) {
@@ -230,7 +215,7 @@ class EOS implements Serializable {
 		return "[ "+eos+", "+location+" ]";
 	}
 	
-	public void setIgnore(boolean b) {
-		ignore = b;
-	}
+//	public void setIgnore(boolean b) {
+//		ignore = b;
+//	}
 }	

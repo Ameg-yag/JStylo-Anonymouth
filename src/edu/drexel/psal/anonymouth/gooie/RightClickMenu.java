@@ -32,10 +32,10 @@ public class RightClickMenu extends JPopupMenu {
 	 * CONSTRUCTOR
 	 */
 	public RightClickMenu(GUIMain main) {
-		combineSentences = new JMenuItem("Make a single sentence");
-		this.add(combineSentences);
-		this.main = main;
-		initListeners();
+//		combineSentences = new JMenuItem("Make a single sentence");
+//		this.add(combineSentences);
+//		this.main = main;
+//		initListeners();
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class RightClickMenu extends JPopupMenu {
 //					System.out.println("Character Check: \"" + character + "\"");
 //					System.out.println("Surrounding: \"" + main.getDocumentPane().getText().substring(length-5+PopupListener.mark, length+1+PopupListener.mark) + "\"");
 					if ((character == '.' || character == '!' || character == '?') && size-1 != i) {
-						DriverDocumentsTab.taggedDoc.specialCharTracker.setIgnore(length - 1 + PopupListener.mark, true);
+//						DriverDocumentsTab.taggedDoc.specialCharTracker.setIgnore(length - 1 + PopupListener.mark, true);
 					}
 					
 //					System.out.println("Sentence: " + main.getDocumentPane().getText().substring(pastLength+PopupListener.mark, length+PopupListener.mark));

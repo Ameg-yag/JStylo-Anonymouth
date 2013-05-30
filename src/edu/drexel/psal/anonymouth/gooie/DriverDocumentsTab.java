@@ -267,37 +267,27 @@ public class DriverDocumentsTab {
 		if (currentHighlight != null)
 			main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 		try {
-			System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
-			System.out.println("ignoreHighlight = " + ignoreHighlight);
-
 			if (currentSentNum != 0) { //if it's not the first sentence (assuming there's not going to be a space/tab before it TODO make this not suck)
-				System.out.println("   selectedSentIndexRange[0] = " + selectedSentIndexRange[0]);
-				System.out.println("   currentCaretPosition = " + currentCaretPosition);
-//				System.out.println("   ignoreHighlight = " + ignoreHighlight);
-//				System.out.println("   InputFilter.isEOS = " + InputFilter.isEOS);
-//				System.out.println("   Deleteing = " + deleting);
 				if ((selectedSentIndexRange[0] != currentCaretPosition && !ignoreHighlight) || deleting) { //if the user is not selecting a sentence, don't highlight it.
 					if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) { // if the sentence is preceded by a newline, we need to modify this a bit
 						if (selectedSentIndexRange[0]+1 != currentCaretPosition) { //If the user is actually selecting the sentence
 							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+2, bounds[1], painter);
-//							System.out.println("Should be highlighting");
 						}
 					} else {
-//						int temp = 0;
+						int temp = 0;
+						if (main.getDocumentPane().getText().substring(selectedSentIndexRange[0], selectedSentIndexRange[0]+1).equals(" "))
+							temp++;
 //						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) { //we want to not highlight whitespace before the actual sentence.
 //							temp++;
 //						}
-//	
-//						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
-						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+1, bounds[1], painter);
-//						System.out.println("Should be highlighting");
+						
+						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
 					}
 				} else {
 					ignoreHighlight = true;
 				}
 			} else {
 				currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
-//				System.out.println("Should be highlighting");
 			}
 		} 
 		catch (BadLocationException err) {
@@ -318,7 +308,6 @@ public class DriverDocumentsTab {
 		// get the lengths of each of the sentences
 		int[] sentenceLengths = taggedDoc.getSentenceLengths();
 		int numSents = sentenceLengths.length;
-//		System.out.println("NUMSENTS = " + numSents);
 		int positionNumber;
 		int numPositions = positions.length;
 		int currentPosition;
@@ -384,7 +373,6 @@ public class DriverDocumentsTab {
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				System.out.println("======================================================================================");
-//				System.out.println("ignoreNumActions = " + ignoreNumActions);
 				if (ignoreNumActions > 0) {
 					charsInserted = 0;
 					charsWereRemoved = false;
@@ -415,7 +403,6 @@ public class DriverDocumentsTab {
 						 * the indices here and in TaggedDocument must be adjustest as well.
 						 */
 						Boolean EOSJustRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition-1, caretPositionPriorToCharRemoval-1);
-
 						if (EOSJustRemoved) {
 							try {
 								// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
@@ -425,7 +412,7 @@ public class DriverDocumentsTab {
 								int[] leftSentInfo = activatedSentenceInfo[0];
 								int[] rightSentInfo = activatedSentenceInfo[1];
 
-								if (!(rightSentInfo[0] == 0 && leftSentInfo[0] == 0)) {
+								if (rightSentInfo[0] != leftSentInfo[0]) {
 									int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
 									int[] taggedSentsToDelete = new int[numToDelete];
 									
@@ -452,7 +439,7 @@ public class DriverDocumentsTab {
 									taggedDoc.concatRemoveAndReplace( taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(rightSentInfo[0]), rightSentInfo[0]);
 								}
 							} catch (Exception e1) {
-								Logger.logln(NAME + "A fatal error occured when attempting to delete an EOS character in DriverDocumentsTab, the editor will no longer highlight or function properly.", LogOut.STDERR);
+								Logger.logln(NAME + "An fatal error occured when attempting to delete an EOS character in DriverDocumentsTab, the editor may no longer function properly", LogOut.STDERR);
 							}
 							
 							// now update the EOSTracker
@@ -492,7 +479,6 @@ public class DriverDocumentsTab {
 					try {
 						//Try-catch in place just in case the user tried clicking on an area that does not contain sentences.
 						currentSentSelectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
-//						System.out.println("Current sentence selected = " + currentSentSelectionInfo[0]);
 					} catch (ArrayIndexOutOfBoundsException exception) {
 						return;
 					}
@@ -537,10 +523,7 @@ public class DriverDocumentsTab {
 						 * sentence after typing a period INSTEAD of finishing the sentence with a space or continuing the EOS characters, the sentence replacement will get
 						 * all screwed up. This is to ensure that no matter what, when a sentence is created and we know it's a sentence it gets processed.
 						 */
-//						System.out.println("DEBUGGING: changedCaret = " + changedCaret);
-//						System.out.println("DEBUGGING: InputFilter.isEOS = " + InputFilter.isEOS);
 						if (changedCaret && InputFilter.isEOS) {
-//							System.out.println("Look for me here");
 							InputFilter.isEOS = false;
 							changedCaret = false;
 							shouldUpdate = true;
@@ -575,21 +558,13 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.getDocumentPane().getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
 						
-//						System.out.println("lastSentNum = " + taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false));
-//						System.out.println("currentSentenceString = " + currentSentenceString);
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
-//							System.out.println("highlight off?");
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
 							GUIMain.saved = false;
 						}
 						
-//						System.out.println("\nDEBUGGING currentCaretPosition = " + currentCaretPosition);
-//						System.out.println("DEBUGGING lastCaretLocation = " + lastCaretLocation);
-//						System.out.println("DEBUGGING charsWereRemoved = " + charsWereRemoved);
-//						System.out.println("DEBUGGING charsWereInserted = " + charsWereInserted);
 						if ((currentCaretPosition-1 != lastCaretLocation && !charsWereRemoved && charsWereInserted) || (currentCaretPosition != lastCaretLocation-1) && !charsWereInserted && charsWereRemoved) {
-//							System.out.println("Look for me");
 							charsWereInserted = false;
 							charsWereRemoved = false;
 							shouldUpdate = true;
@@ -597,9 +572,7 @@ public class DriverDocumentsTab {
 						}
 					}
 					
-//					System.out.println("Move highlight? = " + setSelectionInfoAndHighlight);
 					if (setSelectionInfoAndHighlight) {
-//						System.out.println("Moving highlight");
 						currentSentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToAction)[0];
 						selectedSentIndexRange[0] = currentSentSelectionInfo[1]; //start highlight
 						selectedSentIndexRange[1] = currentSentSelectionInfo[2]; //end highlight
@@ -610,17 +583,10 @@ public class DriverDocumentsTab {
 					sentToTranslate = currentSentNum;
 					if (!inRange)
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
-//					
-//					System.out.println("current sentence string: " + currentSentenceString);
-//					System.out.println("Should update? = " + shouldUpdate);
-//					System.out.println("DEBUGGING: \"" + taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false) + "\"");
-//					System.out.println("DEBUGGING: \"" + currentSentenceString + "\"");
+
 					if (shouldUpdate) {
-//						System.out.println("HELLO");
 						shouldUpdate = false;
 						GUIMain.saved = false;
-//						System.out.println("lastSentNum = " + lastSentNum);
-//						System.out.println("currentSentenceString = " + currentSentenceString);
 						removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 					}
 					

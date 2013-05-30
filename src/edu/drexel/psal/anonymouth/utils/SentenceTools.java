@@ -114,9 +114,7 @@ public class SentenceTools implements Serializable  {
 		
 		for (notEOSNumber = 0; notEOSNumber < numNotEOS; notEOSNumber++) {
 			replacementString = notEndsOfSentence[notEOSNumber].replaceAll("\\.",t_PERIOD_REPLACEMENT);
-			//System.out.println("REPLACEMENT: "+replacementString);
 			safeString = notEndsOfSentence[notEOSNumber].replaceAll("\\.","\\\\.");
-			//System.out.println(safeString);
 			text = text.replaceAll("(?i)\\b"+safeString,replacementString); // the "(?i)" tells Java to do a case-insensitive search.
 		}
 		
@@ -127,7 +125,6 @@ public class SentenceTools implements Serializable  {
 //			int index = 0;
 //			try {
 //				do {
-//					System.out.println("index = " + index);
 //					index = sent.start() + index;
 //					if (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(index)) {
 //						foundEOS = false;
@@ -136,16 +133,11 @@ public class SentenceTools implements Serializable  {
 //						break;
 //					}
 //					index ++;
-//					System.out.println("index = " + index + " lenText = " + (lenText));
-//					System.out.println("\"" + text.substring(index, lenText) + "\"");
 //					sent = EOS_chars.matcher(text.substring(index, lenText));
 //					continueLoop = sent.find(0);
 //				} while (index < lenText-1 && continueLoop);
-//			} catch (IllegalStateException e) {
-//				System.out.println("OUT");
-//			}
+//			} catch (IllegalStateException e) {}
 //		}
-//		System.out.println("AFTER, foundEOS = " + foundEOS);
 //		sent = EOS_chars.matcher(text);
 //		sent.find(currentStart);
 		
@@ -171,32 +163,24 @@ public class SentenceTools implements Serializable  {
 		 * matter since the while loop and !foundAtLeastOneEOS conditional are executed properly, BUT as you can see the quotes, or more notably the EOS character inside
 		 * the quotes, triggers this initial test and thus the operation breaks. This is here just to make sure that does not happen.
 		 */
-		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText).trim()) && DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(sent.end()-1);
-//		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
+//		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText).trim()) && DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(sent.end()-1);
+		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
 
-//		System.out.println("\"" + text + "\"");
-//		System.out.println(text.substring(lenText-1, lenText));
-//		System.out.println(EOSAtSentenceEnd);
 		//Needed so that if we are deleting abbreviations like "Ph.D." this is not triggered.
 		if (!EOSAtSentenceEnd && !InputFilter.isEOS)
 			EOSAtSentenceEnd = true;
 
-		System.out.println(EOSAtSentenceEnd);
 		String currentEOS;
 		while (foundEOS == true) {
 			currentEOS = sent.group(0);
 			currentStop = sent.end();
-//			System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
-			while (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(currentStop-1) && currentStop != lenText) {
-//				System.out.println("currentStop = " + currentStop);
-//				System.out.println("lenText = " + lenText);
-				sent.find(currentStop+1);
-				currentStop = sent.end();
-//				System.out.println("REDO - Start: "+currentStart+" and Stop: "+currentStop);
-			}
-			//System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
+			
+//			while (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(currentStop-1) && currentStop != lenText) {
+//				sent.find(currentStop+1);
+//				currentStop = sent.end();
+//			}
+
 			temp = text.substring(currentStart-1,currentStop);
-			//System.out.println(temp);
 			lenTemp = temp.length();
 			lastQuoteAt = 0;
 			lastParenAt = 0;
@@ -243,9 +227,7 @@ public class SentenceTools implements Serializable  {
 				}
 			}
 			safeString = text.substring(currentStart-1,currentStop);
-			
-			//System.out.println("safeString: "+safeString);
-			//sentEnd = sentence_quote.matcher(safeString);	
+
 			quoteAtEnd = 0;
 			citationAtEnd = 0;
 			if (foundQuote) {
@@ -281,10 +263,9 @@ public class SentenceTools implements Serializable  {
 			// The rule -- at least as of now -- is if after the EOS mark there is a set of parenthesis containing either one word (name) or a name and numbers (name 123) || (123 name) || (123-456 name) || (name 123-456) || etc..
 			citationFinder = citation.matcher(text.substring(currentStop));	
 			hasCitation = citationFinder.find(); // -2 so that we match the EOS character before the quotes (not -1 because currentStop is one greater than the last index of the string -- due to the way substring works, which is includes the first index, and excludes the end index: [start,end).)
-			//System.out.println("RESULT OF citation matching: "+hasCitation+" ==> attempted to match: "+safeString+" ====> from: "+text);
+			
 			if (hasCitation == true) { // If it seems that the text looks like this: He said, "Hello." Then she said, "Hi." 
 				// Then we want to split this up into two sentences (it's possible to have a sentence like this: He said, "Hello.")
-				//System.out.println("start: "+(citationFinder.start()+currentStop)+" ... end: "+(citationFinder.end()+currentStop-1));
 				currentStop = text.indexOf(")",citationFinder.start()+currentStop)+1;
 				safeString = text.substring(currentStart-1,currentStop);
 				mergeNext = false;
@@ -302,24 +283,20 @@ public class SentenceTools implements Serializable  {
 				mergeWithLast=true;
 			} else {
 				forceNoMerge = false;
-				//System.out.println("Actual: "+safeString);
 				safeString_subbedEOS = subOutEOSChars(currentEOS, safeString, quoteAtEnd + citationAtEnd + parenAtEnd);
-				//System.out.println("SubbedEOS: "+safeString_subbedEOS);
 				safeString = safeString.replaceAll(t_PERIOD_REPLACEMENT,".");
 				safeString_subbedEOS = safeString_subbedEOS.replaceAll(t_PERIOD_REPLACEMENT,".");
-				//System.out.println(safeString);
 				finalSents.add(new String[]{safeString, safeString_subbedEOS});
 			}
 		
-			//System.out.println("---------------");
 			sents.add(safeString);
+			
 			//// xxx xxx xxx return the safeString_subbedEOS too!!!!
-			//System.out.println("start minus one: "+(currentStart-1)+" stop: "+currentStop);
 			if (currentStart < 0 || currentStop < 0) {
 				Logger.logln(NAME+"Something went really wrong making sentence tokens.");
 				ErrorHandler.fatalError();
 			}
-			//System.out.println("The rest of the text: "+text.substring(currentStart));
+
 			currentStart = currentStop+1;
 			if (currentStart >= lenText) {
 				foundEOS = false;
@@ -332,13 +309,6 @@ public class SentenceTools implements Serializable  {
 		if (!foundAtLeastOneEOS || !EOSAtSentenceEnd) {
 			ArrayList<String[]> wrapper = new ArrayList<String[]>(1);
 			wrapper.add(new String[]{text,text});
-//			System.out.println("Returning wrapper");
-//			System.out.println("wrapper.size() = " + wrapper.size());
-//			for (int i = 0; i < wrapper.size(); i++) {
-//				for (int j = 0; j < wrapper.get(i).length; j++) {
-//					System.out.println("   \"" + wrapper.get(i)[j]);
-//				}
-//			}
 			return wrapper;
 		}
 		
