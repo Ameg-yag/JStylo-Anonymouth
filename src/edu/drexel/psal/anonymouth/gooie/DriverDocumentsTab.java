@@ -268,10 +268,11 @@ public class DriverDocumentsTab {
 			main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 		try {
 			System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
+			System.out.println("ignoreHighlight = " + ignoreHighlight);
 
 			if (currentSentNum != 0) { //if it's not the first sentence (assuming there's not going to be a space/tab before it TODO make this not suck)
-//				System.out.println("   selectedSentIndexRange[0] = " + selectedSentIndexRange[0]);
-//				System.out.println("   currentCaretPosition = " + currentCaretPosition);
+				System.out.println("   selectedSentIndexRange[0] = " + selectedSentIndexRange[0]);
+				System.out.println("   currentCaretPosition = " + currentCaretPosition);
 //				System.out.println("   ignoreHighlight = " + ignoreHighlight);
 //				System.out.println("   InputFilter.isEOS = " + InputFilter.isEOS);
 //				System.out.println("   Deleteing = " + deleting);
@@ -282,12 +283,13 @@ public class DriverDocumentsTab {
 //							System.out.println("Should be highlighting");
 						}
 					} else {
-						int temp = 0;
-						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) { //we want to not highlight whitespace before the actual sentence.
-							temp++;
-						}
-	
-						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
+//						int temp = 0;
+//						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) { //we want to not highlight whitespace before the actual sentence.
+//							temp++;
+//						}
+//	
+//						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
+						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+1, bounds[1], painter);
 //						System.out.println("Should be highlighting");
 					}
 				} else {
@@ -316,6 +318,7 @@ public class DriverDocumentsTab {
 		// get the lengths of each of the sentences
 		int[] sentenceLengths = taggedDoc.getSentenceLengths();
 		int numSents = sentenceLengths.length;
+//		System.out.println("NUMSENTS = " + numSents);
 		int positionNumber;
 		int numPositions = positions.length;
 		int currentPosition;
@@ -575,6 +578,7 @@ public class DriverDocumentsTab {
 //						System.out.println("lastSentNum = " + taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false));
 //						System.out.println("currentSentenceString = " + currentSentenceString);
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
+//							System.out.println("highlight off?");
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
 							GUIMain.saved = false;
@@ -595,6 +599,7 @@ public class DriverDocumentsTab {
 					
 //					System.out.println("Move highlight? = " + setSelectionInfoAndHighlight);
 					if (setSelectionInfoAndHighlight) {
+//						System.out.println("Moving highlight");
 						currentSentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToAction)[0];
 						selectedSentIndexRange[0] = currentSentSelectionInfo[1]; //start highlight
 						selectedSentIndexRange[1] = currentSentSelectionInfo[2]; //end highlight
@@ -754,6 +759,7 @@ public class DriverDocumentsTab {
 			public void mouseReleased(MouseEvent me) {
 				changedCaret = true;
 				deleting = false;
+				ignoreHighlight = false;
 			}
 
 			@Override

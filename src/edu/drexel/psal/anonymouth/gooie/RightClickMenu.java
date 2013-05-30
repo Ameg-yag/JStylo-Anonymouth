@@ -50,12 +50,12 @@ public class RightClickMenu extends JPopupMenu {
 				int length = 0;
 				ArrayList<TaggedSentence> taggedSentences = new ArrayList<TaggedSentence>();
 				
+				System.out.println(size);
 				for (int i = 0; i < size; i++) {
 					length = sentences.get(i)[0].length() + pastLength;
-					
 					char character = main.getDocumentPane().getText().charAt(length-1+PopupListener.mark);
-					System.out.println("Character Check: \"" + character + "\"");
-					System.out.println("Surrounding: \"" + main.getDocumentPane().getText().substring(length-5+PopupListener.mark, length+1+PopupListener.mark) + "\"");
+//					System.out.println("Character Check: \"" + character + "\"");
+//					System.out.println("Surrounding: \"" + main.getDocumentPane().getText().substring(length-5+PopupListener.mark, length+1+PopupListener.mark) + "\"");
 					if ((character == '.' || character == '!' || character == '?') && size-1 != i) {
 						DriverDocumentsTab.taggedDoc.specialCharTracker.setIgnore(length - 1 + PopupListener.mark, true);
 					}
@@ -68,7 +68,7 @@ public class RightClickMenu extends JPopupMenu {
 				
 //				System.out.println(taggedSentences.size());
 //				for (int j = 0; j < taggedSentences.size(); j++) {
-//					System.out.println(taggedSentences.get(j).getUntagged(false));
+//					System.out.println("\"" + taggedSentences.get(j).getUntagged(false) + "\"");
 //				}
 				
 				InputFilter.ignoreTranslation = true;
@@ -79,11 +79,11 @@ public class RightClickMenu extends JPopupMenu {
 				
 				DriverDocumentsTab.ignoreHighlight = false;
 //				DriverDocumentsTab.ignoreNumActions = 3;
-				System.out.println("PopupListener.mark = " + PopupListener.mark);
+//				System.out.println("PopupListener.mark = " + PopupListener.mark);
 				int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(PopupListener.mark)[0];
-				System.out.println("selectedSentInfo[0] = " + selectedSentInfo[0]);
-				System.out.println("selectedSentInfo[1] = " + selectedSentInfo[1]);
-				System.out.println("selectedSentInfo[2] = " + selectedSentInfo[2]);
+//				System.out.println("selectedSentInfo[0] = " + selectedSentInfo[0]);
+//				System.out.println("selectedSentInfo[1] = " + selectedSentInfo[1]);
+//				System.out.println("selectedSentInfo[2] = " + selectedSentInfo[2]);
 				int space = 0;
 				while (main.getDocumentPane().getText().charAt(selectedSentInfo[1] + space)  == ' ') {
 					space++;

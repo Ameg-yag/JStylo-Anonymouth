@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import com.jgaap.generics.Document;
 
+import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.ErrorHandler;
 import edu.drexel.psal.anonymouth.gooie.InputFilter;
 import edu.drexel.psal.jstylo.generics.Logger;
@@ -121,7 +122,33 @@ public class SentenceTools implements Serializable  {
 		
 		Matcher sent = EOS_chars.matcher(text);
 		boolean foundEOS = sent.find(currentStart); // xxx TODO xxx take this EOS character, and if not in quotes, swap it for a permanent replacement, and create and add an EOS to the calling TaggedDocument's eosTracker.
-
+//		boolean continueLoop = true;
+//		if (foundEOS) {
+//			int index = 0;
+//			try {
+//				do {
+//					System.out.println("index = " + index);
+//					index = sent.start() + index;
+//					if (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(index)) {
+//						foundEOS = false;
+//					} else {
+//						foundEOS = true;
+//						break;
+//					}
+//					index ++;
+//					System.out.println("index = " + index + " lenText = " + (lenText));
+//					System.out.println("\"" + text.substring(index, lenText) + "\"");
+//					sent = EOS_chars.matcher(text.substring(index, lenText));
+//					continueLoop = sent.find(0);
+//				} while (index < lenText-1 && continueLoop);
+//			} catch (IllegalStateException e) {
+//				System.out.println("OUT");
+//			}
+//		}
+//		System.out.println("AFTER, foundEOS = " + foundEOS);
+//		sent = EOS_chars.matcher(text);
+//		sent.find(currentStart);
+		
 		Matcher sentEnd;
 		Matcher citationFinder;
 		boolean hasCitation = false;
@@ -144,11 +171,12 @@ public class SentenceTools implements Serializable  {
 		 * matter since the while loop and !foundAtLeastOneEOS conditional are executed properly, BUT as you can see the quotes, or more notably the EOS character inside
 		 * the quotes, triggers this initial test and thus the operation breaks. This is here just to make sure that does not happen.
 		 */
-		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
-		
-		System.out.println("\"" + text + "\"");
-		System.out.println(text.substring(lenText-1, lenText));
-		System.out.println(EOSAtSentenceEnd);
+		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText).trim()) && DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(sent.end()-1);
+//		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
+
+//		System.out.println("\"" + text + "\"");
+//		System.out.println(text.substring(lenText-1, lenText));
+//		System.out.println(EOSAtSentenceEnd);
 		//Needed so that if we are deleting abbreviations like "Ph.D." this is not triggered.
 		if (!EOSAtSentenceEnd && !InputFilter.isEOS)
 			EOSAtSentenceEnd = true;
@@ -158,6 +186,14 @@ public class SentenceTools implements Serializable  {
 		while (foundEOS == true) {
 			currentEOS = sent.group(0);
 			currentStop = sent.end();
+//			System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
+			while (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(currentStop-1) && currentStop != lenText) {
+//				System.out.println("currentStop = " + currentStop);
+//				System.out.println("lenText = " + lenText);
+				sent.find(currentStop+1);
+				currentStop = sent.end();
+//				System.out.println("REDO - Start: "+currentStart+" and Stop: "+currentStop);
+			}
 			//System.out.println("Start: "+currentStart+" and Stop: "+currentStop);
 			temp = text.substring(currentStart-1,currentStop);
 			//System.out.println(temp);
@@ -296,6 +332,13 @@ public class SentenceTools implements Serializable  {
 		if (!foundAtLeastOneEOS || !EOSAtSentenceEnd) {
 			ArrayList<String[]> wrapper = new ArrayList<String[]>(1);
 			wrapper.add(new String[]{text,text});
+//			System.out.println("Returning wrapper");
+//			System.out.println("wrapper.size() = " + wrapper.size());
+//			for (int i = 0; i < wrapper.size(); i++) {
+//				for (int j = 0; j < wrapper.get(i).length; j++) {
+//					System.out.println("   \"" + wrapper.get(i)[j]);
+//				}
+//			}
 			return wrapper;
 		}
 		
