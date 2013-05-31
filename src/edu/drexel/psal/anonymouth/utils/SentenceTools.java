@@ -121,20 +121,34 @@ public class SentenceTools implements Serializable  {
 		
 		Matcher sent = EOS_chars.matcher(text);
 		boolean foundEOS = sent.find(currentStart); // xxx TODO xxx take this EOS character, and if not in quotes, swap it for a permanent replacement, and create and add an EOS to the calling TaggedDocument's eosTracker.
+		
+		/*
+		 * We want to check and make sure that the EOS character (if one was found) is not supposed to be ignored. If it is, we will act like we did not
+		 * find it. If there are multiple sentences with multiple EOS characters passed it will go through each to check, foundEOS will only be true if
+		 * an EOS exists in "text" that would normally be an EOS character and is not set to be ignored.
+		 */
 		boolean continueLoop = true;
 		int buffer = 0;
+		int index = 0;
 		if (foundEOS) {
-			int index = 0;
 			int mark = GUIMain.inst.getDocumentPane().getCaret().getMark();
 			int dot = GUIMain.inst.getDocumentPane().getCaret().getDot();
-			System.out.println("index = GUIMain.inst.getDocumentPane().getCaret().getMark() = " + mark + " GUIMain.inst.getDocumentPane().getCaret().getDot() = " + dot);
-			if (GUIMain.inst.getDocumentPane().getCaret().getMark() <= GUIMain.inst.getDocumentPane().getCaret().getDot()) {
+
+			//we want to find whatever the starting index is for the selected text with respect to the length of all the text before it.
+			if (mark < dot)
 				buffer = mark;
-			} else {
+			else if (mark > dot)
 				buffer = dot;
+			else {
+				continueLoop = false;
+//				if (DriverDocumentsTab.EOSJustRemoved)
+//					buffer = DriverDocumentsTab.leftSentInfo[1];
+//				else
+				buffer = DriverDocumentsTab.selectedSentIndexRange[0];
 			}
+			
 			try {
-				do {
+				while (continueLoop && index < lenText-1) {
 					index = sent.start() + index;
 					if (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(index+buffer)) {
 						foundEOS = false;
@@ -145,9 +159,10 @@ public class SentenceTools implements Serializable  {
 					index ++;
 					sent = EOS_chars.matcher(text.substring(index, lenText));
 					continueLoop = sent.find(0);
-				} while (index < lenText-1 && continueLoop);
+				}
 			} catch (IllegalStateException e) {}
 		}
+		//We need to reset the Matcher for the code below
 		sent = EOS_chars.matcher(text);
 		sent.find(currentStart);
 		
@@ -173,10 +188,13 @@ public class SentenceTools implements Serializable  {
 		 * matter since the while loop and !foundAtLeastOneEOS conditional are executed properly, BUT as you can see the quotes, or more notably the EOS character inside
 		 * the quotes, triggers this initial test and thus the operation breaks. This is here just to make sure that does not happen.
 		 */
-		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText).trim()) && DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(sent.end()-1+buffer);
+		String trimmedText = text.trim();
+		int trimmedTextLength = trimmedText.length();
+
+		//We want to make sure that if there is an EOS character at the end that it is not supposed to be ignored
+		boolean EOSAtSentenceEnd = EOS.contains(trimmedText.substring(trimmedTextLength-1, trimmedTextLength)) && DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(DriverDocumentsTab.selectedSentIndexRange[1]-2);
 //		boolean EOSAtSentenceEnd = EOS.contains(text.substring(lenText-1, lenText));
 
-		System.out.println("EOSAtSentenceEnd = " + EOSAtSentenceEnd + " foundEOS = " + foundEOS);
 		//Needed so that if we are deleting abbreviations like "Ph.D." this is not triggered.
 		if (!EOSAtSentenceEnd && !InputFilter.isEOS)
 			EOSAtSentenceEnd = true;
@@ -186,10 +204,14 @@ public class SentenceTools implements Serializable  {
 			currentEOS = sent.group(0);
 			currentStop = sent.end();
 			
-			while (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(currentStop-1+buffer) && currentStop != lenText) {
-				sent.find(currentStop+1);
-				currentStop = sent.end();
-			}
+			
+			//We want to make sure currentStop skips over ignored EOS characters and stops only when we hit a true EOS character
+			try {
+				while (!DriverDocumentsTab.taggedDoc.specialCharTracker.EOSAtIndex(currentStop-1+buffer) && currentStop != lenText) {
+					sent.find(currentStop+1);
+					currentStop = sent.end();
+				}
+			} catch (Exception e) {}
 
 			temp = text.substring(currentStart-1,currentStop);
 			lenTemp = temp.length();
@@ -427,12 +449,8 @@ public class SentenceTools implements Serializable  {
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-		System.out.println("End");
-		
+		}		
 	}
-	
 }
 
 

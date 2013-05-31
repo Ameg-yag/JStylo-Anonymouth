@@ -113,7 +113,7 @@ public class DriverDocumentsTab {
 	private static int currentSentNum = 0;
 	protected static int lastSentNum = -1;
 	protected static int sentToTranslate = 0;
-	protected static int[] selectedSentIndexRange = new int[]{-2,-2}; 
+	public static int[] selectedSentIndexRange = new int[]{-2,-2}; 
 	protected static int[] lastSelectedSentIndexRange = new int[]{-3,-3};
 	protected static int lastCaretLocation = -1;
 	protected static int charsInserted = -1;
@@ -136,9 +136,12 @@ public class DriverDocumentsTab {
 	protected static Boolean changedCaret = false;
 	protected static String newLine = System.lineSeparator();
 	protected static Boolean ignoreHighlight = false;
-	protected static Boolean deleting = false;
+	public static Boolean deleting = false;
 	protected static Boolean charsWereInserted = false;
 	protected static Boolean charsWereRemoved = false;
+	public static Boolean EOSJustRemoved = false;
+	public static int[] leftSentInfo = new int[0];
+	public static int[] rightSentInfo = new int[0];
 	
 	protected static ActionListener saveAsTestDoc;
 	
@@ -214,14 +217,9 @@ public class DriverDocumentsTab {
 			main.getDocumentPane().getCaret().setDot(caretPositionPriorToAction);
 			main.getDocumentPane().setCaretPosition(caretPositionPriorToAction);	
 		}
-		
-//		System.out.println("   currentCaretPosition = " + currentCaretPosition);
-//		for (int i = 0; i < taggedDoc.getUntaggedSentences(false).size(); i++) {
-//			System.out.println("Sentences: " + taggedDoc.getUntaggedSentences(false).get(i));
-//		}
+
 		int[] selectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
 		currentSentNum = selectionInfo[0];
-//		System.out.println("   currentSentNum = " + currentSentNum);
 		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 		moveHighlight(main,selectedSentIndexRange);
@@ -245,7 +243,6 @@ public class DriverDocumentsTab {
 		
 		int[] selectionInfo = calculateIndicesOfSentences(caretPositionPriorToCharInsertion)[0];
 		currentSentNum = selectionInfo[0];
-//		System.out.println(currentSentNum);
 		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 
@@ -353,13 +350,13 @@ public class DriverDocumentsTab {
 		System.out.println(e.getType().toString() + ": " + changeLength + " character(s). Text length = " + document.getLength() + ".");
 	}
 
-	protected static void initListeners(final GUIMain main){
+	protected static void initListeners(final GUIMain main) {
 
 		/***********************************************************************************************************************************************
 		 *############################################################################################################*
 		 *###########################################  BEGIN EDITING HANDLERS  ###########################################*
 		 *############################################################################################################*
-		 ************************************************************************************************************************************************/	
+		 ***********************************************************************************************************************************************/	
 
 		suggestionCalculator = new SuggestionCalculator();
 		
@@ -404,26 +401,28 @@ public class DriverDocumentsTab {
 						 * We must subtract all the indices by 1 because the InputFilter indices refuses to work with anything other than - 1, and as such
 						 * the indices here and in TaggedDocument must be adjustest as well.
 						 */
-						Boolean EOSJustRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition-1, caretPositionPriorToCharRemoval-1);
+						EOSJustRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition-1, caretPositionPriorToCharRemoval-1);
+						
 						if (EOSJustRemoved) {
 							try {
 								// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
 								int[][] activatedSentenceInfo = calculateIndicesOfSentences(currentCaretPosition, caretPositionPriorToCharRemoval);
 								int i;
 								int j = 0;
-								int[] leftSentInfo = activatedSentenceInfo[0];
-								int[] rightSentInfo = activatedSentenceInfo[1];
+								leftSentInfo = activatedSentenceInfo[0];
+								rightSentInfo = activatedSentenceInfo[1];
 
+								System.out.println(rightSentInfo[0] + " " + leftSentInfo[0]);
 								if (rightSentInfo[0] != leftSentInfo[0]) {
 									int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
 									int[] taggedSentsToDelete = new int[numToDelete];
 									
 									// Now we list the indices of sentences that need to be removed, which are the ones between the left and right sentence (though not including either the left or the right sentence).
-									for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]; i++){ 
+									for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]; i++) { 
 										taggedSentsToDelete[j] = i;
 										j++;
 									}
-									
+
 									//First delete what we don't need anymore
 									taggedDoc.removeTaggedSentences(taggedSentsToDelete);
 									
@@ -441,7 +440,8 @@ public class DriverDocumentsTab {
 									taggedDoc.concatRemoveAndReplace( taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(rightSentInfo[0]), rightSentInfo[0]);
 								}
 							} catch (Exception e1) {
-								Logger.logln(NAME + "An fatal error occured when attempting to delete an EOS character in DriverDocumentsTab, the editor may no longer function properly", LogOut.STDERR);
+								Logger.logln(NAME + "An fatal error occured when attempting to delete an EOS character in DriverDocumentsTab, the editor may no longer function properly", LogOut.STDOUT);
+								e1.printStackTrace();
 							}
 							
 							// now update the EOSTracker
@@ -455,6 +455,7 @@ public class DriverDocumentsTab {
 							
 							// Now set the number of characters removed to zero because the action has been dealt with, and we don't want the statement further down to execute and screw up our indices. 
 							charsRemoved = 0; 
+							EOSJustRemoved = false;
 						} else{
 							// update the EOSTracker
 							taggedDoc.specialCharTracker.shiftAllEOSChars(false, caretPositionPriorToAction, charsRemoved);
@@ -587,7 +588,6 @@ public class DriverDocumentsTab {
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 
 					if (shouldUpdate) {
-						System.out.println("UPDATING");
 						shouldUpdate = false;
 						GUIMain.saved = false;
 						removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);

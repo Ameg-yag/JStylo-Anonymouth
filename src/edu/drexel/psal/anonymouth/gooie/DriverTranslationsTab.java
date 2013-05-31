@@ -16,6 +16,11 @@ import net.miginfocom.swing.MigLayout;
 
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
+/**
+ * Fetches the translations for the selected sentence (if available) and displays them to the user as they come.
+ * @author Marc Barrowclift
+ */
+
 public class DriverTranslationsTab implements ActionListener {
 	private static GUIMain main;
 	protected static JPanel[] finalPanels;

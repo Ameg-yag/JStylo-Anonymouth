@@ -207,7 +207,6 @@ public class TaggedDocument implements Serializable{
 		for (int i = 0; i < size; i++) {
 			length = taggedSentences.get(i).getUntagged(false).length();
 			newIndex = length + pastIndex;
-			System.out.println(pastIndex + " < " + index + " < " + newIndex);
 			if (index >= pastIndex && index <= newIndex) {
 				returnValue = taggedSentences.get(i);
 				break;
@@ -216,7 +215,6 @@ public class TaggedDocument implements Serializable{
 			}
 		}
 		
-		System.out.println(returnValue);
 		return returnValue;
 	}
 	
@@ -460,6 +458,13 @@ public class TaggedDocument implements Serializable{
 		return wasReplaced;
 	}
 	
+	/**
+	 * Removes multiple sentences and replaces them with a single TaggedSentence. To be used with the right-click menu
+	 * item "combine sentences".
+	 * @param sentsToRemove - An ArrayList of TaggedSentences to remove
+	 * @param sentToAdd - The TaggedSentence to want to replace them all with.
+	 * @return startingSentence - The index (0-based) of the first sentence removed.
+	 */
 	public int removeMultipleAndReplace(ArrayList<TaggedSentence> sentsToRemove, TaggedSentence sentToAdd) {
 		int size = sentsToRemove.size();
 		int startingSentence = 0;

@@ -50,6 +50,7 @@ public class SpecialCharacterTracker implements Serializable {
 		eoses.add(new EOS(eosChar, location, ignore));
 	}
 	
+	/*
 	public void addParens(int openParen, int closeParen) {
 		// todo this.
 	}
@@ -58,32 +59,38 @@ public class SpecialCharacterTracker implements Serializable {
 		// todo this too.
 		
 	}
+	*/
 	
-	public void setIgnore(int location, boolean b) {
+	/**
+	 * Obtains the EOS character at the index given and sets whether or not to ignore it.
+	 * @param index - The index of the EOS character to ignore/not ignore
+	 * @param b - whether or not to ignore the EOS character
+	 */
+	public void setIgnore(int index, boolean b) {
 		int length = eoses.size();
 		
 		for (int i = 0; i < length; i++) {
-			if (location-1 == eoses.get(i).location) {
+			if (index-1 == eoses.get(i).location) {
 				eoses.get(i).setIgnore(b);
 			}
 		}
 	}
 	
+	/**
+	 * Checks the index given for an EOS character and returns true if it finds one and it is not set to be ignored.
+	 * @param index - The index where we want to check if there is an EOS character present
+	 * @return result - whether or not an EOS character that is NOT set to be ignored exists in the index given.
+	 */
 	public boolean EOSAtIndex(int index) {
 		boolean result = false;
 		int length = eoses.size();
 
-		System.out.println("--------------");
-		if (length == 0) {
+		if (length == 0) { //if the document is getting processed we don't want to run the code below (screws everything up)
 			result = true;
 		} else {
-			System.out.println("index = " + index);
 			for (int i = 0; i < length; i++) {
-				System.out.println("   " + eoses.get(i).location);
 				if (index-1 == eoses.get(i).location) {
 					if (!eoses.get(i).ignore) {
-						System.out.println("RESULT SET TO TRUE");
-						System.out.println("EOS location = " + eoses.get(i).location);
 						result = true;
 					}
 					break;
