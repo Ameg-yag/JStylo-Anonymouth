@@ -107,8 +107,8 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected Font defaultLabelFont = new Font("Verdana",0,16);
 	protected static int cellPadding = 5;
 
-	protected final Color ready = new Color(0,255,128,200);
-	protected final Color notReady = new Color(255,102,102,200);
+	protected final Color ready = new Color(0,255,128);
+	protected final Color notReady = new Color(255,102,102);
 	protected final Color blue = new Color(136,166,233,200);
 
 	// tabs
@@ -547,7 +547,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			setExtendedState(MAXIMIZED_BOTH);
 			Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
 			this.setSize(new Dimension((int)(screensize.width*.75), (int)(screensize.height*.75)));
-			this.setMinimumSize(new Dimension(800, 600));
+			this.setMinimumSize(new Dimension(800, 578));
 			this.setTitle("Anonymouth");
 			this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
 

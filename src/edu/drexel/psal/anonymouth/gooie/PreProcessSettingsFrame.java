@@ -213,14 +213,14 @@ public class PreProcessSettingsFrame extends JDialog {
 	private void init(GUIMain main)
 	{
 		this.main = main;
-		this.setResizable(false);
+		this.setMinimumSize(new Dimension(800, 578));
 		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
 		initPanels();
 		
 		getContentPane().setLayout(new MigLayout(
 				"fill, wrap 1, ins 0, gap 0 0",
 				"fill, grow",
-				"[grow][grow, shrink 0]"));
+				"[grow][grow]"));
 		tabbedPane = new JTabbedPane();
 		tabbedPane.add("Documents", docPanel);
 		tabbedPane.add("Features", featPanel);
@@ -411,18 +411,18 @@ public class PreProcessSettingsFrame extends JDialog {
 				docMainPanel.add(mainLabel);
 				docMainPanel.add(sampleLabel);
 				docMainPanel.add(trainLabel);
-				docMainPanel.add(prepMainDocScrollPane, "grow, h 100:500:, w 32%!"); //w 100::
-				docMainPanel.add(prepSampleDocsScrollPane, "grow, h 100:500:, w 32%!"); //w 100::
-				docMainPanel.add(trainCorpusJTreeScrollPane, "grow, h 100:500:, w 32%!"); //w 100::
-				docMainPanel.add(addTestDocJButton, "split 2, w 100::");
-				docMainPanel.add(removeTestDocJButton, "w 100::");
-				docMainPanel.add(adduserSampleDocJButton, "split 2, w 100::");
-				docMainPanel.add(removeuserSampleDocJButton, "w 100::");
-				docMainPanel.add(addTrainDocsJButton, "split 2, w 100::");
-				docMainPanel.add(removeTrainDocsJButton, "w 100::");
-				docMainPanel.add(mainDocSettingsPanel, "grow, w 100::");
-				docMainPanel.add(sampleDocSettingsPanel, "grow, w 100::");
-				docMainPanel.add(trainDocSettingsPanel, "grow, w 100::");
+				docMainPanel.add(prepMainDocScrollPane, "grow, h 50:500:, w 50:100:"); //w 100::
+				docMainPanel.add(prepSampleDocsScrollPane, "grow, h 50:500:, w 50:100"); //w 100::
+				docMainPanel.add(trainCorpusJTreeScrollPane, "grow, h 50:500:, w 50:100"); //w 100::
+				docMainPanel.add(addTestDocJButton, "split 2, w 50:100:");
+				docMainPanel.add(removeTestDocJButton, "w 50:100:");
+				docMainPanel.add(adduserSampleDocJButton, "split 2, w 50:100:");
+				docMainPanel.add(removeuserSampleDocJButton, "w 50:100:");
+				docMainPanel.add(addTrainDocsJButton, "split 2, w 50:100:");
+				docMainPanel.add(removeTrainDocsJButton, "w 50:100:");
+				docMainPanel.add(mainDocSettingsPanel, "grow, w 50:100:");
+				docMainPanel.add(sampleDocSettingsPanel, "grow, w 50:100:");
+				docMainPanel.add(trainDocSettingsPanel, "grow, w 50:100:");
 			}
 			docPanel.add(prepDocLabel, "h 30!");
 			docPanel.add(docMainPanel);
@@ -455,7 +455,7 @@ public class PreProcessSettingsFrame extends JDialog {
 			featMainPanel = new JPanel();
 			featMainPanel.setLayout(new MigLayout(
 					"fill, wrap 4, gap 0 0",
-					"[200!]20[left][150:40%:, fill][300:60%:, fill]",
+					"[200!]20[left][150:40%:, fill][250:60%:, fill]",
 					"[][][20!][40!][20!][20!]20[33%, fill][33%, fill][33%, fill]"));
 			{
 				JPanel featMainTopPanel = new JPanel();
@@ -644,9 +644,9 @@ public class PreProcessSettingsFrame extends JDialog {
 				featuresCullConfigJTable.setColumnSelectionAllowed(false);
 				
 				featMainPanel.add(featMainTopPanel, "spanx, growx, gapbottom 20");
-				featMainPanel.add(featuresListLabel, "w 200!");
+				featMainPanel.add(featuresListLabel, "w 50:200:");
 				featMainPanel.add(featuresInfoLabel, "spanx, growx");
-				featMainPanel.add(featuresListJScrollPane, "spany, growy, w 200!");
+				featMainPanel.add(featuresListJScrollPane, "spany, growy, w 50:200:");
 				featMainPanel.add(featuresFeatureNameJLabel);
 				featMainPanel.add(new JScrollPane(featuresFeatureNameJTextPane), "span 2, grow");
 				featMainPanel.add(featuresFeatureDescJLabel);

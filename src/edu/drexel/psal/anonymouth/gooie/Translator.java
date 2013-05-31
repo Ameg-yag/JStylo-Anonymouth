@@ -104,6 +104,13 @@ public class Translator implements Runnable
 				// Translate the sentence for each language
 				for (Language lang: Translation.getUsedLangs()) {
 					if (currentLangNum >= stoppedLangNum) {
+						if (sentences.size() == 0) {
+							stop = false;
+							translationsEnded();
+							DriverTranslationsTab.showTranslations(new TaggedSentence(""));
+							return;
+						}
+						
 						String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged(false).trim(), lang);
 						
 						if (translation.equals("internet")) {
