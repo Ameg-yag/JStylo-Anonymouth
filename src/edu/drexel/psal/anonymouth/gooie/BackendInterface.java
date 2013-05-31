@@ -260,6 +260,8 @@ public class BackendInterface {
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
+			
+			
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
 			DriverDocumentsTab.charsRemoved = 0;	
@@ -272,6 +274,7 @@ public class BackendInterface {
 
 			main.getDocumentPane().setEnabled(true);
 			main.getDocumentPane().setEditable(true);
+			main.processButton.setText("Re-Process");
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);

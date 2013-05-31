@@ -12,6 +12,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
+import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
 /**
@@ -26,11 +27,13 @@ public class RightClickMenu extends JPopupMenu {
 	private JMenuItem paste;
 	private JSeparator separator;
 	private JMenuItem combineSentences;
+	private JMenuItem resetHighlighter;
 	private GUIMain main;
 	private ActionListener cutListener;
 	private ActionListener copyListener;
 	private ActionListener pasteListener;
 	private ActionListener combineSentencesListener;
+	private ActionListener resetHighlighterListener;
 	private MouseListener popupListener;
 	public ArrayList<String[]> sentences;
 
@@ -45,12 +48,14 @@ public class RightClickMenu extends JPopupMenu {
 		paste = new JMenuItem("Paste");
 		separator = new JSeparator();
 		combineSentences = new JMenuItem("Make a single sentence");
+		resetHighlighter = new JMenuItem("Reset Highlighter");
 		
 		this.add(cut);
 		this.add(copy);
 		this.add(paste);
 		this.add(separator);
 		this.add(combineSentences);
+		this.add(resetHighlighter);
 		this.main = main;
 		
 		initListeners();
@@ -130,6 +135,21 @@ public class RightClickMenu extends JPopupMenu {
 			}
 		};
 		combineSentences.addActionListener(combineSentencesListener);
+		
+		resetHighlighterListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DriverDocumentsTab.taggedDoc.specialCharTracker.resetEOSCharacters();
+				DriverDocumentsTab.taggedDoc = new TaggedDocument(main.getDocumentPane().getText());
+				DriverDocumentsTab.firstRun = true;
+				
+				int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(DriverDocumentsTab.currentCaretPosition)[0];
+				DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
+				DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
+				DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
+			}
+		};
+		resetHighlighter.addActionListener(resetHighlighterListener);
 		
 		popupListener = new PopupListener(this, main, this);
 		main.getDocumentPane().addMouseListener(popupListener);

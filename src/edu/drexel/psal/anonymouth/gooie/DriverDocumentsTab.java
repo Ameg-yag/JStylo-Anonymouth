@@ -124,7 +124,7 @@ public class DriverDocumentsTab {
 	protected static int caretPositionPriorToCharInsertion = 0;
 	protected static int caretPositionPriorToCharRemoval = 0;
 	protected static int caretPositionPriorToAction = 0;
-	private static Boolean firstRun = true;
+	public static Boolean firstRun = true;
 	private static int[] oldSelectionInfo = new int[3];
 	protected static Map<String, int[]> wordsToRemove = new HashMap<String, int[]>();
 	
@@ -377,6 +377,7 @@ public class DriverDocumentsTab {
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				System.out.println("======================================================================================");
+				System.out.println("ignoreNumActions = " + ignoreNumActions);
 				if (ignoreNumActions > 0) {
 					charsInserted = 0;
 					charsWereRemoved = false;
@@ -384,6 +385,7 @@ public class DriverDocumentsTab {
 					charsRemoved = 0;
 					ignoreNumActions--;
 				} else if (taggedDoc != null) { //main.documentPane.getText().length() != 0
+					System.out.println("Moving on");
 					boolean setSelectionInfoAndHighlight = true;
 					startSelection = e.getDot();
 					endSelection = e.getMark();
@@ -593,6 +595,7 @@ public class DriverDocumentsTab {
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 
 					if (shouldUpdate) {
+						System.out.println("UPDATE");
 						shouldUpdate = false;
 						GUIMain.saved = false;
 						removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
@@ -789,7 +792,7 @@ public class DriverDocumentsTab {
 					// ----- confirm they want to process
 					if (true) {// ---- can be a confirm dialog to make sure they want to process.
 						// ----- if this is the first run, do everything that needs to be ran the first time
-						if(isFirstRun) {
+						if (isFirstRun) {
 							// ----- create the main document and add it to the appropriate array list.
 							// ----- may not need the arraylist in the future since you only really can have one at a time
 							TaggedDocument taggedDocument = new TaggedDocument();
@@ -822,6 +825,10 @@ public class DriverDocumentsTab {
 							wizard = new DataAnalyzer(main.ps,ThePresident.sessionName);
 							magician = new DocumentMagician(false);
 						} else {
+							//TODO ASK ANDREW: Should we erase the user's "this is a single sentence" actions upon reprocessing? Only only when they reset the highlighter?
+							taggedDoc.specialCharTracker.resetEOSCharacters();
+							taggedDoc = new TaggedDocument(main.getDocumentPane().getText());
+							
 							Logger.logln(NAME+"Repeat processing starting....");
 							resetAll(main);
 						}

@@ -139,6 +139,8 @@ public class SentenceTools implements Serializable  {
 				buffer = mark;
 			else if (mark > dot)
 				buffer = dot;
+			else if (lenText == DriverDocumentsTab.taggedDoc.getUntaggedDocument(false).length())
+				buffer = 0;
 			else {
 				continueLoop = false;
 //				if (DriverDocumentsTab.EOSJustRemoved)
@@ -203,7 +205,6 @@ public class SentenceTools implements Serializable  {
 		while (foundEOS == true) {
 			currentEOS = sent.group(0);
 			currentStop = sent.end();
-			
 			
 			//We want to make sure currentStop skips over ignored EOS characters and stops only when we hit a true EOS character
 			try {

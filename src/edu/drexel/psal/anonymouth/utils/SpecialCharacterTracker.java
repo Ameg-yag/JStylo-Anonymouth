@@ -50,17 +50,6 @@ public class SpecialCharacterTracker implements Serializable {
 		eoses.add(new EOS(eosChar, location, ignore));
 	}
 	
-	/*
-	public void addParens(int openParen, int closeParen) {
-		// todo this.
-	}
-	
-	public void addQuotes(int openQuote, int closeQuote) {
-		// todo this too.
-		
-	}
-	*/
-	
 	/**
 	 * Obtains the EOS character at the index given and sets whether or not to ignore it.
 	 * @param index - The index of the EOS character to ignore/not ignore
@@ -155,6 +144,13 @@ public class SpecialCharacterTracker implements Serializable {
 					eoses.get(i).location -= shiftAmount;
 			}
 		}
+	}
+	
+	/**
+	 * clears all EOS characters so we can reset the highlighter.
+	 */
+	public void resetEOSCharacters() {
+		eoses.clear();
 	}
 	
 	/**
