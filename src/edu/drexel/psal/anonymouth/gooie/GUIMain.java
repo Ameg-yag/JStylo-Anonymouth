@@ -23,9 +23,9 @@ import java.util.*;
 import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.*;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
+import edu.drexel.psal.anonymouth.engine.Clipboard;
 import edu.drexel.psal.anonymouth.engine.VersionControl;
 import edu.drexel.psal.anonymouth.utils.IndexFinder;
-import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -391,6 +391,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected VersionControl versionControl;
 	protected ResultsWindow resultsWindow;
 	protected RightClickMenu rightClickMenu;
+	protected Clipboard clipboard;
 
 	protected JPanel anonymityHoldingPanel;
 	protected JScrollPane anonymityScrollPane;
@@ -573,6 +574,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			editRedoMenuItem = new JMenuItem("Redo");
 			editRedoMenuItem.setEnabled(false);
 			editMenu.add(editRedoMenuItem);
+			clipboard = new Clipboard(this, editMenu);
 			menuBar.add(editMenu);
 
 			viewMenuItem = new JMenu("View");

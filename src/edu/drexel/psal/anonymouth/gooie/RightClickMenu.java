@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 
 import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
@@ -20,8 +21,15 @@ import edu.drexel.psal.anonymouth.utils.TaggedSentence;
  */
 public class RightClickMenu extends JPopupMenu {
 
+	private JMenuItem cut;
+	private JMenuItem copy;
+	private JMenuItem paste;
+	private JSeparator separator;
 	private JMenuItem combineSentences;
 	private GUIMain main;
+	private ActionListener cutListener;
+	private ActionListener copyListener;
+	private ActionListener pasteListener;
 	private ActionListener combineSentencesListener;
 	private MouseListener popupListener;
 	public ArrayList<String[]> sentences;
@@ -32,8 +40,16 @@ public class RightClickMenu extends JPopupMenu {
 	 * CONSTRUCTOR
 	 */
 	public RightClickMenu(GUIMain main) {
+		cut = new JMenuItem("Cut");
+		copy = new JMenuItem("Copy");
+		paste = new JMenuItem("Paste");
+		separator = new JSeparator();
 		combineSentences = new JMenuItem("Make a single sentence");
 		
+		this.add(cut);
+		this.add(copy);
+		this.add(paste);
+		this.add(separator);
 		this.add(combineSentences);
 		this.main = main;
 		
@@ -44,6 +60,30 @@ public class RightClickMenu extends JPopupMenu {
 	 * Readies all the listeners for each menu item
 	 */
 	public void initListeners() {
+		cutListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				main.clipboard.cut();
+			}
+		};
+		cut.addActionListener(cutListener);
+		
+		copyListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				main.clipboard.copy();
+			}
+		};
+		copy.addActionListener(copyListener);
+		
+		pasteListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				main.clipboard.paste();
+			}
+		};
+		paste.addActionListener(pasteListener);
+		
 		combineSentencesListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -102,6 +142,12 @@ public class RightClickMenu extends JPopupMenu {
 	public void enableCombineSentences(boolean b) {
 		combineSentences.setEnabled(b);
 	}
+	
+	public void setEnabled(boolean cut, boolean copy, boolean paste) {
+		this.cut.setEnabled(cut);
+		this.copy.setEnabled(copy);
+		this.paste.setEnabled(paste);
+	}
 }
 
 /**
@@ -157,6 +203,7 @@ class PopupListener extends MouseAdapter {
 			System.out.println(dot + " " + mark);
 			if (dot == mark) {
 				rightClickMenu.enableCombineSentences(false);
+				rightClickMenu.setEnabled(false, false, true);
 			} else {
 				String text = main.getDocumentPane().getText().substring(mark, dot);
 				rightClickMenu.sentences = sentenceTools.makeSentenceTokens(text);
@@ -167,6 +214,7 @@ class PopupListener extends MouseAdapter {
 					rightClickMenu.enableCombineSentences(true);
 				else
 					rightClickMenu.enableCombineSentences(false);
+				rightClickMenu.setEnabled(true, true, true);
 			}
 			
 			popup.show(e.getComponent(), e.getX(), e.getY());

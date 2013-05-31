@@ -196,6 +196,11 @@ public class DriverDocumentsTab {
 		main.elementsToRemovePane.setEnabled(b);
 		main.getDocumentPane().setEnabled(b);
 		main.getDocumentPane().setEditable(b);
+		
+		if (b)
+			main.clipboard.setEnabled(false, false, true);
+		else
+			main.clipboard.setEnabled(b);
 	}
 	
 	/**
@@ -609,8 +614,10 @@ public class DriverDocumentsTab {
 				if (arg0.getKeyCode() == KeyEvent.VK_RIGHT ||
 						arg0.getKeyCode() == KeyEvent.VK_LEFT ||
 						arg0.getKeyCode() == KeyEvent.VK_UP ||
-						arg0.getKeyCode() == KeyEvent.VK_DOWN)
+						arg0.getKeyCode() == KeyEvent.VK_DOWN) {
 					changedCaret = true;
+					main.clipboard.setEnabled(false, false, true);
+				}
 				if (arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE)
 					deleting = true;
 				else
@@ -729,6 +736,11 @@ public class DriverDocumentsTab {
 				changedCaret = true;
 				deleting = false;
 				ignoreHighlight = false;
+				
+				if (main.getDocumentPane().getCaret().getDot() == main.getDocumentPane().getCaret().getMark())
+					main.clipboard.setEnabled(false, false, true);
+				else
+					main.clipboard.setEnabled(true);
 			}
 
 			@Override
