@@ -704,7 +704,11 @@ public class GUIMain extends javax.swing.JFrame  {
 		DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
 		DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
 		classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
-		PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()));
+		
+		if (PropertiesUtil.getClassifier().toLowerCase().contains("smo"))
+			PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()) + " -M");
+		else
+			PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()));
 		PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
 		GUIUpdateInterface.updateClassList(this);
 		GUIUpdateInterface.updateClassPrepColor(this);

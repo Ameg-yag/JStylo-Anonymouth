@@ -436,7 +436,6 @@ public class DriverDocumentsTab {
 								leftSentInfo = activatedSentenceInfo[0];
 								rightSentInfo = activatedSentenceInfo[1];
 
-								System.out.println(rightSentInfo[0] + " " + leftSentInfo[0]);
 								if (rightSentInfo[0] != leftSentInfo[0]) {
 									int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
 									int[] taggedSentsToDelete = new int[numToDelete];
@@ -616,7 +615,6 @@ public class DriverDocumentsTab {
 					}
 
 					if (shouldUpdate) {
-						System.out.println("UPDATE");
 						shouldUpdate = false;
 						GUIMain.saved = false;
 						removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
