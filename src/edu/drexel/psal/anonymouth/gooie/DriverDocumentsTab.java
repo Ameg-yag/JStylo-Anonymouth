@@ -110,7 +110,7 @@ public class DriverDocumentsTab {
 	public static TaggedDocument taggedDoc;
 	protected static Map<String, TaggedSentence> originals = new HashMap<String, TaggedSentence>();
 	protected static ArrayList<String> originalSents = new ArrayList<String>();
-	private static int currentSentNum = 0;
+	public static int currentSentNum = 0;
 	protected static int lastSentNum = -1;
 	protected static int sentToTranslate = 0;
 	public static int[] selectedSentIndexRange = new int[]{-2,-2}; 
@@ -142,6 +142,7 @@ public class DriverDocumentsTab {
 	public static Boolean EOSJustRemoved = false;
 	public static int[] leftSentInfo = new int[0];
 	public static int[] rightSentInfo = new int[0];
+	private static boolean translate = false;
 	
 	protected static ActionListener saveAsTestDoc;
 	
@@ -216,11 +217,27 @@ public class DriverDocumentsTab {
 		System.out.println("   To Remove = \"" + taggedDoc.getSentenceNumber(sentenceNumberToRemove).getUntagged(false) + "\"");
 		System.out.println("   To Add = \"" + sentenceToReplaceWith + "\"");
 
+		/**
+		 * We must do this AFTER creating the new tagged sentence so that the translations are attached to the most recent tagged sentence, not the old
+		 * one that was replaced. 
+		 */
+		if (translate) {
+			translate = false;
+			GUIMain.GUITranslator.replace(taggedDoc.getSentenceNumber(oldSelectionInfo[0]), originals.get(originalSents.get(oldSelectionInfo[0])));//new old
+			main.anonymityDrawingPanel.updateAnonymityBar();
+			originals.remove(originalSents.get(oldSelectionInfo[0]));
+			originals.put(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged(false), taggedDoc.getSentenceNumber(oldSelectionInfo[0]));
+			originalSents.remove(oldSelectionInfo[0]);
+			originalSents.add(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged(false));
+			SuggestionCalculator.placeSuggestions(main);
+		}
+		
 		if (shouldUpdate) {
 			ignoreNumActions = 3;
 			main.getDocumentPane().setText(taggedDoc.getUntaggedDocument(false)); // NOTE should be false after testing!!!
 			main.getDocumentPane().getCaret().setDot(caretPositionPriorToAction);
-			main.getDocumentPane().setCaretPosition(caretPositionPriorToAction);	
+			main.getDocumentPane().setCaretPosition(caretPositionPriorToAction);
+			ignoreNumActions = 0;
 		}
 
 		int[] selectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
@@ -377,7 +394,6 @@ public class DriverDocumentsTab {
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				System.out.println("======================================================================================");
-				System.out.println("ignoreNumActions = " + ignoreNumActions);
 				if (ignoreNumActions > 0) {
 					charsInserted = 0;
 					charsWereRemoved = false;
@@ -385,7 +401,6 @@ public class DriverDocumentsTab {
 					charsRemoved = 0;
 					ignoreNumActions--;
 				} else if (taggedDoc != null) { //main.documentPane.getText().length() != 0
-					System.out.println("Moving on");
 					boolean setSelectionInfoAndHighlight = true;
 					startSelection = e.getDot();
 					endSelection = e.getMark();
@@ -538,23 +553,16 @@ public class DriverDocumentsTab {
 							changedCaret = false;
 							shouldUpdate = true;
 							ignoreHighlight = false;
-						}
-						
-						/**
-						 * Exists for the sole purpose of pushing a sentence that has been edited and finished to the appropriate place in
-						 * The Translation.java class so that it can be promptly translated. This will ONLY happen when the user has clicked
-						 * away from the sentence they were editing to work on another one (the reason behind this being we don't want to be
-						 * constantly pushing now sentences to be translated is the user's immediately going to replace them again, we only
-						 * want to translate completed sentences).
-						 */
-						if (!originals.keySet().contains(main.getDocumentPane().getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1]))) {
-							GUIMain.GUITranslator.replace(taggedDoc.getSentenceNumber(oldSelectionInfo[0]), originals.get(originalSents.get(oldSelectionInfo[0])));//new old
-							main.anonymityDrawingPanel.updateAnonymityBar();
-							originals.remove(originalSents.get(oldSelectionInfo[0]));
-							originals.put(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged(false), taggedDoc.getSentenceNumber(oldSelectionInfo[0]));
-							originalSents.remove(oldSelectionInfo[0]);
-							originalSents.add(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged(false));
-							SuggestionCalculator.placeSuggestions(main);
+
+							/**
+							 * Exists for the sole purpose of pushing a sentence that has been edited and finished to the appropriate place in
+							 * The Translation.java class so that it can be promptly translated. This will ONLY happen when the user has clicked
+							 * away from the sentence they were editing to work on another one (the reason behind this being we don't want to be
+							 * constantly pushing now sentences to be translated is the user's immediately going to replace them again, we only
+							 * want to translate completed sentences).
+							 */
+							if (!originals.keySet().contains(main.getDocumentPane().getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1])))
+								translate = true;
 						}
 					}
 					
@@ -579,6 +587,16 @@ public class DriverDocumentsTab {
 							charsWereRemoved = false;
 							shouldUpdate = true;
 							ignoreHighlight = false;
+
+							/**
+							 * Exists for the sole purpose of pushing a sentence that has been edited and finished to the appropriate place in
+							 * The Translation.java class so that it can be promptly translated. This will ONLY happen when the user has clicked
+							 * away from the sentence they were editing to work on another one (the reason behind this being we don't want to be
+							 * constantly pushing now sentences to be translated is the user's immediately going to replace them again, we only
+							 * want to translate completed sentences).
+							 */
+							if (!originals.keySet().contains(main.getDocumentPane().getText().substring(selectedSentIndexRange[0],selectedSentIndexRange[1])))
+								translate = true;
 						}
 					}
 					
@@ -591,11 +609,11 @@ public class DriverDocumentsTab {
 
 					lastCaretLocation = currentCaretPosition;
 					sentToTranslate = currentSentNum;
-					if (!inRange)
+					if (!inRange) {
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
+					}
 
-					if (shouldUpdate) {
-						System.out.println("UPDATE");
+					if (shouldUpdate) {		
 						shouldUpdate = false;
 						GUIMain.saved = false;
 						removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);

@@ -18,7 +18,9 @@ import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
 /**
  * Fetches the translations for the selected sentence (if available) and displays them to the user as they come.
+ * 
  * @author Marc Barrowclift
+ * @author Unknown
  */
 
 public class DriverTranslationsTab implements ActionListener {
@@ -127,6 +129,9 @@ public class DriverTranslationsTab implements ActionListener {
 		main.translationsHolderPanel.repaint();
 	}
 
+	/**
+	 * The user clicked the translation-swap arrow button.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
@@ -145,6 +150,12 @@ public class DriverTranslationsTab implements ActionListener {
 		main.translationsHolderPanel.add(main.notTranslated, "");
 		main.translationsHolderPanel.revalidate();
 		main.translationsHolderPanel.repaint();
+//		
+//		int[] selectionInfo = DriverDocumentsTab.calculateIndicesOfSentences(DriverDocumentsTab.currentCaretPosition)[0];
+//		DriverDocumentsTab.currentSentNum = selectionInfo[0];
+//		DriverDocumentsTab.selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
+//		DriverDocumentsTab.selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
+//		DriverDocumentsTab.moveHighlight(main,DriverDocumentsTab.selectedSentIndexRange);
 		
 		main.versionControl.setMostRecentState(DriverDocumentsTab.taggedDoc);
 	}

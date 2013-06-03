@@ -6,8 +6,15 @@ import java.util.ArrayList;
 import edu.drexel.psal.anonymouth.gooie.Translation;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
-public class Translator implements Runnable
-{
+/**
+ * Manages fetching translations for every sentence and adding/removing sentences from the translation "queue".
+ * 
+ * @author Marc Barrowclift
+ * @author Unknown
+ */
+
+public class Translator implements Runnable {
+	
 	private ArrayList<TaggedSentence> sentences = new ArrayList<TaggedSentence>(); // essentially the priority queue
 	private GUIMain main;
 	public static boolean addSent = false;
@@ -88,6 +95,9 @@ public class Translator implements Runnable
 		addSent = false;
 	}
 
+	/**
+	 * Main translation thread
+	 */
 	@Override
 	public void run() {
 		stop = false; //Just making sure stop is now false since this is a new document translation (if it the code below that turns it off wasn't run).
@@ -101,7 +111,7 @@ public class Translator implements Runnable
 		// translate all languages for each sentence, sorting the list based on anon index after each translation
 		while (!sentences.isEmpty() && currentSentNum <= sentences.size()) {
 			if (!sentences.get(currentSentNum - 1).isTranslated()) {
-				// Translate the sentence for each language
+				// Translate the sentence for each language				
 				for (Language lang: Translation.getUsedLangs()) {
 					if (currentLangNum >= stoppedLangNum) {
 						if (sentences.size() == 0) {
@@ -111,7 +121,7 @@ public class Translator implements Runnable
 							return;
 						}
 						
-						String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged(false).trim(), lang);
+						String translation = Translation.getTranslation(sentences.get(currentSentNum-1).getUntagged(false), lang);
 						
 						if (translation.equals("internet")) {
 							noInternet = true;
@@ -139,7 +149,7 @@ public class Translator implements Runnable
 						sentences.get(currentSentNum-1).sortTranslations();
 						String one = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(DriverDocumentsTab.sentToTranslate).trim();
 						String two = sentences.get(currentSentNum-1).getUntagged(false).trim();
-						
+
 						if (one.equals(two))
 							DriverTranslationsTab.showTranslations(sentences.get(currentSentNum-1));
 						
@@ -170,6 +180,9 @@ public class Translator implements Runnable
 		translationsEnded();
 	}
 	
+	/**
+	 * Cleans up resources used by the translator at the end of translating all sentences.
+	 */
 	private void translationsEnded() {
 		finished = true;
 		sentences.clear();
