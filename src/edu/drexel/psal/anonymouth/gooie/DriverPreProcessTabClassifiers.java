@@ -106,9 +106,9 @@ public class DriverPreProcessTabClassifiers {
 						e2.printStackTrace();
 						return;
 					}
-					
+
 					try {
-						//tmpClassifier.setOptions(main.classAvClassArgsJTextField.getText().split(" "));
+						tmpClassifier.setOptions(main.PPSP.classAvClassArgsJTextField.getText().split(" "));
 						System.out.println("TEST: tmpClassifier.getOption() = " + tmpClassifier.getOptions());
 						System.out.println("TEST: getOptionsStr(tmpClassifier.getOptions()) = " + getOptionsStr(tmpClassifier.getOptions()));
 						System.out.println("TEST: getOptionsStr(tmpClassifier.getOptions()).split(\" \") = " + getOptionsStr(tmpClassifier.getOptions()).split(" "));
@@ -124,7 +124,7 @@ public class DriverPreProcessTabClassifiers {
 										"Restoring original options.",
 										"Classifier Options Error",
 										JOptionPane.ERROR_MESSAGE);
-						//main.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
+						main.PPSP.classAvClassArgsJTextField.setText(getOptionsStr(tmpClassifier.getOptions()));
 						return;
 					}
 					
@@ -287,6 +287,7 @@ public class DriverPreProcessTabClassifiers {
 				Logger.logln(NAME+"Classifier selected in the selected classifiers list in the classifiers tab: "+className);
 
 				// show options and description
+				System.out.println("HELLLO");
 				if(className.toLowerCase().contains("smo"))
 					main.PPSP.classSelClassArgsJTextField.setText(getOptionsStr(main.classifiers.get(selected).getOptions())+" -M");
 				else
