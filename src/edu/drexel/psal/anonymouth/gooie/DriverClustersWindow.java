@@ -66,17 +66,6 @@ public class DriverClustersWindow {
 		return stringRepresentation;
 	}
 
-	public static boolean setClusterGroup()
-	{
-		Logger.logln("Cluster group array retrieved from ClusterAnalyzer and brought to ClusterViewerDriver");
-		if(clusterGroupReady)
-		{
-			bestClusterGroup = DataAnalyzer.getBestClusterGroup();
-			return true;
-		}
-		else
-			return false;
-	}
 
 	public static void makePanels(Attribute[] theOnesYouWantToSee)
 	{
@@ -199,19 +188,18 @@ public class DriverClustersWindow {
 			main.clustersWindow.clusterHolderPanel.add(finalPanels[i]);
 		}
 
-		boolean cgIsSet = setClusterGroup();
-
-		intRepresentation = new int[lenCGR][clusterGroupRay[0].getGroupKey().length()];
-		stringRepresentation = new String[1+lenCGR];
-		stringRepresentation[0] = "Select Targets";
-		for(int i = 0; i < lenCGR; i++)
-		{
-			intRepresentation[i] = clusterGroupRay[i].getGroupKey().toIntArray();
-			stringRepresentation[i+1] = clusterGroupRay[i].getGroupKey().toString();
-		}
-
-		int[] theOne = intRepresentation[0];
-		selectedClustersByFeature = theOne;
+//
+//		intRepresentation = new int[lenCGR][clusterGroupRay[0].getGroupKey().length()];
+//		stringRepresentation = new String[1+lenCGR];
+//		stringRepresentation[0] = "Select Targets";
+//		for(int i = 0; i < lenCGR; i++)
+//		{
+//			intRepresentation[i] = clusterGroupRay[i].getGroupKey().toIntArray();
+//			stringRepresentation[i+1] = clusterGroupRay[i].getGroupKey().toString();
+//		}
+//
+//		int[] theOne = intRepresentation[0];
+//		selectedClustersByFeature = theOne;
 		lenJPanels = clusterPanels.length;
 		for(int i = 0; i < lenJPanels; i++)
 		{
