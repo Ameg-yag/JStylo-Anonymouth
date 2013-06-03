@@ -188,8 +188,8 @@ public class DriverClustersWindow {
 			}
 			else
 			{
-				nameLabels[i].setBackground(main.tan);
-				clusterPanels[i].setBackground(main.tan);
+				nameLabels[i].setBackground(main.blue);
+				clusterPanels[i].setBackground(main.blue);
 				finalPanels[i].setBorder(main.rlborder);
 			}
 			nameLabels[i].setHorizontalAlignment(SwingConstants.CENTER);

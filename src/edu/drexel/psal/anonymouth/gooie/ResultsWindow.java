@@ -1,9 +1,11 @@
 package edu.drexel.psal.anonymouth.gooie;
 
+import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -13,6 +15,8 @@ import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 /**
@@ -32,6 +36,7 @@ public class ResultsWindow extends JDialog {
 	private ArrayList<String> authors;
 	private ArrayList<Integer> percent;
 	private DefaultCategoryDataset dataSet;
+	private CategoryItemRenderer renderer;
 	private int width;
 	
 	/**
@@ -53,6 +58,40 @@ public class ResultsWindow extends JDialog {
 		this.setVisible(true);
 		this.repaint();
 	}
+	
+	/**
+	 * Big thanks to JFreeChart, Object Refinery Limited and Contributors, and MaVRoSCy from StackOverflow for
+	 * the help.
+	 * 
+     * A custom renderer that returns a different color for each item in a single series.
+     */
+    class CustomRenderer extends BarRenderer {
+
+		private static final long serialVersionUID = 1L;
+        private Paint[] colors;
+
+        /**
+         * Creates a new renderer.
+         *
+         * @param colors  the colors.
+         */
+        public CustomRenderer(final Paint[] colors) {
+            this.colors = colors;
+        }
+
+        /**
+         * Returns the paint for an item.  Overrides the default behaviour inherited from
+         * AbstractSeriesRenderer.
+         *
+         * @param row  the series.
+         * @param column  the category.
+         *
+         * @return The item color.
+         */
+        public Paint getItemPaint(final int row, final int column) {
+            return this.colors[column % this.colors.length];
+        }
+    }
 
 	/**
 	 * Should be called only by the resultsMainPanel to get the appropriately sized image for it to display.
@@ -65,6 +104,7 @@ public class ResultsWindow extends JDialog {
 			panelChart = ChartFactory.createBarChart(
 					null, null, null,
 	                dataSet, PlotOrientation.HORIZONTAL, false, true, false);
+			panelChart.getCategoryPlot().setRenderer(renderer);
 			
 			panelImage = panelChart.createBufferedImage(width, height);
 		}
@@ -84,6 +124,13 @@ public class ResultsWindow extends JDialog {
 		chart = ChartFactory.createBarChart(
 				"Chance of Documents Ownership", "Authors", "Percent Chance",
                 dataSet, PlotOrientation.VERTICAL, false, true, false);
+		
+		renderer = new CustomRenderer(
+				new Paint[] {Color.red, Color.blue, Color.green,
+						Color.yellow, Color.orange, Color.cyan,
+						Color.magenta, Color.blue}
+				);
+        chart.getCategoryPlot().setRenderer(renderer);
 		
 		if (authors.size() < 10)
 			width = 100 * authors.size();

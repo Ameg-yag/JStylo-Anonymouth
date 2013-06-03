@@ -16,6 +16,13 @@ import net.miginfocom.swing.MigLayout;
 
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
+/**
+ * Fetches the translations for the selected sentence (if available) and displays them to the user as they come.
+ * 
+ * @author Marc Barrowclift
+ * @author Unknown
+ */
+
 public class DriverTranslationsTab implements ActionListener {
 	private static GUIMain main;
 	protected static JPanel[] finalPanels;
@@ -81,7 +88,7 @@ public class DriverTranslationsTab implements ActionListener {
 				languageLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
 				languageLabels[i].setBorder(GUIMain.rlborder);
 				languageLabels[i].setOpaque(true);
-				languageLabels[i].setBackground(main.tan);
+				languageLabels[i].setBackground(main.blue);
 
 				// set up translation text area
 				translationTextAreas[i] = new JTextPane();
@@ -105,8 +112,8 @@ public class DriverTranslationsTab implements ActionListener {
 						"");
 				finalPanels[i] = new JPanel(layout);
 				finalPanels[i].add(languageLabels[i], "grow, h 20!, north");
-				finalPanels[i].add(translationButtons[i], "west, wmax 30, wmin 30"); //50 //25
-				finalPanels[i].add(translationTextAreas[i], "east, wmin 283, wmax 283"); //263 //288
+				finalPanels[i].add(translationButtons[i], "west, w 30!");
+				finalPanels[i].add(translationTextAreas[i], "east, w 100:283:283");
 
 				// add final panel to the translations list panel
 				main.translationsHolderPanel.add(finalPanels[i], "");
@@ -122,12 +129,16 @@ public class DriverTranslationsTab implements ActionListener {
 		main.translationsHolderPanel.repaint();
 	}
 
+	/**
+	 * The user clicked the translation-swap arrow button.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
 		DriverDocumentsTab.currentCharacterBuffer = 0;
 		
 		GUIMain.saved = false;
+		InputFilter.ignoreTranslation = true;
 		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(false), true);
 		GUIMain.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
 		

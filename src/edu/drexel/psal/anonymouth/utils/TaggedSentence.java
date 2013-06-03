@@ -5,7 +5,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 import edu.stanford.nlp.ling.TaggedWord;
@@ -26,7 +25,7 @@ import edu.stanford.nlp.trees.TreebankLanguagePack;
 public class TaggedSentence implements Comparable<TaggedSentence>, Serializable {
 
 	private static final long serialVersionUID = -8793730374516462574L;
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	//private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected SparseReferences sentenceLevelFeaturesFound;
 
 	protected String untagged;
@@ -245,7 +244,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	 * Returns the length of the sentence (number of characters).
 	 * @return
 	 */
-	public int getLength(){
+	public int getLength() {
 		return untagged.length();
 	}
 	
@@ -420,6 +419,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	}
 	*/
 
+	/*
 	private void setHashMap(HashMap <String,Integer> hashMap, String key){
 		if(hashMap.containsKey(key)){
 			hashMap.put(key, (hashMap.get(key).intValue()+1));
@@ -428,6 +428,7 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 			hashMap.put(key, 1);
 		}
 	}
+	*/
 
 
 	/**

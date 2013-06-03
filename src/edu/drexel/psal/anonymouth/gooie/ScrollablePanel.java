@@ -22,8 +22,10 @@ import javax.swing.*;
  *  based on the rules of the applicable layout manager of course.
  */
 public class ScrollablePanel extends JPanel implements Scrollable, SwingConstants {
-	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+
+	private static final long serialVersionUID = 1L;
+
+	//private final String NAME = "( "+this.getClass().getName()+" ) - ";
 
 	public enum ScrollableSizeHint
 	{

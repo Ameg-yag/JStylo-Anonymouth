@@ -1,31 +1,16 @@
 package edu.drexel.psal.anonymouth.utils;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.jgaap.JGAAPConstants;
 
 import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
-import edu.drexel.psal.anonymouth.gooie.ErrorHandler;
 import edu.drexel.psal.jstylo.generics.Logger;
-import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.ling.TaggedWord;
 import edu.stanford.nlp.process.Tokenizer;
-import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 import edu.stanford.nlp.trees.PennTreebankLanguagePack;
 import edu.stanford.nlp.trees.TreebankLanguagePack;
 
@@ -150,8 +135,6 @@ public class TaggedDocument implements Serializable{
 	public void consolidateFeatures(TaggedSentence ts){
 		ConsolidationStation.featurePacker(ts);
 	}
-
-		
 	
 	/**
 	 * Takes a String of sentences (can be an entire document), breaks it up into individual sentences (sentence tokens), breaks those up into tokens, and then tags them (via MaxentTagger).
@@ -161,7 +144,8 @@ public class TaggedDocument implements Serializable{
 	 * @return the TaggedSentences
 	 */
 	public ArrayList<TaggedSentence> makeAndTagSentences(String untagged, boolean appendTaggedSentencesToGlobalArrayList){
-		ArrayList<String[]> untaggedSents = jigsaw.makeSentenceTokens(untagged); 
+		ArrayList<String[]> untaggedSents = jigsaw.makeSentenceTokens(untagged);
+		
 		ArrayList<TaggedSentence> taggedSentences = new ArrayList<TaggedSentence>(untaggedSents.size());
 		//sentencesPreTagging = new ArrayList<List<? extends HasWord>>();
 		Iterator<String[]> strRayIter = untaggedSents.iterator();
@@ -202,17 +186,36 @@ public class TaggedDocument implements Serializable{
 		int i;
 		for (i=0; i < numChars; i++){
 			if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[0]){ // period replacement
-				specialCharTracker.addEOS(EOSSubbedDoc[i],i);
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1,false);
 			}
 			else if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[1]){ // question mark replacement
-				specialCharTracker.addEOS(EOSSubbedDoc[i],i);
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1,false);
 			}
 			else if (EOSSubbedDoc[i] == SpecialCharacterTracker.replacementEOS[2]){ // exclamation point replacement
-				specialCharTracker.addEOS(EOSSubbedDoc[i],i);
+				specialCharTracker.addEOS(EOSSubbedDoc[i],i-1,false);
+			}
+		}
+	}
+	
+	public TaggedSentence getTaggedSentenceAt(int index) {
+		int size = taggedSentences.size();
+		int newIndex = 0;
+		int pastIndex = 0;
+		int length = 0;
+		TaggedSentence returnValue = null;
+		
+		for (int i = 0; i < size; i++) {
+			length = taggedSentences.get(i).getUntagged(false).length();
+			newIndex = length + pastIndex;
+			if (index >= pastIndex && index <= newIndex) {
+				returnValue = taggedSentences.get(i);
+				break;
+			} else {
+				pastIndex += length;
 			}
 		}
 		
-		
+		return returnValue;
 	}
 	
 	/**
@@ -282,7 +285,7 @@ public class TaggedDocument implements Serializable{
 	public TaggedSentence concatSentences(TaggedSentence ... taggedSentences){//ArrayList<TaggedSentence> taggedList){
 		TaggedSentence toReturn =new TaggedSentence(taggedSentences[0]);
 		int numSents = taggedSentences.length;
-		int i, j;
+		int i;
 		for (i=1;i<numSents;i++){
 				toReturn.wordsInSentence.addAll(taggedSentences[i].wordsInSentence);
 				toReturn.untagged += taggedSentences[i].untagged;
@@ -300,7 +303,7 @@ public class TaggedDocument implements Serializable{
 	public TaggedSentence concatSentences(ArrayList<TaggedSentence> taggedSentences){//ArrayList<TaggedSentence> taggedList){
 		TaggedSentence toReturn =new TaggedSentence(taggedSentences.get(0));
 		int numSents = taggedSentences.size();
-		int i, j;
+		int i;
 		TaggedSentence thisTaggedSent;
 		for (i=1;i<numSents;i++){
 			thisTaggedSent = taggedSentences.get(i);
@@ -322,7 +325,7 @@ public class TaggedDocument implements Serializable{
 	public TaggedSentence concatSentences(int[] taggedSentenceIndicesToConcat){//ArrayList<TaggedSentence> taggedList){
 		TaggedSentence toReturn =new TaggedSentence(taggedSentences.get(taggedSentenceIndicesToConcat[0]));
 		int numSents = taggedSentenceIndicesToConcat.length;
-		int i, j;
+		int i;
 		TaggedSentence thisTaggedSent;
 		for (i=1;i<numSents;i++){
 			thisTaggedSent = taggedSentences.get(taggedSentenceIndicesToConcat[i]);
@@ -424,9 +427,10 @@ public class TaggedDocument implements Serializable{
 	 */
 	public TaggedSentence removeAndReplace(int sentNumber, String sentsToAdd){//, int indexToRemove, int placeToAdd){
 		TaggedSentence toReplace = taggedSentences.get(sentNumber);
-		Logger.logln(NAME+"removing: "+toReplace.toString());
+		Logger.logln(NAME+"removing: "+toReplace.getUntagged(false));
 		Logger.logln(NAME+"adding: "+sentsToAdd);
-		if(sentsToAdd.matches("^\\s*$")){//checks to see if the user deleted the current sentence
+		
+		if (sentsToAdd.matches("^\\s*$")) {//checks to see if the user deleted the current sentence
 			//CALL COMPARE
 			TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
 			Logger.logln(NAME+"User deleted a sentence.");
@@ -434,8 +438,9 @@ public class TaggedDocument implements Serializable{
 			totalSentences--;
 			return wasReplaced;
 		}
+		
 		ArrayList<TaggedSentence> taggedSentsToAdd = makeAndTagSentences(sentsToAdd,false);
-		Scanner s = new Scanner(System.in);
+
 		TaggedSentence wasReplaced = removeTaggedSentence(sentNumber);
 		totalSentences--;
 		//call compare
@@ -448,10 +453,39 @@ public class TaggedDocument implements Serializable{
 			totalSentences++;
 		}
 		TaggedSentence concatted = concatSentences(taggedSentsToAdd);
-		System.out.println("TaggedSent to add: "+taggedSentsToAdd.get(0).toString());
-		System.out.println("TaggedSent to remove: "+toReplace.toString());
+
 		updateReferences(toReplace,concatted);
 		return wasReplaced;
+	}
+	
+	/**
+	 * Removes multiple sentences and replaces them with a single TaggedSentence. To be used with the right-click menu
+	 * item "combine sentences".
+	 * @param sentsToRemove - An ArrayList of TaggedSentences to remove
+	 * @param sentToAdd - The TaggedSentence to want to replace them all with.
+	 * @return startingSentence - The index (0-based) of the first sentence removed.
+	 */
+	public int removeMultipleAndReplace(ArrayList<TaggedSentence> sentsToRemove, TaggedSentence sentToAdd) {
+		int size = sentsToRemove.size();
+		int startingSentence = 0;
+		
+		for (int i = 0; i < size; i++) {
+			if (i == 0) {
+				startingSentence = taggedSentences.indexOf(sentsToRemove.get(i));
+			}
+			taggedSentences.remove(sentsToRemove.get(i));
+			totalSentences--;
+		}
+		
+		addTaggedSentence(sentToAdd, startingSentence);
+		totalSentences++;
+		
+		//TODO is this okay?
+		for (int j = 0; j < size; j++) {
+			updateReferences(sentsToRemove.get(j), sentToAdd);
+		}
+		
+		return startingSentence;
 	}
 	
 	/**
@@ -590,10 +624,7 @@ public class TaggedDocument implements Serializable{
 	 */
 	public TaggedDocument(TaggedDocument td){
 		int i;
-		int j;
 		int numTaggedSents = td.taggedSentences.size();
-		int numArrayLists;
-		int numValues;
 		
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
 		// copy TaggedSentences

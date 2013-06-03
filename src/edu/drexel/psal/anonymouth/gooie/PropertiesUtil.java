@@ -23,6 +23,7 @@ public class PropertiesUtil {
 	protected static String defaultClass = "SMO";
 	protected static String defaultFeat = "WritePrints (Limited)";
 	protected static int defaultClient = 0;
+	protected static String defaultFontSize = "12";
 	protected static String defaultProbSet = "";
 	protected static Boolean defaultAutoSave = false;
 	protected static Boolean defaultWarnQuit = true;
@@ -89,6 +90,43 @@ public class PropertiesUtil {
 		setProbSet(defaultProbSet);
 		setFeature(defaultFeat);
 		setClassifier(defaultClass);
+	}
+	
+	/**
+	 * Sets the font size for the document editor
+	 * @param fontSize - The point-size desired for the font.
+	 */
+	protected static void setFontSize(String fontSize) {
+		BufferedWriter writer;
+		
+		try {
+			prop.setProperty("fontSize", fontSize);
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (Exception e) {
+			Logger.logln(NAME + "Failed setting the font size");
+		}
+	}
+	
+	/**
+	 * Gets the font size used in the document editor
+	 * @return
+	 */
+	protected static int getFontSize() {
+		String fontSize;
+		
+		try {
+			fontSize = prop.getProperty("fontSize");
+			if (fontSize == null) {
+				prop.setProperty("fontSize", defaultFontSize);
+				fontSize = prop.getProperty("fontSize");
+			}
+		} catch (NullPointerException e) {
+			prop.setProperty("fontSize", defaultFontSize);
+			fontSize = prop.getProperty("fontSize");
+		}
+		
+		return Integer.parseInt(fontSize);
 	}
 	
 	/**

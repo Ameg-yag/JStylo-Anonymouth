@@ -26,6 +26,7 @@ import weka.core.Instances;
  *
  */
 public class FeatureSwapper {
+<<<<<<< HEAD
 
 	WekaAnalyzer waz;
 	Instances toAnonymize;
@@ -33,7 +34,10 @@ public class FeatureSwapper {
 	WekaResults[] wekaResultsArray;
 	ArrayList<String> toAnonymizeTitlesList;
 	Set<String> trainSetAuthors;
+=======
+>>>>>>> refs/remotes/origin/Marc_Anonymouth
 	
+<<<<<<< HEAD
 	public FeatureSwapper(ClusterGroup[] clusterGroups, DocumentMagician magician){
 		// we want to set the cluster group, classifier, and documentToAnonymize instances (either from DataAnalyzer or DocumentMagician)
 		toAnonymize = magician.getToModifyDat();
@@ -44,9 +48,15 @@ public class FeatureSwapper {
 		if (clusterGroups == null)
 			Logger.logln("Damn.");
 
+=======
+	public FeatureSwapper() {
+		
+		
+>>>>>>> refs/remotes/origin/Marc_Anonymouth
 	}
 	
 	
+<<<<<<< HEAD
 	/**
 	 * Will test the topN_ClusterGroupsToTest by swapping the centroid (target) values into the document to anonymize's
 	 * Instance object, and testing the modified Instances against the original classifier. 
@@ -195,6 +205,20 @@ class WekaResults implements Comparable<WekaResults>{
 	
 	
 	
+=======
+	/*
+	 * need to get the cluster groups, 
+	 * find the corresponding features in Weka's attributes for the document to anonymize,
+	 * create new weka Instance objects for the each cluster group,
+	 * and replace the original feature values with the target values from each cluster group.
+	 * 
+	 * Then, we take the trained classifier, and test each of the new instances against it. 
+	 * Parse the results, and select the cluster group that returns either:
+	 * 
+	 * 		=> The lowest probability of authorship combined with the most evenly distributed  
+	 * 		probabilities of ownership for all authors.
+	 */
+>>>>>>> refs/remotes/origin/Marc_Anonymouth
 }
 
 
