@@ -182,13 +182,6 @@ public class BackendInterface {
 					}
 				}
 
-				int selectedIndex = 1;
-				int trueIndex = selectedIndex - 1;
-				Logger.logln(NAME+"Cluster Group number '"+trueIndex+"' selected: " + DriverClustersWindow.getStringRep()[selectedIndex]);
-				Logger.logln(NAME+"Cluster Group chosen by Anonymouth: "+DriverClustersWindow.getStringRep()[1]);
-				DataAnalyzer.selectedTargets = DriverClustersWindow.getIntRep()[trueIndex];
-				Logger.logln(NAME+"INTREP: "+DriverClustersWindow.getIntRep()[trueIndex]);//added this.
-				DriverDocumentsTab.wizard.setSelectedTargets();
 				DriverDocumentsTab.signalTargetsSelected(main, true);
 
 			} catch (Exception e) {
@@ -343,7 +336,7 @@ public class BackendInterface {
 			tempVal = Math.floor(tempVal*precision+.5)/precision;	
 			predictions[i] = tempVal;
 			
-			if (authors[i].equals("~* you *~")) {
+			if (authors[i].equals(ThePresident.DUMMY_NAME)) {
 				predMap.put(predictions[i], "You");
 			} else
 				predMap.put(predictions[i], authors[i]);

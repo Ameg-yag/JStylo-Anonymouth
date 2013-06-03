@@ -71,6 +71,8 @@ public class DataAnalyzer{
 	private boolean mapMakerSentenceTargetSet = false;
 	private boolean mapMakerCharTargetSet = false;
 	private HashMap<String,Double> holderForLogger = new HashMap<String,Double>();
+	private FeatureSwapper featureSwapper;
+	private static ClusterGroup bestClusterGroup;
 	
 	
 	/**
@@ -89,6 +91,14 @@ public class DataAnalyzer{
 	 */
 	public Attribute[] getAttributes(){
 		return topAttributes;
+	}
+	
+	/**
+	 * returns the bestClusterGroup that contains the target values for each feature
+	 * @return
+	 */
+	public ClusterGroup getBestClusterGroup(){
+		return bestClusterGroup;
 	}
 	
 	
@@ -228,16 +238,12 @@ public class DataAnalyzer{
 		FeatureList genName;
 		DriverDocumentsTab.attributesMappedByName = new HashMap<FeatureList,Integer>(numFeatures);
 		
-		//TODO bugfix caused ArrayIndexOutOfBounds exception
-		//			I added a check to see if numAttributes or numFeatures was smaller and to use the smaller one as the loop goal.
-		//
-		//Original loop
-		//for(i=0; i<numFeatures;i++){
-		int valToUse=0;
-		if (numFeatures<numAttributes) valToUse=numFeatures;
-		else valToUse=numAttributes;
+		int numAvailableFeatures=0;
+		if (numFeatures < numAttributes) 
+			numAvailableFeatures = numFeatures;
+		else numAvailableFeatures = numAttributes;
 		
-		for(i=0; i<valToUse;i++){
+		for(i = 0; i < numAvailableFeatures;i++){
 			String attrib = (theArffFile.attribute((int) allInfoGain[i][1]).toString());
 			//System.out.println("ATTRIBUTE: "+attrib);
 			strippedAttrib = AttributeStripper.strip(attrib);	
@@ -287,6 +293,7 @@ public class DataAnalyzer{
 			else
 				calcHist = true;
 			topAttribs[j] = new Attribute((int)allInfoGain[i][1],attrib,stringInBraces,calcHist);
+			//ThePresident.read("Index: "+allInfoGain[i][1]+", topAttribs index: "+j+" toModifyIndex: "+toModifyIndex);
 			topAttribs[j].setInfoGain(allInfoGain[j][0]);
 			topAttribs[j].setToModifyValue(toModifyInstancesArray[0][toModifyIndex]);
 			genName = topAttribs[j].getGenericName();
@@ -461,7 +468,7 @@ public class DataAnalyzer{
 	 * it simply analyzes the existing ones. 
 	 * @param maxClusters the maximum number of clusters out of all of the features
 	 */
-	public void runClusterAnalysis(int maxClusters){
+	public void runClusterAnalysis(DocumentMagician magician, int maxClusters){
 		Logger.logln(NAME+"called runClusterAnalysis");
 		//long startTime = System.currentTimeMillis();
 		int lenTopAttribs = topAttributes.length;
@@ -472,14 +479,65 @@ public class DataAnalyzer{
 			success = numberCruncher.addFeature(topAttributes[i]);
 			//System.out.println(topAttributes[i].getConcatGenNameAndStrInBraces()+" => success?  --"+success);
 		}
+		//ThePresident.read();
 		numberCruncher.analyzeNow();
+		//ThePresident.read();
+		featureSwapper = new FeatureSwapper(ClusterAnalyzer.getClusterGroupArray(), magician) ;
+		bestClusterGroup = featureSwapper.getBestClusterGroup(-1);
+		System.out.println("The best ClusterGroup is: "+bestClusterGroup.toString());
+		ThePresident.read("Great Success!");
+		DriverClustersWindow.bestClusterGroup = bestClusterGroup;
+		// todo call featureswapper with numberCruncher.someClusters
 		//long endTime = System.currentTimeMillis();
 		//System.out.println("Time elapsed while using ClusterAnalyzer: "+(endTime-startTime));
 		Logger.logln(NAME+"calling makeViewer");
 		DriverClustersWindow.makePanels(topAttributes);
 		//ClusterViewerFrame.startClusterViewer();
 		Logger.logln(NAME+"viewer made");
+		setSelectedTargets();
 	}
+	
+	
+	public void setSelectedTargets(){
+		Logger.logln(NAME+"called setSelectedTargets after cluster group selection.");
+		int i=0;
+		int clusterNumber;
+		Cluster tempCluster;
+		double target;
+		mapMakerSentenceTargetSet = false;
+		mapMakerCharTargetSet = false;
+		String targetSaver = "                  ~~~~~~~ Targets ~~~~~~~\n";
+		int targetsSaved = 0;
+		
+		int[] clusterNumbers = bestClusterGroup.getGroupKey().toIntArray();
+		double[] centroidTest = new double[lengthTopAttributes];
+		for(i=0;i<lengthTopAttributes;i++){
+			clusterNumber = clusterNumbers[i]-1; // From ClusterAnalyzer, all cluster numbers are "1" greater than their indices (to ease computation)
+			tempCluster = topAttributes[i].getOrderedClusters()[clusterNumber];
+			target = tempCluster.getCentroid();
+			centroidTest[i] = target;
+			targetSaver += "Attribute: "+topAttributes[i].getFullName()+"  ==> targetValue: "+target+"\n";
+			topAttributes[i].setTargetCentroid(target);
+			topAttributes[i].setTargetValue(target);
+			topAttributes[i].setRangeForTarget(tempCluster.getMinValue(),tempCluster.getMaxValue()); // maybe this should be changed to avg. avs. dev.
+		}
+		/*
+		System.out.println(targetSaver);
+		boolean mustSaveTargets = false;
+		if(mustSaveTargets == true){
+			while(targetsSaved != 1){
+				targetsSaved = saveTargets(targetSaver);
+				if(targetsSaved == -1){
+					Logger.logln(NAME+"Something went wrong with saving targets to file. System exiting with code: 456");
+					System.exit(456);
+				}
+			}
+			Logger.logln(NAME+"Targets saved to file.");
+		}
+		Logger.logln(NAME+"Targets set.");
+		*/
+	}
+	
 	
 	
 	/**
@@ -501,14 +559,14 @@ public class DataAnalyzer{
 	*/	
 		List<Document> tempTestDocs = pSet.getTestDocs();
 		for (Document d:tempTestDocs){
-			d.setAuthor(DocumentMagician.dummyName);
+			d.setAuthor(ThePresident.DUMMY_NAME);
 			//pSet.removeTestDoc(d);
 			//pSet.addTestDoc(SentenceTools.removeUnicodeControlChars(d));
 		}
 		magician.initialDocToData(pSet,cfd, classifier);
 		runGeneric(magician);
 		int maxClusters =runAllTopFeatures();
-		runClusterAnalysis(maxClusters);
+		runClusterAnalysis(magician, maxClusters);
 		Logger.logln(NAME+"Initial has been run.");
 		
 	}
@@ -564,42 +622,7 @@ public class DataAnalyzer{
 	}
 	
 	
-	public void setSelectedTargets(){
-		Logger.logln(NAME+"called setSelectedTargets after cluster group selection.");
-		int i=0;
-		int clusterNumberPlusOne;
-		int clusterNumber;
-		Cluster tempCluster;
-		double target;
-		mapMakerSentenceTargetSet = false;
-		mapMakerCharTargetSet = false;
-		String targetSaver = "                  ~~~~~~~ Targets ~~~~~~~\n";
-		int targetsSaved = 0;
-
-		for(i=0;i<lengthTopAttributes;i++){
-			clusterNumberPlusOne = selectedTargets[i];
-			clusterNumber = clusterNumberPlusOne-1;
-			tempCluster = topAttributes[i].getOrderedClusters()[clusterNumber];
-			target = tempCluster.getCentroid();
-			targetSaver += "Attribute: "+topAttributes[i].getFullName()+"  ==> targetValue: "+target+"\n";
-			topAttributes[i].setTargetCentroid(target);
-			topAttributes[i].setTargetValue(target);
-			topAttributes[i].setRangeForTarget(tempCluster.getMinValue(),tempCluster.getMaxValue()); // maybe this should be changed to avg. avs. dev.
-		}
-		System.out.println(targetSaver);
-		boolean mustSaveTargets = false;
-		if(mustSaveTargets == true){
-			while(targetsSaved != 1){
-				targetsSaved = saveTargets(targetSaver);
-				if(targetsSaved == -1){
-					Logger.logln(NAME+"Something went wrong with saving targets to file. System exiting with code: 456");
-					System.exit(456);
-				}
-			}
-			Logger.logln(NAME+"Targets saved to file.");
-		}
-		Logger.logln(NAME+"Targets set.");
-	}
+	
 	
 	public int saveTargets(String theTargets){
 		Logger.logln(NAME+"About to save target string...");

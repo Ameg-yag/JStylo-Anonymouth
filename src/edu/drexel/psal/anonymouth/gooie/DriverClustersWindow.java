@@ -13,6 +13,7 @@ import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.Cluster;
 import edu.drexel.psal.anonymouth.engine.ClusterAnalyzer;
 import edu.drexel.psal.anonymouth.engine.ClusterGroup;
+import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 public class DriverClustersWindow {
@@ -23,8 +24,7 @@ public class DriverClustersWindow {
 
 	private static int lenJPanels;
 	public static boolean clusterGroupReady = false;
-	private static ClusterGroup[] clusterGroupRay;
-	private static int lenCGR;
+	public static ClusterGroup bestClusterGroup;
 	private static int[][] intRepresentation;
 	private static String[] stringRepresentation;
 	protected static JPanel[] finalPanels;
@@ -71,8 +71,7 @@ public class DriverClustersWindow {
 		Logger.logln("Cluster group array retrieved from ClusterAnalyzer and brought to ClusterViewerDriver");
 		if(clusterGroupReady)
 		{
-			clusterGroupRay = ClusterAnalyzer.getClusterGroupArray();
-			lenCGR = clusterGroupRay.length;
+			bestClusterGroup = DataAnalyzer.getBestClusterGroup();
 			return true;
 		}
 		else

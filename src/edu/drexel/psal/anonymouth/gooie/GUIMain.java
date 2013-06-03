@@ -509,7 +509,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	}
 
 	private void initData() {
-		ProblemSet.setDummyAuthor("~* you *~");
+		ProblemSet.setDummyAuthor(ThePresident.DUMMY_NAME);
 		ps = new ProblemSet();
 		ps.setTrainCorpusName(defaultTrainDocsTreeName);
 		cfd = new CumulativeFeatureDriver();

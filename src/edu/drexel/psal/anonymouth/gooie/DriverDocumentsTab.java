@@ -379,7 +379,6 @@ public class DriverDocumentsTab {
 								// - if an EOS character was deleted inside of quotation marks, we don't want to delete anything.
 								// - if an EOS character was deleted from a sentence that ends with "?!", we want to wait until the remove both EOS characters (and other similar situations)
 							
-							
 							// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
 							int[][] activatedSentenceInfo = calculateIndicesOfSentences(currentCaretPosition, caretPositionPriorToCharRemoval);
 							int i;

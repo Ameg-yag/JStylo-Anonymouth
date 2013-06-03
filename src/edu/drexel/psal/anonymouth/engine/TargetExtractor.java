@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
 
+import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.utils.Pair;
 import edu.drexel.psal.jstylo.generics.Logger;
 
@@ -30,17 +31,18 @@ public class TargetExtractor {
 	private double max;
 	private double spread;
 	private int numPartitions; // same as number of clusters (1 partition == 1 cluster)
+	private int originalNumMeans;
 	private boolean isFinished;
-	private double avgAbsDev;
+	//private double avgAbsDev;
 	private double authorAvg;
 	private double authorStdDev;
 	private double authorMin;
 	private double authorMax;
-	private Cluster targetCluster;
+	//private Cluster targetCluster;
 	private boolean targetSet=false;
-	private double targetValue;
+	//private double targetValue;
 	private double presentValue;
-	private double targetCent;
+	//private double targetCent;
 	private double targetDev;
 	ArrayList<Cluster> thisFeaturesClusters; 
 	private ArrayList<String> trainTitlesList;
@@ -58,7 +60,7 @@ public class TargetExtractor {
 		//Logger.logln(NAME+"In TargetExtractor extracting targets for "+featName);
 		this.trainTitlesList = DocumentMagician.getTrainTitlesList();
 		this.numAuthors = numAuthors;
-		this.numMeans = numAuthors;
+		this.numMeans = numAuthors-2;// todo maybe remove this. (xxx xxx xxx try n-2, n-3, n-1, n, etc xxx xxx xxx)
 		double[] thisFeature = attrib.getTrainVals();
 		int lenThisFeature = thisFeature.length;
 		int i=0;
@@ -86,7 +88,6 @@ public class TargetExtractor {
 	
 	/**
 	 * Implementation of k-means++ initialization (seeding) algorithm for k-means
-	 * @param thisFeature
 	 */
 	public void kPlusPlusPrep(){//double[] thisFeature){ // parameter just for testing
 		previousInitialization = new ArrayList<Integer>();
@@ -111,7 +112,7 @@ public class TargetExtractor {
 		boolean notFound = true;
 		boolean tooManyTries = false;
 		Set<Double> skipSet = new HashSet<Double>();
-		int numOfLoops = 0;
+		int numLoops = 0;
 		
 		for(i=0;i<numMeans-1;i++){
 			for(j=0;j<numFeatures;j++){
@@ -127,11 +128,11 @@ public class TargetExtractor {
 			}
 			dSquaredRaySum = 0;
 			for(k=0;k<numFeatures;k++)
-				dSquaredRaySum=dSquaredRaySum+dSquaredRay[k];
-			if(dSquaredRaySum== 0){ 
+				dSquaredRaySum += dSquaredRay[k];
+			if(dSquaredRaySum== 0){// this will occur if we have multiple duplicate values. In that case, we can't choose more centroids because the remaining data points are equal.
 				maxCentroidsFound = true; 
-				numMeans = i+1; // add one because it starts counting from '0', and even if every document has the same value for this feature, there 
-				// will still be one centroid (if ALL values are the same, this will break out of the loop at i==0)
+				numMeans = i+1; // need to add one because it starts counting from '0', and even if every document has the same value for this feature, there 
+				// will still be one centroid chosen because we randomly select the first one before the loop (if ALL values are the same, this will break out of the loop at i==0, and we'll have a single centroid, so, we need to account for it in numMeans)
 				break;
 			}
 			for(k=0;k<numFeatures;k++)
@@ -143,8 +144,8 @@ public class TargetExtractor {
 			ArrayList<Double> badRandomsTesting = new ArrayList<Double>();
 			double thisProb = 0;
 			while(notFound == true){
-				numOfLoops += 1;
-//				System.out.println("LOOPING: " + numOfLoops);
+				numLoops += 1;
+//				System.out.println("LOOPING: " + numLoops);
 				randomChoice = mtfGen.nextDouble(true,true);
 				thisProb = 0;
 				for(k=0;k<numFeatures;k++){
@@ -158,7 +159,7 @@ public class TargetExtractor {
 					}
 				}
 				if(notFound == true){	
-					if(skipSet.size() > 10000 || numOfLoops > 1000){
+					if(skipSet.size() > 10000 || numLoops > 1000){
 						Logger.logln(NAME+"kPlusPlusPrep reached 10k tries.");
 						tooManyTries = true;
 						break;
@@ -213,16 +214,7 @@ public class TargetExtractor {
 		int partitionToGoTo;
 		
 		numPartitions = numMeans;
-		/*
-		double interval = spread/numPartitions; // one mean at each interval, begin with 'numAuthors-2' intervals... will be changed as needed.
-		double currentCentroid = min+interval/2;
-		// create clusters and initialize centroids
-		for(i=0; i<numPartitions;i++){
-			//System.out.println("The centroid for partition: "+i+" is: "+currentCentroid);
-			thisFeaturesClusters.add(i,new Cluster(currentCentroid));
-			currentCentroid += interval;
 			
-		}*/	
 		// create list of all centroids
 		double[] allCentroids = getAllCentroids();
 	
@@ -278,23 +270,12 @@ public class TargetExtractor {
 				//System.out.print("  "+temp+"  ");
 				count += 1;
 			}
-			//if (count > 2){
+			if (count == 0)
+				avg = -1; // don't divide by zero. just set avg to -1 and deal with it later.
+			else
 				avg = sum/count;
-				thisFeaturesClusters.get(i).updateCentroid(avg);
-			//}
-			//else{
-			//	numMeans--;
-			//	System.out.println("numMeans: "+numMeans);
-			//	if(numMeans < 2){
-			//		additionalPartitions++;
-			//		numMeans = numAuthors+additionalPartitions;
-			//		Scanner in = new Scanner(System.in);
-			//		in.next();
-			//	}
-			//	thisFeaturesClusters.clear();
-				
-			//	initialize();
-			//}
+			thisFeaturesClusters.get(i).updateCentroid(avg);
+			
 		}
 		// Once all centroids have been updated, re-organize
 		//Logger.logln(NAME+"Updating centroids complete, will reOrganize");
@@ -361,7 +342,7 @@ public class TargetExtractor {
 			int numClusters = thisFeaturesClusters.size();
 			if(numClusters < 2 && maxCentroidsFound == false){
 				additionalPartitions++;
-				numMeans = numAuthors+additionalPartitions;
+				numMeans = originalNumMeans+additionalPartitions;
 				//Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
 				//while(clusterIter.hasNext())
 					//System.out.println(clusterIter.next().getElements().toString());
@@ -433,26 +414,33 @@ public class TargetExtractor {
 		//System.out.println("Clusters Initialized");
 		//System.out.println("Algorithm running....");
 		double avgAbsDev;
-		ArrayList<String> holderForLogger = new ArrayList<String>();
-		if(isFinished == true){
-			Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
-			int clusterNumber = 0;
-			Logger.logln(NAME+featName+" has: "+thisFeaturesClusters.size()+" clusters.");
-			while(clusterIter.hasNext()){
-				Cluster thisOne = clusterIter.next();
-				holderForLogger.clear();
-				Logger.logln(NAME+"Cluster "+clusterNumber+" has its centroid at"+thisOne.getCentroid()+" and has "+thisOne.getElements().length+" elements. They are: ");
-				Pair[] somePairs = thisOne.getElements();
-				int numSomePairs = somePairs.length;
-				int i = 0;
-				for(i=0;i<numSomePairs;i++){
-					holderForLogger.add(somePairs[i].pairToString()+" , ");
-				}
-				Logger.logln(NAME+holderForLogger.toString());
-				clusterNumber+=1;
+		Cluster thisOne;
+		int numRemoved = 0;
+		int i;
+		for(i = 0; i< numMeans; i++){
+			thisOne = thisFeaturesClusters.get(i);
+			if ((thisOne.getElements().length == 0) && (thisOne.getCentroid() == -1)){ // this may be redundant.. we can probably just pick one (I'd keep the first one)
+				thisFeaturesClusters.remove(thisOne); // no reason keeping empty clusters around
+				numMeans--; // if we remove a cluster, we need to reduce the number of means, AND we need to decrement 'i' so that we don't miss the cluster that moves forward into the place of the cluster that was just deleted.
+				i--;
 			}
 		}
-		Logger.logln(NAME+"leaving aMeansCluster");
+		ArrayList<String> holderForLogger = new ArrayList<String>(10);
+		Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
+		int clusterNumber = 0;
+		Logger.logln(NAME+"Clusters for:  "+featName);
+		while(clusterIter.hasNext()){
+			thisOne = clusterIter.next();
+			holderForLogger.clear();
+			Pair[] somePairs = thisOne.getElements();
+			int numSomePairs = somePairs.length;
+			for(i=0;i<numSomePairs;i++){
+				holderForLogger.add(somePairs[i].toString());
+			}
+			Logger.logln(NAME+"Cluster "+clusterNumber+" has its centroid at "+thisOne.getCentroid()+" and has "+thisOne.getElements().length+" elements. They are: "+holderForLogger.toString());
+			clusterNumber+=1;
+		}
+		Logger.logln(NAME+featName+" has: "+thisFeaturesClusters.size()+" clusters... leaving aMeansCluster");
 	}	
 	
 	/**
@@ -504,7 +492,7 @@ public class TargetExtractor {
 		distAvg = distSum/numClusters;
 		
 		for(i = 0; i < numClusters; i++){
-			preferences[i][0] =(Double)(double) i;
+			preferences[i][0] =(Double)(double)i;
 			preferences[i][1] = (dists[i])*(sizes[i]/sizeAvg); //  ( distance)*(cluster size/ average cluster size)
 			
 		}
@@ -518,180 +506,13 @@ public class TargetExtractor {
 		Cluster[] targets = new Cluster[numClusters]; // can't be more than this. 
 		i= 0;
 		for(i=0;i<numClusters;i++){
-				targets[i]= thisFeaturesClusters.get(preferences[i][0].intValue());
-				//System.out.println(targets[i]);
-			}	
+			//System.out.println("preference value: "+preferences[i][1]);
+			targets[i]= thisFeaturesClusters.get(preferences[i][0].intValue());
+			//System.out.println(targets[i]);
+		}	
 		Logger.logln(NAME+"finished ordering clusters");
 		return targets;
 	}
 		
-		
-	/**
-	 * @deprecated 
-	 * orders the clusters by the linear distance of the average absolute value of the elements +/- the centroid's value (average), and returns an ArrayList of 'Clusters' such that
-	 * the first Cluster in the ArrayList is the farthest away from the auhtor's values, and the last is the closest. The Clusters are filtered prior to sorting, and any clusters that have 
-	 * less than (avg - avg. abs. dev) number of elements are not considered.
-	 * @return
-	 * 	returns ArrayList of Clusters (containing Pair objects) ordered from greatest distance from author's values => least distance, with Clusters determined obscure or useless ignored.
-	 */
-	public Cluster[] orderClustersByDistFromAuthor(){
-		// 1) find author's avg. and std. dev for feature in question
-		// 2) find avg. and avg. abs. dev for each cluster
-		// 3) order clusters such that the first cluster's average (centroid) +/- avg. abs. dev. is the farthest from the author's values, and the last is the closest - done after
-		// filtering out clusters with few values ( less than avg - avg. abs. dev number of elements)
-		int i=0;
-		double sum = 0;
-		double avgElementsPerCluster;
-		double clusterAvgAbsDev;
-		int minElements;
-		double	tempClustCent;
-		double tempClustDev;
-		double clustMin;
-		double clustMax;
-		int numClusters = thisFeaturesClusters.size();
-		double[][] mu = new double[numClusters][2]; // mu[clusterNumber][0] <=> coefficient of StdDev for minimums, mu[clusterNumber][1] <=> coefficient of StdDev for maximums ... both values must be greater than 2
-		int[] sizes = new int[numClusters];
-		Double[][] potentialTargets = new Double[numClusters][3]; // potentialTarget[i][0] <=> cluster number , potentialTarget[i][1] <=> mu[cluster][0] (min), potentialTarget[i][2] <=> mu[cluster][1] (max)
-		
-		// collect sizes of all clusters
-		for(i=0;i<numClusters;i++){
-			sizes[i] = thisFeaturesClusters.get(i).getElements().length;
-			sum += sizes[i]; 
-		}
-	
-		// find average cluster size
-		avgElementsPerCluster = sum/(sizes.length);
-		sum=0;
-		
-		// find cluster size average absolute deviation
-		for(i=0;i<sizes.length;i++)
-			sum+=Math.abs(sizes[i]-avgElementsPerCluster);
-		clusterAvgAbsDev = sum/(sizes.length);
-		
-		// find minimum number of elements allowed in the target cluster
-		minElements =(int) Math.ceil(avgElementsPerCluster-clusterAvgAbsDev);
-		
-		// calculate author min and max
-		authorMin = authorAvg-authorStdDev;
-		authorMax = authorAvg+authorStdDev;
-	
-		
-		// iterate through all clusters, if the cluster has less than the minimum number of elements, disregard it. Otherwise, save it, and calculate distance from 
-		for(i=0; i<numClusters;i++){
-
-			Cluster tempCluster = thisFeaturesClusters.get(i); 
-			
-			if (tempCluster.getElements().length < minElements){ // maybe this isn't a good idea? It seems like it is, because it deals with potentially outlying clusters. 
-				continue; // disregard cluster - we dont think we like it.
-			}
-			tempClustCent = tempCluster.getCentroid();
-			tempClustDev =tempCluster.avgAbsDev();
-			clustMin = tempClustCent - tempClustDev;
-			clustMax = tempClustCent + tempClustDev;
-			
-		// for min: the min of the new cluster must either be mu*authorStdDev greater than author's average, or mu*authorStdDev less than authors min
-																	// AND
-		// for max: the max of the new cluster must either be mu*authorStdDev greater than author's max, or mu*authorStdDev less than author's average
-			// picture (example of one possible senario:
-			//  authMin->\/ authAvg \/<-authMax 
-			// 0---------<----|---->-<------|------>------100
-			//                        targetMin->^   targetAvg     ^<-targetMax
-			
-			
-			// {authorMin,authorMax} + (mu*authorStdDev) = {clustMin,clustMax}  => mu = ({clustMin,clustMax}-{authMin,authMax})/authorStdDev => abs(mu) must be greater than 2.00
-			// negative mu indicates cluster contains values less than authors values, and vice-versa
-			mu[i][0] = (clustMin-authorMin)/authorStdDev;
-			mu[i][1] = (clustMax-authorMax)/authorStdDev;
-				
-		}
-		
-		if(Math.abs(mu[0][0]) > 2 && Math.abs(mu[0][1]) > 2){
-				potentialTargets[0][0]=0.0;
-				potentialTargets[0][1]=mu[0][0];
-				potentialTargets[0][2]=mu[0][1];
-		}
-		else{
-				potentialTargets[0][0]=0.0;
-				potentialTargets[0][1]=0.0;
-				potentialTargets[0][2]=0.0;
-		}
-		for(i=1;i<numClusters;i++){
-			double muZero = mu[i][0];
-			double muOne = mu[i][1];
-			if(Math.abs(muZero) > 2 && Math.abs(muOne) > 2){
-					potentialTargets[i][0]=(Double)(double)i;
-					potentialTargets[i][1]=muZero;
-					potentialTargets[i][2]=muOne;
-			}
-			else{
-					potentialTargets[i][0]=(Double) (double)i;
-					potentialTargets[i][1]=0.0;
-					potentialTargets[i][2]=0.0;
-			}
-		}
-		
-		Arrays.sort(potentialTargets, new Comparator<Double[]>(){
-			public int compare(Double[] ptOne, Double[] ptTwo){
-				Double dOne = ptOne[1]*ptOne[2];
-				Double dTwo = ptTwo[1]*ptTwo[2];
-				return -1*dOne.compareTo(dTwo);
-			}
-		});	
-		
-		boolean foundEndOrNull = false;
-		Cluster[] targets = new Cluster[numClusters]; // can't be more than this. 
-		i= 0;
-		while(foundEndOrNull == false && i <potentialTargets.length){ //XXX fixed?
-			if ((potentialTargets[i][1] == 0.0) || (potentialTargets[i][2] == 0.0)){
-					foundEndOrNull = true; // the rest (if any) will be null, because the array was just ordered from greatest -> least
-					System.out.println("found zero, i == "+i);
-			}
-			else{
-				targets[i]= thisFeaturesClusters.get(potentialTargets[i][0].intValue());
-				System.out.println(targets[i]);
-				i++;
-			}	
-			
-		}
-		int j=0;
-		Cluster[] sizedClusterRay = new Cluster[i];
-		for(j = 0;j<i;j++){
-			System.out.println(targets[j]);
-			sizedClusterRay[j] = targets[j];
-		}
-		//Scanner in = new Scanner(System.in);
-		//in.next();
-		return sizedClusterRay;
-	}
-	
-/*
-	public static void main(String[] args){
-		TargetExtractor te = new TargetExtractor();
-		double[] testRay = {1,2,3,5,77,79,101,1300};
-		double[] sortedRay = testRay.clone();
-		Arrays.sort(sortedRay);
-		int i=0;
-		for(i=0;i<sortedRay.length;i++)
-			System.out.print(sortedRay[i]+", ");
-		System.out.println();
-		te.numMeans = 3;
-		te.kPlusPlusPrep(testRay);
-		Iterator<Cluster> clusterIter = te.thisFeaturesClusters.iterator();
-		int index = 0;
-		while(clusterIter.hasNext()){
-			Cluster clust = clusterIter.next();
-			index++;
-			System.out.println("Centroid Number '"+index+"' is: "+clust.getCentroid());
-		}
-		
-		TargetExtractor.testPair("a", 5.65);
-		
-	}
-	
-	public static void testPair(String str, double dub){
-		Pair p = new Pair(str,dub);
-		System.out.println("name: "+p.doc+" and value: "+p.value);
-	}
-	*/	
 }
 

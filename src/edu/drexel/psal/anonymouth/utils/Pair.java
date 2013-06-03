@@ -28,7 +28,7 @@ public class Pair {
 	 * @return
 	 * 	string representing contents of Pair
 	 */
-	public String pairToString(){
+	public String toString(){
 		return "["+doc+" , "+value+"]";
 	}
 }

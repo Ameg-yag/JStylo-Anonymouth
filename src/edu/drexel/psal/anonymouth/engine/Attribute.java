@@ -13,7 +13,8 @@ import edu.drexel.psal.jstylo.generics.Logger;
 public class Attribute {
 	
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
-	private int indexNumber;
+	private int indexNumberInInstancesObject;
+	private int featuresOriginalInstancesIndexNumber;
 	private FeatureList genericName;
 	private String concatGenNameAndStrInBraces;
 	private String fullName;
@@ -50,12 +51,12 @@ public class Attribute {
 	
 	/**
 	 * Constructor for Attribute class.
-	 * @param indexNumber the attributes index number (this may not be used anymore, though it is still being set)
+	 * @param indexNumberInAttributeArray the attributes index number (this may not be used anymore, though it is still being set)
 	 * @param fullName the full attribute name taken directly from the Instances object (@attribute...)
 	 * @param calcHist boolean, true if histogram was calculated (in full name, {-} will be replaced by a string if this is true / should be set as true)
 	 */
-	public Attribute(int indexNumber, String fullName, String stringInBraces, boolean calcHist){
-		this.indexNumber = indexNumber;
+	public Attribute(int indexNumberInInstancesObject, String fullName, String stringInBraces, boolean calcHist){
+		this.indexNumberInInstancesObject = indexNumberInInstancesObject;
 		this.fullName = fullName;
 		this.stringInBraces = stringInBraces;
 		this.calcHist = calcHist;
@@ -67,6 +68,10 @@ public class Attribute {
 
 		Logger.logln(NAME+"Attribute created for feature: "+fullName);
 		setGenericName();
+	}
+	
+	public void setFeaturesOriginalInstancesIndexNumber(int featuresOriginalInstancesIndexNumber){
+		this.featuresOriginalInstancesIndexNumber = featuresOriginalInstancesIndexNumber;
 	}
 	
 	/**
@@ -92,13 +97,24 @@ public class Attribute {
 		
 	}
 	
+		
 	/**
-	 * returns the index number
+	 * returns the index number of the feature represented by this attribute in the original Instance from the documentToAnonymize's features
 	 * @return
 	 * 	the index number
 	 */
-	public int getIndexNumber(){
-		return indexNumber;
+	public int getFeaturesOriginalInstancesIndexNumber(){
+		return featuresOriginalInstancesIndexNumber;
+	}
+	
+	
+	/**
+	 * returns the index number of this attribute in the Attribute array it is being held in
+	 * @return
+	 * 	the index number
+	 */
+	public int getIndexNumberInInstancesObject(){
+		return indexNumberInInstancesObject;
 	}
 	
 	/**

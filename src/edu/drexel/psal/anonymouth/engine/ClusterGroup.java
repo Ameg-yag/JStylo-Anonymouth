@@ -3,7 +3,7 @@ package edu.drexel.psal.anonymouth.engine;
 import edu.drexel.psal.anonymouth.utils.SmartIntegerArray;
 
 /**
- * holds a group of clusters pertaining to one or more documents, and facilitates operations on it
+ * holds a group of clusters pertaining to one or more documents, and facilitates operations on it.
  * @author Andrew W.E. McDonald
  *
  */
@@ -20,16 +20,20 @@ public class ClusterGroup implements Comparable<ClusterGroup>{
 	 * @param groupKey the key containing cluster preference numbers by feature for this group of clusters
 	 * @param preferenceValue the calculated value that identifies this clusterGroup's desirability as being the user's set of targets
 	 */
-	public ClusterGroup(SmartIntegerArray groupKey, double preferenceValue){
+	public ClusterGroup(SmartIntegerArray groupKey, double preferenceValue, double[] centroids){
 		this.groupKey=groupKey;
 		this.preferenceValue = preferenceValue;
+		this.centroids = centroids;
 	}
 	
 	/**
 	 * returns a string representation of this object, in the form of: 'groupKey' - {'preferenceValue}
 	 */
 	public String toString(){
-		return groupKey.toString()+" - {"+preferenceValue+"}";
+		String centroids = "[ ";
+		for(int i = 0; i < this.centroids.length; i++)
+			centroids += this.centroids[i]+", ";
+		return groupKey.toString()+" - {"+preferenceValue+"} "+centroids;
 	}
 	
 	/**
@@ -55,6 +59,14 @@ public class ClusterGroup implements Comparable<ClusterGroup>{
 	 */
 	public SmartIntegerArray getGroupKey(){
 		return groupKey;
+	}
+	
+	/**
+	 * returns the array of centroids for this cluster group
+	 * @return
+	 */
+	public double[] getCentroids(){
+		return centroids;
 	}
 
 }
