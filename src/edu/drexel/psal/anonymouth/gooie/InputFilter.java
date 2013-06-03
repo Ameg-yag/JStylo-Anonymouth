@@ -28,6 +28,7 @@ public class InputFilter extends DocumentFilter{
 	private Boolean watchForEOS = false; //Lets us know if the previous character(s) were EOS characters.
 	public static Boolean isEOS = false; //keeps track of whether or not the current character is an EOS character.
 	public static Boolean ignoreTranslation = false;
+	private Boolean addingAbbreviation = false;
 	private String[] notEndsOfSentence = {"U.S.","R.N.","M.D.","i.e.","e.x.","e.g.","D.C.","B.C.","B.S.","Ph.D.","B.A.","A.B.","A.D.","A.M.","P.M.","r.b.i.","V.P."}; //we only need to worry about these kinds of abbreviations since SentenceTools takes care of the others
 	
 	/**
@@ -55,12 +56,15 @@ public class InputFilter extends DocumentFilter{
 	private void checkAddingEllipses(String text) {
 		isEOS = EOS.contains(text); //Checks to see if the character is an EOS character.
 
-		if (isEOS) {
+		if (isEOS && !addingAbbreviation) {
 			watchForEOS = true;
 			//For whatever reason, startSelection must be subtracted by 1, and refuses to work otherwise.
 			DriverDocumentsTab.taggedDoc.specialCharTracker.addEOS(text.charAt(0), DriverDocumentsTab.startSelection-1, false);
 		} else if (!isEOS && !watchForEOS) { //If the user isn't typing an EOS character and they weren't typing one previously, then it's just a normal character, update.
 			DriverDocumentsTab.shouldUpdate = true;
+		} else if (isEOS && addingAbbreviation) {
+			DriverDocumentsTab.shouldUpdate = true;
+			addingAbbreviation = false;
 		}
 
 		//if the user previously entered an EOS character and the new character is not an EOS character, then we should update
@@ -86,8 +90,10 @@ public class InputFilter extends DocumentFilter{
 		String textBeforePeriod = GUIMain.inst.getDocumentPane().getText().substring(DriverDocumentsTab.startSelection-2, DriverDocumentsTab.startSelection);
 		if (textBeforePeriod.substring(1, 2).equals(".") && !EOS.contains(text)) {			
 			for (int i = 0; i < notEndsOfSentence.length; i++) {
-				if (notEndsOfSentence[i].contains(textBeforePeriod))
+				if (notEndsOfSentence[i].contains(textBeforePeriod)) {
 					DriverDocumentsTab.shouldUpdate = false;
+					addingAbbreviation = true;
+				}
 			}
 		}
 	}

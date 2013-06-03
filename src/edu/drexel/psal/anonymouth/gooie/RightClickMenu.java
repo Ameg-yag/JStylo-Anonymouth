@@ -123,7 +123,8 @@ public class RightClickMenu extends JPopupMenu {
 
 				//We want to make sure we're setting the caret at the actual start of the sentence and not in white space (so it gets highlighted)
 				int space = 0;
-				while (main.getDocumentPane().getText().charAt(selectedSentInfo[1] + space)  == ' ') {
+				String text = main.getDocumentPane().getText();
+				while (text.charAt(selectedSentInfo[1] + space)  == ' ' || text.charAt(selectedSentInfo[1] + space) == '\n') {
 					space++;
 				}
 				
@@ -177,6 +178,8 @@ public class RightClickMenu extends JPopupMenu {
  *
  */
 class PopupListener extends MouseAdapter {
+	
+	private final String EOS = ".!?";
 	private JPopupMenu popup;
 	private GUIMain main;
 	private SentenceTools sentenceTools;
@@ -220,16 +223,24 @@ class PopupListener extends MouseAdapter {
 			mark = main.getDocumentPane().getCaret().getMark();
 			int dot = main.getDocumentPane().getCaret().getDot();
 			
-			System.out.println(dot + " " + mark);
 			if (dot == mark) {
 				rightClickMenu.enableCombineSentences(false);
 				rightClickMenu.setEnabled(false, false, true);
 			} else {
-				String text = main.getDocumentPane().getText().substring(mark, dot);
+				String text = main.getDocumentPane().getText();
+				
+				int padding = 0;
+				int length = text.length();
+				while (!EOS.contains(text.substring(dot-1+padding, dot+padding))) {
+					padding++;
+					
+					if (dot+padding >= length)
+						break;
+				}
+				
+				text = text.substring(mark, dot+padding);
 				rightClickMenu.sentences = sentenceTools.makeSentenceTokens(text);
 				
-				System.out.println("\"" + text + "\"");
-				System.out.println(rightClickMenu.sentences.size());
 				if (rightClickMenu.sentences.size() > 1)
 					rightClickMenu.enableCombineSentences(true);
 				else

@@ -194,7 +194,9 @@ public class DriverDocumentsTab {
 		main.fileSaveAsTestDocMenuItem.setEnabled(b);
 		main.viewClustersMenuItem.setEnabled(b);
 		main.elementsToAddPane.setEnabled(b);
+		main.elementsToAddPane.setFocusable(b);
 		main.elementsToRemovePane.setEnabled(b);
+		main.elementsToRemovePane.setFocusable(b);
 		main.getDocumentPane().setEnabled(b);
 		main.getDocumentPane().setEditable(b);
 		
@@ -613,7 +615,8 @@ public class DriverDocumentsTab {
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 					}
 
-					if (shouldUpdate) {		
+					if (shouldUpdate) {
+						System.out.println("UPDATE");
 						shouldUpdate = false;
 						GUIMain.saved = false;
 						removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);

@@ -150,12 +150,6 @@ public class DriverTranslationsTab implements ActionListener {
 		main.translationsHolderPanel.add(main.notTranslated, "");
 		main.translationsHolderPanel.revalidate();
 		main.translationsHolderPanel.repaint();
-//		
-//		int[] selectionInfo = DriverDocumentsTab.calculateIndicesOfSentences(DriverDocumentsTab.currentCaretPosition)[0];
-//		DriverDocumentsTab.currentSentNum = selectionInfo[0];
-//		DriverDocumentsTab.selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
-//		DriverDocumentsTab.selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
-//		DriverDocumentsTab.moveHighlight(main,DriverDocumentsTab.selectedSentIndexRange);
 		
 		main.versionControl.setMostRecentState(DriverDocumentsTab.taggedDoc);
 	}
