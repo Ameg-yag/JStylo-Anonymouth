@@ -249,12 +249,8 @@ public class WekaInstancesBuilder {
 		Logger.logln("Using N calc threads: "+numCalcThreadsToUse);
 		int div = knownDocsSize / numCalcThreadsToUse;
 		
-		Logger.logln("old div: "+div);
-		
 		if (div%knownDocsSize!=0)
 			div++;
-		
-		Logger.logln("newDiv:"+div);
 		
 		CalcThread[] calcThreads = new CalcThread[numCalcThreadsToUse];
 		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
@@ -274,8 +270,6 @@ public class WekaInstancesBuilder {
 			calcThreads[thread] = null;
 		calcThreads = null;
 		
-		Logger.logln("known.size: "+known.size()+" realSize: "+knownDocsSize);
-
 		// apply event cullers
 		known = CumulativeEventCuller.cull(known, cfd);
 
