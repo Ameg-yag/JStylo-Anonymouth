@@ -27,7 +27,7 @@ import weka.classifiers.trees.*;
 
 public class DriverPreProcessTabClassifiers {
 	
-	private final static String NAME = "( DriverPrePRocessTabClassifiers ) - ";
+	private final static String NAME = "( DriverPreProcessTabClassifiers ) - ";
 
 
 	/* =========================
@@ -287,7 +287,6 @@ public class DriverPreProcessTabClassifiers {
 				Logger.logln(NAME+"Classifier selected in the selected classifiers list in the classifiers tab: "+className);
 
 				// show options and description
-				System.out.println("HELLLO");
 				if(className.toLowerCase().contains("smo"))
 					main.PPSP.classSelClassArgsJTextField.setText(getOptionsStr(main.classifiers.get(selected).getOptions())+" -M");
 				else

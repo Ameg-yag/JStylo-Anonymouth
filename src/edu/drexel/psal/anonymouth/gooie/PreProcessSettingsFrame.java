@@ -455,7 +455,7 @@ public class PreProcessSettingsFrame extends JDialog {
 			featMainPanel = new JPanel();
 			featMainPanel.setLayout(new MigLayout(
 					"fill, wrap 4, gap 0 0",
-					"[200!]20[left][150:40%:, fill][250:60%:, fill]",
+					"[200!]20[left][145:40%:, fill][240:60%:, fill]",
 					"[][][20!][40!][20!][20!]20[33%, fill][33%, fill][33%, fill]"));
 			{
 				JPanel featMainTopPanel = new JPanel();

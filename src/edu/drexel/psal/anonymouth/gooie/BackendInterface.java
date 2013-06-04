@@ -213,9 +213,8 @@ public class BackendInterface {
 	
 	
 	
-	protected static void postTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard){
+	protected static void postTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard) {
 		(new Thread(bei.new PostTargetSelectionProcessing(main,wizard))).start();
-		
 	}
 	
 	public class PostTargetSelectionProcessing extends GUIThread {
@@ -272,8 +271,6 @@ public class BackendInterface {
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
 
-			main.getDocumentPane().setEnabled(true);
-			main.getDocumentPane().setEditable(true);
 			main.processButton.setText("Re-Process");
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));

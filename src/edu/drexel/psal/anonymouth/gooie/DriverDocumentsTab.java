@@ -5,7 +5,6 @@ import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
-import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 import edu.drexel.psal.jstylo.generics.Logger;
@@ -52,8 +51,6 @@ public class DriverDocumentsTab {
 	
 	public final static int UNDOCHARACTERBUFFER = 5;
 	public static int currentCharacterBuffer = 0;
-	
-	protected static SentenceTools sentenceTools;
 	
 	public static boolean isUsingNineFeatures = false;
 	protected static boolean hasBeenInitialized = false;
@@ -125,7 +122,7 @@ public class DriverDocumentsTab {
 	protected static int caretPositionPriorToCharRemoval = 0;
 	protected static int caretPositionPriorToAction = 0;
 	public static Boolean firstRun = true;
-	private static int[] oldSelectionInfo = new int[3];
+	public static int[] oldSelectionInfo = new int[3];
 	protected static Map<String, int[]> wordsToRemove = new HashMap<String, int[]>();
 	
 	protected static SuggestionCalculator suggestionCalculator;
@@ -199,11 +196,7 @@ public class DriverDocumentsTab {
 		main.elementsToRemovePane.setFocusable(b);
 		main.getDocumentPane().setEnabled(b);
 		main.getDocumentPane().setEditable(b);
-		
-		if (b)
-			main.clipboard.setEnabled(false, false, true);
-		else
-			main.clipboard.setEnabled(b);
+		main.clipboard.setEnabled(b);
 	}
 	
 	/**
@@ -247,6 +240,7 @@ public class DriverDocumentsTab {
 		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 		moveHighlight(main,selectedSentIndexRange);
+		main.anonymityDrawingPanel.updateAnonymityBar();
 	}
 	
 	/**
@@ -271,6 +265,7 @@ public class DriverDocumentsTab {
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 
 		moveHighlight(main,selectedSentIndexRange);
+		main.anonymityDrawingPanel.updateAnonymityBar();
 	}
 
 	/**
@@ -331,6 +326,7 @@ public class DriverDocumentsTab {
 		// get the lengths of each of the sentences
 		int[] sentenceLengths = taggedDoc.getSentenceLengths();
 		int numSents = sentenceLengths.length;
+		System.out.println("NumSents = " + numSents);
 		int positionNumber;
 		int numPositions = positions.length;
 		int currentPosition;
@@ -425,9 +421,14 @@ public class DriverDocumentsTab {
 						 * We must subtract all the indices by 1 because the InputFilter indices refuses to work with anything other than - 1, and as such
 						 * the indices here and in TaggedDocument must be adjustest as well.
 						 */
+						//if (InputFilter.ignoreEOSRemoval) {
+							//EOSJustRemoved = false;
+							//InputFilter.ignoreEOSRemoval = false;
+						//} else
 						EOSJustRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition-1, caretPositionPriorToCharRemoval-1);
 						
 						if (EOSJustRemoved) {
+							System.out.println("Should not be called");
 							try {
 								// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
 								int[][] activatedSentenceInfo = calculateIndicesOfSentences(currentCaretPosition, caretPositionPriorToCharRemoval);
@@ -471,6 +472,7 @@ public class DriverDocumentsTab {
 							taggedDoc.specialCharTracker.shiftAllEOSChars(false, caretPositionPriorToCharRemoval, charsRemoved);
 							
 							// Then update the currentSentSelectionInfo, and fix variables
+							System.out.println("DEBUGGING: currentCaretPosition = " + currentCaretPosition);
 							currentSentSelectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
 							currentSentNum = currentSentSelectionInfo[0];
 							selectedSentIndexRange[0] = currentSentSelectionInfo[1];
@@ -527,6 +529,8 @@ public class DriverDocumentsTab {
 					//check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
 					if ( caretPositionPriorToAction >= selectedSentIndexRange[0] && caretPositionPriorToAction < selectedSentIndexRange[1]) {
 						inRange = true;
+						System.out.println("charsInserted = " + charsInserted);
+						System.out.println("charsRemoved = " + charsRemoved);
 						// Caret is inside range of presently selected sentence.
 						// update from previous caret
 						if (charsInserted > 0 ) {// && lastSentNum != -1){
@@ -577,6 +581,8 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.getDocumentPane().getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
 						
+						System.out.println("TaggedDoc = " + taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false));
+						System.out.println("currentSentenceString = " + currentSentenceString);
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
@@ -810,6 +816,7 @@ public class DriverDocumentsTab {
 					main.leftTabPane.setSelectedIndex(0);
 					// ----- confirm they want to process
 					if (true) {// ---- can be a confirm dialog to make sure they want to process.
+						setAllDocTabUseable(false, main);
 						// ----- if this is the first run, do everything that needs to be ran the first time
 						if (isFirstRun) {
 							// ----- create the main document and add it to the appropriate array list.
@@ -852,7 +859,6 @@ public class DriverDocumentsTab {
 							resetAll(main);
 						}
 
-						setAllDocTabUseable(false, main);
 						main.getDocumentPane().getHighlighter().removeAllHighlights();
 						highlightedObjects.clear();
 						highlightedObjects.clear();
@@ -860,6 +866,7 @@ public class DriverDocumentsTab {
 						Logger.logln(NAME+"calling backendInterface for preTargetSelectionProcessing");
 						
 						BackendInterface.preTargetSelectionProcessing(main,wizard,magician);
+						
 					}
 				}
 			}
@@ -907,6 +914,20 @@ public class DriverDocumentsTab {
 	 * @param main - An instance of GUIMain
 	 */
 	public static void resetAll(GUIMain main) {
+		reset();
+		GUIMain.GUITranslator.reset();	
+		DriverTranslationsTab.reset();
+		main.versionControl.reset();
+		main.anonymityDrawingPanel.reset();
+		main.resultsWindow.reset();
+		GUIUpdateInterface.updateResultsPrepColor(main);
+		main.elementsToRemove.removeAllElements();
+		main.elementsToRemove.add(0, "Re-processing, please wait");
+		main.elementsToAdd.removeAllElements();
+		main.elementsToAdd.add(0, "Re-processing, please wait");
+	}
+	
+	public static void reset() {
 		currentCaretPosition = -1;
 		startSelection = -1;
 		endSelection = -1;
@@ -933,17 +954,6 @@ public class DriverDocumentsTab {
 		caretPositionPriorToAction = 0;
 		oldSelectionInfo = new int[3];
 		wordsToRemove.clear();
-		
-		GUIMain.GUITranslator.reset();	
-		DriverTranslationsTab.reset();
-		main.versionControl.reset();
-		main.anonymityDrawingPanel.reset();
-		main.resultsWindow.reset();
-		GUIUpdateInterface.updateResultsPrepColor(main);
-		main.elementsToRemove.removeAllElements();
-		main.elementsToRemove.add(0, "Re-processing, please wait");
-		main.elementsToAdd.removeAllElements();
-		main.elementsToAdd.add(0, "Re-processing, please wait");
 	}
 	
 	public static void save(GUIMain main) {

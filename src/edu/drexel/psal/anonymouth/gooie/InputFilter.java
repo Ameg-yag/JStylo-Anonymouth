@@ -1,9 +1,12 @@
 package edu.drexel.psal.anonymouth.gooie;
 
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
+import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 /**
@@ -29,6 +32,7 @@ public class InputFilter extends DocumentFilter{
 	public static Boolean isEOS = false; //keeps track of whether or not the current character is an EOS character.
 	public static Boolean ignoreTranslation = false;
 	private Boolean addingAbbreviation = false;
+//	public static Boolean ignoreEOSRemoval = false;
 	private String[] notEndsOfSentence = {"U.S.","R.N.","M.D.","i.e.","e.x.","e.g.","D.C.","B.C.","B.S.","Ph.D.","B.A.","A.B.","A.D.","A.M.","P.M.","r.b.i.","V.P."}; //we only need to worry about these kinds of abbreviations since SentenceTools takes care of the others
 	
 	/**
@@ -114,6 +118,73 @@ public class InputFilter extends DocumentFilter{
 			 * removeReplaceAndUpdate() in DriverDocumentsTab and screw all the highlighting up. There may be a better way to do this...
 			 */
 			if (GUIMain.processed && !ignoreTranslation) {
+				/**
+				 * If the user deleted more than two whole sentences, the editor will completely break. This is in place to handle taking care of
+				 * the entra sentences in between so that this does not happen.
+				 */
+				if (TaggedDocument.jigsaw.makeSentenceTokens(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false).substring(offset, offset+length)).size() > 1) {
+					/*
+					int startSent = 0;
+					int endSent = 0;
+					
+					int temp = DriverDocumentsTab.taggedDoc.getSentenceNumAtIndex(GUIMain.inst.getDocumentPane().getCaret().getDot());
+					endSent = DriverDocumentsTab.taggedDoc.getSentenceNumAtIndex(GUIMain.inst.getDocumentPane().getCaret().getMark());
+					
+					if (temp <= endSent)
+						startSent = temp;
+					else {
+						startSent = endSent;
+						endSent = temp;
+					}
+					startSent++;
+					
+					System.out.println(startSent);
+					System.out.println(endSent);
+					
+					int[] sentNumsToRemove = new int[endSent-startSent+1];
+					
+					for (int i = startSent; i <= endSent; i++) {
+						sentNumsToRemove[i-startSent] = 0;
+					}
+					
+					System.out.println("SIZE = " + sentNumsToRemove.length);
+					for(int y = 0; y < sentNumsToRemove.length; y++) {
+						System.out.println("DEBUG: " + sentNumsToRemove[y]);
+						System.out.println("REMOVING SENT: \"" + DriverDocumentsTab.taggedDoc.getSentenceNumber(sentNumsToRemove[y]).getUntagged(false) + "\"");
+					}
+					
+					DriverDocumentsTab.taggedDoc.removeTaggedSentences(sentNumsToRemove);
+					
+					int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
+					GUIMain.inst.getDocumentPane().getCaret().setDot(0);
+					DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
+					DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
+					DriverDocumentsTab.ignoreHighlight = false;
+					DriverDocumentsTab.moveHighlight(GUIMain.inst, DriverDocumentsTab.selectedSentIndexRange);
+					
+					//DriverDocumentsTab.charsRemoved = 0;
+					//DriverDocumentsTab.firstRun = true;
+					//DriverDocumentsTab.selectedSentIndexRange = new int[]{-2,-2};
+					DriverDocumentsTab.caretPositionPriorToAction = 0;
+					DriverDocumentsTab.caretPositionPriorToCharInsertion = 0;
+					DriverDocumentsTab.caretPositionPriorToCharRemoval = 0;
+					DriverDocumentsTab.lastSentNum = -1;
+					DriverDocumentsTab.currentSentNum = 0;
+					DriverDocumentsTab.lastSelectedSentIndexRange = new int[]{-3,-3};
+					DriverDocumentsTab.currentCaretPosition = -1;
+					ignoreEOSRemoval = true;
+					*/
+
+					JOptionPane.showOptionDialog(null,
+							"Anonymouth currently does not allow you to delete\nmultiple sentences at once.\n\nPlease delete sentences one at a time.",
+							"Multiple Sentences Warning",
+							JOptionPane.DEFAULT_OPTION,
+							JOptionPane.WARNING_MESSAGE,
+							UIManager.getIcon("OptionPane.warningIcon"),
+							null,
+							null);
+					return;
+				}
 				DriverDocumentsTab.shouldUpdate = true; //We want to update no matter what since the user is dealing with a chunk of text
 				Logger.logln(NAME + "User deleted multiple characters in text, will update");
 			} else

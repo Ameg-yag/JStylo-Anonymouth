@@ -46,7 +46,7 @@ public class TaggedDocument implements Serializable{
 	protected transient List<? extends HasWord> sentenceTokenized;
 	protected transient Tokenizer<? extends HasWord> toke;
 	protected final int PROBABLE_NUM_SENTENCES = 50;
-	protected static SentenceTools jigsaw;
+	public static SentenceTools jigsaw;
 	//protected transient Iterator<String> strIter;
 	private String ID; 
 	private int totalSentences=0;
@@ -197,7 +197,7 @@ public class TaggedDocument implements Serializable{
 		}
 	}
 	
-	public TaggedSentence getTaggedSentenceAt(int index) {
+	public TaggedSentence getTaggedSentenceAtIndex(int index) {
 		int size = taggedSentences.size();
 		int newIndex = 0;
 		int pastIndex = 0;
@@ -207,11 +207,35 @@ public class TaggedDocument implements Serializable{
 		for (int i = 0; i < size; i++) {
 			length = taggedSentences.get(i).getUntagged(false).length();
 			newIndex = length + pastIndex;
+			
 			if (index >= pastIndex && index <= newIndex) {
 				returnValue = taggedSentences.get(i);
 				break;
 			} else {
-				pastIndex += length;
+//				pastIndex += length;
+				pastIndex = newIndex;
+			}
+		}
+		
+		return returnValue;
+	}
+	
+	public int getSentenceNumAtIndex(int index) {
+		int size = taggedSentences.size();
+		int end = 0;
+		int start = 0;
+		int currentSentNum = 0;
+		int returnValue = -1;
+		
+		for (int i = 0; i < size; i++) {
+			end = taggedSentences.get(i).getUntagged(false).length() + start;
+
+			if (index >= start && index <= end) {
+				returnValue = currentSentNum;
+				break;
+			} else {
+				start = end;
+				currentSentNum++;
 			}
 		}
 		
@@ -417,8 +441,6 @@ public class TaggedDocument implements Serializable{
 			removed[i] = removeAndReplace(indicesToRemove[i],"");
 		return removed;
 	}
-
-
 	
 	/**
 	 * 

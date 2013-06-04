@@ -106,7 +106,7 @@ public class RightClickMenu extends JPopupMenu {
 						DriverDocumentsTab.taggedDoc.specialCharTracker.setIgnore(length - 1 + PopupListener.mark+pastLength, true);
 					}
 										
-					taggedSentences.add(DriverDocumentsTab.taggedDoc.getTaggedSentenceAt(length + PopupListener.mark + pastLength));
+					taggedSentences.add(DriverDocumentsTab.taggedDoc.getTaggedSentenceAtIndex(length + PopupListener.mark + pastLength));
 					pastLength += length;
 				}
 				
