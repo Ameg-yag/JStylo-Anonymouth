@@ -73,7 +73,7 @@ public class DataAnalyzer{
 	private HashMap<String,Double> holderForLogger = new HashMap<String,Double>();
 	private FeatureSwapper featureSwapper;
 	private static ClusterGroup bestClusterGroup;
-	
+	private int maxClusters;
 	
 	/**
 	 * constructor for DataAnalyzer
@@ -468,7 +468,7 @@ public class DataAnalyzer{
 	 * it simply analyzes the existing ones. 
 	 * @param maxClusters the maximum number of clusters out of all of the features
 	 */
-	public void runClusterAnalysis(DocumentMagician magician, int maxClusters){
+	public void runClusterAnalysis(DocumentMagician magician){
 		Logger.logln(NAME+"called runClusterAnalysis");
 		//long startTime = System.currentTimeMillis();
 		int lenTopAttribs = topAttributes.length;
@@ -484,8 +484,6 @@ public class DataAnalyzer{
 		//ThePresident.read();
 		featureSwapper = new FeatureSwapper(ClusterAnalyzer.getClusterGroupArray(), magician) ;
 		bestClusterGroup = featureSwapper.getBestClusterGroup(-1);
-		System.out.println("The best ClusterGroup is: "+bestClusterGroup.toString());
-		ThePresident.read("Great Success!");
 		DriverClustersWindow.bestClusterGroup = bestClusterGroup;
 		// todo call featureswapper with numberCruncher.someClusters
 		//long endTime = System.currentTimeMillis();
@@ -565,8 +563,8 @@ public class DataAnalyzer{
 		}
 		magician.initialDocToData(pSet,cfd, classifier);
 		runGeneric(magician);
-		int maxClusters =runAllTopFeatures();
-		runClusterAnalysis(magician, maxClusters);
+		maxClusters =runAllTopFeatures();
+		//runClusterAnalysis(magician, maxClusters);
 		Logger.logln(NAME+"Initial has been run.");
 		
 	}

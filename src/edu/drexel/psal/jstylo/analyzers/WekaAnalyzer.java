@@ -1,9 +1,11 @@
 package edu.drexel.psal.jstylo.analyzers;
 
+import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.RelaxedEvaluation;
 
+import java.io.File;
 import java.util.*;
 
 import com.jgaap.generics.Document;
@@ -170,6 +172,7 @@ public class WekaAnalyzer extends Analyzer {
 		Map<String,Map<String, Double>> res = new HashMap<String,Map<String,Double>>(numOfInstances);
 		for (int i=0; i<numOfInstances; i++)
 			res.put(unknownDocs.get(i).getTitle(), new HashMap<String,Double>(numOfAuthors));
+		
 		
 		// train classifier
 		trainingSet.setClass(authorsAttr);

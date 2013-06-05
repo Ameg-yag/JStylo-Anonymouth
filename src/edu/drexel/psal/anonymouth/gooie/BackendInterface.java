@@ -135,13 +135,12 @@ public class BackendInterface {
 					{
 						wizard.runInitial(magician,main.cfd, main.classifiers.get(0));
 						pw.setText("Initializing Tagger...");
-
 						Tagger.initTagger();
-						
 						pw.setText("Initialize Cluster Viewer...");
-						DriverClustersWindow.initializeClusterViewer(main,false);
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
+						wizard.runClusterAnalysis(magician);
+						DriverClustersWindow.initializeClusterViewer(main,false);
 					} catch(Exception e) {
 						e.printStackTrace();
 						ErrorHandler.fatalError();
@@ -254,6 +253,12 @@ public class BackendInterface {
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
 			
+			synchronized(DriverDocumentsTab.lock){ // waits for notification from end of DriverDocumentsTab.moveHighlight
+				try {
+					DriverDocumentsTab.lock.wait();
+				} catch (InterruptedException e) {
+				}
+			}
 			
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
@@ -265,9 +270,11 @@ public class BackendInterface {
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
 
-			main.getDocumentPane().setEnabled(true);
-			main.getDocumentPane().setEditable(true);
+			
 			main.processButton.setText("Re-Process");
+			
+			main.getDocumentPane().setEditable(true);
+			main.getDocumentPane().setEnabled(true);
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);

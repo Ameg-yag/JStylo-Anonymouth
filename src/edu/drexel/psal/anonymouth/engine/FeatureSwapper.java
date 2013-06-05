@@ -26,13 +26,15 @@ import weka.core.Instances;
  *
  */
 public class FeatureSwapper {
-
+	
+	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	WekaAnalyzer waz;
 	Instances toAnonymize;
 	ClusterGroup[] clusterGroups;
 	WekaResults[] wekaResultsArray;
 	ArrayList<String> toAnonymizeTitlesList;
 	Set<String> trainSetAuthors;
+	double bestCaseClassification = 1; // set it to worst case, and we'll update as it gets better.
 	
 	public FeatureSwapper(ClusterGroup[] clusterGroups, DocumentMagician magician){
 		toAnonymize = magician.getToModifyDat();
@@ -41,7 +43,7 @@ public class FeatureSwapper {
 		waz = new WekaAnalyzer(ThePresident.PATH_TO_CLASSIFIER);
 		this.clusterGroups = clusterGroups;
 		if (clusterGroups == null)
-			Logger.logln("Damn.");
+			Logger.logln(NAME+"Damn.");
 
 	}
 	
@@ -57,10 +59,10 @@ public class FeatureSwapper {
 	 * @return
 	 */
 	public ClusterGroup getBestClusterGroup(int topN_ClusterGroupsToTest){
-		ThePresident.read("pre testing: ");
-		for (int i = 0; i < 30; i++)
-			System.out.println(clusterGroups[i].toString());
-		ThePresident.read();
+		//ThePresident.read("pre testing: ");
+		//for (int i = 0; i < 30; i++)
+		//	System.out.println(clusterGroups[i].toString());
+		//ThePresident.read();
 		int numClusterGroups;
 		if (topN_ClusterGroupsToTest <= 0 || topN_ClusterGroupsToTest > clusterGroups.length)
 			numClusterGroups = clusterGroups.length;
@@ -89,8 +91,13 @@ public class FeatureSwapper {
 			hopefullyAnonymizedInstances.add(alteredInstance);
 			Map<String,Map<String,Double>> wekaResultMap = waz.classifyWithPretrainedClassifier(hopefullyAnonymizedInstances, toAnonymizeTitlesList, trainSetAuthors);
 			keyIter = (wekaResultMap.keySet()).iterator();
-			if (keyIter.hasNext())
+			System.out.println(wekaResultMap.keySet().toString()+" -- current cluster group num: "+i);
+			if (keyIter.hasNext()){
+				//Map<String,Double> tempMap = wekaResultMap.get(keyIter.next());
+				//ThePresident.read(tempMap.toString());
 				wekaResultsArray[i] = new WekaResults(wekaResultMap.get(keyIter.next()),i); // there should never be more that one key in this map. We only test one document.
+				//wekaResultsArray[i] = new WekaResults(tempMap,i); // there should never be more that one key in this map. We only test one document.
+			}
 			else
 				ErrorHandler.fatalError();
 			
@@ -98,13 +105,25 @@ public class FeatureSwapper {
 				
 		Arrays.sort(wekaResultsArray);
 		
-		ThePresident.read("post testing: ");
-		for (i = 0; i < 30; i++)
-			System.out.println("representative: "+wekaResultsArray[i].representativeValue+" ==> "+clusterGroups[wekaResultsArray[i].respectiveIndexInClusterGroupArray].toString());
-		ThePresident.read();
-		
-		
-		return clusterGroups[wekaResultsArray[i].respectiveIndexInClusterGroupArray];
+		/*
+		 * Error check to make sure that Weka isn't being misused: 
+		 * if ALL of the representativeValue's are equal, then something is wrong.. because that means that all of the classifications were identical.
+		 */
+		boolean allEqual = true;
+		double lastValue = wekaResultsArray[0].representativeValue;
+		int numVals = wekaResultsArray.length;
+		//ThePresident.read("post testing: ");
+		for (i = 1; i < numVals; i++){
+			if (lastValue != wekaResultsArray[i].representativeValue){
+				allEqual = false;
+				break;
+			}
+			//System.out.println("representative: "+wekaResultsArray[i].representativeValue+" ==> "+clusterGroups[wekaResultsArray[i].respectiveIndexInClusterGroupArray].toString());
+		}
+		Logger.logln("If all features are moved to their target values, the following classification will result: "+clusterGroups[wekaResultsArray[0].respectiveIndexInClusterGroupArray].toString());
+		if (allEqual && i != 1)
+			Logger.logln("Oops! Weka must have been called incorrectly. All ClusterGroup representativeValue's are the same!\nThis is known to happen when the SMO is run without the '-M' flag. Howev");
+		return clusterGroups[wekaResultsArray[0].respectiveIndexInClusterGroupArray];
 	}
 	
 }
