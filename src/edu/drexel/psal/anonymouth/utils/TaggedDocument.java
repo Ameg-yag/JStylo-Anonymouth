@@ -197,6 +197,12 @@ public class TaggedDocument implements Serializable{
 		}
 	}
 	
+	/**
+	 * Essentially the same thing as getSentenceNumAt(), except instead of accepting a sentence number and finding the taggedSentence
+	 * that corresponds to that number it accepts an index (caret position), and finds the taggedSentence that corresponds to that index.
+	 * @param index - the position in the document text.
+	 * @return returnValue - the TaggedSentence found at the index. If none exists, null is returned.
+	 */
 	public TaggedSentence getTaggedSentenceAtIndex(int index) {
 		int size = taggedSentences.size();
 		int newIndex = 0;
@@ -212,7 +218,7 @@ public class TaggedDocument implements Serializable{
 				returnValue = taggedSentences.get(i);
 				break;
 			} else {
-//				pastIndex += length;
+				//pastIndex += length;
 				pastIndex = newIndex;
 			}
 		}
@@ -220,6 +226,11 @@ public class TaggedDocument implements Serializable{
 		return returnValue;
 	}
 	
+	/**
+	 * Uses a given index and calculates the sentence number of the index.
+	 * @param index - The positions in the document text.
+	 * @return returnValue - The sentence number. If none is found, -1 is returned.
+	 */
 	public int getSentenceNumAtIndex(int index) {
 		int size = taggedSentences.size();
 		int end = 0;
@@ -227,10 +238,11 @@ public class TaggedDocument implements Serializable{
 		int currentSentNum = 0;
 		int returnValue = -1;
 		
+		
 		for (int i = 0; i < size; i++) {
 			end = taggedSentences.get(i).getUntagged(false).length() + start;
 
-			if (index >= start && index <= end) {
+			if (index >= start && index < end) {
 				returnValue = currentSentNum;
 				break;
 			} else {
