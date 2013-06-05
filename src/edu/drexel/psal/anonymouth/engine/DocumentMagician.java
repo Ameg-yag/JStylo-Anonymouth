@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.SMO;
@@ -126,8 +128,21 @@ public class DocumentMagician {
 	
 	private static ArrayList<String> trainTitlesList;
 	
+	
 	public static ArrayList<String> getTrainTitlesList(){
 		return trainTitlesList;
+	}
+	
+	private Set<String> trainSetAuthors;
+	
+	public Set<String> getTrainSetAuthors(){
+		return trainSetAuthors;
+	}
+	
+	private ArrayList<String> toModifyTitlesList;
+	
+	public ArrayList<String> getToModifyTitlesList(){
+		return toModifyTitlesList;
 	}
 	
 	private Instances authorAndTrainDat;
@@ -163,8 +178,6 @@ public class DocumentMagician {
 	}
 	
 	public static String authorToRemove;
-	
-	public static final String dummyName = "~* you *~";
 	
 	private Classifier theClassifier;
 	
@@ -213,7 +226,6 @@ public class DocumentMagician {
 			writer.write(modifiedDocument);
 			writer.close();
 		} catch (IOException e) {
-			
 			//TODO: log this. 
 			e.printStackTrace();
 		}
@@ -222,21 +234,11 @@ public class DocumentMagician {
 		while(!toModifySet.isEmpty())
 			toModifySet.remove(0);
 		toModifySet.add(0,newModdedDoc);
-		//System.out.println();
-		//System.out.println("**********NEW TEXT************** ");
-		//try {
-		//	toModifySet.get(0).load();
-		//	System.out.println(toModifySet.get(0).stringify());
-		//} catch (Exception e) {
-		//	// TODO Auto-generated catch block
-		//	e.printStackTrace();
-		//}
 		oneAndDone.runInstanceBuilder(trainSet,toModifySet);
-		authorAndTrainingInstances =oneAndDone.getTrainingInstances();
+		authorAndTrainingInstances = oneAndDone.getTrainingInstances();
 		toModifyInstanceSet = oneAndDone.getTestingInstances();
 		authorAndTrainDat = oneAndDone.getFullTrainData();
 		toModifyDat = oneAndDone.getFullTestData();
-		//runWeka();
 	}
 	
 	/**
@@ -246,7 +248,6 @@ public class DocumentMagician {
 	public void constructFeatureDrivers(CumulativeFeatureDriver cfd){
 		Logger.logln(NAME+"Setting CumulativeFeatureDriver in DocumentMagician");
 		theseFeaturesCfd = cfd;
-		
 	}
 	
 	/**
@@ -256,10 +257,11 @@ public class DocumentMagician {
 		Logger.logln(NAME+"Building train (with author) and toModify instances");
 		instanceSet = new InstanceConstructor(isSparse,theseFeaturesCfd,false);
 		int i;
-		//for(i=0;i<trainSet.size();i++){
-		//	if(trainSet.get(i).getAuthor().equals(dummyName))
-		//		trainSet.get(i).setAuthor(authorToRemove);
-		//}
+		int sizeTrainSet = trainSet.size();
+		trainSetAuthors = new HashSet<String>(sizeTrainSet);
+		for(i=0;i< sizeTrainSet ;i++){
+			trainSetAuthors.add(trainSet.get(i).getAuthor());
+		}
 		String pathToTempModdedDoc = writeDirectory+ThePresident.sessionName+"_unmodified.txt";
 		Logger.logln(NAME+"Saving temporary file: "+pathToTempModdedDoc);
 		try {
@@ -308,13 +310,13 @@ public class DocumentMagician {
 		noAuthorTrainAttributeSet = noAuthorTrainInstanceConstructor.getAttributeSet();
 		trainingInstances = noAuthorTrainInstanceConstructor.getTrainingInstances();
 		noAuthorTrainDat = noAuthorTrainInstanceConstructor.getFullTrainData();
-
+		
 		authorInstanceConstructor.onlyBuildTrain(authorSamplesSet);
 		authorAttributeSet = authorInstanceConstructor.getAttributeSet();
 		authorInstances = authorInstanceConstructor.getTrainingInstances();
 		authorOnlyDat = authorInstanceConstructor.getFullTrainData();
 		for(i=0;i<authSampleSetSize;i++){
-			if(authorSamplesSet.get(i).getAuthor().equals(dummyName))
+			if(authorSamplesSet.get(i).getAuthor().equals(ThePresident.DUMMY_NAME))
 				authorSamplesSet.get(i).setAuthor(authorToRemove);
 		}
 	}
@@ -328,17 +330,16 @@ public class DocumentMagician {
 		Logger.logln(NAME+"Called runWeka");
 		WekaAnalyzer waz = new WekaAnalyzer(theClassifier);
 		// hack this is just for testing purposes
-		classifier_path = "trained_classifiers/"+ThePresident.sessionName;
-		if(classifier_saved == false){
-			wekaResultMap = waz.classify(authorAndTrainDat,toModifyDat,toModifySet);// ?
-			classifier_saved = true;
+		if(ThePresident.CLASSIFIER_SAVED == false){
+			wekaResultMap = waz.classifyAndSaveClassifier(authorAndTrainDat,toModifyDat,toModifySet, ThePresident.PATH_TO_CLASSIFIER);// ?
+			ThePresident.CLASSIFIER_SAVED = true;
 		}
 		else{
-			wekaResultMap = waz.classify(authorAndTrainDat,toModifyDat,toModifySet);// ?
+			wekaResultMap = waz.classifyWithPretrainedClassifier(toModifyDat,toModifyTitlesList, trainSetAuthors);// ?
 		}
 		Logger.logln(NAME+"Weka Done");
 	}
-		
+	
 	
 	/**
 	 * Performs operations that turn the documents into data, and calls other methods in this class in order to do this.
@@ -396,8 +397,15 @@ public class DocumentMagician {
 		int i = 0;
 		int lenTSet = noAuthorTrainSet.size();
 		trainTitlesList = new ArrayList<String>(lenTSet);
+		System.out.println("Training document titles:");
 		for (i=0;i<lenTSet;i++){
 			trainTitlesList.add(i,noAuthorTrainSet.get(i).getTitle());
+		}
+		
+		int lenTMSet = toModifySet.size();
+		toModifyTitlesList = new ArrayList<String>(lenTMSet);
+		for(i=0; i<lenTMSet; i++){
+			toModifyTitlesList.add(i,toModifySet.get(i).getTitle());
 		}
 		numSampleAuthors = pSetCopy.getAuthors().size();
 		//System.out.println("NO AUTHOR TRAIN SET: "+noAuthorTrainSet.toString());

@@ -140,8 +140,8 @@ public class DriverDocumentsTab {
 	public static int[] leftSentInfo = new int[0];
 	public static int[] rightSentInfo = new int[0];
 	private static boolean translate = false;
-	
 	protected static ActionListener saveAsTestDoc;
+	protected static Object lock = new Object();
 	
 	public static int getCurrentSentNum(){
 		return currentSentNum;
@@ -310,6 +310,9 @@ public class DriverDocumentsTab {
 		} 
 		catch (BadLocationException err) {
 			err.printStackTrace();
+		}
+		synchronized(lock){
+			lock.notify();
 		}
 	}
 
@@ -1034,13 +1037,14 @@ class SuggestionCalculator {
 		main.elementsToRemove.removeAllElements();
 
 		int arrSize = topToRemove.size();
-
+		int listIndex = 0;
 		for (int i=0;i<arrSize;i++) {//loops through top to remove list
 			if (!topToRemove.get(i).equals("''") && !topToRemove.get(i).equals("``")) {
 				if (PUNCTUATION.contains(topToRemove.get(i).trim()))
-					main.elementsToRemove.add(i, "Reduce the number of " + topToRemove.get(i) + "'s you use");
+					main.elementsToRemove.add(listIndex, "Reduce the number of " + topToRemove.get(i) + "'s you use");
 				else
-					main.elementsToRemove.add(i, topToRemove.get(i));
+					main.elementsToRemove.add(listIndex, topToRemove.get(i));
+				listIndex++;
 			}		
 		}
 

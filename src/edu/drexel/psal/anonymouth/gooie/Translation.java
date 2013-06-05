@@ -136,20 +136,18 @@ public class Translation {
 		for (int i = 0; i < availSize; i++) {
 			String account = availability.get(i);
 			
-			
 			if (!account.equals("ready")) {
 				String[] date = account.split("/");
 				int month = Integer.parseInt(date[0]);
 				int day = Integer.parseInt(date[1]);
-
+				
 				if (month - currentMonth != 0 && currentDay > day) {
 					availability.set(i, "ready");
+				} else {
+					clients.remove(i);
+					secrets.remove(i);
+					numAccounts--;
 				}
-//				else {
-//					clients.remove(i);
-//					secrets.remove(i);
-//					numAccounts--;
-//				}
 			}
 		}
 		
@@ -180,13 +178,12 @@ public class Translation {
 								availability.add("ready");
 						}
 					} else {
-						availability.set(current, Integer.toString(currentMonth) + "/" + Integer.toString(currentDay));
-//						for (int i = 0; i < numAccounts; i++) {
-//							if (i == current)
-//								availability.set(i, Integer.toString(currentMonth) + "/" + Integer.toString(currentDay));
-//							else
-//								availability.set(i, "ready");
-//						}
+						for (int i = 0; i < numAccounts; i++) {
+							if (i == current)
+								availability.set(i, Integer.toString(currentMonth) + "/" + Integer.toString(currentDay));
+							else
+								availability.set(i, "ready");
+						}
 					}
 					
 					PropertiesUtil.setClientAvailability(availability);

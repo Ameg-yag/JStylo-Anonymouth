@@ -230,8 +230,8 @@ public class DriverPreProcessTabClassifiers {
 				else {
 					// check classifier options
 					try {
-						//tmpClassifier.setOptions(main.classAvClassArgsJTextField.getText().split(" "));
-						tmpClassifier.setOptions(getOptionsStr(tmpClassifier.getOptions()).split(" "));
+						tmpClassifier.setOptions(main.PPSP.classAvClassArgsJTextField.getText().split(" "));
+						//tmpClassifier.setOptions(getOptionsStr(tmpClassifier.getOptions()).split(" "));
 					} catch (Exception e) {
 						Logger.logln(NAME+"Invalid options given for classifier.",LogOut.STDERR);
 						JOptionPane.showMessageDialog(main,

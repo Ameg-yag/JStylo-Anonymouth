@@ -392,7 +392,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected ResultsWindow resultsWindow;
 	protected RightClickMenu rightClickMenu;
 	protected Clipboard clipboard;
-
+	protected static Runnable mainThread;
 	protected JPanel anonymityHoldingPanel;
 	protected JScrollPane anonymityScrollPane;
 	protected Font normalFont;
@@ -407,8 +407,10 @@ public class GUIMain extends javax.swing.JFrame  {
 	 * Auto-generated main method to display this JFrame
 	 */
 	public static void startGooie() {
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
+				mainThread = this;
 				Logger.initLogFile();
 				try {
 					icon = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png"),"logo");
@@ -515,7 +517,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	}
 
 	private void initData() {
-		ProblemSet.setDummyAuthor("~* you *~");
+		ProblemSet.setDummyAuthor(ThePresident.DUMMY_NAME);
 		ps = new ProblemSet();
 		ps.setTrainCorpusName(defaultTrainDocsTreeName);
 		cfd = new CumulativeFeatureDriver();
@@ -703,12 +705,16 @@ public class GUIMain extends javax.swing.JFrame  {
 		classChoice.setSelectedItem(PropertiesUtil.getClassifier());
 		DriverPreProcessTabClassifiers.tmpClassifier = Classifier.forName(DriverPreProcessTabClassifiers.fullClassPath.get(classChoice.getSelectedItem().toString()), null);
 		DriverPreProcessTabClassifiers.tmpClassifier.setOptions(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()).split(" "));
-		classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
 		
-		if (PropertiesUtil.getClassifier().toLowerCase().contains("smo"))
-			PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()) + " -M");
+		if (PropertiesUtil.getClassifier().toLowerCase().contains("smo")){
+			PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()) + " -M");
+		}
 		else
-			PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(classifiers.get(0).getOptions()));
+			PPSP.classSelClassArgsJTextField.setText(DriverPreProcessTabClassifiers.getOptionsStr(DriverPreProcessTabClassifiers.tmpClassifier.getOptions()));
+		
+		DriverPreProcessTabClassifiers.tmpClassifier.setOptions(PPSP.classSelClassArgsJTextField.getText().split(" "));
+		
+		classifiers.add(DriverPreProcessTabClassifiers.tmpClassifier);
 		PPSP.classDescJTextPane.setText(DriverPreProcessTabClassifiers.getDesc(classifiers.get(0)));
 		GUIUpdateInterface.updateClassList(this);
 		GUIUpdateInterface.updateClassPrepColor(this);

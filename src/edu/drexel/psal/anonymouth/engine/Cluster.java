@@ -15,6 +15,7 @@ public class Cluster {
 	
 	private double centroid;
 	private ArrayList<Pair> elements;
+	private int clusterNumber = -2;
 	
 	public Cluster(double centroid){
 		this.centroid = centroid;
@@ -28,6 +29,22 @@ public class Cluster {
 	public void addElement(Pair element){
 		elements.add(element);
 		
+	}
+	
+	/**
+	 * Set the cluster number with respect to the array of ordered clusters 
+	 * @param clusterNumber
+	 */
+	public void setClusterNumber(int clusterNumber){
+		this.clusterNumber = clusterNumber;
+	}
+	
+	/**
+	 * returns the set cluster number
+	 * @return
+	 */
+	public int getClusterNumber(){
+		return clusterNumber;
 	}
 	
 	/**
@@ -118,6 +135,11 @@ public class Cluster {
 				min = tempMin;
 		}
 		return min;
+	}
+	
+	public String toString(){
+		return "[ centroid: "+centroid+", cluster number: "+clusterNumber+", number of documents: "+elements.size()+" ]";
+		
 	}
 
 }

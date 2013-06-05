@@ -1,9 +1,11 @@
 package edu.drexel.psal.jstylo.analyzers;
 
+import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.jstylo.generics.Analyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.RelaxedEvaluation;
 
+import java.io.File;
 import java.util.*;
 
 import com.jgaap.generics.Document;
@@ -51,6 +53,15 @@ public class WekaAnalyzer extends Analyzer {
 	 */
 	public WekaAnalyzer() {
 		classifier = new weka.classifiers.functions.SMO();
+	}
+	
+	public WekaAnalyzer(String pathToClassifier){
+		try {
+			classifier = (Classifier) weka.core.SerializationHelper.read(pathToClassifier);
+		} catch (Exception e1) {
+			Logger.logln("ERROR! Failed loading trained classifier from "+pathToClassifier+"!",Logger.LogOut.STDERR);
+			e1.printStackTrace();
+		}
 	}
 	
 	public WekaAnalyzer(Classifier classifier) {
@@ -116,6 +127,136 @@ public class WekaAnalyzer extends Analyzer {
 			test.setDataset(trainingSet);
 
 			map = res.get(unknownDocs.get(i).getTitle());
+			try {
+				currRes = classifier.distributionForInstance(test);
+				for (int j=0; j<numOfAuthors; j++) {
+					map.put(authors.get(j), currRes[j]);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		results = res;
+		return res;
+	}
+	
+	
+	/**
+	 * Trains and then saves the Weka classifier using the given training set, and then classifies all instances in the given test set.
+	 * Returns list of distributions of classification probabilities per instance.
+	 * @param trainingSet
+	 * 		The Weka Instances dataset of the training instances.
+	 * @param testSet
+	 * 		The Weka Instances dataset of the test instances.
+	 * @param unknownDocs
+	 * 		The test documents to be deanonymized.
+	 * @return
+	 * 		The mapping of test documents to distributions of classification probabilities per instance, or null if prepare was
+	 * 		not previously called. Each result in the list is a mapping from the author to its corresponding
+	 * 		classification probability.
+	 */
+	public Map<String, Map<String, Double>> classifyAndSaveClassifier(Instances trainingSet, Instances testSet, List<Document> unknownDocs, String saveClassifierAs) {
+		this.trainingSet = trainingSet;					
+		this.testSet = testSet;
+		// initialize authors (extract from training set)
+		List<String> authors = new ArrayList<String>();
+		Attribute authorsAttr = trainingSet.attribute("authorName");
+		for (int i=0; i< authorsAttr.numValues(); i++)
+			authors.add(i,authorsAttr.value(i));
+		this.authors = authors;
+		
+		int numOfInstances = testSet.numInstances();
+		int numOfAuthors = authors.size();
+		
+		Map<String,Map<String, Double>> res = new HashMap<String,Map<String,Double>>(numOfInstances);
+		for (int i=0; i<numOfInstances; i++)
+			res.put(unknownDocs.get(i).getTitle(), new HashMap<String,Double>(numOfAuthors));
+		
+		
+		// train classifier
+		trainingSet.setClass(authorsAttr);
+		try {
+			classifier.buildClassifier(trainingSet);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// save classifier
+		try {
+			weka.core.SerializationHelper.write(saveClassifierAs, classifier);
+		} catch (Exception e1) {
+			Logger.logln("ERROR! Could not save classifier to "+saveClassifierAs+"!",Logger.LogOut.STDERR);
+			e1.printStackTrace();
+		}
+		
+		
+		// classify test cases
+		Map<String,Double> map;
+		double[] currRes;
+		for (int i=0; i<testSet.numInstances(); i++) {
+			Instance test = testSet.instance(i);
+
+			test.setDataset(trainingSet);
+
+			map = res.get(unknownDocs.get(i).getTitle());
+			try {
+				currRes = classifier.distributionForInstance(test);
+				for (int j=0; j<numOfAuthors; j++) {
+					map.put(authors.get(j), currRes[j]);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		results = res;
+		return res;
+	}
+	
+	
+	/**
+	 * Uses the pre-trained classifier to classify all instances in the given test set.
+	 * Returns list of distributions of classification probabilities per instance.
+	 * @param trainingSet
+	 * 		The Weka Instances dataset of the training instances.
+	 * @param testSet
+	 * 		The Weka Instances dataset of the test instances.
+	 * @param unknownDocs
+	 * 		The test documents to be deanonymized.
+	 * @return
+	 * 		The mapping of test documents to distributions of classification probabilities per instance, or null if prepare was
+	 * 		not previously called. Each result in the list is a mapping from the author to its corresponding
+	 * 		classification probability.
+	 */
+	public Map<String, Map<String, Double>> classifyWithPretrainedClassifier(Instances testSet, ArrayList<String> unknownDocTitles, Set<String> trainSetAuthors) {
+		this.testSet = testSet;
+		
+		// initialize authors (extract from training set)
+		Iterator<String> authIter = trainSetAuthors.iterator();
+		List<String> authors = new ArrayList<String>(trainSetAuthors.size());
+		while(authIter.hasNext())
+			authors.add(authIter.next());
+		this.authors = authors;
+		
+		int numOfInstances = testSet.numInstances();
+		int numOfAuthors = authors.size();
+		
+		Map<String,Map<String, Double>> res = new HashMap<String,Map<String,Double>>(numOfInstances);
+		for (int i=0; i<numOfInstances; i++)
+			res.put(unknownDocTitles.get(i), new HashMap<String,Double>(numOfAuthors));
+		
+	//trainingSet.setClass(trainingSet.attribute("authorName"));
+		
+		// classify test cases
+		Map<String,Double> map;
+		double[] currRes;
+		for (int i=0; i<testSet.numInstances(); i++) {
+			Instance test = testSet.instance(i);
+
+			//test.setDataset(trainingSet);
+
+			map = res.get(unknownDocTitles.get(i));
 			try {
 				currRes = classifier.distributionForInstance(test);
 				for (int j=0; j<numOfAuthors; j++) {

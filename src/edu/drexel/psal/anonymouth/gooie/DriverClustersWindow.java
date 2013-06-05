@@ -13,6 +13,7 @@ import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.Cluster;
 import edu.drexel.psal.anonymouth.engine.ClusterAnalyzer;
 import edu.drexel.psal.anonymouth.engine.ClusterGroup;
+import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 public class DriverClustersWindow {
@@ -23,8 +24,7 @@ public class DriverClustersWindow {
 
 	private static int lenJPanels;
 	public static boolean clusterGroupReady = false;
-	private static ClusterGroup[] clusterGroupRay;
-	private static int lenCGR;
+	public static ClusterGroup bestClusterGroup;
 	private static int[][] intRepresentation;
 	private static String[] stringRepresentation;
 	protected static JPanel[] finalPanels;
@@ -66,18 +66,6 @@ public class DriverClustersWindow {
 		return stringRepresentation;
 	}
 
-	public static boolean setClusterGroup()
-	{
-		Logger.logln("Cluster group array retrieved from ClusterAnalyzer and brought to ClusterViewerDriver");
-		if(clusterGroupReady)
-		{
-			clusterGroupRay = ClusterAnalyzer.getClusterGroupArray();
-			lenCGR = clusterGroupRay.length;
-			return true;
-		}
-		else
-			return false;
-	}
 
 	public static void makePanels(Attribute[] theOnesYouWantToSee)
 	{
@@ -200,19 +188,18 @@ public class DriverClustersWindow {
 			main.clustersWindow.clusterHolderPanel.add(finalPanels[i]);
 		}
 
-		boolean cgIsSet = setClusterGroup();
-
-		intRepresentation = new int[lenCGR][clusterGroupRay[0].getGroupKey().length()];
-		stringRepresentation = new String[1+lenCGR];
-		stringRepresentation[0] = "Select Targets";
-		for(int i = 0; i < lenCGR; i++)
-		{
-			intRepresentation[i] = clusterGroupRay[i].getGroupKey().toIntArray();
-			stringRepresentation[i+1] = clusterGroupRay[i].getGroupKey().toString();
-		}
-
-		int[] theOne = intRepresentation[0];
-		selectedClustersByFeature = theOne;
+//
+//		intRepresentation = new int[lenCGR][clusterGroupRay[0].getGroupKey().length()];
+//		stringRepresentation = new String[1+lenCGR];
+//		stringRepresentation[0] = "Select Targets";
+//		for(int i = 0; i < lenCGR; i++)
+//		{
+//			intRepresentation[i] = clusterGroupRay[i].getGroupKey().toIntArray();
+//			stringRepresentation[i+1] = clusterGroupRay[i].getGroupKey().toString();
+//		}
+//
+//		int[] theOne = intRepresentation[0];
+//		selectedClustersByFeature = theOne;
 		lenJPanels = clusterPanels.length;
 		for(int i = 0; i < lenJPanels; i++)
 		{

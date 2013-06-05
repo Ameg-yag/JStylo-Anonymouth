@@ -1,7 +1,8 @@
 bin/*
 .DS_Store
-/.edited_documents
+.edited_documents
 /_active-auth.lnk
+.serialized_objects
 
 
 /log

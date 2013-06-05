@@ -135,13 +135,12 @@ public class BackendInterface {
 					{
 						wizard.runInitial(magician,main.cfd, main.classifiers.get(0));
 						pw.setText("Initializing Tagger...");
-
 						Tagger.initTagger();
-						
 						pw.setText("Initialize Cluster Viewer...");
-						DriverClustersWindow.initializeClusterViewer(main,false);
 						pw.setText("Classifying Documents...");
 						magician.runWeka();
+						wizard.runClusterAnalysis(magician);
+						DriverClustersWindow.initializeClusterViewer(main,false);
 					} catch(Exception e) {
 						e.printStackTrace();
 						ErrorHandler.fatalError();
@@ -182,13 +181,6 @@ public class BackendInterface {
 					}
 				}
 
-				int selectedIndex = 1;
-				int trueIndex = selectedIndex - 1;
-				Logger.logln(NAME+"Cluster Group number '"+trueIndex+"' selected: " + DriverClustersWindow.getStringRep()[selectedIndex]);
-				Logger.logln(NAME+"Cluster Group chosen by Anonymouth: "+DriverClustersWindow.getStringRep()[1]);
-				DataAnalyzer.selectedTargets = DriverClustersWindow.getIntRep()[trueIndex];
-				Logger.logln(NAME+"INTREP: "+DriverClustersWindow.getIntRep()[trueIndex]);//added this.
-				DriverDocumentsTab.wizard.setSelectedTargets();
 				DriverDocumentsTab.signalTargetsSelected(main, true);
 
 			} catch (Exception e) {
@@ -260,6 +252,12 @@ public class BackendInterface {
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
 			
+			synchronized(DriverDocumentsTab.lock){ // waits for notification from end of DriverDocumentsTab.moveHighlight
+				try {
+					DriverDocumentsTab.lock.wait();
+				} catch (InterruptedException e) {
+				}
+			}
 			
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
@@ -271,7 +269,9 @@ public class BackendInterface {
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
 
+			
 			main.processButton.setText("Re-Process");
+			
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
@@ -346,7 +346,7 @@ public class BackendInterface {
 			tempVal = Math.floor(tempVal*precision+.5)/precision;	
 			predictions[i] = tempVal;
 			
-			if (authors[i].equals("~* you *~")) {
+			if (authors[i].equals(ThePresident.DUMMY_NAME)) {
 				predMap.put(predictions[i], "You");
 			} else
 				predMap.put(predictions[i], authors[i]);

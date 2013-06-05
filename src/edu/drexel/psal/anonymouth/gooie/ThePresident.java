@@ -4,6 +4,7 @@ import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 import java.io.File;
+import java.util.Scanner;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -20,6 +21,9 @@ import com.apple.eawt.ApplicationEvent;
 @SuppressWarnings("deprecation")
 public class ThePresident {
 
+	/*
+	 * Anonymouth constants and such
+	 */
 	//protected static ImageIcon buffImg;
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
 	public static ImageIcon LOGO;
@@ -35,7 +39,12 @@ public class ThePresident {
 	public static boolean SAVE_TAGGED_DOCUMENTS = true; // TODO: put in "options
 	public static int MAX_FEATURES_TO_CONSIDER = PropertiesUtil.getMaximumFeatures(); // todo: put in 'options', and figure out an optimal number (maybe based upon info gain, total #, etc.)... basically, when the processing time outweighs the benefit, that should be our cutoff.
 	public static int NUM_TAGGING_THREADS = PropertiesUtil.getThreadCount();
+	public static final String PATH_TO_CLASSIFIER = SER_DIR+"saved_classifier.model";
+	public static boolean CLASSIFIER_SAVED = false;
+	public static final String DUMMY_NAME = "~* you *~"; // NOTE DO NOT CHANGE THIS unless you have a very good reason to do so.
+	public static int NUM_CLUSTER_GROUPS_TO_TEST = -1;
 	public static Application app;
+	public static Scanner in = new Scanner(System.in); // xxx just for testing. can be called anywhere in Anonymouth.
 
 	public void getLogo(String name){
 		try{
@@ -43,6 +52,27 @@ public class ThePresident {
 		} catch (Exception e){
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * TEST METHOD
+	 * will print "sayThis" and then read and return a line from the user. Useful for stopping the progam at spots.
+	 * @param sayThis
+	 * @return
+	 */
+	public static String read(String sayThis){
+		System.out.println(sayThis);
+		return in.nextLine();
+	}
+
+	/**
+	 * TEST METHOD
+	 * will print "System waiting for user input:" and then read and return a line from the user. Useful for stopping the progam at spots.
+	 * @return
+	 */
+	public static String read(){
+		System.out.println("System waiting for user input:");
+		return in.nextLine();
 	}
 
 	public static void main(String[] args){

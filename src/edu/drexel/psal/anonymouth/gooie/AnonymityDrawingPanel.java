@@ -110,8 +110,10 @@ public class AnonymityDrawingPanel extends JPanel {
 		this.setLayout(new MigLayout());
 		this.main = main;
 		
-		anonymous = new JLabel("Anonymous");
-		notAnonymous = new JLabel("Not Anonymous");
+//		anonymous = new JLabel("Anonymous");
+//		notAnonymous = new JLabel("Not Anonymous");
+		anonymous = new JLabel("Goal");
+		notAnonymous = new JLabel("Start");
 		
 		showPointer = false;
 		
@@ -193,13 +195,15 @@ public class AnonymityDrawingPanel extends JPanel {
 	 * for the first time) so that the arrow may move accordingly
 	 */
 	public void updateAnonymityBar() {
-		int percent = (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5);
+		int current = (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5);
 		int max = (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5);
-				
-		pointer.setPercentages(percent, max);
-		main.anonymityDescription.setText("<html><center>About " +
-				getAvgPercentChangeNeeded() +
-				"% of your<br>document needs to<br>be changed for it to<br>be considered<br>anonymous</center><html>");
+		double percentToGoal = ((double)current/max)*100;	
+		pointer.setPercentages(current,max);
+//		main.anonymityDescription.setText("<html><center>About " +
+//				getAvgPercentChangeNeeded() +
+//				"% of your<br>document needs to<br>be changed for it to<br>be considered<br>anonymous</center><html>");
+		
+		main.anonymityDescription.setText("<html><center>You are "+((int)percentToGoal)+"%<br>of the way to<br>your goal</center><html>");
 		repaint();
 	}
 	
