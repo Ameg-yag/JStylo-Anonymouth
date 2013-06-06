@@ -250,7 +250,7 @@ public class BackendInterface {
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
-			//DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
+//			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
 			
 			synchronized (DriverDocumentsTab.lock) { // waits for notification from end of DriverDocumentsTab.moveHighlight
 				try {

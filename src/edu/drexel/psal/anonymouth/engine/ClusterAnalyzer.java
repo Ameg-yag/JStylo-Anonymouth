@@ -38,19 +38,23 @@ public class ClusterAnalyzer {
 		
 		Logger.logln(NAME+"Start construction of ClusterAnalyzer");
 		theDocs = DocumentMagician.getTrainTitlesList();
-		for (int x = 0; x < theDocs.size(); x++)
-			System.out.println("theDocs = " + theDocs.get(x));
+
 		theFeatures = featuresToUse;
 		//System.out.println("DEBUGGING: numDocs = " + theDocs.size());
 		numDocs = theDocs.size();
+		for (int x = 0; x < numDocs; x++) {
+			System.out.println("DEBUGGING: " + theDocs.get(x));
+		}
+		System.out.println("numDocs = " + numDocs);
 		int num_docs_not_processed_by_jstylo =  numDocs % ThePresident.NUM_TAGGING_THREADS; // XXX XXX XXX XXX XXX WE ONLY NEED THIS UNTIL JSTYLO FIXES ITS THREAD DIVISION ISSUE
 		numDocs -= num_docs_not_processed_by_jstylo; // XXX XXX XXX XXX XXX XXX XXX SEE COMMENT ABOVE
-		//System.out.println("DEBUGGING: numDocs = " + numDocs);
+		System.out.println("numDocs = " + numDocs);
 		numFeatures = featuresToUse.size();
 		clustersByDoc = new Cluster[numDocs][numFeatures];
 		int i,j;
-		for(i=0; i< numFeatures;i++){
-			for(j=0; j< numDocs; j++){
+		
+		for (i=0; i< numFeatures;i++) {
+			for (j=0; j< numDocs; j++) {
 				clustersByDoc[j][i] = null;
 			}
 		}
