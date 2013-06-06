@@ -288,12 +288,15 @@ public class DriverDocumentsTab {
 			main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 		try {
 			System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
-			System.out.println("ignoreHighlight = " + ignoreHighlight);
 			if (currentSentNum != 0) { //if it's not the first sentence (assuming there's not going to be a space/tab before it TODO make this not suck)
 				if ((selectedSentIndexRange[0] != currentCaretPosition && !ignoreHighlight) || deleting) { //if the user is not selecting a sentence, don't highlight it.
 					if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) { // if the sentence is preceded by a newline, we need to modify this a bit
-						if (selectedSentIndexRange[0]+1 != currentCaretPosition) { //If the user is actually selecting the sentence
-							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+2, bounds[1], painter);
+						int temp = 0;
+						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(newLine))
+							temp++;
+						
+						if (selectedSentIndexRange[0]+temp <= currentCaretPosition) { //If the user is actually selecting the sentence
+							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
 						}
 					} else {
 						int temp = 0;
