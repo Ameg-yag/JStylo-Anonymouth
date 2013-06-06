@@ -103,12 +103,10 @@ public class ClusterAnalyzer {
 	public void analyzeNow() { 
 		Logger.logln(NAME+"Begin analysis of clusters in analyzeNow in ClusterAnalyzer");
 		//System.out.println(Arrays.deepToString(clustersByDoc).replace("], [","]\n[")); 
-		int i,j,k;
+		int i,j;
 		commonClusterSetMap = new HashMap<SmartIntegerArray,Integer>(theDocs.size()); // worst case, no two documents fall in same set of clusters
 		i=0;
 		j=0;
-		k=0;
-		
 		
 		/**
 		 * TODO XXX NEXT, now that we have the cluster number (and Cluster objects) in the clustersByDoc array, we want to 
@@ -116,6 +114,7 @@ public class ClusterAnalyzer {
 		 * keep track of the cluster group numbers.
 		 */
 		double[][] centroidsByDoc = new double[numDocs][];
+		
 		for (i = 0; i < numDocs; i++) {
 			int numClusters = clustersByDoc[i].length;
 			int[] clusterNumsByRow = new int[numClusters];
@@ -123,30 +122,31 @@ public class ClusterAnalyzer {
 
 			for (j = 0; j < numClusters; j ++) {
 				System.out.println("document "+i+", cluster number "+j+" => "+clustersByDoc[i][j]);
-				if (clustersByDoc[i][j] != null) {
-					clusterNumsByRow[j] = clustersByDoc[i][j].getClusterNumber();
-					centroids[j] = clustersByDoc[i][j].getCentroid();
-				}
+				clusterNumsByRow[j] = clustersByDoc[i][j].getClusterNumber();
+				centroids[j] = clustersByDoc[i][j].getCentroid();
 			}
+			
 			centroidsByDoc[i] = centroids;
 			SmartIntegerArray tempKey = new SmartIntegerArray(clusterNumsByRow);
+			
 			if(commonClusterSetMap.containsKey(tempKey) == true)
 				commonClusterSetMap.put(tempKey,commonClusterSetMap.get(tempKey)+1);
 			else
 				commonClusterSetMap.put(tempKey,1);
 		}
+		
 		Set<SmartIntegerArray> clusterSetMapKeys = commonClusterSetMap.keySet();
 		int numKeys = clusterSetMapKeys.size();
 		SmartIntegerArray tempKey;
 		Iterator<SmartIntegerArray> csmkIter = clusterSetMapKeys.iterator();
-		int[] resultsByCluster = new int[numKeys];
 		i =0;
 		j = 0; 
 		int lenKey;
 		int[] clusterGroupFreq = new int[numKeys];
 		ClusterGroup[] clusterGroupArray = new ClusterGroup[numKeys];
 		double tempSum = 0;
-		while(csmkIter.hasNext()){
+		
+		while (csmkIter.hasNext()) {
 			tempSum = 0;
 			tempKey = csmkIter.next();
 			//System.out.print("Key => "+tempKey+" .... Value => ");
@@ -164,12 +164,14 @@ public class ClusterAnalyzer {
 			clusterGroupArray[j] = new ClusterGroup(tempKey,tempSum, centroidsByDoc[j]);
 			j++;
 		}
+		
 		Arrays.sort(clusterGroupArray);
 		DriverClustersWindow.clusterGroupReady = true;
-		this.clusterGroupArray = clusterGroupArray;
+
 		for(i=0;i<clusterGroupArray.length;i++){
 			System.out.println(clusterGroupArray[i]);
 		}
+		
 		Logger.logln(NAME+"ClusterAnalyzer analysis complete");
 	}
 	
