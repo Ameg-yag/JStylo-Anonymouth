@@ -306,10 +306,12 @@ public class DocumentMagician {
 			//System.out.println("Author: "+noAuthorTrainSet.get(i).getAuthor());
 		
 		// build each train instance set seperately so that each attribute set will contain all features
+		
 		noAuthorTrainInstanceConstructor.onlyBuildTrain(noAuthorTrainSet);
 		noAuthorTrainAttributeSet = noAuthorTrainInstanceConstructor.getAttributeSet();
 		trainingInstances = noAuthorTrainInstanceConstructor.getTrainingInstances();
 		noAuthorTrainDat = noAuthorTrainInstanceConstructor.getFullTrainData();
+		
 		
 		authorInstanceConstructor.onlyBuildTrain(authorSamplesSet);
 		authorAttributeSet = authorInstanceConstructor.getAttributeSet();
