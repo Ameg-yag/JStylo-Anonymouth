@@ -475,7 +475,8 @@ public class DataAnalyzer{
 		ClusterAnalyzer numberCruncher = new ClusterAnalyzer(featuresForClusterAnalyzer,maxClusters);
 		int i =0;
 		boolean success = false;
-		for (i=0;i<lenTopAttribs;i++){
+
+		for (i=0; i < lenTopAttribs; i++) {
 			success = numberCruncher.addFeature(topAttributes[i]);
 			//System.out.println(topAttributes[i].getConcatGenNameAndStrInBraces()+" => success?  --"+success);
 		}

@@ -4,27 +4,18 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.functions.SMO;
 import weka.core.Instances;
-import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.jstylo.generics.*;
-import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
-import edu.drexel.psal.anonymouth.utils.DocumentParser;
-import edu.drexel.psal.anonymouth.utils.DocumentTagger;
 
 import com.jgaap.generics.Document;
 

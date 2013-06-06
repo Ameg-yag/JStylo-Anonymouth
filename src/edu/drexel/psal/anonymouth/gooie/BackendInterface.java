@@ -250,13 +250,12 @@ public class BackendInterface {
 			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
-			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
+			//DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
 			
-			synchronized(DriverDocumentsTab.lock){ // waits for notification from end of DriverDocumentsTab.moveHighlight
+			synchronized (DriverDocumentsTab.lock) { // waits for notification from end of DriverDocumentsTab.moveHighlight
 				try {
 					DriverDocumentsTab.lock.wait();
-				} catch (InterruptedException e) {
-				}
+				} catch (InterruptedException e) {}
 			}
 			
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
@@ -269,14 +268,13 @@ public class BackendInterface {
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
 
-			
 			main.processButton.setText("Re-Process");
-			
+
 			DriverDocumentsTab.setAllDocTabUseable(true, main);
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
 			
-			GUIMain.processed = true; 
+			GUIMain.processed = true;
 		}
 	}
 	

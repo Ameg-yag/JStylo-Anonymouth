@@ -110,8 +110,6 @@ public class AnonymityDrawingPanel extends JPanel {
 		this.setLayout(new MigLayout());
 		this.main = main;
 		
-//		anonymous = new JLabel("Anonymous");
-//		notAnonymous = new JLabel("Not Anonymous");
 		anonymous = new JLabel("Goal");
 		notAnonymous = new JLabel("Start");
 		
@@ -119,8 +117,8 @@ public class AnonymityDrawingPanel extends JPanel {
 		
 		anonymous.setFont(new Font("Helvatica", Font.BOLD, 16));
 		notAnonymous.setFont(new Font("Helvatica", Font.BOLD, 16));
-		this.add(anonymous, "pos 40 15");
-		this.add(notAnonymous, "pos 24 485");
+		this.add(anonymous, "pos 69 15"); //40
+		this.add(notAnonymous, "pos 68 485"); //24
 		
 		try {
 			bar = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"bar.png"));
@@ -199,9 +197,6 @@ public class AnonymityDrawingPanel extends JPanel {
 		int max = (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5);
 		double percentToGoal = ((double)current/max)*100;	
 		pointer.setPercentages(current,max);
-//		main.anonymityDescription.setText("<html><center>About " +
-//				getAvgPercentChangeNeeded() +
-//				"% of your<br>document needs to<br>be changed for it to<br>be considered<br>anonymous</center><html>");
 		
 		main.anonymityDescription.setText("<html><center>You are "+((int)percentToGoal)+"%<br>of the way to<br>your goal</center><html>");
 		repaint();

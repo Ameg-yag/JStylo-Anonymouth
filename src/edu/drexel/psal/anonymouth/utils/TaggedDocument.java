@@ -53,6 +53,7 @@ public class TaggedDocument implements Serializable{
 	public SpecialCharacterTracker specialCharTracker;
 	private double baseline_percent_change_needed = 0; // This may end up over 100%. That's unimportant. This is used to gauge the change that the rest of the document needs -- this is normalized to 100%, effectivley.
 	private boolean can_set_baseline_percent_change_needed = true;
+	public static boolean userDeletedSentence = false;
 
 	/**
 	 * Constructor for TaggedDocument
@@ -470,6 +471,7 @@ public class TaggedDocument implements Serializable{
 			Logger.logln(NAME+"User deleted a sentence.");
 			updateReferences(toReplace,new TaggedSentence(""));//all features must be deleted
 			totalSentences--;
+			userDeletedSentence = true;
 			return wasReplaced;
 		}
 		
@@ -662,8 +664,11 @@ public class TaggedDocument implements Serializable{
 		
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
 		// copy TaggedSentences
-		for(i = 0; i < numTaggedSents; i++)
+		for (i = 0; i < numTaggedSents; i++)
 			taggedSentences.add(new TaggedSentence(td.taggedSentences.get(i)));
+		
+		specialCharTracker = td.specialCharTracker;
+			
 		// copy document author and title (Strings are immutable)
 		documentAuthor = td.documentAuthor;
 		documentTitle = td.documentTitle;
