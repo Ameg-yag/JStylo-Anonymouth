@@ -20,7 +20,12 @@ import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 import com.jgaap.generics.Document;
 
 /**
- * Does the magic with the documents
+ * Does the magic* with the documents
+ * 
+ * 
+ * * Creates Weka Instances objects, trains classifier, classifies, 
+ * packages Instances data in arrays for {@link #DataAnalyzer}, and re-classifies.
+ * 
  * @author Andrew W.E. McDonald
  *
  */
@@ -39,65 +44,54 @@ public class DocumentMagician {
 	 * Create instance of CumulativeFeatureDriver
 	 */
 	CumulativeFeatureDriver theseFeaturesCfd;
-	
-	
 	public static int numProcessRequests = 0;
 	
 	public static String sep = File.separator;
-
-	ProblemSet jamDocSet;
-	
 	public static int numSampleAuthors;
-	
 	public static boolean classifier_saved = false;
-	
 	public static String classifier_path = "";
-	
 	private List<Document> trainSet;
-	
 	private List<Document> toModifySet;
-	
 	private List<Document> noAuthorTrainSet;
-	
 	private List<Document> authorSamplesSet;
-	
 	private Map<String,Map<String,Double>> wekaResultMap;
-	
 	private InstanceConstructor instanceSet; 
-	
 	private InstanceConstructor authorInstanceConstructor;
-	
 	private InstanceConstructor noAuthorTrainInstanceConstructor;
-	
 	private ArrayList<String> attributeSet;
-	
 	private ArrayList<String> noAuthorTrainAttributeSet;
-	
 	private ArrayList<String> authorAttributeSet;
+	private Double[][] authorAndTrainingInstances;
+	private Double[][] trainingInstances;
+	private Double[][] authorInstances;
+	private Double[][] toModifyInstanceSet;
+	private static ArrayList<String> trainTitlesList;
+	private Set<String> trainSetAuthors;
+	private ArrayList<String> toModifyTitlesList;
+	private Instances authorAndTrainDat;
+	private Instances toModifyDat;
+	private Instances noAuthorTrainDat;
+	private Instances authorOnlyDat;
+	private String pathToModDoc;
+	private String modifiedDocument;
+	public static String authorToRemove;
+	private Classifier theClassifier;
 	
 	public ArrayList<String> getAttributeSet(){
 		return attributeSet;
 	}
 	
-	private Double[][] authorAndTrainingInstances;
-	
 	public Double[][] getAuthorAndTrainingInstances(){
 		return authorAndTrainingInstances;
 	}
-	
-	private Double[][] trainingInstances;
 	
 	public Double[][] getTrainingInstances(){
 		return trainingInstances;
 	}
 	
-	private Double[][] authorInstances;
-	
 	public Double[][] getAuthorInstances(){
 		return authorInstances;
 	}
-	
-	private Double[][] toModifyInstanceSet;
 	
 	public Double[][] getToModifyInstanceSet(){
 		return toModifyInstanceSet;
@@ -117,60 +111,40 @@ public class DocumentMagician {
 		return driver;
 	}
 	
-	private static ArrayList<String> trainTitlesList;
-	
-	
 	public static ArrayList<String> getTrainTitlesList(){
 		return trainTitlesList;
 	}
-	
-	private Set<String> trainSetAuthors;
 	
 	public Set<String> getTrainSetAuthors(){
 		return trainSetAuthors;
 	}
 	
-	private ArrayList<String> toModifyTitlesList;
-	
 	public ArrayList<String> getToModifyTitlesList(){
 		return toModifyTitlesList;
 	}
-	
-	private Instances authorAndTrainDat;
 	
 	public Instances getAuthorAndTrainDat(){
 		return authorAndTrainDat;
 	}
 	
-	private Instances toModifyDat;
-	
 	public Instances getToModifyDat(){
 		return toModifyDat;
 	}
 	
-	private Instances noAuthorTrainDat;
 	
 	public Instances getNoAuthorTrainDat(){
 		return noAuthorTrainDat;
 	}
 	
-	private Instances authorOnlyDat;
 	
 	public Instances getAuthorOnlyDat(){
 		return authorOnlyDat;
 	}
 	
-	private String pathToModDoc;
-	
-	private String modifiedDocument;
-	
 	public void setModifiedDocument(String theDoc){
 		modifiedDocument = theDoc;
 	}
 	
-	public static String authorToRemove;
-	
-	private Classifier theClassifier;
 	
 	/**
 	 * Constructor for DocumentMagician
@@ -202,11 +176,9 @@ public class DocumentMagician {
 	/**
 	 * Re-classifies the document that has been modified
 	 */
-	public void reRunModified(){ // this may be unnecessary - it may be possible to re-use 'instanceSet'... TODO: look into this.
+	public void reRunModified(){ 
 		Logger.logln(NAME+"Called reRunModified (DocumentMagician)");
 		InstanceConstructor oneAndDone = new InstanceConstructor(isSparse,theseFeaturesCfd,false);
-		//System.out.println("**********OLD TEXT************** ");
-		//System.out.print(toModifySet.get(0).stringify());
 		String pathToTempModdedDoc = writeDirectory+ThePresident.sessionName+"_"+numProcessRequests+".txt";
 		Logger.logln(NAME+"Saving temporary file: "+pathToTempModdedDoc);
 		try {
@@ -217,7 +189,7 @@ public class DocumentMagician {
 			writer.write(modifiedDocument);
 			writer.close();
 		} catch (IOException e) {
-			//TODO: log this. 
+			Logger.logln(NAME+"Error saving temporary file to: "+pathToTempModdedDoc,Logger.LogOut.STDERR);
 			e.printStackTrace();
 		}
 		Document newModdedDoc = new Document(pathToTempModdedDoc,toModifySet.get(0).getAuthor(),toModifySet.get(0).getTitle());
@@ -254,7 +226,7 @@ public class DocumentMagician {
 			trainSetAuthors.add(trainSet.get(i).getAuthor());
 		}
 		String pathToTempModdedDoc = writeDirectory+ThePresident.sessionName+"_unmodified.txt";
-		Logger.logln(NAME+"Saving temporary file: "+pathToTempModdedDoc);
+		Logger.logln(NAME+"Saving original (unmodified) file: "+pathToTempModdedDoc);
 		try {
 			File tempModdedDoc = new File(pathToTempModdedDoc);
 			if (!tempModdedDoc.exists())
@@ -263,21 +235,16 @@ public class DocumentMagician {
 			writer.write(toModifySet.get(0).stringify());
 			writer.close();
 		} catch (IOException e) {
-			//TODO: log this. 
+			Logger.logln(NAME+"Error saving temporary (unmodified) file to: "+pathToTempModdedDoc,Logger.LogOut.STDERR);
 			e.printStackTrace();
 		}
 		toModifySet.get(0).setAuthor(authorToRemove);
 		instanceSet.runInstanceBuilder(trainSet,toModifySet);
-		
-		//System.out.println("THE toModifySet: "+toModifySet.toString());
 		attributeSet = instanceSet.getAttributeSet();
-		//System.out.println(instanceSet.getFullTestData().toString());
 		authorAndTrainingInstances = instanceSet.getTrainingInstances();
 		toModifyInstanceSet = instanceSet.getTestingInstances();
 		authorAndTrainDat = instanceSet.getFullTrainData();
 		toModifyDat = (instanceSet.getFullTestData());
-		//System.out.println(toModifyDat.toString());
-		//runWeka();
 	}
 	
 	/**
@@ -289,14 +256,6 @@ public class DocumentMagician {
 		noAuthorTrainInstanceConstructor = new InstanceConstructor(isSparse,theseFeaturesCfd,false);
 		int i;
 		int authSampleSetSize = authorSamplesSet.size();
-		//for (i=0;i<authSampleSetSize;i++){
-			//System.out.println("Author: "+authorSamplesSet.get(i).getAuthor());
-			//authorSamplesSet.get(i).setAuthor(dummyName);
-		//}
-		//for(i=0;i<noAuthorTrainSet.size();i++)
-			//System.out.println("Author: "+noAuthorTrainSet.get(i).getAuthor());
-		
-		// build each train instance set seperately so that each attribute set will contain all features
 		noAuthorTrainInstanceConstructor.onlyBuildTrain(noAuthorTrainSet);
 		noAuthorTrainAttributeSet = noAuthorTrainInstanceConstructor.getAttributeSet();
 		trainingInstances = noAuthorTrainInstanceConstructor.getTrainingInstances();
@@ -320,7 +279,6 @@ public class DocumentMagician {
 	public synchronized void runWeka(){
 		Logger.logln(NAME+"Called runWeka");
 		WekaAnalyzer waz = new WekaAnalyzer(theClassifier);
-		// hack this is just for testing purposes
 		if(ThePresident.CLASSIFIER_SAVED == false){
 			wekaResultMap = waz.classifyAndSaveClassifier(authorAndTrainDat,toModifyDat,toModifySet, ThePresident.PATH_TO_CLASSIFIER);// ?
 			ThePresident.CLASSIFIER_SAVED = true;
@@ -341,50 +299,18 @@ public class DocumentMagician {
 	public void initialDocToData(ProblemSet pSet,CumulativeFeatureDriver cfd, Classifier classifier ){//,List<Map<String,Document>> forTraining, List<Document> forTesting){
 		Logger.logln(NAME+"Entered initialDocToData in DocumentMagician");
 		theClassifier = classifier;
-		//System.out.println(pSet.toString());
+		
 		ProblemSet pSetCopy = new ProblemSet(pSet);
 		trainSet = pSetCopy.getAllTrainDocs();
 		
 		toModifySet = pSetCopy.getTestDocs(); // docToModify is the test doc already
-		Logger.logln(NAME+"True test doc author: "+toModifySet.get(0).getAuthor()); //TODO: this is an issue...
+		Logger.logln(NAME+"True test doc author: "+toModifySet.get(0).getAuthor()); 
 		
-		//String titleOfDocToModify = (pSet.getTestDocs().get(0)).getTitle();
 		authorToRemove = ProblemSet.getDummyAuthor(); 
 		Logger.logln(NAME+"Dummy author: "+authorToRemove);
 		authorSamplesSet = pSetCopy.removeAuthor(authorToRemove);
 		authorSamplesSet.remove(toModifySet.get(0));
-		//dummyName = ProblemSet.getDummyAuthor();
-		//System.out.println("TRAIN SET: "+trainSet.toString());
-		//System.out.println("TO MODIFY SET: "+toModifySet.toString());
-		//System.out.println("AUTHOR TO REMOVE: "+authorToRemove);
-		//System.out.println("AUTHOR SAMPLES SET: "+authorSamplesSet.toString());
 		noAuthorTrainSet = pSetCopy.getAllTrainDocs();
-		/*
-		boolean loadIfExists = false;
-		DocumentTagger otherSampleTagger = new DocumentTagger(noAuthorTrainSet,loadIfExists);
-		DocumentTagger authorSampleTagger = new DocumentTagger(authorSamplesSet,loadIfExists);
-		DocumentTagger toModifyTagger = new DocumentTagger(toModifySet,loadIfExists);	
-		otherSampleTagger.run();
-		authorSampleTagger.run();
-		toModifyTagger.run();
-		*/
-		/*EditorTabDriver.otherSampleTagger.setDocList(noAuthorTrainSet,loadIfExists);
-		EditorTabDriver.authorSampleTagger.setDocList(authorSamplesSet,loadIfExists);
-		EditorTabDriver.toModifyTagger.setDocList(toModifySet, loadIfExists);
-		EditorTabDriver.otherSampleTagger.run();
-		EditorTabDriver.authorSampleTagger.run();
-		EditorTabDriver.toModifyTagger.run();
-		/*
-		Logger.logln(NAME+"Attempting to load and parse documents...");
-		try {
-			DocumentParser.setDocs(noAuthorTrainSet,authorSamplesSet,toModifySet);
-		} catch (Exception e) {
-			Logger.logln(NAME+"ERROR: Could not load documents or for parsing!!!",LogOut.STDERR);
-			System.out.println("docToModify (in DocumentMagician: "+toModifySet.get(0).getFilePath());
-			e.printStackTrace();
-		}
-		Logger.logln(NAME+"Documents successfully loaded and/or parsed...");
-		*/
 		int i = 0;
 		int lenTSet = noAuthorTrainSet.size();
 		trainTitlesList = new ArrayList<String>(lenTSet);
@@ -392,14 +318,12 @@ public class DocumentMagician {
 		for (i=0;i<lenTSet;i++){
 			trainTitlesList.add(i,noAuthorTrainSet.get(i).getTitle());
 		}
-		
 		int lenTMSet = toModifySet.size();
 		toModifyTitlesList = new ArrayList<String>(lenTMSet);
 		for(i=0; i<lenTMSet; i++){
 			toModifyTitlesList.add(i,toModifySet.get(i).getTitle());
 		}
 		numSampleAuthors = pSetCopy.getAuthors().size();
-		//System.out.println("NO AUTHOR TRAIN SET: "+noAuthorTrainSet.toString());
 		Logger.logln(NAME+"Calling runPrimaryDocOps");
 		runPrimaryDocOps(cfd);
 		Logger.logln(NAME+"Calling runSecondaryDocOps");
@@ -427,15 +351,8 @@ public class DocumentMagician {
 		HashMap<String,Instances> InstancesForAnalysis = new HashMap<String,Instances>(4);
 		InstancesForAnalysis.put("authorAndTrain",authorAndTrainDat);
 		InstancesForAnalysis.put("noAuthorTrain",noAuthorTrainDat);
-		//System.out.println("AUTHOR:\n"+authorOnlyDat.toString());
-		//System.out.println("Train:\n"+authorAndTrainDat.toString());
-		//System.out.println(noAuthorTrainDat.toString());
 		InstancesForAnalysis.put("toModify",toModifyDat);
 		InstancesForAnalysis.put("authorOnly",authorOnlyDat);
-		//System.out.println(toModifyDat.toString());
-		//System.out.println(Arrays.deepToString(toModifyInstanceSet));
-		//System.out.println(attributeSet.toString());
-		//System.out.println(authorAttributeSet.toString());
 		return InstancesForAnalysis;
 		
 	}

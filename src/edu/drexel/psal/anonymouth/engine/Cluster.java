@@ -124,6 +124,10 @@ public class Cluster {
 		return max;
 	}
 	
+	/**
+	 * returns the minimum value stored in the cluster
+	 * @return
+	 */
 	public double getMinValue(){
 		double min = 1000000;
 		double tempMin;

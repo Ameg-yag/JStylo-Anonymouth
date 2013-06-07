@@ -96,19 +96,18 @@ public class ClusterAnalyzer {
 		return true;
 	}
 	
-	public void analyzeNow() { 
+	/**
+	 * Runs analysis of the ClusterGroups, and orders them such that the ClusterGroup(s) most likely to be make the user anonymous, are at the top of
+	 * the array returned by {@link #getClusterGroupArray()}
+	 */
+	public void analyzeNow(){ 
 		Logger.logln(NAME+"Begin analysis of clusters in analyzeNow in ClusterAnalyzer");
-		//System.out.println(Arrays.deepToString(clustersByDoc).replace("], [","]\n[")); 
-		int i,j;
+		int i,j,k;
 		commonClusterSetMap = new HashMap<SmartIntegerArray,Integer>(theDocs.size()); // worst case, no two documents fall in same set of clusters
 		i=0;
 		j=0;
-		
-		/**
-		 * TODO XXX NEXT, now that we have the cluster number (and Cluster objects) in the clustersByDoc array, we want to 
-		 * actually put the ClusterGroups into the commonClusterSetMap, and sort the actual cluster groups, so that we can 
-		 * keep track of the cluster group numbers.
-		 */
+		k=0;
+
 		double[][] centroidsByDoc = new double[numDocs][];
 		
 		for (i = 0; i < numDocs; i++) {
@@ -145,34 +144,29 @@ public class ClusterAnalyzer {
 		while (csmkIter.hasNext()) {
 			tempSum = 0;
 			tempKey = csmkIter.next();
-			//System.out.print("Key => "+tempKey+" .... Value => ");
 			clusterGroupFreq[j] = commonClusterSetMap.get(tempKey);
-			//System.out.print(clusterGroupFreq[j]);
-			//System.out.println();
 			lenKey = tempKey.length();
-			// clusterGroupFreq[i]*(summation from i=0 to i=lenKey : ((cluster preference number for feature(i))*((number of features +1)-i))/num features)
-			// this allows feature importance (as determined by information gain),  and cluster preference to influence the ordering of the cluster groups.
 			int[] keyRay = tempKey.toIntArray();
 			for(i=0; i< lenKey; i++){
+				// this allows feature importance (as determined by information gain),  and cluster preference to influence the ordering of the cluster groups.
 				tempSum += (keyRay[i]*((lenKey+1) - i))/lenKey;
 			}	
-			//tempSum = tempSum * ((double)(.25)*clusterGroupFreq[j]/numDocs);
 			clusterGroupArray[j] = new ClusterGroup(tempKey,tempSum, centroidsByDoc[j]);
 			j++;
 		}
 		
 		Arrays.sort(clusterGroupArray);
 		DriverClustersWindow.clusterGroupReady = true;
-		ClusterAnalyzer.clusterGroupArray = clusterGroupArray;
-		
-		for(i=0;i<clusterGroupArray.length;i++){
-			System.out.println(clusterGroupArray[i]);
-		}
-		
+		this.clusterGroupArray = clusterGroupArray;
+
 		Logger.logln(NAME+"ClusterAnalyzer analysis complete");
 	}
 	
+	/**
+	 * returns an array of ClusterGroups. Should only be called after {@link #analyzeNow()}
+	 * @return
+	 */
 	public static ClusterGroup[] getClusterGroupArray(){
 		return clusterGroupArray;
-	}	
+	}
 }

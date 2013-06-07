@@ -197,7 +197,6 @@ public class AnonymityDrawingPanel extends JPanel {
 		int max = (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5);
 		double percentToGoal = ((double)current/max)*100;	
 		pointer.setPercentages(current,max);
-		
 		main.anonymityDescription.setText("<html><center>You are "+((int)percentToGoal)+"%<br>of the way to<br>your goal</center><html>");
 		repaint();
 	}

@@ -6,10 +6,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.Set;
 
-import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.utils.Pair;
 import edu.drexel.psal.jstylo.generics.Logger;
 
@@ -26,23 +24,18 @@ public class TargetExtractor {
 	private int numMeans;
 	private int numAuthors;
 	private int additionalPartitions = 0;
-	//private double[] thisFeature;
 	private double min;
 	private double max;
 	private double spread;
 	private int numPartitions; // same as number of clusters (1 partition == 1 cluster)
 	private int originalNumMeans;
 	private boolean isFinished;
-	//private double avgAbsDev;
 	private double authorAvg;
 	private double authorStdDev;
 	private double authorMin;
 	private double authorMax;
-	//private Cluster targetCluster;
 	private boolean targetSet=false;
-	//private double targetValue;
 	private double presentValue;
-	//private double targetCent;
 	private double targetDev;
 	ArrayList<Cluster> thisFeaturesClusters; 
 	private ArrayList<String> trainTitlesList;
@@ -75,7 +68,6 @@ public class TargetExtractor {
 		this.authorAvg = attrib.getAuthorAvg();
 		this.authorStdDev = attrib.getAuthorStdDev();
 		this.presentValue = attrib.getToModifyValue();
-		//System.out.println("The Min is: "+min+" and the Max is: "+max+" the spread is: "+spread);
 		
 	}
 	
@@ -140,12 +132,10 @@ public class TargetExtractor {
 			
 			notFound = true;
 			
-			
 			ArrayList<Double> badRandomsTesting = new ArrayList<Double>();
 			double thisProb = 0;
 			while(notFound == true){
 				numLoops += 1;
-//				System.out.println("LOOPING: " + numLoops);
 				randomChoice = mtfGen.nextDouble(true,true);
 				thisProb = 0;
 				for(k=0;k<numFeatures;k++){
@@ -175,14 +165,6 @@ public class TargetExtractor {
 						numMeans = thisFeaturesClusters.size();
 					}
 					badRandomsTesting.add(randomChoice);
-					//System.out.println("Size of 'thisFeaturesClusters' => "+thisFeaturesClusters.size());
-					//System.out.println("size of 'skipList' => "+skipSet.size());
-					//System.out.println("numFeatures' => "+numFeatures);
-					//System.out.print("The probablities are => ");
-					//for(int l=0; l<numFeatures;l++)
-					//	System.out.print(probabilities[l]+", ");
-					//System.out.println();
-					//System.out.println("Random numbers chosen: "+badRandomsTesting.toString());
 				}
 				if(maxCentroidsFound==true || tooManyTries == true)
 					break;
@@ -195,8 +177,6 @@ public class TargetExtractor {
 			}
 			
 		}
-		//System.out.println("Number of centroids after kmeans++ aglorithm: "+thisFeaturesClusters.size());
-		
 	}
 	
 	/**
@@ -207,7 +187,6 @@ public class TargetExtractor {
 	public boolean initialize(){
 		//Logger.logln(NAME+"Initializing Clustering, will call kPlusPlusPrep.");
 		kPlusPlusPrep();
-		//System.out.println("Initialized with k-means++....");
 		int i;
 		int j;
 		double[] temp = new double[2];// temp[0] <=> parition number && temp[1] <=> difference value
@@ -219,7 +198,6 @@ public class TargetExtractor {
 		double[] allCentroids = getAllCentroids();
 	
 		// Initialize cluster element sets based on distance from each centroid
-		//System.out.println(numPartitions+", "+thePairs.length);
 		double[][] differences = new double[numMeans][thePairs.length];
 		for(i=0;i<numMeans;i++){
 			double  tempCentroid = allCentroids[i];
@@ -232,7 +210,6 @@ public class TargetExtractor {
 			j=0;
 			temp[0] = j;
 			temp[1] = differences[j][i];
-			//System.out.println("differences[0].length == "+differences[0].length+" and differences.length == "+differences.length);
 			for(j=1;j<differences.length;j++){// differences array's rows (correspond to 'thisFeaturesClusters' cluster indices)
 				if (temp[1]>differences[j][i]){
 					temp[0] = j;
@@ -261,13 +238,9 @@ public class TargetExtractor {
 			int count = 0;
 			Pair[] someElements = thisFeaturesClusters.get(i).getElements();
 			int someElementsLen = someElements.length;
-			//System.out.println("someElements is: "+someElements.toString()+" and the centroid is: "+thisFeaturesClusters.get(i).getCentroid());
 			for(j=0; j<someElementsLen;j++){
-			//System.out.println("the values in partition "+i+" are:");
 				double temp = someElements[j].value;
-				//sum+=(double)someIter.next();
 				sum+=temp;
-				//System.out.print("  "+temp+"  ");
 				count += 1;
 			}
 			if (count == 0)
@@ -335,7 +308,6 @@ public class TargetExtractor {
 				
 			}
 		}
-		//Scanner in = new Scanner(System.in);
 		boolean noProblems = true;
 		if(movedElement == false ){
 			//Logger.logln(NAME+"Elements stopped moving - algorithm converged.");
@@ -343,24 +315,13 @@ public class TargetExtractor {
 			if(numClusters < 2 && maxCentroidsFound == false){
 				additionalPartitions++;
 				numMeans = originalNumMeans+additionalPartitions;
-				//Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
-				//while(clusterIter.hasNext())
-					//System.out.println(clusterIter.next().getElements().toString());
-				//Logger.logln(NAME+"Less than two Clusters. Will restart with '"+numMeans+"' means. Enter a character.");
 				noProblems = false;
 				
 			}
 			else{
-				//System.out.println("Size of 'thisFeaturesClusters' (numClusters): "+numClusters);
 				for(i=0;i<numClusters;i++){
-					//System.out.println("moved element == false, num clusters > 2, index (i) == '"+i+"'");
 					if(thisFeaturesClusters.get(i).getElements().length < 3 && maxCentroidsFound == false){
 						numMeans--;
-						
-						//Iterator<Cluster> clusterIter = thisFeaturesClusters.iterator();
-						//while(clusterIter.hasNext())
-						//	System.out.println(clusterIter.next().getElements().toString());
-						//Logger.logln(NAME+"Cluster '"+i+"' has less than 3 elements. Will restart with '"+numMeans+"' means.");
 						noProblems = false;
 						break;
 					}
@@ -371,10 +332,8 @@ public class TargetExtractor {
 				isFinished=true;
 			}
 			else{
-				//in.next();
 				noProblems = true;
 				thisFeaturesClusters.clear();
-				//initialize();
 				return true;
 			}
 		}
@@ -407,12 +366,9 @@ public class TargetExtractor {
 	public void aMeansCluster(){ // a-means-cluster vs k-means-cluster
 		Logger.logln(NAME+"Entered aMeansCluster");
 		thisFeaturesClusters = new ArrayList<Cluster>(numPartitions);
-		//System.out.println("Starting Clustering...");
 		boolean mustRestart = true;
 		while (mustRestart)
 			mustRestart = initialize();	
-		//System.out.println("Clusters Initialized");
-		//System.out.println("Algorithm running....");
 		double avgAbsDev;
 		Cluster thisOne;
 		int numRemoved = 0;
@@ -506,9 +462,7 @@ public class TargetExtractor {
 		Cluster[] targets = new Cluster[numClusters]; // can't be more than this. 
 		i= 0;
 		for(i=0;i<numClusters;i++){
-			//System.out.println("preference value: "+preferences[i][1]);
 			targets[i]= thisFeaturesClusters.get(preferences[i][0].intValue());
-			//System.out.println(targets[i]);
 		}	
 		Logger.logln(NAME+"finished ordering clusters");
 		return targets;

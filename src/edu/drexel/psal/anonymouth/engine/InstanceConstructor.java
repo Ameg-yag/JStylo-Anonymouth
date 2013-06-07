@@ -118,11 +118,6 @@ public class InstanceConstructor {
 		do {
 			try {
 				wid.prepareTrainingSet(trainDocs, theseFeaturesCfd);
-
-				//if(overrideAttributes == true)
-				//wid.forceAttributeList(forcedAttributes);
-				//else
-				//	forcedAttributes =(FastVector) wid.getActualAttributeList().copy();
 				wid.prepareTestSet(testDocs);
 				outOfMemoryExceptionThrown = false;
 			} catch(Exception e) {
@@ -133,8 +128,6 @@ public class InstanceConstructor {
 
 		// Initialize two new instances to hold training and testing instances (attributes and data)
 		trainingDat=wid.getTrainingSet();
-		//System.out.println(trainingDat.toString());
-		//System.out.println("okay");
 		testingDat=wid.getTestSet();
 		setAttributes=getAttributes(trainingDat);
 		trainingInstances=getInstances(trainingDat);
@@ -206,17 +199,13 @@ public class InstanceConstructor {
 		int i=0;
 		String tempString;
 		ArrayList<String> tempAttrib= new ArrayList<String>(currentInstance.numAttributes());
-		//System.out.println("Number of attributes= "+currentInstance.numAttributes());
-		//System.out.println("length of new string array: "+tempAttrib.length);
 		for(i=0;i<currentInstance.numAttributes();i++){
-			//System.out.println("i<currentInstance.numAttributes() => "+currentInstance.numAttributes()+" i = " +i);
 			tempString = currentInstance.attribute(i).toString();
 			if(tempString.contains("authorName")){
 					tempAttrib.add(i,tempString);
 					continue;
 			}
 			tempAttrib.add(i,AttributeStripper.strip(tempString));
-			//System.out.println("TrainingAttribs: "+tempAttrib[i]);
 		}
 		return tempAttrib;
 	}
@@ -247,14 +236,9 @@ public class InstanceConstructor {
 		for(i=0;i<numInstances;i++){
 				j=0;
 				tempString =currentInstance.instance(i).toString()+",";
-				//System.out.println("Original line: "+tempString);
-				//tempInstance[i][j] = null; // set author name/ID to null rather than simply omit - allows attribute lists indices to stay synchronized.
-				//j++;
 				while(!tempString.equals("")){
 					placeHolder =tempString.indexOf(",");
-					//System.out.println(placeHolder);
 					otherTempString = tempString.substring(0,placeHolder);
-					//System.out.println(otherTempString);
 					if(j==skip){
 						tempInstance[i][j] = null; // set author name/ID to null rather than simply omit - allows attribute lists indices to stay synchronized
 					}
@@ -262,13 +246,10 @@ public class InstanceConstructor {
 						tempInstance[i][j] = Double.valueOf(otherTempString).doubleValue(); 
 					}
 					tempString = tempString.substring(placeHolder+1);	
-					//System.out.print(" | " +tempInstance[i][j]+" | ");
 					j++;
 				}
 		}
 		return tempInstance;
 	}
-	
-
 	
 }
