@@ -94,28 +94,4 @@ public class SmartIntegerArray{
 	public int length(){
 		return numbers.length;
 	}
-//	
-//	public int[] getFreq(int ){
-//		int i=0;
-//		int tempMin;
-//		int minVal = 1000000; // arbitrary large initial value
-//		for(i=0;i<len;i++){
-//			tempMin = numbers[i];
-//			if(tempMin < minVal
-//		}
-//		return minVal;
-//		
-//	}
-	/*
-	public static void main(String[] args){
-		int[] one = new int[]{1,2,3,4,5};
-		int[] two = new int[]{1,2,3,4,5};
-		SmartIntegerArray sia = new SmartIntegerArray(one);
-		System.out.println(sia);
-		SmartIntegerArray  siat = new SmartIntegerArray(two);
-		System.out.println(siat.equals(sia));
-		System.out.println(one.equals(two));
-	}
-	*/
-	
 }

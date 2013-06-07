@@ -59,10 +59,6 @@ public class FeatureSwapper {
 	 * @return
 	 */
 	public ClusterGroup getBestClusterGroup(int topN_ClusterGroupsToTest){
-		//ThePresident.read("pre testing: ");
-		//for (int i = 0; i < 30; i++)
-		//	System.out.println(clusterGroups[i].toString());
-		//ThePresident.read();
 		int numClusterGroups;
 		if (topN_ClusterGroupsToTest <= 0 || topN_ClusterGroupsToTest > clusterGroups.length)
 			numClusterGroups = clusterGroups.length;
@@ -93,10 +89,7 @@ public class FeatureSwapper {
 			keyIter = (wekaResultMap.keySet()).iterator();
 			System.out.println(wekaResultMap.keySet().toString()+" -- current cluster group num: "+i);
 			if (keyIter.hasNext()){
-				//Map<String,Double> tempMap = wekaResultMap.get(keyIter.next());
-				//ThePresident.read(tempMap.toString());
 				wekaResultsArray[i] = new WekaResults(wekaResultMap.get(keyIter.next()),i); // there should never be more that one key in this map. We only test one document.
-				//wekaResultsArray[i] = new WekaResults(tempMap,i); // there should never be more that one key in this map. We only test one document.
 			}
 			else
 				ErrorHandler.fatalError();
@@ -112,7 +105,6 @@ public class FeatureSwapper {
 		boolean allEqual = true;
 		double lastValue = wekaResultsArray[0].representativeValue;
 		int numVals = wekaResultsArray.length;
-		//ThePresident.read("post testing: ");
 		for (i = 1; i < numVals; i++){
 			if (lastValue != wekaResultsArray[i].representativeValue){
 				allEqual = false;

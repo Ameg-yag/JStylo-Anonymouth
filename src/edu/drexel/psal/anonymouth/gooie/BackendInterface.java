@@ -106,7 +106,6 @@ public class BackendInterface {
 		
 		public PreTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
 			super(main);
-
 			this.wizard = wizard;
 			this.magician = magician;
 		}
@@ -131,8 +130,7 @@ public class BackendInterface {
 					Logger.logln(NAME+"Process button pressed for first time (initial run) in editor tab");
 					
 					pw.setText("Extracting and Clustering Features...");
-					try
-					{
+					try{
 						wizard.runInitial(magician,main.cfd, main.classifiers.get(0));
 						pw.setText("Initializing Tagger...");
 						Tagger.initTagger();
@@ -149,7 +147,7 @@ public class BackendInterface {
 					Map<String,Map<String,Double>> wekaResults = magician.getWekaResultList();
 					Logger.logln(NAME+" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
 					Logger.logln(NAME+wekaResults.toString());
-					makeResultsTable(wekaResults, main);
+					makeResultsChart(wekaResults, main);
 				} else {
 					Logger.logln(NAME+"Process button pressed to re-process document to modify.");
 					tempDoc = getDocFromCurrentTab();
@@ -177,49 +175,10 @@ public class BackendInterface {
 						Map<String,Map<String,Double>> wekaResults = magician.getWekaResultList();
 						Logger.logln(NAME+" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
 						Logger.logln(NAME+wekaResults.toString());
-						makeResultsTable(wekaResults, main);
+						makeResultsChart(wekaResults, main);
 					}
 				}
 
-				DriverDocumentsTab.signalTargetsSelected(main, true);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				// Get current size of heap in bytes
-				long heapSize = Runtime.getRuntime().totalMemory();
-
-				// Get maximum size of heap in bytes. The heap cannot grow beyond this size.
-				// Any attempt will result in an OutOfMemoryException.
-				long heapMaxSize = Runtime.getRuntime().maxMemory();
-
-				// Get amount of free memory within the heap in bytes. This size will increase
-				// after garbage collection and decrease as new objects are created.
-				long heapFreeSize = Runtime.getRuntime().freeMemory();
-				Logger.logln(NAME+"Something happend. Here are the total, max, and free heap sizes:");
-				Logger.logln(NAME+"Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
-			}
-			
-			pw.stop();
-		}
-	}
-	
-	
-	
-	protected static void postTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard){
-		(new Thread(bei.new PostTargetSelectionProcessing(main,wizard))).start();
-		
-	}
-	
-	public class PostTargetSelectionProcessing extends GUIThread {
-
-		private DataAnalyzer wizard;
-
-		public PostTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard){
-			super(main);
-			this.wizard = wizard;
-		}
-
-		public void run(){
 			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded(); // todo figure out why this and/or the two percent change needed calls in TaggedDocument affect AnonymityBar
 
 			DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
@@ -242,6 +201,8 @@ public class BackendInterface {
 			SuggestionCalculator.placeSuggestions(main);
 			GUIUpdateInterface.updateResultsPrepColor(main);
 			
+			DriverDocumentsTab.setAllDocTabUseable(true, main);		
+			
 			DriverDocumentsTab.ignoreNumActions = 1; // must be set to 1, otherwise "....setDot(0)" (2 lines down) will screw things up when it fires the caretUpdate listener.
 			main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
 			main.getDocumentPane().getCaret().setDot(0); // NOTE However, THIS DOES fire the caretUpdate, because we are messing with the caret itself.
@@ -253,13 +214,6 @@ public class BackendInterface {
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
 			
-			synchronized(DriverDocumentsTab.lock){ // waits for notification from end of DriverDocumentsTab.moveHighlight
-				try {
-					DriverDocumentsTab.lock.wait();
-				} catch (InterruptedException e) {
-				}
-			}
-			
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
 			DriverDocumentsTab.charsRemoved = 0;	
@@ -269,23 +223,39 @@ public class BackendInterface {
 			DictionaryBinding.init();//initializes the dictionary for wordNEt
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
-
 			
 			main.processButton.setText("Re-Process");
-			
-			main.getDocumentPane().setEditable(true);
-			main.getDocumentPane().setEnabled(true);
-			DriverDocumentsTab.setAllDocTabUseable(true, main);
+
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
 			
 			GUIMain.processed = true; 
+			
+			pw.stop();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			// Get current size of heap in bytes
+			long heapSize = Runtime.getRuntime().totalMemory();
+
+			// Get maximum size of heap in bytes. The heap cannot grow beyond this size.
+			// Any attempt will result in an OutOfMemoryException.
+			long heapMaxSize = Runtime.getRuntime().maxMemory();
+
+			// Get amount of free memory within the heap in bytes. This size will increase
+			// after garbage collection and decrease as new objects are created.
+			long heapFreeSize = Runtime.getRuntime().freeMemory();
+			Logger.logln(NAME+"Something happend. Here are the total, max, and free heap sizes:");
+			Logger.logln(NAME+"Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
 		}
+		
 	}
-	
+}
+
+
 
 	
-	
+	/*
 	public static TableModel makeSuggestionListTable(String[] suggestions){
 		int numSuggestions = suggestions.length;
 		String[] skip = {"COMPLEXITY","FLESCH_READING_EASE_SCORE","GUNNING_FOG_READABILITY_INDEX","AVERAGE_SENTENCE_LENGTH"};
@@ -321,9 +291,9 @@ public class BackendInterface {
 		TableModel suggestionModel = new DefaultTableModel(theModel,new String[]{"No.","Feature Name"});
 		return suggestionModel;
 	}
+	*/
 	
-	
-	public static void makeResultsTable(Map<String,Map<String,Double>> resultMap, GUIMain main)
+	public static void makeResultsChart(Map<String,Map<String,Double>> resultMap, GUIMain main)
 	{
 		
 		Iterator<String> mapKeyIter = resultMap.keySet().iterator();
@@ -372,7 +342,7 @@ public class BackendInterface {
 	}
 	
 }
-
+/*
 class PredictionRenderer implements TableCellRenderer {
 	
 	private GUIMain main;
@@ -412,3 +382,4 @@ class PredictionRenderer implements TableCellRenderer {
 	    return renderer;
 	}
 }
+*/

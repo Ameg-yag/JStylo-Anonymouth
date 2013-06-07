@@ -42,8 +42,8 @@ import javax.swing.text.Highlighter;
 /**
  * editorTabDriver does the work for the editorTab (Editor) in the main GUI (GUIMain)
  * @author Andrew W.E. McDonald
- * @author Joe Muoio
  * @author Marc Barrowclift
+ * @author Joe Muoio
  * 
  */
 public class DriverDocumentsTab {
@@ -149,12 +149,6 @@ public class DriverDocumentsTab {
 	public static int getCurrentSentNum(){
 		return currentSentNum;
 	}
-	
-	protected static void signalTargetsSelected(GUIMain main, boolean goodToGo){
-		if(goodToGo == true)
-			BackendInterface.postTargetSelectionProcessing(main, wizard);
-	}
-	
 	
 	protected static void doTranslations(ArrayList<TaggedSentence> sentences, GUIMain main)
 	{
