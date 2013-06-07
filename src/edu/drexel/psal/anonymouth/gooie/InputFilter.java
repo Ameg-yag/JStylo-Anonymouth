@@ -88,15 +88,17 @@ public class InputFilter extends DocumentFilter{
 	 * @param text - The text the user typed
 	 */
 	private void checkAddingAbbreviations(String text) {
-		String textBeforePeriod = GUIMain.inst.getDocumentPane().getText().substring(DriverDocumentsTab.startSelection-2, DriverDocumentsTab.startSelection);
-		if (textBeforePeriod.substring(1, 2).equals(".") && !EOS.contains(text)) {			
-			for (int i = 0; i < notEndsOfSentence.length; i++) {
-				if (notEndsOfSentence[i].contains(textBeforePeriod)) {
-					DriverDocumentsTab.shouldUpdate = false;
-					addingAbbreviation = true;
+		try {
+			String textBeforePeriod = GUIMain.inst.getDocumentPane().getText().substring(DriverDocumentsTab.startSelection-2, DriverDocumentsTab.startSelection);
+			if (textBeforePeriod.substring(1, 2).equals(".") && !EOS.contains(text)) {			
+				for (int i = 0; i < notEndsOfSentence.length; i++) {
+					if (notEndsOfSentence[i].contains(textBeforePeriod)) {
+						DriverDocumentsTab.shouldUpdate = false;
+						addingAbbreviation = true;
+					}
 				}
 			}
-		}
+		} catch(StringIndexOutOfBoundsException e) {} //most likely the user is typing at the very beginning of the document, move on.
 	}
 	
 	/**
@@ -108,7 +110,9 @@ public class InputFilter extends DocumentFilter{
 			DriverDocumentsTab.EOSesRemoved = false;
 
 			checkRemoveEllipses(offset);
+			System.out.println("RemoveEllipses = " + DriverDocumentsTab.shouldUpdate);
 			checkRemoveAbbreviations(offset);
+			System.out.println("Final = " + DriverDocumentsTab.shouldUpdate);
 		} else { //If the user selected and deleted a section of text greater than a single character
 			/**
 			 * I know this looks goofy, but without some sort of check to make sure that the document is done processing, this would fire
@@ -149,11 +153,13 @@ public class InputFilter extends DocumentFilter{
 	 * @param offset
 	 */
 	private void checkRemoveAbbreviations(int offset) {
-		String textBeforeDeletion = GUIMain.inst.getDocumentPane().getText().substring(offset-2, offset+1);
+		try {
+			String textBeforeDeletion = GUIMain.inst.getDocumentPane().getText().substring(offset-2, offset+1);
 
-		for (int i = 0; i < notEndsOfSentence.length; i++) {
-			if (notEndsOfSentence[i].contains(textBeforeDeletion))
-				DriverDocumentsTab.shouldUpdate = false;
-		}		
+			for (int i = 0; i < notEndsOfSentence.length; i++) {
+				if (notEndsOfSentence[i].contains(textBeforeDeletion))
+					DriverDocumentsTab.shouldUpdate = false;
+			}
+		} catch(StringIndexOutOfBoundsException e) {} //most likely the user is deleting at the first index of their document, move on
 	}
 }

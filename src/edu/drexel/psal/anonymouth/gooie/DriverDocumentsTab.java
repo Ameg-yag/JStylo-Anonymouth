@@ -300,11 +300,11 @@ public class DriverDocumentsTab {
 						}
 					} else {
 						int temp = 0;
-						if (main.getDocumentPane().getText().substring(selectedSentIndexRange[0], selectedSentIndexRange[0]+1).equals(" "))
-							temp++;
-//						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) { //we want to not highlight whitespace before the actual sentence.
+//						if (main.getDocumentPane().getText().substring(selectedSentIndexRange[0], selectedSentIndexRange[0]+1).equals(" "))
 //							temp++;
-//						}
+						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) { //we want to not highlight whitespace before the actual sentence.
+							temp++;
+						}
 						
 						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
 					}
