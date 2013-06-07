@@ -146,6 +146,7 @@ public class DriverDocumentsTab {
 	protected static Object lock = new Object();
 	private static boolean wholeLastSentDeleted = false;
 	private static boolean wholeBeginningSentDeleted = false;
+	public static boolean skipDeletingEOSes = false;
 	
 	public static int getCurrentSentNum(){
 		return currentSentNum;
@@ -294,11 +295,10 @@ public class DriverDocumentsTab {
 					int temp = 0;
 					//if (main.getDocumentPane().getText().substring(selectedSentIndexRange[0], selectedSentIndexRange[0]+1).equals(" "))
 					//	temp++;
-					while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) { //we want to not highlight whitespace before the actual sentence.
+					while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) //we want to not highlight whitespace before the actual sentence.
 						temp++;
-					}
 
-					if (selectedSentIndexRange[0]+temp <= currentCaretPosition) {
+					if (selectedSentIndexRange[0]+temp <= currentCaretPosition || firstRun) {
 						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
 					}
 				}
@@ -430,7 +430,11 @@ public class DriverDocumentsTab {
 							currentCharacterBuffer++;
 						}
 						
-						EOSJustRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition-1, caretPositionPriorToCharRemoval-1);
+						if (skipDeletingEOSes) {
+							skipDeletingEOSes = false;
+						} else {
+							EOSJustRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition-1, caretPositionPriorToCharRemoval-1);
+						}
 						
 						if (EOSJustRemoved) {
 							try {

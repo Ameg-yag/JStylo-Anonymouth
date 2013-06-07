@@ -1365,7 +1365,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			anonymityScrollPane = new JScrollPane(anonymityHoldingPanel);
 			anonymityScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-			resultsTableLabel = new JLabel("Results:");
+			resultsTableLabel = new JLabel("Ownership Certainty:");
 			resultsTableLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			resultsTableLabel.setFont(titleFont);
 			resultsTableLabel.setOpaque(true);

@@ -4,6 +4,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
+import edu.drexel.psal.anonymouth.utils.SpecialCharacterTracker;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 /**
@@ -41,11 +42,14 @@ public class InputFilter extends DocumentFilter{
 			
 			checkAddingEllipses(text);
 			checkAddingAbbreviations(text);
+			
+			if (DriverDocumentsTab.startSelection != DriverDocumentsTab.endSelection)
+				DriverDocumentsTab.skipDeletingEOSes = true; 
 		} else { //If the user pasted in text of length greater than a single character
 			DriverDocumentsTab.shouldUpdate = true; //If the user pasted in a massive chunk of text we want to update no matter what.
 			Logger.logln(NAME + "User pasted in text, will update");
 		}
-		
+
 		fb.replace(offset, length, text, attr);
 	}
 	
@@ -60,7 +64,7 @@ public class InputFilter extends DocumentFilter{
 		if (isEOS && !addingAbbreviation) {
 			watchForEOS = true;
 			//For whatever reason, startSelection must be subtracted by 1, and refuses to work otherwise.
-			DriverDocumentsTab.taggedDoc.specialCharTracker.addEOS(text.charAt(0), DriverDocumentsTab.startSelection-1, false);
+			DriverDocumentsTab.taggedDoc.specialCharTracker.addEOS(SpecialCharacterTracker.replacementEOS[0], DriverDocumentsTab.endSelection-1, false);
 		} else if (!isEOS && !watchForEOS) { //If the user isn't typing an EOS character and they weren't typing one previously, then it's just a normal character, update.
 			DriverDocumentsTab.shouldUpdate = true;
 		} else if (isEOS && addingAbbreviation) {
@@ -110,9 +114,7 @@ public class InputFilter extends DocumentFilter{
 			DriverDocumentsTab.EOSesRemoved = false;
 
 			checkRemoveEllipses(offset);
-			System.out.println("RemoveEllipses = " + DriverDocumentsTab.shouldUpdate);
 			checkRemoveAbbreviations(offset);
-			System.out.println("Final = " + DriverDocumentsTab.shouldUpdate);
 		} else { //If the user selected and deleted a section of text greater than a single character
 			/**
 			 * I know this looks goofy, but without some sort of check to make sure that the document is done processing, this would fire

@@ -97,7 +97,7 @@ public class DriverTranslationsTab implements ActionListener {
 				translationTextAreas[i].setEditable(false);
 
 				translationButtons[i] = new JButton();
-				translationButtons[i].setIcon(arrow_up);
+				translationButtons[i].setIcon(arrow_up); //TODO WHY does this throw NullPointerExceptions every so often?
 				translationButtons[i].setPressedIcon(arrow_down);
 				translationButtons[i].setToolTipText("Click to replace selected sentence with this translation");
 				translationButtons[i].setBorderPainted(false);

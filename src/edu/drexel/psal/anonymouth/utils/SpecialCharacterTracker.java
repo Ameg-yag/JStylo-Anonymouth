@@ -141,6 +141,7 @@ public class SpecialCharacterTracker implements Serializable {
 	 * @param upperBound
 	 */
 	public boolean removeEOSesInRange(int lowerBound, int upperBound) {
+		System.out.println(NAME+"Removing EOSes in range " + lowerBound + " - " + upperBound);
 		int i;
 		int numEOSes = eoses.size();
 		int thisEOSLoc;

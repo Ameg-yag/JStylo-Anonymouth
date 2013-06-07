@@ -206,7 +206,6 @@ public class BackendInterface {
 			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
-			
 
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
