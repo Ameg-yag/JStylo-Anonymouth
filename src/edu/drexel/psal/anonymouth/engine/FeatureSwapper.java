@@ -10,7 +10,6 @@ import edu.drexel.psal.anonymouth.gooie.ErrorHandler;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.jstylo.analyzers.WekaAnalyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
-import weka.classifiers.Classifier;
 import weka.core.Instance;
 import weka.core.Instances;
 

@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import edu.drexel.psal.anonymouth.gooie.DriverAnonymityTab;
 import edu.drexel.psal.anonymouth.gooie.DriverClustersWindow;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.utils.Pair;
@@ -42,13 +41,10 @@ public class ClusterAnalyzer {
 		theFeatures = featuresToUse;
 		//System.out.println("DEBUGGING: numDocs = " + theDocs.size());
 		numDocs = theDocs.size();
-		for (int x = 0; x < numDocs; x++) {
-			System.out.println("DEBUGGING: " + theDocs.get(x));
-		}
-		System.out.println("numDocs = " + numDocs);
+
 		int num_docs_not_processed_by_jstylo =  numDocs % ThePresident.NUM_TAGGING_THREADS; // XXX XXX XXX XXX XXX WE ONLY NEED THIS UNTIL JSTYLO FIXES ITS THREAD DIVISION ISSUE
 		numDocs -= num_docs_not_processed_by_jstylo; // XXX XXX XXX XXX XXX XXX XXX SEE COMMENT ABOVE
-		System.out.println("numDocs = " + numDocs);
+
 		numFeatures = featuresToUse.size();
 		clustersByDoc = new Cluster[numDocs][numFeatures];
 		int i,j;
@@ -78,7 +74,7 @@ public class ClusterAnalyzer {
 		int lenPairRay;
 		int clusterNum;
 		int col;
-
+		
 		for (i = 0; i < lenClusterRay; i++) {
 			Pair[] pairRay = orderedClusters[i].getElements();
 			clusterNum = i;
@@ -167,7 +163,8 @@ public class ClusterAnalyzer {
 		
 		Arrays.sort(clusterGroupArray);
 		DriverClustersWindow.clusterGroupReady = true;
-
+		ClusterAnalyzer.clusterGroupArray = clusterGroupArray;
+		
 		for(i=0;i<clusterGroupArray.length;i++){
 			System.out.println(clusterGroupArray[i]);
 		}
