@@ -117,8 +117,6 @@ public class RightClickMenu extends JPopupMenu {
 				DriverDocumentsTab.taggedDoc.removeMultipleAndReplace(taggedSentences, replacement);
 				DriverDocumentsTab.update(main, true);
 				
-				DriverDocumentsTab.ignoreHighlight = false;
-
 				int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(PopupListener.mark)[0];
 
 				//We want to make sure we're setting the caret at the actual start of the sentence and not in white space (so it gets highlighted)
@@ -131,7 +129,6 @@ public class RightClickMenu extends JPopupMenu {
 				main.getDocumentPane().getCaret().setDot(selectedSentInfo[1]+space);
 				DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
 				DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
-				DriverDocumentsTab.ignoreHighlight = false;
 				DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
 			}
 		};

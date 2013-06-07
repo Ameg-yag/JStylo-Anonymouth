@@ -135,7 +135,6 @@ public class DriverDocumentsTab {
 	protected static Boolean EOSesRemoved = false;
 	protected static Boolean changedCaret = false;
 	protected static String newLine = System.lineSeparator();
-	protected static Boolean ignoreHighlight = false;
 	public static Boolean deleting = false;
 	protected static Boolean charsWereInserted = false;
 	protected static Boolean charsWereRemoved = false;
@@ -282,37 +281,32 @@ public class DriverDocumentsTab {
 			main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 		try {
 			System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
-			if (currentSentNum != 0) { //if it's not the first sentence (assuming there's not going to be a space/tab before it TODO make this not suck)
-				if ((selectedSentIndexRange[0] != currentCaretPosition && !ignoreHighlight) || deleting) { //if the user is not selecting a sentence, don't highlight it.
-					if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) { // if the sentence is preceded by a newline, we need to modify this a bit
-						int temp = 0;
-						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(newLine))
-							temp++;
-						
-						if (selectedSentIndexRange[0]+temp <= currentCaretPosition) { //If the user is actually selecting the sentence
-							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
-						}
-					} else {
-						int temp = 0;
-//						if (main.getDocumentPane().getText().substring(selectedSentIndexRange[0], selectedSentIndexRange[0]+1).equals(" "))
-//							temp++;
-						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) { //we want to not highlight whitespace before the actual sentence.
-							temp++;
-						}
-						
+			if ((selectedSentIndexRange[0] != currentCaretPosition || currentSentNum == 0) || deleting) { //if the user is not selecting a sentence, don't highlight it.
+				if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) { // if the sentence is preceded by a newline, we need to modify this a bit
+					int temp = 0;
+					while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(newLine))
+						temp++;
+
+					if (selectedSentIndexRange[0]+temp <= currentCaretPosition) { //If the user is actually selecting the sentence
 						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
 					}
 				} else {
-					ignoreHighlight = true;
+					int temp = 0;
+					//if (main.getDocumentPane().getText().substring(selectedSentIndexRange[0], selectedSentIndexRange[0]+1).equals(" "))
+					//	temp++;
+					while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) { //we want to not highlight whitespace before the actual sentence.
+						temp++;
+					}
+
+					if (selectedSentIndexRange[0]+temp <= currentCaretPosition) {
+						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
+					}
 				}
-			} else {
-				currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0], bounds[1], painter);
-			}
-		} 
-		catch (BadLocationException err) {
+			} 
+		} catch (BadLocationException err) {
 			err.printStackTrace();
 		}
-		synchronized(lock){
+		synchronized(lock) {
 			lock.notify();
 		}
 	}
@@ -603,7 +597,6 @@ public class DriverDocumentsTab {
 							InputFilter.isEOS = false;
 							changedCaret = false;
 							shouldUpdate = true;
-							ignoreHighlight = false;
 
 							/**
 							 * Exists for the sole purpose of pushing a sentence that has been edited and finished to the appropriate place in
@@ -637,7 +630,6 @@ public class DriverDocumentsTab {
 							charsWereInserted = false;
 							charsWereRemoved = false;
 							shouldUpdate = true;
-							ignoreHighlight = false;
 
 							/**
 							 * Exists for the sole purpose of pushing a sentence that has been edited and finished to the appropriate place in
@@ -811,7 +803,6 @@ public class DriverDocumentsTab {
 			public void mouseReleased(MouseEvent me) {
 				changedCaret = true;
 				deleting = false;
-				ignoreHighlight = false;
 				
 				if (main.getDocumentPane().getCaret().getDot() == main.getDocumentPane().getCaret().getMark())
 					main.clipboard.setEnabled(false, false, true);
