@@ -29,6 +29,7 @@ public class InputFilter extends DocumentFilter{
 	public static Boolean isEOS = false; //keeps track of whether or not the current character is an EOS character.
 	public static Boolean ignoreTranslation = false;
 	private Boolean addingAbbreviation = false;
+	public static Boolean ignoreDeletion = false;
 	private String[] notEndsOfSentence = {"U.S.","R.N.","M.D.","i.e.","e.x.","e.g.","D.C.","B.C.","B.S.","Ph.D.","B.A.","A.B.","A.D.","A.M.","P.M.","r.b.i.","V.P."}; //we only need to worry about these kinds of abbreviations since SentenceTools takes care of the others
 	
 	/**

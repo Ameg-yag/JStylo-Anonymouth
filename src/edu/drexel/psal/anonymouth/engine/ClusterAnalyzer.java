@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import edu.drexel.psal.anonymouth.gooie.DriverAnonymityTab;
 import edu.drexel.psal.anonymouth.gooie.DriverClustersWindow;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.utils.Pair;
@@ -38,15 +37,20 @@ public class ClusterAnalyzer {
 		
 		Logger.logln(NAME+"Start construction of ClusterAnalyzer");
 		theDocs = DocumentMagician.getTrainTitlesList();
+
 		theFeatures = featuresToUse;
+		//System.out.println("DEBUGGING: numDocs = " + theDocs.size());
 		numDocs = theDocs.size();
+
 		int num_docs_not_processed_by_jstylo =  numDocs % ThePresident.NUM_TAGGING_THREADS; // XXX XXX XXX XXX XXX WE ONLY NEED THIS UNTIL JSTYLO FIXES ITS THREAD DIVISION ISSUE
 		numDocs -= num_docs_not_processed_by_jstylo; // XXX XXX XXX XXX XXX XXX XXX SEE COMMENT ABOVE
+
 		numFeatures = featuresToUse.size();
 		clustersByDoc = new Cluster[numDocs][numFeatures];
 		int i,j;
-		for(i=0; i< numFeatures;i++){
-			for(j=0; j< numDocs; j++){
+		
+		for (i=0; i< numFeatures;i++) {
+			for (j=0; j< numDocs; j++) {
 				clustersByDoc[j][i] = null;
 			}
 		}
@@ -60,9 +64,9 @@ public class ClusterAnalyzer {
 	 * @return
 	 * 	true if nothing went wrong
 	 */
-	public boolean addFeature(Attribute attrib){
+	public boolean addFeature(Attribute attrib) {
 		int row = theFeatures.indexOf(attrib.getConcatGenNameAndStrInBraces());
-		System.out.printf("adding feature number %d: %s\n", row, attrib.getConcatGenNameAndStrInBraces());
+//		System.out.printf("adding feature number %d: %s\n", row, attrib.getConcatGenNameAndStrInBraces());
 		Cluster[] orderedClusters = attrib.getOrderedClusters();
 		int lenClusterRay = orderedClusters.length;
 		int i =0;
@@ -70,11 +74,13 @@ public class ClusterAnalyzer {
 		int lenPairRay;
 		int clusterNum;
 		int col;
-		for(i=0; i<lenClusterRay;i++){
+		
+		for (i = 0; i < lenClusterRay; i++) {
 			Pair[] pairRay = orderedClusters[i].getElements();
 			clusterNum = i;
 			lenPairRay = pairRay.length;
-			for(j=0;j<lenPairRay;j++){
+
+			for (j = 0; j < lenPairRay; j++) {
 				col = theDocs.indexOf(pairRay[j].doc);
 				if (cols.indexOf((Integer)col) == -1)
 						cols.add((Integer)col);
@@ -101,36 +107,41 @@ public class ClusterAnalyzer {
 		i=0;
 		j=0;
 		k=0;
-		
+
 		double[][] centroidsByDoc = new double[numDocs][];
-		for(i=0;i<numDocs;i++){
-				int numClusters = clustersByDoc[i].length;
-				int[] clusterNumsByRow = new int[numClusters];
-				double[] centroids = new double[numClusters];
-				for(j = 0; j < numClusters; j ++){
-					System.out.println("document "+i+", cluster number "+j+" => "+clustersByDoc[i][j]);
-					clusterNumsByRow[j] = clustersByDoc[i][j].getClusterNumber();
-					centroids[j] = clustersByDoc[i][j].getCentroid();
-				}
-				centroidsByDoc[i] = centroids;
-				SmartIntegerArray tempKey = new SmartIntegerArray(clusterNumsByRow);
-				if(commonClusterSetMap.containsKey(tempKey) == true)
-					commonClusterSetMap.put(tempKey,commonClusterSetMap.get(tempKey)+1);
-				else
-					commonClusterSetMap.put(tempKey,1);
+		
+		for (i = 0; i < numDocs; i++) {
+			int numClusters = clustersByDoc[i].length;
+			int[] clusterNumsByRow = new int[numClusters];
+			double[] centroids = new double[numClusters];
+
+			for (j = 0; j < numClusters; j ++) {
+				System.out.println("document "+i+", cluster number "+j+" => "+clustersByDoc[i][j]);
+				clusterNumsByRow[j] = clustersByDoc[i][j].getClusterNumber();
+				centroids[j] = clustersByDoc[i][j].getCentroid();
+			}
+			
+			centroidsByDoc[i] = centroids;
+			SmartIntegerArray tempKey = new SmartIntegerArray(clusterNumsByRow);
+			
+			if(commonClusterSetMap.containsKey(tempKey) == true)
+				commonClusterSetMap.put(tempKey,commonClusterSetMap.get(tempKey)+1);
+			else
+				commonClusterSetMap.put(tempKey,1);
 		}
+		
 		Set<SmartIntegerArray> clusterSetMapKeys = commonClusterSetMap.keySet();
 		int numKeys = clusterSetMapKeys.size();
 		SmartIntegerArray tempKey;
 		Iterator<SmartIntegerArray> csmkIter = clusterSetMapKeys.iterator();
-		int[] resultsByCluster = new int[numKeys];
 		i =0;
 		j = 0; 
 		int lenKey;
 		int[] clusterGroupFreq = new int[numKeys];
 		ClusterGroup[] clusterGroupArray = new ClusterGroup[numKeys];
 		double tempSum = 0;
-		while(csmkIter.hasNext()){
+		
+		while (csmkIter.hasNext()) {
 			tempSum = 0;
 			tempKey = csmkIter.next();
 			clusterGroupFreq[j] = commonClusterSetMap.get(tempKey);
@@ -143,9 +154,11 @@ public class ClusterAnalyzer {
 			clusterGroupArray[j] = new ClusterGroup(tempKey,tempSum, centroidsByDoc[j]);
 			j++;
 		}
+		
 		Arrays.sort(clusterGroupArray);
 		DriverClustersWindow.clusterGroupReady = true;
 		this.clusterGroupArray = clusterGroupArray;
+
 		Logger.logln(NAME+"ClusterAnalyzer analysis complete");
 	}
 	
@@ -156,5 +169,4 @@ public class ClusterAnalyzer {
 	public static ClusterGroup[] getClusterGroupArray(){
 		return clusterGroupArray;
 	}
-	
 }

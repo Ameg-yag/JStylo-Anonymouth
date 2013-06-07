@@ -1299,7 +1299,6 @@ public class GUIMain extends javax.swing.JFrame  {
 				getDocumentPane().setText("This is where the latest version of your document will be.");
 				getDocumentPane().setFont(normalFont);
 				getDocumentPane().setEnabled(false);
-				getDocumentPane().setEditable(false);
 				getDocumentPane().setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(1,3,1,3)));
 
 				InputFilter documentFilter = new InputFilter();
@@ -1352,6 +1351,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			anonymityDescription = new JLabel();
 			anonymityDescription.setFont(new Font("Helvatica", Font.PLAIN, 15));
 			anonymityDescription.setText("<html><center>Test document must<br>be processed to<br>recieve results</center></html>");
+			anonymityDescription.setHorizontalAlignment(SwingConstants.CENTER);
 
 			anonymityHoldingPanel = new JPanel();
 			anonymityHoldingPanel.setBackground(Color.WHITE);
@@ -1360,7 +1360,7 @@ public class GUIMain extends javax.swing.JFrame  {
 					"grow, fill",
 					"[][grow, fill][]"));
 			anonymityHoldingPanel.add(anonymityDrawingPanel, "h 494!, pad -10 0");
-			anonymityHoldingPanel.add(anonymityDescription, "alignx 5, growy, w ::150, gap 0 5");
+			anonymityHoldingPanel.add(anonymityDescription, "alignx 50%, growy, w ::150, gap 0 5"); //growy
 
 			anonymityScrollPane = new JScrollPane(anonymityHoldingPanel);
 			anonymityScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -1381,7 +1381,7 @@ public class GUIMain extends javax.swing.JFrame  {
 				anonymityPanel.add(anonymityLabel, "h " + titleHeight + "!, width 100:220:220");
 				anonymityPanel.add(anonymityScrollPane, "h 200::, width 100:220:220");
 				anonymityPanel.add(resultsTableLabel, "h " + titleHeight + "!, width 100:220:220");
-				anonymityPanel.add(resultsScrollPane, "h 80:114:200, width 100:220:220");
+				anonymityPanel.add(resultsScrollPane, "h 80:150:200, width 100:220:220");
 			}
 		}
 		return anonymityPanel;

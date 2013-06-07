@@ -179,6 +179,7 @@ public class BackendInterface {
 					}
 				}
 
+
 			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded(); // todo figure out why this and/or the two percent change needed calls in TaggedDocument affect AnonymityBar
 
 			DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
@@ -214,6 +215,7 @@ public class BackendInterface {
 			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
 			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
 			
+
 			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
 			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
 			DriverDocumentsTab.charsRemoved = 0;	
@@ -223,8 +225,9 @@ public class BackendInterface {
 			DictionaryBinding.init();//initializes the dictionary for wordNEt
 			
 			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
-			
+
 			main.processButton.setText("Re-Process");
+
 
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
@@ -252,49 +255,7 @@ public class BackendInterface {
 	}
 }
 
-
-
-	
-	/*
-	public static TableModel makeSuggestionListTable(String[] suggestions){
-		int numSuggestions = suggestions.length;
-		String[] skip = {"COMPLEXITY","FLESCH_READING_EASE_SCORE","GUNNING_FOG_READABILITY_INDEX","AVERAGE_SENTENCE_LENGTH"};
-		int i=0;
-		int numDesiredSuggestions = numSuggestions - skip.length;
-		DriverDocumentsTab.suggestionToAttributeMap = new HashMap<Integer,Integer>(numDesiredSuggestions);
-		String[][] theModel = new String[numDesiredSuggestions][2]; 
-		int j=0;
-		i = 0;
-		int k = 0;
-		boolean shouldSkip = false;
-		while(i<numDesiredSuggestions){
-			//System.out.println("SUGGESTION: "+suggestions[j]);
-			shouldSkip =false;
-			for(k=0;k<skip.length;k++){
-				//System.out.println(">"+suggestions[i]+"<>"+skip[k]+"<");
-				if(skip[k].equals(suggestions[j])){
-					shouldSkip = true;
-					break;
-				}
-			}
-			if(shouldSkip == true){
-				//System.out.println("won't add "+suggestions[j]+" to suggestion list.");
-				j++;
-				continue;
-			}
-			theModel[i][0] = Integer.toString((i+1));
-			theModel[i][1] = suggestions[j];
-			DriverDocumentsTab.suggestionToAttributeMap.put(i,j);
-			j++;
-			i++;
-		}
-		TableModel suggestionModel = new DefaultTableModel(theModel,new String[]{"No.","Feature Name"});
-		return suggestionModel;
-	}
-	*/
-	
-	public static void makeResultsChart(Map<String,Map<String,Double>> resultMap, GUIMain main)
-	{
+	public static void makeResultsChart(Map<String,Map<String,Double>> resultMap, GUIMain main){
 		
 		Iterator<String> mapKeyIter = resultMap.keySet().iterator();
 		Map<String,Double> tempMap = resultMap.get(mapKeyIter.next()); 
@@ -327,8 +288,7 @@ public class BackendInterface {
 		
 		Arrays.sort(predictions);
 		
-		for (int i = numAuthors-1; i >= 0; i--)
-		{
+		for (int i = numAuthors-1; i >= 0; i--){
 			main.resultsWindow.addAttrib(predMap.get(predictions[i]).toString(), (int)(predictions[i] + .5));
 		}
 		
@@ -342,44 +302,3 @@ public class BackendInterface {
 	}
 	
 }
-/*
-class PredictionRenderer implements TableCellRenderer {
-	
-	private GUIMain main;
-	
-	public static final DefaultTableCellRenderer DEFAULT_RENDERER = new DefaultTableCellRenderer();
-	
-	public PredictionRenderer(GUIMain main)
-	{
-		this.main = main;
-		this.main.chosenAuthor = DriverDocumentsTab.chosenAuthor;
-		this.main.resultsMaxIndex = DriverDocumentsTab.resultsMaxIndex;
-	}
-	  
-	  
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) 
-	{
-		Component renderer = DEFAULT_RENDERER.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-	    ((JLabel) renderer).setOpaque(true);
-	    Color foreground, background;
-	    
-	      if ((column  == main.resultsMaxIndex) && (row==0)) {
-		    	 if(main.chosenAuthor.equals(DocumentMagician.authorToRemove)){
-		        foreground = Color.black;
-		        background = Color.red;
-		      } else {
-		        foreground = Color.black;
-		        background = Color.green;
-		      }
-	      }
-	      else{
-	    	  	foreground = Color.black;
-	    	  	background = Color.white;
-	      }
-	    
-	    renderer.setForeground(foreground);
-	    renderer.setBackground(background);
-	    return renderer;
-	}
-}
-*/

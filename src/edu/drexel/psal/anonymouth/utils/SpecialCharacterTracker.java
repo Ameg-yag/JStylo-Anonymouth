@@ -15,6 +15,7 @@ public class SpecialCharacterTracker implements Serializable {
 	/**
 	 * 
 	 */
+	public static final String NAME = "( SpecialCharacterTracker ) - ";
 	private static final long serialVersionUID = -5900337779583604917L;
 	// Basically parallel arrays... we use the replacement characters instead of the corresponding eos characters. 
 	// Doing this allows us to break sentences only where we are sure we want to break them, and will allow the user more flexibility.
@@ -63,6 +64,50 @@ public class SpecialCharacterTracker implements Serializable {
 				eoses.get(i).setIgnore(b);
 			}
 		}
+	}
+	
+	/**
+	 * For debugging purposes, prints out all EOSes, their respective locations, and whether or not we're ignoring them.
+	 */
+	public void printEOSes() {
+		int size = eoses.size();
+		
+		for (int i = 0; i < size; i++)
+			System.out.println(NAME + "EOS = " + eoses.get(i).location + ", " + eoses.get(i).ignore);
+	}
+	
+	/**
+	 * Get the number of EOSes currently being tracked.
+	 * @return
+	 */
+	public int getNumOfEOSes() {
+		return eoses.size();
+	}
+	
+	/**
+	 * Get the number of EOSes in a given range.
+	 * @param start - The start index of the range (inclusive)
+	 * @param end - The end index of the range (exclusive)
+	 * @return result - The number of EOSes in the range
+	 */
+	public int getNumofEOSesInRange(int start, int end) {
+		int size = eoses.size();
+		int result = 0;
+		
+		for (int i = 0; i < size; i++) {
+			if (!eoses.get(i).ignore && (eoses.get(i).location >= start && eoses.get(i).location < end)) {
+				result++;
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * Get the ArrayList of EOS objects currently being tracked.
+	 */
+	public ArrayList<EOS> getEOSes() {
+		return eoses;
 	}
 	
 	/**

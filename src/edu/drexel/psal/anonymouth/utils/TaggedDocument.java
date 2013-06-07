@@ -46,13 +46,14 @@ public class TaggedDocument implements Serializable{
 	protected transient List<? extends HasWord> sentenceTokenized;
 	protected transient Tokenizer<? extends HasWord> toke;
 	protected final int PROBABLE_NUM_SENTENCES = 50;
-	protected static SentenceTools jigsaw;
+	public static SentenceTools jigsaw;
 	//protected transient Iterator<String> strIter;
 	private String ID; 
 	private int totalSentences=0;
 	public SpecialCharacterTracker specialCharTracker;
 	private double baseline_percent_change_needed = 0; // This may end up over 100%. That's unimportant. This is used to gauge the change that the rest of the document needs -- this is normalized to 100%, effectivley.
 	private boolean can_set_baseline_percent_change_needed = true;
+	public static boolean userDeletedSentence = false;
 
 	/**
 	 * Constructor for TaggedDocument
@@ -197,7 +198,13 @@ public class TaggedDocument implements Serializable{
 		}
 	}
 	
-	public TaggedSentence getTaggedSentenceAt(int index) {
+	/**
+	 * Essentially the same thing as getSentenceNumAt(), except instead of accepting a sentence number and finding the taggedSentence
+	 * that corresponds to that number it accepts an index (caret position), and finds the taggedSentence that corresponds to that index.
+	 * @param index - the position in the document text.
+	 * @return returnValue - the TaggedSentence found at the index. If none exists, null is returned.
+	 */
+	public TaggedSentence getTaggedSentenceAtIndex(int index) {
 		int size = taggedSentences.size();
 		int newIndex = 0;
 		int pastIndex = 0;
@@ -207,11 +214,41 @@ public class TaggedDocument implements Serializable{
 		for (int i = 0; i < size; i++) {
 			length = taggedSentences.get(i).getUntagged(false).length();
 			newIndex = length + pastIndex;
+			
 			if (index >= pastIndex && index <= newIndex) {
 				returnValue = taggedSentences.get(i);
 				break;
 			} else {
-				pastIndex += length;
+				//pastIndex += length;
+				pastIndex = newIndex;
+			}
+		}
+		
+		return returnValue;
+	}
+	
+	/**
+	 * Uses a given index and calculates the sentence number of the index.
+	 * @param index - The positions in the document text.
+	 * @return returnValue - The sentence number. If none is found, -1 is returned.
+	 */
+	public int getSentenceNumAtIndex(int index) {
+		int size = taggedSentences.size();
+		int end = 0;
+		int start = 0;
+		int currentSentNum = 0;
+		int returnValue = -1;
+		
+		
+		for (int i = 0; i < size; i++) {
+			end = taggedSentences.get(i).getUntagged(false).length() + start;
+
+			if (index >= start && index < end) {
+				returnValue = currentSentNum;
+				break;
+			} else {
+				start = end;
+				currentSentNum++;
 			}
 		}
 		
@@ -417,8 +454,6 @@ public class TaggedDocument implements Serializable{
 			removed[i] = removeAndReplace(indicesToRemove[i],"");
 		return removed;
 	}
-
-
 	
 	/**
 	 * 
@@ -436,6 +471,7 @@ public class TaggedDocument implements Serializable{
 			Logger.logln(NAME+"User deleted a sentence.");
 			updateReferences(toReplace,new TaggedSentence(""));//all features must be deleted
 			totalSentences--;
+			userDeletedSentence = true;
 			return wasReplaced;
 		}
 		
@@ -628,8 +664,11 @@ public class TaggedDocument implements Serializable{
 		
 		taggedSentences = new ArrayList<TaggedSentence>(PROBABLE_NUM_SENTENCES);
 		// copy TaggedSentences
-		for(i = 0; i < numTaggedSents; i++)
+		for (i = 0; i < numTaggedSents; i++)
 			taggedSentences.add(new TaggedSentence(td.taggedSentences.get(i)));
+		
+		specialCharTracker = td.specialCharTracker;
+			
 		// copy document author and title (Strings are immutable)
 		documentAuthor = td.documentAuthor;
 		documentTitle = td.documentTitle;

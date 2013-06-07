@@ -5,7 +5,6 @@ import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
-import edu.drexel.psal.anonymouth.utils.SentenceTools;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 import edu.drexel.psal.jstylo.generics.Logger;
@@ -32,6 +31,7 @@ import java.util.Scanner;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
@@ -53,8 +53,6 @@ public class DriverDocumentsTab {
 	public final static int UNDOCHARACTERBUFFER = 5;
 	public static int currentCharacterBuffer = 0;
 	
-	protected static SentenceTools sentenceTools;
-	
 	public static boolean isUsingNineFeatures = false;
 	protected static boolean hasBeenInitialized = false;
 	protected static String[] condensedSuggestions;
@@ -73,7 +71,9 @@ public class DriverDocumentsTab {
 	// It seems redundant to have these next four variables, but they are used in slightly different ways, and are all necessary.
 	public static int currentCaretPosition = -1;
 	public static int startSelection = -1;
+	public static int oldStartSelection = -1;
 	public static int endSelection = -1;
+	public static int oldEndSelection = -1;
 //	private static int lastCaretPosition = -1;
 	private static int thisKeyCaretPosition = -1;
 	private static int lastKeyCaretPosition = -1;
@@ -125,7 +125,7 @@ public class DriverDocumentsTab {
 	protected static int caretPositionPriorToCharRemoval = 0;
 	protected static int caretPositionPriorToAction = 0;
 	public static Boolean firstRun = true;
-	private static int[] oldSelectionInfo = new int[3];
+	public static int[] oldSelectionInfo = new int[3];
 	protected static Map<String, int[]> wordsToRemove = new HashMap<String, int[]>();
 	
 	protected static SuggestionCalculator suggestionCalculator;
@@ -145,6 +145,8 @@ public class DriverDocumentsTab {
 	private static boolean translate = false;
 	protected static ActionListener saveAsTestDoc;
 	protected static Object lock = new Object();
+	private static boolean wholeLastSentDeleted = false;
+	private static boolean wholeBeginningSentDeleted = false;
 	
 	public static int getCurrentSentNum(){
 		return currentSentNum;
@@ -192,12 +194,7 @@ public class DriverDocumentsTab {
 		main.elementsToRemovePane.setEnabled(b);
 		main.elementsToRemovePane.setFocusable(b);
 		main.getDocumentPane().setEnabled(b);
-		main.getDocumentPane().setEditable(b);
-		
-		if (b)
-			main.clipboard.setEnabled(false, false, true);
-		else
-			main.clipboard.setEnabled(b);
+		main.clipboard.setEnabled(b);
 	}
 	
 	/**
@@ -241,6 +238,7 @@ public class DriverDocumentsTab {
 		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 		moveHighlight(main,selectedSentIndexRange);
+		main.anonymityDrawingPanel.updateAnonymityBar();
 	}
 	
 	/**
@@ -265,6 +263,7 @@ public class DriverDocumentsTab {
 		selectedSentIndexRange[1] = selectionInfo[2]; //end highlight
 
 		moveHighlight(main,selectedSentIndexRange);
+		main.anonymityDrawingPanel.updateAnonymityBar();
 	}
 
 	/**
@@ -283,12 +282,15 @@ public class DriverDocumentsTab {
 			main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 		try {
 			System.out.printf("Moving highlight to %d to %d\n", bounds[0],bounds[1]);
-
 			if (currentSentNum != 0) { //if it's not the first sentence (assuming there's not going to be a space/tab before it TODO make this not suck)
 				if ((selectedSentIndexRange[0] != currentCaretPosition && !ignoreHighlight) || deleting) { //if the user is not selecting a sentence, don't highlight it.
 					if (main.getDocumentPane().getText().substring(bounds[0], bounds[0]+2).contains(newLine)) { // if the sentence is preceded by a newline, we need to modify this a bit
-						if (selectedSentIndexRange[0]+1 != currentCaretPosition) { //If the user is actually selecting the sentence
-							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+2, bounds[1], painter);
+						int temp = 0;
+						while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(newLine))
+							temp++;
+						
+						if (selectedSentIndexRange[0]+temp <= currentCaretPosition) { //If the user is actually selecting the sentence
+							currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
 						}
 					} else {
 						int temp = 0;
@@ -339,9 +341,8 @@ public class DriverDocumentsTab {
 			int[] lengthTriangle = new int[numSents]; // index '0' will be the length of sentence 0, index '1' will be the length of sentence '0' plus sentence '1', index '2' will be the lengths of the first three sentences added together, and so on. 
 			int selectedSentence = 0;
 			currentPosition = positions[positionNumber];
-			
 			if (currentPosition > 0) {
-				while (lengthSoFar <= currentPosition && i <= numSents) {
+				while (lengthSoFar <= currentPosition && i < numSents) { //used to be i <= numSents, but since the sentence indexes are 0 based, it should be i < numSents
 					lengthSoFar += sentenceLengths[i];
 					lengthTriangle[i] = lengthSoFar;
 					i++;
@@ -361,6 +362,16 @@ public class DriverDocumentsTab {
 			}	
 			results[positionNumber] = new int[]{selectedSentence, startHighlight, endHighlight};
 		}
+		
+		//Checking to see if the user's deletion includes deleting a whole sentence at both the end of their selection and the beginning of their selection.
+		//This is because we need to handle the deletion process different depending on which one is true or false.
+		if (results.length > 1) {
+			if ((results[1][0] - results[0][0]) >= 4 && (results[1][2] == oldStartSelection + (results[1][2] - results[1][1]) || results[1][2] == oldEndSelection + (results[1][2] - results[1][1])))
+				wholeLastSentDeleted = true;
+			if (results[1][0] - results[0][0] >= 4 && (results[0][2] == oldStartSelection + (results[0][2] - results[0][1]) || results[0][2] == oldEndSelection + (results[0][2] - results[0][1])))
+				wholeBeginningSentDeleted = true;
+		}
+		
 		return results; 
 	}
 
@@ -408,20 +419,23 @@ public class DriverDocumentsTab {
 					caretPositionPriorToCharInsertion = currentCaretPosition - charsInserted;
 					caretPositionPriorToCharRemoval = currentCaretPosition + charsRemoved;
 					
-					if (charsRemoved > 0) {
-						if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
-							main.versionControl.addVersion(taggedDoc);
-							currentCharacterBuffer = 0;
-						} else
-							currentCharacterBuffer += 1;
-						
+					if (charsRemoved > 0) {	
 						caretPositionPriorToAction = caretPositionPriorToCharRemoval;
 						// update the EOSTracker, and from the value that it returns we can tell if sentences are being merged (EOS characters are being erased)
 						
 						/**
 						 * We must subtract all the indices by 1 because the InputFilter indices refuses to work with anything other than - 1, and as such
 						 * the indices here and in TaggedDocument must be adjustest as well.
-						 */
+						 */						
+						if (taggedDoc.specialCharTracker.getNumofEOSesInRange(currentCaretPosition-1, caretPositionPriorToCharRemoval-1) > 0) {
+							main.versionControl.addVersion(taggedDoc);
+						} else if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
+							main.versionControl.addVersion(taggedDoc);
+							currentCharacterBuffer = 0;
+						} else {
+							currentCharacterBuffer++;
+						}
+						
 						EOSJustRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition-1, caretPositionPriorToCharRemoval-1);
 						
 						if (EOSJustRemoved) {
@@ -435,16 +449,28 @@ public class DriverDocumentsTab {
 
 								if (rightSentInfo[0] != leftSentInfo[0]) {
 									int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
-									int[] taggedSentsToDelete = new int[numToDelete];
+									int[] taggedSentsToDelete;
 									
 									// Now we list the indices of sentences that need to be removed, which are the ones between the left and right sentence (though not including either the left or the right sentence).
-									for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]; i++) { 
-										taggedSentsToDelete[j] = i;
-										j++;
+									if (wholeLastSentDeleted) {
+										//We want to ignore the rightmost sentence from our deletion process since we didn't actually delete anything from it.
+										taggedSentsToDelete = new int[numToDelete-1];
+										for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]-1; i++) { 
+											taggedSentsToDelete[j] = leftSentInfo[0] + 1;
+											j++;
+										}
+									} else {
+										//We want to include the rightmost sentence in our deletion process since we are partially deleting some of it.
+										taggedSentsToDelete = new int[numToDelete];
+										for (i = (leftSentInfo[0] + 1); i < rightSentInfo[0]; i++) { 
+											taggedSentsToDelete[j] = leftSentInfo[0] + 1;
+											j++;
+										}
 									}
 
-									//First delete what we don't need anymore
+									//First delete every sentence the user has deleted wholly (there's no extra concatenation or tricks, just delete). 
 									taggedDoc.removeTaggedSentences(taggedSentsToDelete);
+									System.out.println(NAME+"Ending whole sentence deletion, now handling left and right (if available) deletion");
 									
 									// Then read the remaining strings from "left" and "right" sentence:
 										// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
@@ -453,15 +479,43 @@ public class DriverDocumentsTab {
 									String docText = main.getDocumentPane().getText();
 									String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition);
 									taggedDoc.removeAndReplace(leftSentInfo[0], leftSentCurrent);
+									//Needed so that we don't delete more than we should if that be the case
+									//TODO integrate this better with wholeLastSentDeleted and wholeBeginningSentDeleted so it's cleaner, right now this is pretty sloppy and confusing
+									if (TaggedDocument.userDeletedSentence) {
+										rightSentInfo[0] = rightSentInfo[0]-1;
+									}
 									String rightSentCurrent = docText.substring((caretPositionPriorToCharRemoval-charsRemoved), (rightSentInfo[2]-charsRemoved));//we need to shift our indices over by the number of characters removed.
-									taggedDoc.removeAndReplace(rightSentInfo[0], rightSentCurrent);								
 									
+									if (wholeLastSentDeleted && wholeBeginningSentDeleted) {
+										wholeLastSentDeleted = false;
+										wholeBeginningSentDeleted = false;
+										taggedDoc.removeAndReplace(leftSentInfo[0], "");
+									} else if (wholeLastSentDeleted && !wholeBeginningSentDeleted) {
+										wholeLastSentDeleted = false;
+										taggedDoc.removeAndReplace(leftSentInfo[0]+1, "");
+										taggedDoc.concatRemoveAndReplace(taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(leftSentInfo[0]+1), leftSentInfo[0]+1);
+									} else {
+										try {
+											taggedDoc.removeAndReplace(leftSentInfo[0]+1, rightSentCurrent);
+											taggedDoc.concatRemoveAndReplace(taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(leftSentInfo[0]+1), leftSentInfo[0]+1);
+										} catch (Exception e1) {
+											taggedDoc.removeAndReplace(leftSentInfo[0], rightSentCurrent);
+										}
+									}
+																
 									// Now that we have internally gotten rid of the parts of left and right sentence that no longer exist in the editor box, we merge those two sentences so that they become a single TaggedSentence.
-									taggedDoc.concatRemoveAndReplace( taggedDoc.getTaggedDocument().get(leftSentInfo[0]),leftSentInfo[0], taggedDoc.getTaggedDocument().get(rightSentInfo[0]), rightSentInfo[0]);
+									TaggedDocument.userDeletedSentence = false;
 								}
 							} catch (Exception e1) {
-								Logger.logln(NAME + "An fatal error occured when attempting to delete an EOS character in DriverDocumentsTab, the editor may no longer function properly", LogOut.STDOUT);
-								e1.printStackTrace();
+								JOptionPane.showOptionDialog(null,
+										"Anonymouth has encountered an internal problem\nprocessing your most recent action.\n\nWe are aware of and working on the issue,\nand we apologize for any inconvenience.\nPlease re-process to fix the editor.",
+										"Editor Failure",
+										JOptionPane.DEFAULT_OPTION,
+										JOptionPane.WARNING_MESSAGE,
+										UIManager.getIcon("OptionPane.warningIcon"),
+										null,
+										null);
+								return;
 							}
 							
 							// now update the EOSTracker
@@ -476,7 +530,7 @@ public class DriverDocumentsTab {
 							// Now set the number of characters removed to zero because the action has been dealt with, and we don't want the statement further down to execute and screw up our indices. 
 							charsRemoved = 0; 
 							EOSJustRemoved = false;
-						} else{
+						} else {
 							// update the EOSTracker
 							taggedDoc.specialCharTracker.shiftAllEOSChars(false, caretPositionPriorToAction, charsRemoved);
 						}
@@ -531,8 +585,7 @@ public class DriverDocumentsTab {
 							charsInserted = ~-1; // puzzle: what does this mean? (scroll to bottom of file for answer) - AweM
 							charsWereInserted = true;
 							charsWereRemoved = false;
-						}
-						else if (charsRemoved > 0){// && lastSentNum != -1){
+						} else if (charsRemoved > 0) {// && lastSentNum != -1){
 							selectedSentIndexRange[1] -= charsRemoved;
 							charsRemoved = 0;
 							charsWereRemoved = true;
@@ -573,7 +626,7 @@ public class DriverDocumentsTab {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
 						currentSentenceString = main.getDocumentPane().getText().substring(lastSelectedSentIndexRange[0],lastSelectedSentIndexRange[1]);
-						
+
 						if (!taggedDoc.getSentenceNumber(lastSentNum).getUntagged(false).equals(currentSentenceString)) {
 							main.anonymityDrawingPanel.updateAnonymityBar();
 							setSelectionInfoAndHighlight = false;
@@ -618,15 +671,16 @@ public class DriverDocumentsTab {
 					}
 					
 					oldSelectionInfo = currentSentSelectionInfo;
+					oldStartSelection = startSelection;
+					oldEndSelection = endSelection;
 				}
 			}
 		});
 		
-		
 		/**
 		 * Key listener for the documentPane. Allows tracking the cursor while typing to make sure that indices of sentence start and ends 
 		 */
-		main.getDocumentPane().addKeyListener(new KeyListener(){
+		main.getDocumentPane().addKeyListener(new KeyListener() {
 
 			@Override
 			public void keyPressed(KeyEvent arg0) {
@@ -663,7 +717,7 @@ public class DriverDocumentsTab {
 				 */
 				thisKeyCaretPosition = main.getDocumentPane().getCaretPosition(); // todo maybe we dont need to call for this.. all we might have to do is get the dot position from the CaretListener
 				//System.out.println("Caret postion resitered at keyreleased:  "+currentCaretPosition);
-				if(keyJustTyped == true){
+				if (keyJustTyped == true) {
 					keyJustTyped = false;
 //					char keyChar = arg0.getKeyChar();
 //					int keyCode = arg0.getKeyCode();
@@ -676,33 +730,36 @@ public class DriverDocumentsTab {
 					//int caretPos =main.editorBox.getCaretPosition();
 					//System.out.println("Old Caret Postion: "+oldCaretPosition+" and current CARET POSITION IS: "+currentCaretPosition);
 					//Collections.sort(highlightedObjects);
-					if(lastKeyCaretPosition < thisKeyCaretPosition){
+					if (lastKeyCaretPosition < thisKeyCaretPosition) {
 						// cursor has advanced 
 						Iterator<HighlightMapper> hloi = highlightedObjects.iterator();
 						boolean isGone;
-						while(hloi.hasNext()){
+						while (hloi.hasNext()) {
 							isGone = false;
 							HighlightMapper tempHm = hloi.next();
-							if((tempHm.getStart() <= thisKeyCaretPosition) && (lastKeyCaretPosition <= tempHm.getEnd())){
+							
+							if ((tempHm.getStart() <= thisKeyCaretPosition) && (lastKeyCaretPosition <= tempHm.getEnd())){
 								//System.out.println("FOUND object... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
 								main.getDocumentPane().getHighlighter().removeHighlight(tempHm.getHighlightedObject());
 								isGone = true;
 							}	
+							
 							if ((lastKeyCaretPosition <= tempHm.getStart() && !isGone))
 								tempHm.increment(thisKeyCaretPosition - lastKeyCaretPosition);
 						}
-					}
-					else if(lastKeyCaretPosition > thisKeyCaretPosition){
+					} else if(lastKeyCaretPosition > thisKeyCaretPosition) {
 						Iterator<HighlightMapper> hloi = highlightedObjects.iterator();
 						boolean isGone;
-						while(hloi.hasNext()){
+						while (hloi.hasNext()) {
 							isGone = false;
 							HighlightMapper tempHm = hloi.next();
-							if((tempHm.getStart() <= thisKeyCaretPosition) && (thisKeyCaretPosition <= tempHm.getEnd())){
+							
+							if ((tempHm.getStart() <= thisKeyCaretPosition) && (thisKeyCaretPosition <= tempHm.getEnd())) {
 								//System.out.println("FOUND object ... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
 								main.getDocumentPane().getHighlighter().removeHighlight(tempHm.getHighlightedObject());
 								isGone = true;
-							}	
+							}
+							
 							if ((lastKeyCaretPosition <= tempHm.getStart()) && !isGone)
 								tempHm.decrement(lastKeyCaretPosition - thisKeyCaretPosition);
 						}
@@ -711,15 +768,13 @@ public class DriverDocumentsTab {
 				}
 			}
 			
-
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 				keyJustTyped = true;
 			}
 		});
 		
-		
-		main.getDocumentPane().getDocument().addDocumentListener(new DocumentListener(){
+		main.getDocumentPane().getDocument().addDocumentListener(new DocumentListener() {
 		
 			@Override
 			public void insertUpdate(DocumentEvent e) {
@@ -728,17 +783,19 @@ public class DriverDocumentsTab {
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				charsRemoved = e.getLength();
+				if (InputFilter.ignoreDeletion)
+					InputFilter.ignoreDeletion = false;
+				else
+					charsRemoved = e.getLength();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				DriverDocumentsTab.displayEditInfo(e);
 			}
-		});
-			
+		});	
 		
-		main.getDocumentPane().addMouseListener(new MouseListener(){
+		main.getDocumentPane().addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseClicked(MouseEvent me) {
@@ -771,7 +828,6 @@ public class DriverDocumentsTab {
 			public void mouseExited(MouseEvent me) {
 				
 			}
-			
 		});
 		
 /***********************************************************************************************************************************************
@@ -807,6 +863,7 @@ public class DriverDocumentsTab {
 					main.leftTabPane.setSelectedIndex(0);
 					// ----- confirm they want to process
 					if (true) {// ---- can be a confirm dialog to make sure they want to process.
+						setAllDocTabUseable(false, main);
 						// ----- if this is the first run, do everything that needs to be ran the first time
 						if (isFirstRun) {
 							// ----- create the main document and add it to the appropriate array list.
@@ -849,7 +906,6 @@ public class DriverDocumentsTab {
 							resetAll(main);
 						}
 
-						setAllDocTabUseable(false, main);
 						main.getDocumentPane().getHighlighter().removeAllHighlights();
 						highlightedObjects.clear();
 						highlightedObjects.clear();
@@ -857,6 +913,7 @@ public class DriverDocumentsTab {
 						Logger.logln(NAME+"calling backendInterface for preTargetSelectionProcessing");
 						
 						BackendInterface.preTargetSelectionProcessing(main,wizard,magician);
+						
 					}
 				}
 			}
@@ -904,6 +961,20 @@ public class DriverDocumentsTab {
 	 * @param main - An instance of GUIMain
 	 */
 	public static void resetAll(GUIMain main) {
+		reset();
+		GUIMain.GUITranslator.reset();	
+		DriverTranslationsTab.reset();
+		main.versionControl.reset();
+		main.anonymityDrawingPanel.reset();
+		main.resultsWindow.reset();
+		GUIUpdateInterface.updateResultsPrepColor(main);
+		main.elementsToRemove.removeAllElements();
+		main.elementsToRemove.add(0, "Re-processing, please wait");
+		main.elementsToAdd.removeAllElements();
+		main.elementsToAdd.add(0, "Re-processing, please wait");
+	}
+	
+	public static void reset() {
 		currentCaretPosition = -1;
 		startSelection = -1;
 		endSelection = -1;
@@ -930,17 +1001,6 @@ public class DriverDocumentsTab {
 		caretPositionPriorToAction = 0;
 		oldSelectionInfo = new int[3];
 		wordsToRemove.clear();
-		
-		GUIMain.GUITranslator.reset();	
-		DriverTranslationsTab.reset();
-		main.versionControl.reset();
-		main.anonymityDrawingPanel.reset();
-		main.resultsWindow.reset();
-		GUIUpdateInterface.updateResultsPrepColor(main);
-		main.elementsToRemove.removeAllElements();
-		main.elementsToRemove.add(0, "Re-processing, please wait");
-		main.elementsToAdd.removeAllElements();
-		main.elementsToAdd.add(0, "Re-processing, please wait");
 	}
 	
 	public static void save(GUIMain main) {
@@ -1019,9 +1079,6 @@ class SuggestionCalculator {
 		//Adding new suggestions
 		topToRemove=ConsolidationStation.getPriorityWords(ConsolidationStation.toModifyTaggedDocs, true, .2);
 		topToAdd=ConsolidationStation.getPriorityWords(ConsolidationStation.authorSampleTaggedDocs, false, .02);
-
-		System.out.println("topToRemove.size() = " + topToRemove.size());
-		System.out.println("topToAdd.size() = " + topToAdd.size());
 		
 		main.elementsToRemove.removeAllElements();
 

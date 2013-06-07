@@ -117,8 +117,8 @@ public class AnonymityDrawingPanel extends JPanel {
 		
 		anonymous.setFont(new Font("Helvatica", Font.BOLD, 16));
 		notAnonymous.setFont(new Font("Helvatica", Font.BOLD, 16));
-		this.add(anonymous, "pos 40 15");
-		this.add(notAnonymous, "pos 24 485");
+		this.add(anonymous, "pos 69 15"); //40
+		this.add(notAnonymous, "pos 68 485"); //24
 		
 		try {
 			bar = ImageIO.read(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"bar.png"));
