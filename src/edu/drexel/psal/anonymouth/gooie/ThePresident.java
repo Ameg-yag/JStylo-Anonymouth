@@ -29,7 +29,7 @@ public class ThePresident {
 	public static ImageIcon LOGO;
 	public static String sessionName;
 	public static final String DOC_MAGICIAN_WRITE_DIR = "./.edited_documents/";
-	public static final String LOG_DIR = "log";
+	public static final String LOG_DIR = "./anonymouth_log";
 	public static boolean IS_MAC = false;
 	public static String TEMP_DIR =  "temp/"; // TODO: put in "options"
 	public static String SER_DIR = "./.serialized_objects/";
@@ -138,16 +138,16 @@ public class ThePresident {
 			app.requestForeground(true);
 		}
 		sessionName = "anonymous"; 
-//		String tempName = null;
-//		tempName = JOptionPane.showInputDialog("Please name your session:", sessionName);
-//		if(tempName == null)
-//			System.exit(665);
-//			
-//		tempName = tempName.replaceAll("['.?!()<>#\\\\/|\\[\\]{}*\":;`~&^%$@+=,]", "");
-//		tempName = tempName.replaceAll(" ", "_");
-//		if(tempName != null)
-//			sessionName = tempName;
-		//System.out.println(tempName+" "+sessionName);
+		String tempName = null;
+		tempName = JOptionPane.showInputDialog("Please name your session:", sessionName);
+		if(tempName == null)
+			System.exit(665);
+			
+		tempName = tempName.replaceAll("['.?!()<>#\\\\/|\\[\\]{}*\":;`~&^%$@+=,]", "");
+		tempName = tempName.replaceAll(" ", "_");
+		if(tempName != null)
+			sessionName = tempName;
+		System.out.println(tempName+" "+sessionName);
 		
 		File log_dir = new File(LOG_DIR); // create log directory if it doesn't exist.
 		if (!log_dir.exists()){
@@ -167,6 +167,7 @@ public class ThePresident {
 			Logger.logln(leader.NAME+"Creating directory to save serialized objects to...");
 			ser_dir.mkdir();
 		}
+		
 		
 		Logger.logln("Gooie starting...");
 		GUIMain.startGooie();
