@@ -23,6 +23,7 @@ public class VersionControl {
 	private TaggedDocument mostRecentState;
 	private Boolean firstRun = true;
 	private Boolean newRedo = true;
+	private boolean undoRedoExecuted = false;
 	
 	/**
 	 * Constructor
@@ -56,7 +57,7 @@ public class VersionControl {
 		TaggedDocument backup = new TaggedDocument(taggedDoc);
 		undo.push(backup);
 		
-		int[] temp = {start-1, end-1};
+		int[] temp = {start, end};
 		indicesUndo.push(temp);
 	}
 	
@@ -71,6 +72,8 @@ public class VersionControl {
 	 * the new taggedDoc, and pushed the taggedDoc that was just on the undo stack to the redo one. 
 	 */
 	public void undo() {
+		undoRedoExecuted = true;
+
 		if ((newRedo == false || redo.isEmpty()) && mostRecentState == null) {
 			redo.push(undo.pop());
 			indicesRedo.push(indicesUndo.pop());
@@ -99,9 +102,10 @@ public class VersionControl {
 			indicesRedo.push(mostRecentIndices);
 			indicesRedo.push(indices);
 			mostRecentState = null;
-		} else
+		} else {
 			redo.push(doc);
 			indicesRedo.push(indices);
+		}
 	}
 	
 	/**
@@ -111,6 +115,8 @@ public class VersionControl {
 	 * the new taggedDoc, and pushed the taggedDoc that was just on the redo stack to the undo one. 
 	 */
 	public void redo() {
+		undoRedoExecuted = true;
+		
 		if (newRedo || undo.isEmpty()) {
 			newRedo = false;
 			undo.push(redo.pop());
@@ -148,8 +154,8 @@ public class VersionControl {
 	 */
 	public void setMostRecentState(TaggedDocument doc) {
 		mostRecentState = doc;
-		mostRecentIndices[0] = main.getDocumentPane().getCaret().getDot() - 1;
-		mostRecentIndices[1] = main.getDocumentPane().getCaret().getMark() - 1;
+		mostRecentIndices[0] = main.getDocumentPane().getCaret().getDot();
+		mostRecentIndices[1] = main.getDocumentPane().getCaret().getMark();
 	}
 	
 	/**
@@ -178,5 +184,11 @@ public class VersionControl {
 		mostRecentState = null;
 		firstRun = true;
 		newRedo = true;
+	}
+
+	public boolean isUndoOrRedoExecuted() {
+		boolean returnValue = undoRedoExecuted;
+		undoRedoExecuted = false;
+		return returnValue;
 	}
 }

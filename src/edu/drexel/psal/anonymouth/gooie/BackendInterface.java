@@ -221,7 +221,6 @@ public class BackendInterface {
 
 
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
-			main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
 			
 			GUIMain.processed = true; 
 			

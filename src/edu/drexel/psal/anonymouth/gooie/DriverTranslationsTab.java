@@ -134,9 +134,6 @@ public class DriverTranslationsTab implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
-		DriverDocumentsTab.currentCharacterBuffer = 0;
-		
 		GUIMain.saved = false;
 		InputFilter.ignoreTranslation = true;
 		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(false), true);

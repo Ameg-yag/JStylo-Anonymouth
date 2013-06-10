@@ -50,8 +50,8 @@ public class DriverDocumentsTab {
 	
 	private final static String NAME = "( DriverDocumentsTab ) - ";
 	
-	public final static int UNDOCHARACTERBUFFER = 5;
-	public static int currentCharacterBuffer = 0;
+//	public final static int UNDOCHARACTERBUFFER = 5;
+//	public static int currentCharacterBuffer = 0;
 	
 	public static boolean isUsingNineFeatures = false;
 	protected static boolean hasBeenInitialized = false;
@@ -421,14 +421,14 @@ public class DriverDocumentsTab {
 						 * We must subtract all the indices by 1 because the InputFilter indices refuses to work with anything other than - 1, and as such
 						 * the indices here and in TaggedDocument must be adjustest as well.
 						 */						
-						if (taggedDoc.specialCharTracker.getNumofEOSesInRange(currentCaretPosition-1, caretPositionPriorToCharRemoval-1) > 0) {
-							main.versionControl.addVersion(taggedDoc);
-						} else if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
-							main.versionControl.addVersion(taggedDoc);
-							currentCharacterBuffer = 0;
-						} else {
-							currentCharacterBuffer++;
-						}
+//						if (taggedDoc.specialCharTracker.getNumofEOSesInRange(currentCaretPosition-1, caretPositionPriorToCharRemoval-1) > 0) {
+//							main.versionControl.addVersion(taggedDoc);
+//						} else if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
+//							main.versionControl.addVersion(taggedDoc);
+//							currentCharacterBuffer = 0;
+//						} else {
+//							currentCharacterBuffer++;
+//						}
 						
 						if (skipDeletingEOSes) {
 							skipDeletingEOSes = false;
@@ -533,19 +533,19 @@ public class DriverDocumentsTab {
 							taggedDoc.specialCharTracker.shiftAllEOSChars(false, caretPositionPriorToAction, charsRemoved);
 						}
 
-						main.versionControl.setMostRecentState(taggedDoc);
+						//main.versionControl.setMostRecentState(taggedDoc);
 					} else if (charsInserted > 0) {
-						if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
-							main.versionControl.addVersion(taggedDoc);
-							currentCharacterBuffer = 0;
-						} else
-							currentCharacterBuffer += 1;
+//						if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
+//							main.versionControl.addVersion(taggedDoc);
+//							currentCharacterBuffer = 0;
+//						} else
+//							currentCharacterBuffer += 1;
 						
 						caretPositionPriorToAction = caretPositionPriorToCharInsertion;
 						// update the EOSTracker. First shift the current EOS objects, and then create a new one 
 						taggedDoc.specialCharTracker.shiftAllEOSChars(true, caretPositionPriorToAction, charsInserted);
 						
-						main.versionControl.setMostRecentState(taggedDoc);
+						//main.versionControl.setMostRecentState(taggedDoc);
 					} else {
 						caretPositionPriorToAction = currentCaretPosition;
 					}
@@ -565,8 +565,8 @@ public class DriverDocumentsTab {
 						main.versionControl.updateIndices(startSelection, endSelection);
 					}
 					
-					if (charsInserted > 2 || charsRemoved > 2)
-						main.versionControl.addVersion(taggedDoc);
+//					if (charsInserted > 2 || charsRemoved > 2)
+//						main.versionControl.addVersion(taggedDoc);
 					
 					lastSentNum = currentSentNum;
 					currentSentNum = currentSentSelectionInfo[0];
