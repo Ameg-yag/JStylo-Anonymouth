@@ -41,20 +41,20 @@ public class Logger {
 	}
 
 	public static void initLogFile() {
-//		if (loggerFlag && logFile) {
-//			out = fileDirPath+"/"+filePrefix+"_"+date()+"_"+time()+".txt";
-//			String msg = "Started log "+out+"\n===================================================\n";
-//			try {
-//				if (logFile) {
-//					bw = new BufferedWriter(new FileWriter(out));
-//					bw.write(msg);
-//				}
-//			} catch (IOException e) {
-//				System.out.println("Failed opening log file!");
-//				System.exit(0);
-//			}
-//			System.out.println(msg);
-//		}
+		if (loggerFlag && logFile) {
+			out = fileDirPath+"/"+filePrefix+"_"+date()+"_"+time()+".txt";
+			String msg = "Started log "+out+"\n===================================================\n";
+			try {
+				if (logFile) {
+					bw = new BufferedWriter(new FileWriter(out));
+					bw.write(msg);
+				}
+			} catch (IOException e) {
+				System.out.println("Failed opening log file!");
+				System.exit(0);
+			}
+			System.out.println(msg);
+		}
 	}
 	
 	/**
@@ -73,14 +73,14 @@ public class Logger {
 			// write to screen
 			System.out.print(timedMsg);
 			// write to file
-//			try {
-//				if (logFile) {
-//					bw.write(timedMsg);
-//					bw.flush();
-//				}
-//			} catch (IOException e) {
-//				System.err.println("Failed writing to log file!");
-//			}
+			try {
+				if (logFile) {
+					bw.write(timedMsg);
+					bw.flush();
+				}
+			} catch (IOException e) {
+				System.err.println("Failed writing to log file!");
+			}
 		}
 	}
 	
@@ -88,14 +88,14 @@ public class Logger {
 		if (loggerFlag) {
 			log(msg);
 			System.out.println();
-//			try {
-//				if (logFile) {
-//					bw.write("\n");
-//					bw.flush();
-//				}
-//			} catch (IOException e) {
-//				System.err.println("Failed writing to log file!");
-//			}
+			try {
+				if (logFile) {
+					bw.write("\n");
+					bw.flush();
+				}
+			} catch (IOException e) {
+				System.err.println("Failed writing to log file!");
+			}
 		}
 	}
 	
@@ -115,14 +115,14 @@ public class Logger {
 			}
 
 			// write to file
-//			try {
-//				if (logFile) {
-//					bw.write(timedMsg);
-//					bw.flush();
-//				}
-//			} catch (IOException e) {
-//				System.err.println("Failed writing to log file!");
-//			}
+			try {
+				if (logFile) {
+					bw.write(timedMsg);
+					bw.flush();
+				}
+			} catch (IOException e) {
+				System.err.println("Failed writing to log file!");
+			}
 		}
 	}
 	
@@ -140,14 +140,14 @@ public class Logger {
 			}
 
 			// write to file
-//			try {
-//				if (logFile) {
-//					bw.write("\n");
-//					bw.flush();
-//				}
-//			} catch (IOException e) {
-//				System.err.println("Failed writing to log file!");
-//			}
+			try {
+				if (logFile) {
+					bw.write("\n");
+					bw.flush();
+				}
+			} catch (IOException e) {
+				System.err.println("Failed writing to log file!");
+			}
 		}
 	}
 
