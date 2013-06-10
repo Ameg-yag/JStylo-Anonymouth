@@ -14,8 +14,8 @@ public class MisspelledWords {
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	protected String[] misspelledWordArray=new String[5513];//make this larger if more words are added
 	private ArrayList<String> misspelledWordList;
-	private static String filePath="src/edu/drexel/psal/resources/writeprints_misspellings.txt";
-	private static String filePath2="src/edu/drexel/psal/resources/wikipedia_misspellings_sequences.txt";//not sure if needed
+	private static String filePath="./jsan_resources/writeprints_misspellings.txt";
+	private static String filePath2="./jsan_resources/wikipedia_misspellings_sequences.txt";//not sure if needed
 	private Trie node;
 	
 	public MisspelledWords(){

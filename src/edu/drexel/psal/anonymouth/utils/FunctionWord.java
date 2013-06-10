@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
 import java.lang.Math;
 
 import edu.drexel.psal.jstylo.generics.Logger;
+import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.utils.Trie;
 
 /**
@@ -20,12 +23,12 @@ import edu.drexel.psal.anonymouth.utils.Trie;
 
 public class FunctionWord implements Runnable {
 	
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final static String NAME = "( FunctionWord ) - ";
 
 	private final int fWordArrSize=486;//make this larger if more words are added
 	protected String[] functionWordArray=new String[fWordArrSize];
 	private ArrayList<String> functionWordList;
-	private static String filePath="src/edu/drexel/psal/resources/koppel_function_words.txt";
+	private static String filePath="./jsan_resources/koppel_function_words.txt";
 	private Trie node;
 
 	public FunctionWord() {
@@ -54,10 +57,10 @@ public class FunctionWord implements Runnable {
 	
 	
 	private static ArrayList<String> readFunctionWords(){
-		ArrayList<String> functionWords=new ArrayList<String>();
-		
+		ArrayList<String> functionWords=new ArrayList<String>(1000);
+		BufferedReader readIn = null;
 		 try {
-			BufferedReader readIn  = new BufferedReader(new FileReader(filePath));
+			readIn  = new BufferedReader(new FileReader(filePath));
 			String newLine;
 			try {
 				while((newLine=readIn.readLine())!=null){
@@ -66,12 +69,14 @@ public class FunctionWord implements Runnable {
 					}
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}	
+			readIn.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			Logger.logln("(FunctionWord) - Error opening reader: "+e.getMessage());
+			Logger.logln(NAME+"Error opening reader: "+e.getMessage());
+		} catch (IOException e) {
+			// NOTE Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		return functionWords;
