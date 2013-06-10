@@ -21,7 +21,8 @@ public class Tagger {
 	 */
 	public static boolean initTagger(){
 		try {
-			mt = new MaxentTagger("."+JGAAPConstants.JGAAP_RESOURCE_PACKAGE+"models/postagger/english-left3words-distsim.tagger");
+			//mt = new MaxentTagger("."+JGAAPConstants.JGAAP_RESOURCE_PACKAGE+"models/postagger/english-left3words-distsim.tagger");
+			mt = new MaxentTagger("./jsan_resources/english-left3words-distsim.tagger");
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
