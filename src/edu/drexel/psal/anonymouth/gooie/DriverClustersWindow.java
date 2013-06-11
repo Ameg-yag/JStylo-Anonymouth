@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -13,18 +12,18 @@ import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.Cluster;
 import edu.drexel.psal.anonymouth.engine.ClusterAnalyzer;
 import edu.drexel.psal.anonymouth.engine.ClusterGroup;
-import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 public class DriverClustersWindow {
 	
+	@SuppressWarnings("unused")
 	private final static String NAME = "( DriverClustersTab ) - ";
-	
-	private static GUIMain main;
 
 	private static int lenJPanels;
 	public static boolean clusterGroupReady = false;
 	public static ClusterGroup bestClusterGroup;
+	private static ClusterGroup[] clusterGroupRay;
+	private static int lenCGR;
 	private static int[][] intRepresentation;
 	private static String[] stringRepresentation;
 	protected static JPanel[] finalPanels;
@@ -33,6 +32,7 @@ public class DriverClustersWindow {
 	protected static int numFeatures;
 	protected static int[] selectedClustersByFeature;
 
+	@SuppressWarnings("rawtypes")
 	public static class alignListRenderer implements ListCellRenderer {
 
 		int alignValue;
@@ -44,8 +44,7 @@ public class DriverClustersWindow {
 		}
 
 		public Component getListCellRendererComponent(JList list, Object value, int index,
-	      boolean isSelected, boolean cellHasFocus) 
-		{
+	      boolean isSelected, boolean cellHasFocus) {
 
 		    JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
 		        isSelected, cellHasFocus);
@@ -56,21 +55,25 @@ public class DriverClustersWindow {
 	    }
 	}
 
-	public static int[][] getIntRep()
-	{
+	public static int[][] getIntRep() {
 		return intRepresentation;
 	}
 
-	public static String[] getStringRep()
-	{
+	public static String[] getStringRep() {
 		return stringRepresentation;
 	}
 
+	public static boolean setClusterGroup() {
+		Logger.logln("Cluster group array retrieved from ClusterAnalyzer and brought to ClusterViewerDriver");
+		if(clusterGroupReady) {
+			clusterGroupRay = ClusterAnalyzer.getClusterGroupArray();
+			lenCGR = clusterGroupRay.length;
+			return true;
+		} else
+			return false;
+	}
 
-	public static void makePanels(Attribute[] theOnesYouWantToSee)
-	{
-		main = GUIMain.inst;
-		
+	public static void makePanels(Attribute[] theOnesYouWantToSee) {
 		//System.out.println("length of theOnesYouWantToSee: "+theOnesYouWantToSee.length);
 		int numFeatures = theOnesYouWantToSee.length;
 		double[] minimums = new double[numFeatures]; 
@@ -87,7 +90,8 @@ public class DriverClustersWindow {
 		String dashes;
 		selectedClustersByFeature = new int[numFeatures];
 		double tempAuthorMinMax;
-		for(i=0; i< numFeatures;i++){
+		
+		for (i=0; i< numFeatures;i++) {
 			selectedClustersByFeature[i] = -1; // initialize with no clusters selected;
 			everySingleCluster.add(i,theOnesYouWantToSee[i].getOrderedClusters());
 			authorMin[i] = theOnesYouWantToSee[i].getAuthorAvg() - theOnesYouWantToSee[i].getAuthorConfidence();
@@ -131,8 +135,8 @@ public class DriverClustersWindow {
 		i=0;
 		int[] initialLayoverVals = new int[numFeatures];
 		String[] usedNames = new String[numFeatures];
-		while(outerLevel.hasNext())
-		{
+		
+		while(outerLevel.hasNext()) {
 			nameLabels[i] = new JLabel(names[i]); // for if you want to edit the label in any way
 			usedNames[i] = names[i];
 
@@ -149,9 +153,9 @@ public class DriverClustersWindow {
 
 			initialLayoverVals[i] = 1;
 			i++;
-
 		}
-		GUIMain.inst.clustersWindow.addClusterFeatures(usedNames); //--- fills the features and subfeatures list for searching
+		
+		//GUIMain.inst.clustersWindow.addClusterFeatures(usedNames); //--- fills the features and subfeatures list for searching
 		/*
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -163,23 +167,18 @@ public class DriverClustersWindow {
 			*/
 	}
 
-	public static void initializeClusterViewer(GUIMain main, boolean showMessage)
-	{
+	public static void initializeClusterViewer(GUIMain main, boolean showMessage) {
 		Logger.logln("Initializing ClusterViewer");
 		int numPanels = clusterPanels.length;
-		for(int i = 0; i < numPanels; i++)
-		{
-			if (i == 0 || i % 2 == 0)
-			{
+		for (int i = 0; i < numPanels; i++) {
+			if (i == 0 || i % 2 == 0) {
 				nameLabels[i].setBackground(Color.WHITE);
 				clusterPanels[i].setBackground(Color.WHITE);
-				finalPanels[i].setBorder(main.rlborder);
-			}
-			else
-			{
+				finalPanels[i].setBorder(GUIMain.rlborder);
+			} else {
 				nameLabels[i].setBackground(main.blue);
 				clusterPanels[i].setBackground(main.blue);
-				finalPanels[i].setBorder(main.rlborder);
+				finalPanels[i].setBorder(GUIMain.rlborder);
 			}
 			nameLabels[i].setHorizontalAlignment(SwingConstants.CENTER);
 			nameLabels[i].setOpaque(true);
@@ -188,21 +187,20 @@ public class DriverClustersWindow {
 			main.clustersWindow.clusterHolderPanel.add(finalPanels[i]);
 		}
 
-//
-//		intRepresentation = new int[lenCGR][clusterGroupRay[0].getGroupKey().length()];
-//		stringRepresentation = new String[1+lenCGR];
-//		stringRepresentation[0] = "Select Targets";
-//		for(int i = 0; i < lenCGR; i++)
-//		{
-//			intRepresentation[i] = clusterGroupRay[i].getGroupKey().toIntArray();
-//			stringRepresentation[i+1] = clusterGroupRay[i].getGroupKey().toString();
-//		}
-//
-//		int[] theOne = intRepresentation[0];
-//		selectedClustersByFeature = theOne;
+		setClusterGroup();
+
+		intRepresentation = new int[lenCGR][clusterGroupRay[0].getGroupKey().length()];
+		stringRepresentation = new String[1+lenCGR];
+		stringRepresentation[0] = "Select Targets";
+		for (int i = 0; i < lenCGR; i++) {
+			intRepresentation[i] = clusterGroupRay[i].getGroupKey().toIntArray();
+			stringRepresentation[i+1] = clusterGroupRay[i].getGroupKey().toString();
+		}
+
+		int[] theOne = intRepresentation[0];
+		selectedClustersByFeature = theOne;
 		lenJPanels = clusterPanels.length;
-		for(int i = 0; i < lenJPanels; i++)
-		{
+		for (int i = 0; i < lenJPanels; i++) {
 			clusterPanels[i].revalidate();
 			clusterPanels[i].repaint();
 		}

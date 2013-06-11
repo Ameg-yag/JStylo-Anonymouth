@@ -19,7 +19,6 @@ import weka.attributeSelection.InfoGainAttributeEval;
 import weka.classifiers.Classifier;
 import weka.core.Instances;
 
-
 /**
  * Performs general calculations relating to analyzing the data, including (but not limited to):
  * averages, standard deviations, feature information gain, and controlling the clustering and cluster analytics.
@@ -38,7 +37,6 @@ public class DataAnalyzer{
 	private ArrayList<String> authorAttribs;
 	private String[] strippedAttributeNames;
 	private ProblemSet pSet;
-	private String sessionAlias = ""; 
 	private Double[][] trainingInstancesArray;	
 	private Double[][] authorInstancesArray;
 	private Double[][] toModifyInstancesArray;
@@ -56,9 +54,8 @@ public class DataAnalyzer{
 	 * constructor for DataAnalyzer
 	 * @param numFeaturesToReturn integer number corresponding to the top 'numFeaturesToReturn' features
 	 */
-	public DataAnalyzer(ProblemSet pSet, String sessionAlias){
+	public DataAnalyzer(ProblemSet pSet) {
 		Logger.logln(NAME+"Created DataAnalyzer");
-		this.sessionAlias = sessionAlias;
 		this.pSet = pSet;
 	}
 	
@@ -66,7 +63,7 @@ public class DataAnalyzer{
 	 * returns the array of top Attributes (features with the highest information gain)
 	 * @return
 	 */
-	public Attribute[] getAttributes(){
+	public Attribute[] getAttributes() {
 		return topAttributes;
 	}
 	
@@ -74,7 +71,7 @@ public class DataAnalyzer{
 	 * returns the bestClusterGroup that contains the target values for each feature
 	 * @return
 	 */
-	public ClusterGroup getBestClusterGroup(){
+	public ClusterGroup getBestClusterGroup() {
 		return bestClusterGroup;
 	}
 	
@@ -82,7 +79,7 @@ public class DataAnalyzer{
 	/**
 	 * takes average of each feature across all instances specified by "instancesArray" 
 	 */
-	public void authorAverageFinder(){
+	public void authorAverageFinder() {
 		Logger.logln(NAME+"called authorAverageFinder");
 		int i;
 		int j;
@@ -90,12 +87,14 @@ public class DataAnalyzer{
 		double sum;
 		double[] currentFeature;
 		double average;
-		for(i=0;i<lengthTopAttributes;i++){
+		for (i=0;i<lengthTopAttributes;i++) {
 			currentFeature = topAttributes[i].getAuthorVals();
 			sum = 0;
-			for(j=0;j<numInstances;j++){
+			
+			for (j=0;j<numInstances;j++) {
 				sum=sum+currentFeature[j];
 			}
+			
 			average = (sum/numInstances);
 			topAttributes[i].setAuthorAvg(average);
 		}
@@ -105,7 +104,7 @@ public class DataAnalyzer{
 	/**
 	 * finds the minimum and maximum values of each feature across all instances given
 	 */
-	public void minsAndMaxes(){
+	public void minsAndMaxes() {
 		Logger.logln(NAME+"called minsAndMaxes - finding min and max for each feature");
 		int numFeatures = topAttributes[0].getTrainVals().length;
 		int j=0;
@@ -113,12 +112,14 @@ public class DataAnalyzer{
 		double theMin;
 		double theMax;
 		double[] featureRay;
-		for(i=1;i<lengthTopAttributes;i++){ // i runs through each instance (row)
+		
+		for (i=1;i<lengthTopAttributes;i++) { // i runs through each instance (row)
 			j=0;
 			featureRay = topAttributes[i].getTrainVals();
 			theMin=featureRay[j];
 			theMax=featureRay[j];
-			for(j=0;j<numFeatures;j++){ // j runs though each feature (column)
+			
+			for (j=0;j<numFeatures;j++) { // j runs though each feature (column)
 				if(theMin>featureRay[j])
 					theMin=featureRay[j];
 				if(theMax<featureRay[j])
@@ -133,7 +134,7 @@ public class DataAnalyzer{
 	/**
 	 * Finds standard deviation of author's values
 	 */
-	public void authorStdDevFinder(){
+	public void authorStdDevFinder() {
 		Logger.logln(NAME+"called authorStdDevFinder");
 		int i;
 		int j;
@@ -142,11 +143,13 @@ public class DataAnalyzer{
 		double stdDev;
 		double sum;
 		double [] tempFeatRay;
-		for(i=0;i<lengthTopAttributes;i++){
+		
+		for (i=0;i<lengthTopAttributes;i++) {
 			tempAvg = topAttributes[i].getAuthorAvg();
 			tempFeatRay = topAttributes[i].getAuthorVals();
 			sum = 0;
-			for(j=0;j<numInstances;j++){
+			
+			for (j=0;j<numInstances;j++) {
 				sum=sum+((tempFeatRay[j]-tempAvg)*(tempFeatRay[j]-tempAvg));
 			}
 			stdDev = Math.sqrt((sum/numInstances));
@@ -164,7 +167,7 @@ public class DataAnalyzer{
 	 * 	 Array of Attribute objects, one Attribute per feature
 	 * @throws Exception
 	 */
-	public Attribute[] findMostInfluentialEvents(Instances theArffFile, int numFeatures) throws Exception{
+	public Attribute[] findMostInfluentialEvents(Instances theArffFile, int numFeatures) throws Exception {
 		Logger.logln(NAME+"called findMostInfluentialEvents... for "+numFeatures+" features");
 		int i=0;
 		int numAttributes= theArffFile.numAttributes();
@@ -172,15 +175,15 @@ public class DataAnalyzer{
 		InfoGainAttributeEval IGAE = new InfoGainAttributeEval();
 		theArffFile.setClass(theArffFile.attribute("authorName"));
 		IGAE.buildEvaluator(theArffFile);
-		for(i=0;i<numAttributes;i++){
+		for (i=0;i<numAttributes;i++) {
 			allInfoGain[i][0]=IGAE.evaluateAttribute(i);
 			allInfoGain[i][1]=i;
 		}
 		
 		//Sort array of info gains from greatest to least
-		Arrays.sort(allInfoGain, new Comparator<double[]>(){
+		Arrays.sort(allInfoGain, new Comparator<double[]>() {
 			@Override
-			public int compare(final double[] first, final double[] second){
+			public int compare(final double[] first, final double[] second) {
 				return ((-1)*((Double)first[0]).compareTo(((Double)second[0]))); // multiplying by -1 will sort from greatest to least, which saves work.
 			}
 		});
@@ -199,17 +202,17 @@ public class DataAnalyzer{
 			numAvailableFeatures = numFeatures;
 		else numAvailableFeatures = numAttributes;
 		
-		for(i = 0; i < numAvailableFeatures;i++){
+		for (i = 0; i < numAvailableFeatures;i++) {
 			String attrib = (theArffFile.attribute((int) allInfoGain[i][1]).toString());
 			strippedAttrib = AttributeStripper.strip(attrib);	
 			int toModifyIndex = allAttribs.indexOf(strippedAttrib);
-			if(attrib.contains("authorName")){
+			if (attrib.contains("authorName")) {
 					numFeatures++;
 					continue;
 			}
 			
 			// TODO do we want this??
-			if(toModifyIndex == -1){
+			if (toModifyIndex == -1) {
 				ThePresident.read("CONTINUING attribute: "+attrib+" does not appear in toModifyDocument.");
 				numFeatures++;
 				continue;
@@ -217,18 +220,18 @@ public class DataAnalyzer{
 		
 			String stringInBraces;
 			boolean calcHist;
-			try{
+			try {
 				stringInBraces = attrib.substring(attrib.indexOf('{')+1,attrib.indexOf('}'));
-			}
-			catch(IllegalStateException e){ // if no match is found, set 'stringInBraces == to an empty string
+			} catch(IllegalStateException e) { // if no match is found, set 'stringInBraces == to an empty string
 				stringInBraces = "";
 			}
-			if(stringInBraces.equals("") || stringInBraces.equals("-")){
+			
+			if (stringInBraces.equals("") || stringInBraces.equals("-")) {
 				stringInBraces = "";
 				calcHist = false;
-			}
-			else
+			} else
 				calcHist = true;
+			
 			topAttribs[j] = new Attribute((int)allInfoGain[i][1],attrib,stringInBraces,calcHist);
 			topAttribs[j].setInfoGain(allInfoGain[j][0]);
 			topAttribs[j].setToModifyValue(toModifyInstancesArray[0][toModifyIndex]);
@@ -253,7 +256,7 @@ public class DataAnalyzer{
 	 *  Array of Attribute objects, one Attribute for each feature
 	 * @throws Exception 
 	 */
-	public Attribute[] computeInfoGain(Instances presentSet) throws Exception{
+	public Attribute[] computeInfoGain(Instances presentSet) throws Exception {
 		Logger.logln(NAME+"called computeInfoGain");
 		int i;
 		int j;
@@ -273,31 +276,31 @@ public class DataAnalyzer{
 		int tempAuthorIndex =0;
 		boolean trainOk = true;
 		boolean authorOk = true;
-		for(i=0;i<numAttribs;i++){
+		for (i=0;i<numAttribs;i++) {
 			String tempAttrib = strippedAttributeNames[i];
-			if(trainAttribs.contains(tempAttrib) == true){
+			
+			if (trainAttribs.contains(tempAttrib) == true) {
 				tempTrainIndex = trainAttribs.indexOf(tempAttrib);
 				trainOk = true;
-			}
-			else{
+			} else {
 				trainOk = false;
 				tempTrainIndex = 0; // basically re-setting... this wont be used in this case until the next iteration.
 			}
 			
-			if(authorAttribs.contains(tempAttrib)){
+			if (authorAttribs.contains(tempAttrib)) {
 				tempAuthorIndex = authorAttribs.indexOf(tempAttrib);
 				authorOk = true;
-			}
-			else{
+			} else {
 				authorOk = false;
 				tempAuthorIndex = 0;
 			}
-			for(j=0;j<numTrainInstances;j++){
+			
+			for (j=0;j<numTrainInstances;j++) {
 					if(trainOk == true)
 						relevantTrainFeats[i][j]=trainingInstancesArray[j][tempTrainIndex]; // transpose and filter the instancesArray
 					else
 						relevantTrainFeats[i][j]=0;
-				if(j < numAuthInstances){
+				if (j < numAuthInstances) {
 					if(authorOk == true)
 						relevantAuthorFeats[i][j] = authorInstancesArray[j][tempAuthorIndex];
 					else
@@ -307,21 +310,22 @@ public class DataAnalyzer{
 		}
 		
 		int actualNumAttribs = 0; //number of non-null attributes
-		for (int k=0; k<topAttribs.length;k++){
+		for (int k=0; k<topAttribs.length;k++) {
 			if (topAttribs[k] == null) 
 				break;
 			else actualNumAttribs++;
 		}
-		if (actualNumAttribs < topAttribs.length){
+		
+		if (actualNumAttribs < topAttribs.length) {
 			Attribute[] tempAttribs = new Attribute[actualNumAttribs];
-			for (int n =0; n < actualNumAttribs; n++ ){
+			for (int n =0; n < actualNumAttribs; n++ ) {
 				tempAttribs[n]=topAttribs[n];
 			}
 			topAttribs=tempAttribs;
 		}
 		
 		String theSpacer = "";
-		for(i=0;i<topAttribs.length;i++){
+		for (i=0;i<topAttribs.length;i++) {
 			if(topAttribs[i].getStringInBraces().equals(""))
 				theSpacer = "";
 			else
@@ -345,13 +349,14 @@ public class DataAnalyzer{
 	 * @return
 	 * 	number of maximum clusters found, to be used with @ClusterAnalyzer
 	 */
-	public int runAllTopFeatures(){
+	public int runAllTopFeatures() {
 		Logger.logln(NAME+"called runAllTopFeatures");
 		int numAttribs = topAttributes.length;
 		int numAuthors = DocumentMagician.numSampleAuthors;
 		int maxClusters = 0;
 		int tempMaxClusters;
-		for(int sel = 0; sel < numAttribs; sel++){
+		
+		for (int sel = 0; sel < numAttribs; sel++) {
 			Cluster[] orderedClusters;
 			TargetExtractor extractor = new TargetExtractor(numAuthors, topAttributes[sel]);
 			extractor.aMeansCluster();
@@ -372,12 +377,13 @@ public class DataAnalyzer{
 	 * it simply analyzes the existing ones. 
 	 * @param maxClusters the maximum number of clusters out of all of the features
 	 */
-	public void runClusterAnalysis(DocumentMagician magician){
+	public void runClusterAnalysis(DocumentMagician magician) {
 		Logger.logln(NAME+"called runClusterAnalysis");
 		int lenTopAttribs = topAttributes.length;
 		ClusterAnalyzer numberCruncher = new ClusterAnalyzer(featuresForClusterAnalyzer,maxClusters);
 		int i =0;
-		for (i=0;i<lenTopAttribs;i++){
+		
+		for (i=0;i<lenTopAttribs;i++) {
 			numberCruncher.addFeature(topAttributes[i]);
 		}
 		numberCruncher.analyzeNow();
@@ -401,7 +407,7 @@ public class DataAnalyzer{
 		
 		int[] clusterNumbers = bestClusterGroup.getGroupKey().toIntArray();
 		double[] centroidTest = new double[lengthTopAttributes];
-		for(i=0;i<lengthTopAttributes;i++){
+		for (i=0;i<lengthTopAttributes;i++) {
 			clusterNumber = clusterNumbers[i]-1; // From ClusterAnalyzer, all cluster numbers are "1" greater than their indices (to ease computation)
 			tempCluster = topAttributes[i].getOrderedClusters()[clusterNumber];
 			target = tempCluster.getCentroid();
@@ -423,11 +429,10 @@ public class DataAnalyzer{
 	 * @param classifier
 	 * @throws Exception
 	 */
-	public void runInitial(DocumentMagician magician, CumulativeFeatureDriver cfd, Classifier classifier) throws Exception{
+	public void runInitial(DocumentMagician magician, CumulativeFeatureDriver cfd, Classifier classifier) throws Exception {
 		Logger.logln(NAME+"called runIntitial in DataAnalyzer");
-		List<Document> tempTrainDocs = pSet.getAllTrainDocs();
 		List<Document> tempTestDocs = pSet.getTestDocs();
-		for (Document d:tempTestDocs){
+		for (Document d:tempTestDocs) {
 			d.setAuthor(ThePresident.DUMMY_NAME);
 		}
 		magician.initialDocToData(pSet,cfd, classifier);
@@ -457,7 +462,7 @@ public class DataAnalyzer{
 	 * @param magician
 	 * @throws Exception
 	 */
-	public void reRunModified(DocumentMagician magician) throws Exception{
+	public void reRunModified(DocumentMagician magician) throws Exception {
 		magician.reRunModified();
 		Logger.logln(NAME+"Calling makeViewer in ClusterViewer after re-running modified.");
 		DriverClustersWindow.makePanels(topAttributes);
@@ -468,8 +473,7 @@ public class DataAnalyzer{
 	 * returns the names of the top 'numFeaturesToReturn' number of features
 	 * @return
 	 */
-	public String[] getAllRelevantFeatures(){
+	public String[] getAllRelevantFeatures() {
 		return importantAttribs;
 	}
-
 }

@@ -4,6 +4,8 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import edu.drexel.psal.anonymouth.gooie.ThePresident;
+
 public class Logger {
 	
 	public static final boolean loggerFlag = true;
@@ -15,7 +17,7 @@ public class Logger {
 	private static Calendar cal = null;
 	
 	// file
-	private static String fileDirPath = "log";
+	private static String fileDirPath = ThePresident.LOG_DIR;
 	private static String filePrefix = "jstylo";
 	private static String out;
 	private static BufferedWriter bw = null;
@@ -43,6 +45,7 @@ public class Logger {
 	public static void initLogFile() {
 		if (loggerFlag && logFile) {
 			out = fileDirPath+"/"+filePrefix+"_"+date()+"_"+time()+".txt";
+			System.out.println(out);
 			String msg = "Started log "+out+"\n===================================================\n";
 			try {
 				if (logFile) {
@@ -50,6 +53,7 @@ public class Logger {
 					bw.write(msg);
 				}
 			} catch (IOException e) {
+				e.printStackTrace();
 				System.out.println("Failed opening log file!");
 				System.exit(0);
 			}

@@ -2,19 +2,16 @@ package edu.drexel.psal.anonymouth.gooie;
 
 import java.awt.*;
 import java.awt.geom.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Scanner;
 
 import javax.swing.*;
 
-import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.Cluster;
-import edu.drexel.psal.anonymouth.utils.Pair;
 
 public class ClusterPanel extends JPanel {
-	
+
+	private static final long serialVersionUID = 1L;
+
+	@SuppressWarnings("unused")
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	
 	//double[] features = {3.3, 3.5, 2.1, 7.8, 9.5, 5.5, 6.1,14.9, 18.0,19.6};
@@ -30,16 +27,15 @@ public class ClusterPanel extends JPanel {
 	double scale;
 	static int count = 0;
 	private int featureNumber;
-	private Color transPurple =new Color(0.75f,0.1f,0.9f,0.55f);
+	//private Color transPurple =new Color(0.75f,0.1f,0.9f,0.55f);
 	private Color highlightColor = new Color(0f,1.0f,0,0.6f);	
 	private Color transRed = new Color(1.0f,0f,0f,.9f);
-	private Color transBlue = new Color(0f,0f,1.0f,.9f);
+	//private Color transBlue = new Color(0f,0f,1.0f,.9f);
 	
 	Cluster[] clusters;
 	int numClusters;
 	
-	public ClusterPanel(Cluster[] clusters,int featureNumber, double minimum, double maximum, double authorMin, double authorMax, double presentValue)
-	{
+	public ClusterPanel(Cluster[] clusters,int featureNumber, double minimum, double maximum, double authorMin, double authorMax, double presentValue) {
 		this.clusters = clusters;
 		this.numClusters = clusters.length;
 		this.minimum = minimum;
@@ -51,8 +47,7 @@ public class ClusterPanel extends JPanel {
 		this.setBackground(Color.WHITE);
 	}
 	
-	public double transform(double value, boolean noOffset)
-	{
+	public double transform(double value, boolean noOffset) {
 		double temp = value - minimum;
 		if(noOffset == false)
 			temp = temp*scale + xoffset;
@@ -61,14 +56,12 @@ public class ClusterPanel extends JPanel {
 		return temp;
 	}
 	
-	public String roundToString(int precision, double value)
-	{
+	public String roundToString(int precision, double value) {
 		// precision is some multiple of 10
 		return  Double.toString(Math.floor(value*precision+.5)/precision);
 	}
 		
-	protected void paintComponent(Graphics g)
-	{
+	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		setPreferredSize(new Dimension(800,50));
 		Graphics2D g2 = (Graphics2D)g;
@@ -92,11 +85,11 @@ public class ClusterPanel extends JPanel {
 		g2.drawString(roundToString(100,minimum),(int)xoffset/2,(int)(.75*yoffset));
 		g2.drawString(roundToString(100,maximum),(int)(width-3*xoffset),(int)(.75*yoffset));
 		double[][] thisClustersMinsAndMaxes = new double[numClusters][2]; // [min,max] (index == cluster number) => used to update cluster colors
-		for(i=0;i<numClusters;i++){
+		for (i=0;i<numClusters;i++) {
 			Cluster current = clusters[i];
 			double maxValue = transform(current.getMaxValue(),false);
 			double minValue = transform(current.getMinValue(),false);
-			double centroid = transform(current.getCentroid(),false);
+			//double centroid = transform(current.getCentroid(),false);
 			
 			/*
 			g2.setPaint(transBlue);
@@ -114,29 +107,28 @@ public class ClusterPanel extends JPanel {
 			*/
 			
 			int selectedCluster = DriverClustersWindow.selectedClustersByFeature[featureNumber];
-			if(i == selectedCluster-1){ // this needs to be offset by 1, because a '1' was added to the cluster numbers to avoid
+			System.out.println("selectedCluster = " + selectedCluster);
+			if (i == selectedCluster-1) { // this needs to be offset by 1, because a '1' was added to the cluster numbers to avoid
 				// a cluster being number '0'. 
 				g2.setColor(highlightColor);
 				g2.fill(new Ellipse2D.Double(minValue,yoffset*.68,maxValue - minValue,yoffset*.75));
-
-			}
-			/*
-			else{
-				g2.setColor(Color.green);
-				g2.draw(new Ellipse2D.Double(minValue,yoffset*.75,maxValue - minValue,yoffset*.5));
-			}
-			*/
+			} 
+//			else {
+//				g2.setColor(Color.green);
+//				g2.draw(new Ellipse2D.Double(minValue,yoffset*.75,maxValue - minValue,yoffset*.5));
+//			}
+			
 			thisClustersMinsAndMaxes[i][0] = minValue;
 			thisClustersMinsAndMaxes[i][1] = maxValue;
 			
 		}
+		
 		g2.setColor(transRed);
 		g2.fill(new Ellipse2D.Double(transAuthorMin,yoffset*.78,transAuthorMax-transAuthorMin,yoffset*.5));
 		
 		g2.setColor(Color.black);
 		dim = 7;
 		g2.fill(new Ellipse2D.Double(transPresentValue-Math.sqrt(dim), yoffset-Math.sqrt(dim),dim,dim));
-		
 	}
 }
 

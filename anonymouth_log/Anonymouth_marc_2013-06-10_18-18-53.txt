@@ -1,0 +1,43 @@
+Started log ./anonymouth_log/Anonymouth_marc_2013-06-10_18-18-53.txt
+===================================================
+18-18-53: Reading CumulativeFeatureDriver from /Users/mbarrowclift/Documents/Work/PSAL/PSAL Eclipse Workspace/git/JStylo-Anonymouth/jsan_resources/feature_sets/9_features.xml
+18-18-53: Reading CumulativeFeatureDriver from /Users/mbarrowclift/Documents/Work/PSAL/PSAL Eclipse Workspace/git/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_feature_set.xml
+18-18-53: Reading CumulativeFeatureDriver from /Users/mbarrowclift/Documents/Work/PSAL/PSAL Eclipse Workspace/git/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_feature_set_limited.xml
+18-18-53: Reading CumulativeFeatureDriver from /Users/mbarrowclift/Documents/Work/PSAL/PSAL Eclipse Workspace/git/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_german.xml
+18-18-53: Reading CumulativeFeatureDriver from /Users/mbarrowclift/Documents/Work/PSAL/PSAL Eclipse Workspace/git/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_limited_norm.xml
+18-18-53: Reading CumulativeFeatureDriver from /Users/mbarrowclift/Documents/Work/PSAL/PSAL Eclipse Workspace/git/JStylo-Anonymouth/jsan_resources/feature_sets/writeprints_russian.xml
+18-18-53: ( FeatureWizardDriver ) - Populating event drivers...
+18-18-53: ( FeatureWizardDriver ) - adding event drivers under Basic
+18-18-53: ( FeatureWizardDriver ) - adding event drivers under Part-Of-Speech
+18-18-53: ( FeatureWizardDriver ) - adding event drivers under Grams
+18-18-53: ( FeatureWizardDriver ) - adding event drivers under Dictionary
+18-18-53: ( FeatureWizardDriver ) - adding event drivers under Counters
+18-18-53: ( FeatureWizardDriver ) - adding event drivers under Readability Metrics
+18-18-53: ( FeatureWizardDriver ) - adding event drivers under Misc.
+18-18-53: ( FeatureWizardDriver ) - done!
+18-18-53: ( FeatureWizardDriver ) - Populating canonicizers...
+18-18-53: ( FeatureWizardDriver ) - done!
+18-18-53: ( FeatureWizardDriver ) - Populating event cullers...
+18-18-53: ( FeatureWizardDriver ) - done!
+18-18-53: ( GUIMain ) - Creating Documents Tab...
+18-18-54: ( GUIMain ) - Trying to load problem set at: /Users/mbarrowclift/Documents/Work/PSAL/Anonymouth Templates/problemSet.xml
+18-18-54: (GUIUpdateInterface) - GUI Update: update documents tab with current problem set started
+18-18-57: ( DriverDocumentsTab ) - Initial processing starting...
+18-18-57: ( DataAnalyzer ) - Created DataAnalyzer
+18-18-57: ( DocumentMagician ) - Created new DocumentMagician, is sparse?  ... false
+18-18-57: ( DriverDocumentsTab ) - calling backendInterface for preTargetSelectionProcessing
+18-18-57: ( FunctionWord ) - FINISHED INITIALIZING FUNCTION WORDS
+18-18-57: ( edu.drexel.psal.anonymouth.gooie.BackendInterface ) - Process button pressed for first time (initial run) in editor tab
+18-18-57: ( DataAnalyzer ) - called runIntitial in DataAnalyzer
+18-18-57: ( DocumentMagician ) - Entered initialDocToData in DocumentMagician
+18-18-57: ( DocumentMagician ) - True test doc author: ~* you *~
+18-18-57: ( DocumentMagician ) - Dummy author: ~* you *~
+18-18-57: ( DocumentMagician ) - Calling runPrimaryDocOps
+18-18-57: ( DocumentMagician ) - Setting CumulativeFeatureDriver in DocumentMagician
+18-18-57: ( DocumentMagician ) - Building train (with author) and toModify instances
+18-18-57: ( InstanceConstructor ) - InstanceConstuctor constructed
+18-18-57: ( DocumentMagician ) - Saving original (unmodified) file: ./.edited_documents/marc_unmodified.txt
+18-18-57: ( InstanceConstructor ) - Runnng JStylo WekaInstancesBuilder from runInstanceBuilder in InstanceConstructor
+18-18-57: pre-get calc threads
+18-18-57: post-get calc threads
+18-18-57: Using N calc threads: 4

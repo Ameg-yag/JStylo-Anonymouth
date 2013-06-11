@@ -421,14 +421,6 @@ public class DriverDocumentsTab {
 						 * We must subtract all the indices by 1 because the InputFilter indices refuses to work with anything other than - 1, and as such
 						 * the indices here and in TaggedDocument must be adjustest as well.
 						 */						
-//						if (taggedDoc.specialCharTracker.getNumofEOSesInRange(currentCaretPosition-1, caretPositionPriorToCharRemoval-1) > 0) {
-//							main.versionControl.addVersion(taggedDoc);
-//						} else if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
-//							main.versionControl.addVersion(taggedDoc);
-//							currentCharacterBuffer = 0;
-//						} else {
-//							currentCharacterBuffer++;
-//						}
 						
 						if (skipDeletingEOSes) {
 							skipDeletingEOSes = false;
@@ -532,20 +524,12 @@ public class DriverDocumentsTab {
 							// update the EOSTracker
 							taggedDoc.specialCharTracker.shiftAllEOSChars(false, caretPositionPriorToAction, charsRemoved);
 						}
-
-						//main.versionControl.setMostRecentState(taggedDoc);
+						main.versionControl.setMostRecentState(taggedDoc);
 					} else if (charsInserted > 0) {
-//						if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
-//							main.versionControl.addVersion(taggedDoc);
-//							currentCharacterBuffer = 0;
-//						} else
-//							currentCharacterBuffer += 1;
-						
 						caretPositionPriorToAction = caretPositionPriorToCharInsertion;
 						// update the EOSTracker. First shift the current EOS objects, and then create a new one 
-						taggedDoc.specialCharTracker.shiftAllEOSChars(true, caretPositionPriorToAction, charsInserted);
-						
-						//main.versionControl.setMostRecentState(taggedDoc);
+						taggedDoc.specialCharTracker.shiftAllEOSChars(true, caretPositionPriorToAction, charsInserted);	
+						main.versionControl.setMostRecentState(taggedDoc);
 					} else {
 						caretPositionPriorToAction = currentCaretPosition;
 					}
@@ -561,12 +545,14 @@ public class DriverDocumentsTab {
 					if (currentSentSelectionInfo == null)
 						return; // don't do anything.
 					
-					if (shouldRememberIndices) { // regarding storing indices for 
+					/**
+					 * This is to ensure that the "first state" backup of our document includes the indices that the user was at
+					 * just before beginning to undo, not the indices when we first made the backup (since they might have changed
+					 * since then)
+					 */
+					if (shouldRememberIndices) {
 						main.versionControl.updateIndices(startSelection, endSelection);
 					}
-					
-//					if (charsInserted > 2 || charsRemoved > 2)
-//						main.versionControl.addVersion(taggedDoc);
 					
 					lastSentNum = currentSentNum;
 					currentSentNum = currentSentSelectionInfo[0];
@@ -890,7 +876,7 @@ public class DriverDocumentsTab {
 								}
 								featuresInCfd.add(i,theName);
 							}
-							wizard = new DataAnalyzer(main.ps,ThePresident.sessionName);
+							wizard = new DataAnalyzer(main.ps);
 							magician = new DocumentMagician(false);
 						} else {
 							//TODO ASK ANDREW: Should we erase the user's "this is a single sentence" actions upon reprocessing? Only only when they reset the highlighter?

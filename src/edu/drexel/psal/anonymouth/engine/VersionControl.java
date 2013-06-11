@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.GUIMain;
+import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 
 /**
@@ -74,6 +75,8 @@ public class VersionControl {
 	public void undo() {
 		undoRedoExecuted = true;
 
+		//First go: true and not null
+		//second go: false and not null
 		if ((newRedo == false || redo.isEmpty()) && mostRecentState == null) {
 			redo.push(undo.pop());
 			indicesRedo.push(indicesUndo.pop());
@@ -150,10 +153,10 @@ public class VersionControl {
 	/**
 	 * Saves a copy of the "most recent state" separate from the stacks so that when the user decides to start undo/redo-ing, they always
 	 * have to option to change their mind and revert back exactly like it was before they began undoing.
-	 * @param doc - The instance of taggedDoc you want to capture. Should ONLY be set at the end of removeReplaceAndUpdate, do NOT call anywhere else
+	 * @param doc - The instance of taggedDoc you want to capture.
 	 */
 	public void setMostRecentState(TaggedDocument doc) {
-		mostRecentState = doc;
+		mostRecentState = new TaggedDocument(doc);
 		mostRecentIndices[0] = main.getDocumentPane().getCaret().getDot();
 		mostRecentIndices[1] = main.getDocumentPane().getCaret().getMark();
 	}

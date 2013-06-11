@@ -152,6 +152,7 @@ public class ThePresident {
 		File log_dir = new File(LOG_DIR); // create log directory if it doesn't exist.
 		if (!log_dir.exists()){
 			System.out.println(leader.NAME+"Creating directory for DocumentMagician to write to...");
+			log_dir = log_dir.getAbsoluteFile();
 			log_dir.mkdir();
 		}
 		Logger.setFilePrefix("Anonymouth_"+sessionName);
