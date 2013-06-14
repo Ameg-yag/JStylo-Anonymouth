@@ -40,7 +40,6 @@ public class VersionControl {
 	 */
 	
 	public void addVersion(TaggedDocument taggedDoc, int offset) {
-		System.out.println("VERSION ADDED");
 		if (undo.size() >= SIZECAP) {
 			undo.remove(0);
 		}
@@ -68,12 +67,8 @@ public class VersionControl {
 	 * the new taggedDoc, and pushed the taggedDoc that was just on the undo stack to the redo one. 
 	 */
 	public void undo() {
-		System.out.println("UNDO EXECUTED");
-		System.out.println("undo.size() = " + undo.size());
-		System.out.println("redo.size() = " + redo.size());
 		redo.push(new TaggedDocument(DriverDocumentsTab.taggedDoc));
 		indicesRedo.push(main.getDocumentPane().getCaret().getDot());
-		System.out.println("redo.size() = " + redo.size());
 		
 		DriverDocumentsTab.ignoreVersion = true;
 		DriverDocumentsTab.taggedDoc = undo.pop();
@@ -84,11 +79,6 @@ public class VersionControl {
 		main.enableRedo(true);
 		undoSize--;
 		redoSize++;
-		
-		System.out.println("undo.size() = " + undo.size());
-		System.out.println("undoSize = " + undoSize);
-		System.out.println("redo.size() = " + redo.size());
-		System.out.println("redoSize = " + redoSize);
 		
 		if (undoSize == 0) {
 			main.enableUndo(false);
