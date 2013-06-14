@@ -4,7 +4,6 @@ import java.util.Stack;
 
 import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
 import edu.drexel.psal.anonymouth.gooie.GUIMain;
-import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 
 /**
@@ -14,17 +13,14 @@ import edu.drexel.psal.anonymouth.utils.TaggedDocument;
  */
 public class VersionControl {
 	
-	private final int SIZECAP = 20;
+	private final int SIZECAP = 30;
 	private GUIMain main;
 	private Stack<TaggedDocument> undo;
 	private Stack<TaggedDocument> redo;
-	private Stack<int[]> indicesUndo;
-	private Stack<int[]> indicesRedo;
-	private int[] mostRecentIndices;
-	private TaggedDocument mostRecentState;
-	private Boolean firstRun = true;
-	private Boolean newRedo = true;
-	private boolean undoRedoExecuted = false;
+	private Stack<Integer> indicesUndo;
+	private Stack<Integer> indicesRedo;
+	private int undoSize = 0;
+	private int redoSize = 0;
 	
 	/**
 	 * Constructor
@@ -34,9 +30,8 @@ public class VersionControl {
 		this.main = main;
 		undo = new Stack<TaggedDocument>();
 		redo = new Stack<TaggedDocument>();
-		indicesUndo = new Stack<int[]>();
-		indicesRedo = new Stack<int[]>();
-		mostRecentIndices = new int[2];
+		indicesUndo = new Stack<Integer>();
+		indicesRedo = new Stack<Integer>();
 	}
 	
 	/**
@@ -44,26 +39,26 @@ public class VersionControl {
 	 * @param taggedDoc - The TaggedDocument instance you want to capture.
 	 */
 	
-	public void addVersion(TaggedDocument taggedDoc, int start, int end) {
+	public void addVersion(TaggedDocument taggedDoc, int offset) {
+		System.out.println("VERSION ADDED");
 		if (undo.size() >= SIZECAP) {
 			undo.remove(0);
 		}
 
-		//Needed so we get the first version of the document in the stack and also keep undo disabled (since there's no changes yet).
-		if (!firstRun)
-			main.editUndoMenuItem.setEnabled(true);
-		else
-			firstRun = !firstRun;
+		undo.push(new TaggedDocument(taggedDoc));
+		indicesUndo.push(offset);
+		undoSize++;
 		
-		TaggedDocument backup = new TaggedDocument(taggedDoc);
-		undo.push(backup);
+		main.enableUndo(true);
+		main.enableRedo(false);
 		
-		int[] temp = {start, end};
-		indicesUndo.push(temp);
+		redo.clear();
+		indicesRedo.clear();
+		redoSize = 0;
 	}
 	
 	public void addVersion(TaggedDocument taggedDoc) {
-		addVersion(taggedDoc, main.getDocumentPane().getCaret().getDot(), main.getDocumentPane().getCaret().getMark());
+		addVersion(taggedDoc, main.getDocumentPane().getCaret().getDot());
 	}
 	
 	/**
@@ -73,41 +68,30 @@ public class VersionControl {
 	 * the new taggedDoc, and pushed the taggedDoc that was just on the undo stack to the redo one. 
 	 */
 	public void undo() {
-		undoRedoExecuted = true;
-
-		//First go: true and not null
-		//second go: false and not null
-		if ((newRedo == false || redo.isEmpty()) && mostRecentState == null) {
-			redo.push(undo.pop());
-			indicesRedo.push(indicesUndo.pop());
-		}
-
-		if (newRedo == false)
-			newRedo = true;
+		System.out.println("UNDO EXECUTED");
+		System.out.println("undo.size() = " + undo.size());
+		System.out.println("redo.size() = " + redo.size());
+		redo.push(new TaggedDocument(DriverDocumentsTab.taggedDoc));
+		indicesRedo.push(main.getDocumentPane().getCaret().getDot());
+		System.out.println("redo.size() = " + redo.size());
 		
-		main.editRedoMenuItem.setEnabled(true);
-		
-		TaggedDocument doc = undo.pop();
-		int[] indices = indicesUndo.pop();
-		
-		DriverDocumentsTab.taggedDoc = doc;
+		DriverDocumentsTab.ignoreVersion = true;
+		DriverDocumentsTab.taggedDoc = undo.pop();
 		DriverDocumentsTab.update(main, true);
-		main.getDocumentPane().setSelectionStart(indices[0]);
-		main.getDocumentPane().setSelectionEnd(indices[1]);
+		main.getDocumentPane().getCaret().setDot(indicesUndo.pop());
+		DriverDocumentsTab.ignoreVersion = false;
 		
-		if (undo.size() == 0)
-			main.editUndoMenuItem.setEnabled(false);
-
-		if (mostRecentState != null) {
-			redo.push(mostRecentState);
-			redo.push(doc);
-			
-			indicesRedo.push(mostRecentIndices);
-			indicesRedo.push(indices);
-			mostRecentState = null;
-		} else {
-			redo.push(doc);
-			indicesRedo.push(indices);
+		main.enableRedo(true);
+		undoSize--;
+		redoSize++;
+		
+		System.out.println("undo.size() = " + undo.size());
+		System.out.println("undoSize = " + undoSize);
+		System.out.println("redo.size() = " + redo.size());
+		System.out.println("redoSize = " + redoSize);
+		
+		if (undoSize == 0) {
+			main.enableUndo(false);
 		}
 	}
 	
@@ -118,61 +102,22 @@ public class VersionControl {
 	 * the new taggedDoc, and pushed the taggedDoc that was just on the redo stack to the undo one. 
 	 */
 	public void redo() {
-		undoRedoExecuted = true;
+		undo.push(new TaggedDocument(DriverDocumentsTab.taggedDoc));
+		indicesUndo.push(main.getDocumentPane().getCaret().getDot());
 		
-		if (newRedo || undo.isEmpty()) {
-			newRedo = false;
-			undo.push(redo.pop());
-			indicesUndo.push(indicesRedo.pop());
-		}
-		
-		TaggedDocument doc = redo.pop();
-		int[] indices = indicesRedo.pop();
-		
-		DriverDocumentsTab.taggedDoc = doc;
+		DriverDocumentsTab.ignoreVersion = true;
+		DriverDocumentsTab.taggedDoc = redo.pop();
 		DriverDocumentsTab.update(main, true);
+		main.getDocumentPane().getCaret().setDot(indicesRedo.pop());
+		DriverDocumentsTab.ignoreVersion = false;
+
+		main.enableUndo(true);	
+		undoSize++;
+		redoSize--;
 		
-		if (redo.isEmpty()) {
-			main.getDocumentPane().setSelectionStart(mostRecentIndices[0]);
-			main.getDocumentPane().setSelectionEnd(mostRecentIndices[1]);
-		} else {
-			main.getDocumentPane().setSelectionStart(indices[0]);
-			main.getDocumentPane().setSelectionEnd(indices[1]);
+		if (redoSize == 0) {
+			main.enableRedo(false);
 		}
-		
-		undo.push(doc);
-		indicesUndo.push(indices);
-		
-		if (undo.size() > 0)
-			main.editUndoMenuItem.setEnabled(true);
-		
-		if (redo.size() == 0)
-			main.editRedoMenuItem.setEnabled(false);
-	}
-	
-	/**
-	 * Saves a copy of the "most recent state" separate from the stacks so that when the user decides to start undo/redo-ing, they always
-	 * have to option to change their mind and revert back exactly like it was before they began undoing.
-	 * @param doc - The instance of taggedDoc you want to capture.
-	 */
-	public void setMostRecentState(TaggedDocument doc) {
-		mostRecentState = new TaggedDocument(doc);
-		mostRecentIndices[0] = main.getDocumentPane().getCaret().getDot();
-		mostRecentIndices[1] = main.getDocumentPane().getCaret().getMark();
-	}
-	
-	/**
-	 * Keeps track of the carat location for each undo/redo saved.
-	 * NOTE: Still needs a good deal of work.
-	 * @param start - the location of the carat
-	 * @param end - the end of the highlight (if any, if none pass same value as start)
-	 */
-	public void updateIndices(int start, int end) {
-		if (indicesUndo.isEmpty())
-			return;
-	
-		indicesUndo.get(0)[0] = start;
-		indicesUndo.get(0)[1] = end;
 	}
 	
 	/**
@@ -183,15 +128,11 @@ public class VersionControl {
 		redo.clear();
 		indicesUndo.clear();
 		indicesRedo.clear();
-		mostRecentIndices = new int[2];
-		mostRecentState = null;
-		firstRun = true;
-		newRedo = true;
+		undoSize = 0;
+		redoSize = 0;
 	}
-
-	public boolean isUndoOrRedoExecuted() {
-		boolean returnValue = undoRedoExecuted;
-		undoRedoExecuted = false;
-		return returnValue;
+	
+	public boolean isUndoEmpty() {
+		return undo.isEmpty();
 	}
 }

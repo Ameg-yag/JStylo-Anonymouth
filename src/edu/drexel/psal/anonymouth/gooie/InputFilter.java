@@ -30,6 +30,7 @@ public class InputFilter extends DocumentFilter{
 	public static boolean isEOS = false; //keeps track of whether or not the current character is an EOS character.
 	public static boolean ignoreTranslation = false;
 	public static boolean ignoreDeletion = false;
+	public static boolean shouldBackup = false;
 	private boolean watchForEOS = false; //Lets us know if the previous character(s) were EOS characters.
 	private boolean addingAbbreviation = false;
 	private String EOS = ".?!"; //Quick and dirty way to identify EOS characters.
@@ -40,7 +41,6 @@ public class InputFilter extends DocumentFilter{
 	 */
 	public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text, AttributeSet attr) throws BadLocationException {	
 		if (text.length() == 1) { //If the user is just typing (single character)
-			addVersion(false);
 			DriverDocumentsTab.shouldUpdate = false;
 			
 			checkAddingEllipses(text);
@@ -49,7 +49,6 @@ public class InputFilter extends DocumentFilter{
 			if (DriverDocumentsTab.startSelection != DriverDocumentsTab.endSelection)
 				DriverDocumentsTab.skipDeletingEOSes = true; 
 		} else { //If the user pasted in text of length greater than a single character
-			addVersion(true);
 			DriverDocumentsTab.shouldUpdate = true; //If the user pasted in a massive chunk of text we want to update no matter what.
 			Logger.logln(NAME + "User pasted in text, will update");
 		}
@@ -78,6 +77,7 @@ public class InputFilter extends DocumentFilter{
 
 		//if the user previously entered an EOS character and the new character is not an EOS character, then we should update
 		if (watchForEOS && !isEOS) {
+			shouldBackup = true;
 			watchForEOS = false;
 			/**
 			 * NOTE: We must NOT call removeReplaceAndUpdate() directly since the currentSentenceString variable that's used for the
@@ -114,14 +114,12 @@ public class InputFilter extends DocumentFilter{
 	 */
 	public void remove(DocumentFilter.FilterBypass fb, int offset, int length) throws BadLocationException {
 		if (length == 1) { //If the user is just deleting character by character
-			addVersion(false);
 			DriverDocumentsTab.shouldUpdate = false;
 			DriverDocumentsTab.EOSesRemoved = false;
 
 			checkRemoveEllipses(offset);
 			checkRemoveAbbreviations(offset);
 		} else { //If the user selected and deleted a section of text greater than a single character
-			addVersion(true);
 			/**
 			 * I know this looks goofy, but without some sort of check to make sure that the document is done processing, this would fire
 			 * removeReplaceAndUpdate() in DriverDocumentsTab and screw all the highlighting up. There may be a better way to do this...
@@ -152,6 +150,7 @@ public class InputFilter extends DocumentFilter{
 		
 		if (watchForEOS && !isEOS) { //if the user previously deleted an EOS character AND the one they just deleted is not an EOS character, we should update.
 			watchForEOS = false;
+			shouldBackup = true;
 			DriverDocumentsTab.shouldUpdate = true;
 		}
 	}
@@ -169,33 +168,5 @@ public class InputFilter extends DocumentFilter{
 					DriverDocumentsTab.shouldUpdate = false;
 			}
 		} catch(StringIndexOutOfBoundsException e) {} //most likely the user is deleting at the first index of their document, move on
-	}
-	
-	/**
-	 * Adds a backup version of DriverDocumentsTab's taggedDoc to VersionControl if enough characters have been changed OR if the developer
-	 * passes "true" for the forceAdd parameter, which will bypass the version control buffer and immediately backup the taggedDoc.
-	 */
-	private void addVersion(boolean forceAdd) {
-		if (DriverDocumentsTab.taggedDoc != null && !GUIMain.inst.versionControl.isUndoOrRedoExecuted()) { //if the application just started we don't want this code to run.
-			if (forceAdd) { //if we want to bypass our character buffer and force a version to be added
-				GUIMain.inst.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
-			} else {
-				if (currentCharacterBuffer >= UNDOCHARACTERBUFFER) {
-					GUIMain.inst.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
-					currentCharacterBuffer = 0;
-				} else {
-					currentCharacterBuffer += 1;
-					/**
-					 * I know this is confusing, but I couldn't think of a better way to handle this. Even if we aren't
-					 * backing up every single change the user makes into the undo stack (otherwise they'd be undoing every single
-					 * character they typed, which is silly), we still want to have the state directly before a change saved to a single
-					 * variable every time a change occurs. This is because if the user starts to undo changes then changes their mind they
-					 * can ALWAYS redo back to where they started, regardless of whether or not the change was backed up in the undo stack or
-					 * not.
-					 */
-					GUIMain.inst.versionControl.setMostRecentState(DriverDocumentsTab.taggedDoc);
-				}
-			}
-		}
 	}
 }

@@ -1430,6 +1430,14 @@ public class GUIMain extends javax.swing.JFrame  {
 	public void setDocumentPane(JTextPane documentPane) {
 		this.documentPane = documentPane;
 	}
+	
+	public void enableUndo(boolean b) {
+		editUndoMenuItem.setEnabled(b);
+	}
+	
+	public void enableRedo(boolean b) {
+		editRedoMenuItem.setEnabled(b);
+	}
 
 	/**\
 	 * Aligns the table header and cells to the specified alignment.

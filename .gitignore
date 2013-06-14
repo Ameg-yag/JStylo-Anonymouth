@@ -8,3 +8,4 @@ bin/*
 /log
 /bin
 /anonymouth_log
+/build.xml

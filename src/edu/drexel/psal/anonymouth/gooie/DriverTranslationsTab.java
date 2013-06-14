@@ -14,6 +14,7 @@ import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 
+import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
 
 /**
@@ -134,6 +135,9 @@ public class DriverTranslationsTab implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		DriverDocumentsTab.backedUpTaggedDoc = new TaggedDocument(DriverDocumentsTab.taggedDoc);
+		main.versionControl.addVersion(DriverDocumentsTab.backedUpTaggedDoc, main.getDocumentPane().getCaret().getDot());
+		
 		GUIMain.saved = false;
 		InputFilter.ignoreTranslation = true;
 		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(false), true);
@@ -147,8 +151,6 @@ public class DriverTranslationsTab implements ActionListener {
 		main.translationsHolderPanel.add(main.notTranslated, "");
 		main.translationsHolderPanel.revalidate();
 		main.translationsHolderPanel.repaint();
-		
-		main.versionControl.setMostRecentState(DriverDocumentsTab.taggedDoc);
 	}
 	
 	/**

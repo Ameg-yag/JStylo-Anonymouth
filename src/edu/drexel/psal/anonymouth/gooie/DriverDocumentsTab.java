@@ -129,7 +129,6 @@ public class DriverDocumentsTab {
 	protected static Map<String, int[]> wordsToRemove = new HashMap<String, int[]>();
 	
 	protected static SuggestionCalculator suggestionCalculator;
-	protected static Boolean shouldRememberIndices = true;
 	protected static Boolean shouldUpdate = false;
 	protected static Boolean EOSPreviouslyRemoved = false;
 	protected static Boolean EOSesRemoved = false;
@@ -147,6 +146,8 @@ public class DriverDocumentsTab {
 	private static boolean wholeLastSentDeleted = false;
 	private static boolean wholeBeginningSentDeleted = false;
 	public static boolean skipDeletingEOSes = false;
+	public static boolean ignoreVersion = false;
+	public static TaggedDocument backedUpTaggedDoc;
 	
 	public static int getCurrentSentNum(){
 		return currentSentNum;
@@ -524,12 +525,10 @@ public class DriverDocumentsTab {
 							// update the EOSTracker
 							taggedDoc.specialCharTracker.shiftAllEOSChars(false, caretPositionPriorToAction, charsRemoved);
 						}
-						main.versionControl.setMostRecentState(taggedDoc);
 					} else if (charsInserted > 0) {
 						caretPositionPriorToAction = caretPositionPriorToCharInsertion;
 						// update the EOSTracker. First shift the current EOS objects, and then create a new one 
 						taggedDoc.specialCharTracker.shiftAllEOSChars(true, caretPositionPriorToAction, charsInserted);	
-						main.versionControl.setMostRecentState(taggedDoc);
 					} else {
 						caretPositionPriorToAction = currentCaretPosition;
 					}
@@ -544,15 +543,6 @@ public class DriverDocumentsTab {
 					
 					if (currentSentSelectionInfo == null)
 						return; // don't do anything.
-					
-					/**
-					 * This is to ensure that the "first state" backup of our document includes the indices that the user was at
-					 * just before beginning to undo, not the indices when we first made the backup (since they might have changed
-					 * since then)
-					 */
-					if (shouldRememberIndices) {
-						main.versionControl.updateIndices(startSelection, endSelection);
-					}
 					
 					lastSentNum = currentSentNum;
 					currentSentNum = currentSentSelectionInfo[0];
@@ -643,6 +633,10 @@ public class DriverDocumentsTab {
 					lastCaretLocation = currentCaretPosition;
 					sentToTranslate = currentSentNum;
 					if (!inRange) {
+						if (shouldUpdate && !ignoreVersion) {
+							backedUpTaggedDoc = new TaggedDocument(taggedDoc);
+							main.versionControl.addVersion(backedUpTaggedDoc, oldStartSelection);
+						}
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 					}
 
@@ -678,7 +672,6 @@ public class DriverDocumentsTab {
 				else
 					deleting = false;
 //				keyJustPressed = true;
-				shouldRememberIndices = false;
 				lastKeyCaretPosition = thisKeyCaretPosition;
 			}
 			
@@ -760,7 +753,27 @@ public class DriverDocumentsTab {
 		
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				charsInserted = e.getLength();		
+				charsInserted = e.getLength();
+				
+				if (main.versionControl.isUndoEmpty() && GUIMain.processed && !ignoreVersion) {
+					main.versionControl.addVersion(backedUpTaggedDoc, e.getOffset());
+					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
+				}
+				
+				if (ignoreVersion || !GUIMain.processed) {
+					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
+					return;
+				}
+				
+				if (e.getLength() > 1) {
+					main.versionControl.addVersion(backedUpTaggedDoc, e.getOffset());
+					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
+				} else {
+					if (InputFilter.shouldBackup) {
+						main.versionControl.addVersion(backedUpTaggedDoc, e.getOffset()+1);
+						backedUpTaggedDoc = new TaggedDocument(taggedDoc);
+					}
+				}
 			}
 
 			@Override
@@ -769,6 +782,26 @@ public class DriverDocumentsTab {
 					InputFilter.ignoreDeletion = false;
 				else
 					charsRemoved = e.getLength();
+				
+				if (main.versionControl.isUndoEmpty() && GUIMain.processed && !ignoreVersion) {
+					main.versionControl.addVersion(backedUpTaggedDoc, e.getOffset());
+					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
+				}
+				
+				if (ignoreVersion || !GUIMain.processed) {
+					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
+					return;
+				}
+				
+				if (e.getLength() > 1) {
+					main.versionControl.addVersion(backedUpTaggedDoc, e.getOffset());
+					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
+				} else {
+					if (InputFilter.shouldBackup) {
+						main.versionControl.addVersion(backedUpTaggedDoc, e.getOffset());
+						backedUpTaggedDoc = new TaggedDocument(taggedDoc);
+					}
+				}
 			}
 
 			@Override

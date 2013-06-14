@@ -10,6 +10,7 @@ import javax.swing.JOptionPane;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.DocumentMagician;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
+import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.anonymouth.utils.Tagger;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.ProblemSet;
@@ -219,14 +220,11 @@ public class BackendInterface {
 
 			main.processButton.setText("Re-Process");
 
-
 			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
+			DriverDocumentsTab.backedUpTaggedDoc = new TaggedDocument(DriverDocumentsTab.taggedDoc);
 			
-			GUIMain.processed = true; 
-			//main.versionControl.addVersion(DriverDocumentsTab.taggedDoc);
-			
+			GUIMain.processed = true; 			
 			pw.stop();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 			// Get current size of heap in bytes
