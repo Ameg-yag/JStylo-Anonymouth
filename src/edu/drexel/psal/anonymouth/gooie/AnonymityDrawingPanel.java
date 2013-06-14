@@ -38,10 +38,12 @@ public class AnonymityDrawingPanel extends JPanel {
 	private JLabel anonymous;
 	private JLabel notAnonymous;
 	private Boolean showPointer;
+	private Font percFont;
 	private static Pointer pointer;
 	protected Image bar;
 	protected Image barFull;
 	protected Image barEmpty;
+	protected double percentToGoal;
 	
 	//Pointer to show the user how anonymous their document is on the scale.
 	/**
@@ -80,8 +82,12 @@ public class AnonymityDrawingPanel extends JPanel {
 		 * @param perc must be integer representation of percentage (e.g., 50 for 50% instead of .5)
 		 */
 		public void setPercentages(int percentage, int maxPercentage) {
-			if (maxPercentage >= 0 && percentage >= 0 && percentage <= maxPercentage) {
-				setRatio(percentage, maxPercentage);
+			if (maxPercentage >= 0 && percentage >= 0) {
+				if (percentage <= maxPercentage)
+					setRatio(percentage, maxPercentage);
+				else
+					setRatio(1, 1);
+				
 				curPercent = (int)(getRatio() * 100 + .5);
 				maxPercent = 100;
 				
@@ -141,7 +147,7 @@ public class AnonymityDrawingPanel extends JPanel {
 		
 		if (!showPointer)
 			g2d.drawImage(barEmpty, (232 / 2) - 90 + 3, MINY-5, null);
-		else if (pointer.getPercentage() >= 99)
+		else if (percentToGoal >= 100)
 			g2d.drawImage(barFull, (232 / 2) - 90 + 3, MINY-5, null);
 		else
 			g2d.drawImage(bar, (232 / 2) - 90 + 3, MINY-5, null);
@@ -169,7 +175,7 @@ public class AnonymityDrawingPanel extends JPanel {
 		
 		g2d.setColor(Color.BLACK);
 		
-		Font percFont = new Font("Helvatica", Font.PLAIN, 14);
+		percFont = new Font("Helvatica", Font.PLAIN, 14);
 		g2d.setFont(percFont);
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 		
@@ -195,8 +201,13 @@ public class AnonymityDrawingPanel extends JPanel {
 	public void updateAnonymityBar() {
 		int current = (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5);
 		int max = (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5);
-		double percentToGoal = ((double)current/max)*100;	
+
+		percentToGoal = ((double)current/max)*100;
 		pointer.setPercentages(current,max);
+		
+		if (percentToGoal > 100)
+			percentToGoal = 100;
+		
 		main.anonymityDescription.setText("<html><center>You are "+((int)percentToGoal)+"%<br>of the way to<br>your goal</center><html>");
 		repaint();
 	}

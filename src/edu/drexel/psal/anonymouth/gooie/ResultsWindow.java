@@ -1,8 +1,10 @@
 package edu.drexel.psal.anonymouth.gooie;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
@@ -10,7 +12,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -28,11 +32,13 @@ public class ResultsWindow extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	private GUIMain main;
+	private Font labelFont;
 	private BufferedImage chartImage;
 	private JFreeChart chart;
 	private BufferedImage panelImage;
 	private JFreeChart panelChart;
 	protected JPanel drawingPanel;
+	protected JLabel resultsLabel;
 	private ArrayList<String> authors;
 	private ArrayList<Integer> percent;
 	private DefaultCategoryDataset dataSet;
@@ -137,7 +143,7 @@ public class ResultsWindow extends JDialog {
 		else
 			width = 1000;
 		
-		this.setSize(width, 500);
+		this.setSize(width, 522);
 		chartImage = chart.createBufferedImage(width, 478);
 	}
 	
@@ -149,7 +155,7 @@ public class ResultsWindow extends JDialog {
 		authors = new ArrayList<String>();
 		percent = new ArrayList<Integer>();
 		
-		drawingPanel = new JPanel() {
+		drawingPanel = new JPanel(new BorderLayout()) {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				
@@ -158,9 +164,16 @@ public class ResultsWindow extends JDialog {
 			}
 		};
 		
+		labelFont = new Font("Helvatica", Font.BOLD, 15);
+		resultsLabel = new JLabel("Process your document to see ownership probability");
+		resultsLabel.setFont(labelFont);
+		resultsLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+		resultsLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		drawingPanel.add(resultsLabel, BorderLayout.SOUTH);
+		drawingPanel.setBackground(Color.WHITE);
+		
 		this.setSize(500, 500);
 		this.add(drawingPanel);
-		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.setTitle("Process Results");
 	}
@@ -203,5 +216,6 @@ public class ResultsWindow extends JDialog {
 		authors.clear();
 		percent.clear();
 		main.resultsMainPanel.setPreferredSize(new Dimension(175, 110));
+		panelImage = null;
 	}
 }

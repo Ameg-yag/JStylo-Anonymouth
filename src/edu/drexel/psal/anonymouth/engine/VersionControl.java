@@ -83,6 +83,9 @@ public class VersionControl {
 		if (undoSize == 0) {
 			main.enableUndo(false);
 		}
+		
+		main.anonymityDrawingPanel.updateAnonymityBar();
+		DriverDocumentsTab.setSuggestions();
 	}
 	
 	/**
@@ -108,6 +111,9 @@ public class VersionControl {
 		if (redoSize == 0) {
 			main.enableRedo(false);
 		}
+		
+		main.anonymityDrawingPanel.updateAnonymityBar();
+		DriverDocumentsTab.setSuggestions();
 	}
 	
 	/**

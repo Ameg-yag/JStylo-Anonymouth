@@ -307,7 +307,7 @@ public class GUIMain extends javax.swing.JFrame  {
 	protected JTabbedPane rightTabPane;
 	protected JPanel anonymityPanel;
 	protected JLabel anonymityLabel;
-	protected AnonymityDrawingPanel anonymityDrawingPanel;
+	public AnonymityDrawingPanel anonymityDrawingPanel;
 	protected JLabel anonymityDescription;
 
 	//--------------------------------------------------------------------
@@ -1416,6 +1416,7 @@ public class GUIMain extends javax.swing.JFrame  {
 		resultsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
 		resultsMainPanel.setPreferredSize(new Dimension(175, 110));
+		resultsMainPanel.setToolTipText("Process your document to see ownership probability");
 		resultsMainPanel.add(resultsLabel);
 
 		resultsScrollPane = new JScrollPane(resultsMainPanel);

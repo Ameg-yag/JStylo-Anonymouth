@@ -16,33 +16,33 @@ import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.ProblemSet;
 
 public class BackendInterface {
-	
+
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
 	private ProgressWindow pw;
 	public static Boolean processed = false;
-	
+
 	protected static BackendInterface bei = new BackendInterface();
-	
+
 	public class GUIThread implements Runnable {
 		GUIMain main;
-		
+
 		public GUIThread(GUIMain main) {
-			
+
 			this.main = main;
 		}
-		
+
 		public void run() {}
 	}
-	
+
 	/* ========================
 	 * documents tab operations
 	 * ========================
 	 */
-	
+
 	// -- none --
 	// all operations are fast, so no backend threads are ran.
-	
-	
+
+
 	/**
 	 * documents tab >> create new problem set
 	 */
@@ -50,30 +50,30 @@ public class BackendInterface {
 		Logger.logln("( BackendInterface ) - create new problem set");
 		(new Thread(bei.new DocTabNewProblemSetButtonClick(main))).start();
 	}
-	
+
 	public class DocTabNewProblemSetButtonClick extends GUIThread {
-		
+
 		public DocTabNewProblemSetButtonClick(GUIMain main) {
 			super(main);
 		}
 
 		public void run() {
 			Logger.logln(NAME+"Backend: create new problem set thread started.");
-			
+
 			// initialize probelm set
 			main.ps = new ProblemSet();
 			main.ps.setTrainCorpusName(main.defaultTrainDocsTreeName);
 			GUIUpdateInterface.updateProblemSet(main);
-			
+
 			Logger.logln(NAME+"Backend: create new problem set thread finished.");
 		}
 	}
-	
+
 	protected static void runVerboseOutputWindow(GUIMain main){
 		new Thread(bei.new RunVerboseOutputWindow(main)).start();
-		
+
 	}
-	
+
 	public class RunVerboseOutputWindow extends GUIThread{
 
 		public RunVerboseOutputWindow(GUIMain main) {
@@ -91,12 +91,12 @@ public class BackendInterface {
 	protected static void preTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
 		(new Thread(bei.new PreTargetSelectionProcessing(main,wizard,magician))).start();
 	}
-	
+
 	public class PreTargetSelectionProcessing extends GUIThread {
-		
+
 		private DataAnalyzer wizard;
 		private DocumentMagician magician;		
-		
+
 		public PreTargetSelectionProcessing(GUIMain main,DataAnalyzer wizard, DocumentMagician magician){
 			super(main);
 			this.wizard = wizard;
@@ -112,7 +112,7 @@ public class BackendInterface {
 			try {
 				pw = new ProgressWindow("Processing...", main);
 				pw.run();
-				
+
 				processed = true;
 				DocumentMagician.numProcessRequests++;
 				String tempDoc = "";
@@ -121,7 +121,7 @@ public class BackendInterface {
 					ConsolidationStation.functionWords.run();
 					tempDoc = getDocFromCurrentTab();
 					Logger.logln(NAME+"Process button pressed for first time (initial run) in editor tab");
-					
+
 					pw.setText("Extracting and Clustering Features...");
 					try{
 						wizard.runInitial(magician,main.cfd, main.classifiers.get(0));
@@ -136,7 +136,7 @@ public class BackendInterface {
 						e.printStackTrace();
 						ErrorHandler.fatalError();
 					}
-					
+
 					Map<String,Map<String,Double>> wekaResults = magician.getWekaResultList();
 					Logger.logln(NAME+" ****** WEKA RESULTS for session '"+ThePresident.sessionName+" process number : "+DocumentMagician.numProcessRequests);
 					Logger.logln(NAME+wekaResults.toString());
@@ -173,88 +173,90 @@ public class BackendInterface {
 				}
 
 
-			ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded(); // todo figure out why this and/or the two percent change needed calls in TaggedDocument affect AnonymityBar
+				ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded(); // todo figure out why this and/or the two percent change needed calls in TaggedDocument affect AnonymityBar
 
-			DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
-			Logger.logln(NAME+"The Features are: "+DriverDocumentsTab.theFeatures.toString());
+				DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
+				Logger.logln(NAME+"The Features are: "+DriverDocumentsTab.theFeatures.toString());
 
-			DriverDocumentsTab.okayToSelectSuggestion = true;
-			
-			if(DriverDocumentsTab.isFirstRun)
-				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), true);
-			else
-				ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), false);
+				DriverDocumentsTab.okayToSelectSuggestion = true;
 
-			main.anonymityDrawingPanel.updateAnonymityBar();
-			main.anonymityDrawingPanel.showPointer(true);
+				if(DriverDocumentsTab.isFirstRun)
+					ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), true);
+				else
+					ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), false);
 
-			for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++)
-				DriverDocumentsTab.originals.put(DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(i), DriverDocumentsTab.taggedDoc.getTaggedSentences().get(i));
+				main.anonymityDrawingPanel.updateAnonymityBar();
+				main.anonymityDrawingPanel.showPointer(true);
 
-			DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
-			SuggestionCalculator.placeSuggestions(main);
-			GUIUpdateInterface.updateResultsPrepColor(main);
-			
-			DriverDocumentsTab.setAllDocTabUseable(true, main);		
-			
-			DriverDocumentsTab.ignoreNumActions = 1; // must be set to 1, otherwise "....setDot(0)" (2 lines down) will screw things up when it fires the caretUpdate listener.
-			main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
-			main.getDocumentPane().getCaret().setDot(0); // NOTE However, THIS DOES fire the caretUpdate, because we are messing with the caret itself.
-			main.getDocumentPane().setCaretPosition(0); // NOTE And then this, again, does not fire the caretUpdate
-			DriverDocumentsTab.ignoreNumActions = 0; //We MUST reset this to 0 because, for whatever reason, sometimes setDot() does not fire the caret listener, so ignoreNumActions is never reset. This is to ensure it is.
-			
-			int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
-			DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
-			DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
-			DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
+				for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++)
+					DriverDocumentsTab.originals.put(DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(i), DriverDocumentsTab.taggedDoc.getTaggedSentences().get(i));
 
-			GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
-			DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
-			DriverDocumentsTab.charsRemoved = 0;	
-			DriverDocumentsTab.caretPositionPriorToCharInsertion = 0;
-			DriverDocumentsTab.isFirstRun = false;	
-			
-			DictionaryBinding.init();//initializes the dictionary for wordNEt
-			
-			Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
+				DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
+				SuggestionCalculator.placeSuggestions(main);
+				GUIUpdateInterface.updateResultsPrepColor(main);
 
-			main.processButton.setText("Re-Process");
+				DriverDocumentsTab.setAllDocTabUseable(true, main);		
 
-			main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
-			DriverDocumentsTab.backedUpTaggedDoc = new TaggedDocument(DriverDocumentsTab.taggedDoc);
-			
-			GUIMain.processed = true; 			
-			pw.stop();
-		} catch (Exception e) {
-			e.printStackTrace();
-			// Get current size of heap in bytes
-			long heapSize = Runtime.getRuntime().totalMemory();
+				DriverDocumentsTab.ignoreNumActions = 1; // must be set to 1, otherwise "....setDot(0)" (2 lines down) will screw things up when it fires the caretUpdate listener.
+				main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
+				main.getDocumentPane().getCaret().setDot(0); // NOTE However, THIS DOES fire the caretUpdate, because we are messing with the caret itself.
+				main.getDocumentPane().setCaretPosition(0); // NOTE And then this, again, does not fire the caretUpdate
+				DriverDocumentsTab.ignoreNumActions = 0; //We MUST reset this to 0 because, for whatever reason, sometimes setDot() does not fire the caret listener, so ignoreNumActions is never reset. This is to ensure it is.
 
-			// Get maximum size of heap in bytes. The heap cannot grow beyond this size.
-			// Any attempt will result in an OutOfMemoryException.
-			long heapMaxSize = Runtime.getRuntime().maxMemory();
+				int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
+				DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
+				DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
+				DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
 
-			// Get amount of free memory within the heap in bytes. This size will increase
-			// after garbage collection and decrease as new objects are created.
-			long heapFreeSize = Runtime.getRuntime().freeMemory();
-			Logger.logln(NAME+"Something happend. Here are the total, max, and free heap sizes:");
-			Logger.logln(NAME+"Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
+				GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+				DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
+				DriverDocumentsTab.charsRemoved = 0;	
+				DriverDocumentsTab.caretPositionPriorToCharInsertion = 0;
+				DriverDocumentsTab.isFirstRun = false;	
+
+				DictionaryBinding.init();//initializes the dictionary for wordNEt
+
+				Logger.logln(NAME+"Finished in BackendInterface - postTargetSelection");
+
+				main.processButton.setText("Re-Process");
+				main.resultsWindow.resultsLabel.setText("Re-Process your document to get updated ownership probability");
+				main.resultsMainPanel.setToolTipText("Re-Process your document to get updated ownership probability");
+
+				main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
+				DriverDocumentsTab.backedUpTaggedDoc = new TaggedDocument(DriverDocumentsTab.taggedDoc);
+
+				GUIMain.processed = true; 			
+				pw.stop();
+			} catch (Exception e) {
+				e.printStackTrace();
+				// Get current size of heap in bytes
+				long heapSize = Runtime.getRuntime().totalMemory();
+
+				// Get maximum size of heap in bytes. The heap cannot grow beyond this size.
+				// Any attempt will result in an OutOfMemoryException.
+				long heapMaxSize = Runtime.getRuntime().maxMemory();
+
+				// Get amount of free memory within the heap in bytes. This size will increase
+				// after garbage collection and decrease as new objects are created.
+				long heapFreeSize = Runtime.getRuntime().freeMemory();
+				Logger.logln(NAME+"Something happend. Here are the total, max, and free heap sizes:");
+				Logger.logln(NAME+"Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
+			}
+
 		}
-		
 	}
-}
 
 	public static void makeResultsChart(Map<String,Map<String,Double>> resultMap, GUIMain main){
-		
+
 		Iterator<String> mapKeyIter = resultMap.keySet().iterator();
 		Map<String,Double> tempMap = resultMap.get(mapKeyIter.next()); 
-		
+
 		int numAuthors = DocumentMagician.numSampleAuthors+1;
-		
+
 		Object[] authors = (tempMap.keySet()).toArray();
 		Double[] predictions = new Double[authors.length];
 		Map<Double, Object> predMap = new HashMap<Double, Object>();
-		
+
 		Object[] keyRing = tempMap.values().toArray();
 		int maxIndex = 0;
 		Double biggest = .01;
@@ -268,26 +270,25 @@ public class BackendInterface {
 			int precision = 100;
 			tempVal = Math.floor(tempVal*precision+.5)/precision;	
 			predictions[i] = tempVal;
-			
+
 			if (authors[i].equals(ThePresident.DUMMY_NAME)) {
 				predMap.put(predictions[i], "You");
 			} else
 				predMap.put(predictions[i], authors[i]);
 		}
-		
+
 		Arrays.sort(predictions);
-		
+
 		for (int i = numAuthors-1; i >= 0; i--){
 			main.resultsWindow.addAttrib(predMap.get(predictions[i]).toString(), (int)(predictions[i] + .5));
 		}
-		
+
 		DriverDocumentsTab.resultsMaxIndex = maxIndex;
 		DriverDocumentsTab.chosenAuthor = (String)authors[maxIndex];
 		DriverDocumentsTab.maxValue = (Object)biggest;
-		
+
 		main.resultsWindow.makeChart();
 		main.resultsWindow.drawingPanel.repaint();
 		main.resultsMainPanel.repaint();
 	}
-	
 }

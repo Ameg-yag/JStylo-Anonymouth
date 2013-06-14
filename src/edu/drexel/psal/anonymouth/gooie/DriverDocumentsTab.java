@@ -637,6 +637,7 @@ public class DriverDocumentsTab {
 							backedUpTaggedDoc = new TaggedDocument(taggedDoc);
 							main.versionControl.addVersion(backedUpTaggedDoc, oldStartSelection);
 						}
+
 						DriverTranslationsTab.showTranslations(taggedDoc.getSentenceNumber(sentToTranslate));
 					}
 
@@ -927,7 +928,6 @@ public class DriverDocumentsTab {
 						Logger.logln(NAME+"calling backendInterface for preTargetSelectionProcessing");
 						
 						BackendInterface.preTargetSelectionProcessing(main,wizard,magician);
-						
 					}
 				}
 			}
@@ -1058,6 +1058,10 @@ public class DriverDocumentsTab {
 			}
 		}
 		return 0;
+	}
+	
+	public static void setSuggestions() {
+		SuggestionCalculator.placeSuggestions(GUIMain.inst);
 	}
 } 
 
