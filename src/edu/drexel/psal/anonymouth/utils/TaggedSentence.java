@@ -236,8 +236,16 @@ public class TaggedSentence implements Comparable<TaggedSentence>, Serializable 
 	 * returns the number of Words in the sentence
 	 * @return
 	 */
-	public int size(){
+	public int size() {
 		return wordsInSentence.size();
+	}
+	
+	/**
+	 * Clears all translations and translations names associated with the TaggedSentence instance.
+	 */
+	public void deleteTranslations() {
+		translationNames.clear();
+		translations.clear();
 	}
 	
 	/**

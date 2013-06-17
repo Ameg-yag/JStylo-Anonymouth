@@ -235,6 +235,7 @@ public class GUIMain extends javax.swing.JFrame  {
 
 	protected JPanel translationsPanel;
 	protected JLabel translationsLabel;
+	protected JButton resetTranslator;
 	protected ScrollablePanel translationsHolderPanel;
 	protected JScrollPane translationsScrollPane;
 	protected JPanel progressPanel;
@@ -666,6 +667,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			DriverSuggestionsTab.initListeners(this);
 			DriverClustersWindow.initListeners(this);
 			DriverResultsWindow.initListeners(this);
+			DriverTranslationsTab.initListeners(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1267,8 +1269,16 @@ public class GUIMain extends javax.swing.JFrame  {
 				progressPanel.add(translationsProgressBar, "grow");
 			}
 
-			translationsPanel.add(translationsLabel, "grow, h 25!");
-			translationsPanel.add(translationsScrollPane, "grow");
+			resetTranslator = new JButton("Reset Translator");
+			if (PropertiesUtil.getDoTranslations()) {
+				resetTranslator.setEnabled(true);
+			} else {
+				resetTranslator.setEnabled(false);
+			}
+			
+			translationsPanel.add(translationsLabel, "grow, h 25!, split 1");
+			translationsPanel.add(translationsScrollPane, "grow, h :100%:");
+			translationsPanel.add(resetTranslator, "h 30!");
 			translationsPanel.add(progressPanel, "grow");
 		}
 		return translationsPanel;

@@ -9,9 +9,12 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+
 import net.miginfocom.swing.MigLayout;
 
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
@@ -25,6 +28,8 @@ import edu.drexel.psal.anonymouth.utils.TaggedSentence;
  */
 
 public class DriverTranslationsTab implements ActionListener {
+	
+	private static ActionListener resetTranslatorListener;
 	private static GUIMain main;
 	protected static JPanel[] finalPanels;
 	protected static JLabel[] languageLabels;
@@ -36,6 +41,39 @@ public class DriverTranslationsTab implements ActionListener {
 	private static ImageIcon arrow_up;
 	private static ImageIcon arrow_down;
 
+	public static void initListeners(GUIMain main) {
+		DriverTranslationsTab.main = main;
+		
+		resetTranslatorListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int answer = JOptionPane.showOptionDialog(null,
+						"Are you sure you want to reset the translator?\nYou should do so if it's exibiting strange\nbehavior or not translating certain sentences.",
+						"Reset Translator",
+						JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						UIManager.getIcon("OptionPane.warningIcon"), null, null);
+				if (answer == JOptionPane.YES_OPTION) {
+					DriverTranslationsTab.main.translationsHolderPanel.removeAll();
+					GUIMain.inst.notTranslated.setText("Sentence has not been translated yet, please wait or work on already translated sentences.");
+					GUIMain.inst.translationsHolderPanel.add(GUIMain.inst.notTranslated, "");
+					GUIMain.GUITranslator.reset();
+					DriverDocumentsTab.taggedDoc.deleteTranslations();
+					
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+					
+					GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+				}
+			}
+		};
+		
+		main.resetTranslator.addActionListener(resetTranslatorListener);
+	}
+	
 	/**
 	 * Displays the translations of the given sentence in the translations holder panel.
 	 * @param sentence - the TaggedSentence to show the translations of

@@ -205,7 +205,7 @@ public class TaggedDocument implements Serializable{
 	 * @return returnValue - the TaggedSentence found at the index. If none exists, null is returned.
 	 */
 	public TaggedSentence getTaggedSentenceAtIndex(int index) {
-		int size = taggedSentences.size();
+		int size = getNumSentences();
 		int newIndex = 0;
 		int pastIndex = 0;
 		int length = 0;
@@ -228,12 +228,22 @@ public class TaggedDocument implements Serializable{
 	}
 	
 	/**
+	 * Deletes translations and translation names for each sentence in the given TaggedDocument instance.
+	 */
+	public void deleteTranslations() {
+		int size = getNumSentences();
+		for (int i = 0; i < size; i++) {
+			taggedSentences.get(i).deleteTranslations();
+		}
+	}
+	
+	/**
 	 * Uses a given index and calculates the sentence number of the index.
 	 * @param index - The positions in the document text.
 	 * @return returnValue - The sentence number. If none is found, -1 is returned.
 	 */
 	public int getSentenceNumAtIndex(int index) {
-		int size = taggedSentences.size();
+		int size = getNumSentences();
 		int end = 0;
 		int start = 0;
 		int currentSentNum = 0;

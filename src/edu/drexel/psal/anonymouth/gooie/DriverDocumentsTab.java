@@ -195,6 +195,14 @@ public class DriverDocumentsTab {
 		main.elementsToRemovePane.setFocusable(b);
 		main.getDocumentPane().setEnabled(b);
 		main.clipboard.setEnabled(b);
+		
+		if (b) {
+			if (PropertiesUtil.getDoTranslations()) {
+				main.resetTranslator.setEnabled(true);
+			} else {
+				main.resetTranslator.setEnabled(false);
+			}
+		}
 	}
 	
 	/**
@@ -385,14 +393,6 @@ public class DriverDocumentsTab {
 		 ***********************************************************************************************************************************************/	
 
 		suggestionCalculator = new SuggestionCalculator();
-		
-		/*
-		 * 
-		 * xxx xxx xxx xxx xxx xxx xxx
-		 * todo todo intercept keys with document thing
-		 * xxx xxx xxx xxx xxx xxx xxx
-		 * 
-		 */
 
 		main.getDocumentPane().addCaretListener(new CaretListener() {
 			@Override

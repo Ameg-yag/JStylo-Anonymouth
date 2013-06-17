@@ -404,6 +404,8 @@ public class GeneralSettingsFrame extends JDialog {
 				Logger.logln(NAME+"Translations checkbox clicked");
 				
 				if (translations.isSelected()) {
+					if (GUIMain.processed)
+						main.resetTranslator.setEnabled(true);
 					PropertiesUtil.setDoTranslations(true);
 					
 					if (BackendInterface.processed) {
@@ -423,6 +425,7 @@ public class GeneralSettingsFrame extends JDialog {
 						main.translationsHolderPanel.add(main.notTranslated, "");
 					}
 				} else {
+					main.resetTranslator.setEnabled(false);
 					GUIMain.GUITranslator.reset();
 					PropertiesUtil.setDoTranslations(false);
 					main.notTranslated.setText("You have turned translations off.");
