@@ -84,10 +84,8 @@ public class Translator implements Runnable {
 		 * Commented them out so that if the user turns off translations but changes their mind the translations will pick off where they left off AND
 		 * Upon re-processing the document translations will not re-translate sentences that didn't change.
 		 */
-//		translatedSentences.clear();
-//		currentSentNum = 1;
-		
-		stoppedLangNum = currentLangNum;
+		currentSentNum = 1;
+		stoppedLangNum = 0;
 		currentLangNum = 1;
 		finished = false;
 		noInternet = false;
@@ -110,9 +108,12 @@ public class Translator implements Runnable {
 
 		// translate all languages for each sentence, sorting the list based on anon index after each translation
 		while (!sentences.isEmpty() && currentSentNum <= sentences.size()) {
+			
+			
+			
 			if (!sentences.get(currentSentNum - 1).isTranslated()) {
 				// Translate the sentence for each language				
-				for (Language lang: Translation.getUsedLangs()) {
+				for (Language lang: Translation.getUsedLangs()) {					
 					if (currentLangNum >= stoppedLangNum) {
 						if (sentences.size() == 0) {
 							stop = false;

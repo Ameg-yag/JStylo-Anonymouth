@@ -124,7 +124,6 @@ public class DriverDocumentsTab {
 	protected static int caretPositionPriorToCharInsertion = 0;
 	protected static int caretPositionPriorToCharRemoval = 0;
 	protected static int caretPositionPriorToAction = 0;
-	public static Boolean firstRun = true;
 	public static int[] oldSelectionInfo = new int[3];
 	protected static Map<String, int[]> wordsToRemove = new HashMap<String, int[]>();
 	
@@ -299,7 +298,7 @@ public class DriverDocumentsTab {
 					while (main.getDocumentPane().getText().substring(selectedSentIndexRange[0]+temp, selectedSentIndexRange[0]+1+temp).equals(" ")) //we want to not highlight whitespace before the actual sentence.
 						temp++;
 
-					if (selectedSentIndexRange[0]+temp <= currentCaretPosition || firstRun) {
+					if (selectedSentIndexRange[0]+temp <= currentCaretPosition || isFirstRun) {
 						currentHighlight = main.getDocumentPane().getHighlighter().addHighlight(bounds[0]+temp, bounds[1], painter);
 					}
 				}
@@ -565,7 +564,7 @@ public class DriverDocumentsTab {
 							charsWereRemoved = true;
 							charsWereInserted = false;
 						}
-					} else if (!firstRun) {
+					} else if (!isFirstRun) {
 						/**
 						 * Yet another thing that seems somewhat goofy but serves a distinct and important purpose. Since we're supposed to wait in InputFilter
 						 * when the user types an EOS character since they may type more and we're not sure yet if they are actually done with the sentence, nothing
@@ -593,8 +592,8 @@ public class DriverDocumentsTab {
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
 					
 					// xxx todo xxx get rid of this check (if possible... BEI sets the selectedSentIndexRange)....
-					if (firstRun) { //NOTE needed a way to make sure that the very first time a sentence is clicked (, we didn't break stuff... this may not be the best way...
-						firstRun = false;
+					if (isFirstRun) { //NOTE needed a way to make sure that the very first time a sentence is clicked (, we didn't break stuff... this may not be the best way...
+						isFirstRun = false;
 					} else {
 						lastSelectedSentIndexRange[0] = selectedSentIndexRange[0];
 						lastSelectedSentIndexRange[1] = selectedSentIndexRange[1];
@@ -989,7 +988,7 @@ public class DriverDocumentsTab {
 	}
 	
 	public static void reset() {
-		currentCaretPosition = -1;
+		currentCaretPosition = 0;
 		startSelection = -1;
 		endSelection = -1;
 		thisKeyCaretPosition = -1;

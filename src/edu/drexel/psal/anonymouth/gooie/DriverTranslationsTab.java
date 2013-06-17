@@ -45,7 +45,9 @@ public class DriverTranslationsTab implements ActionListener {
 		DriverTranslationsTab inst = new DriverTranslationsTab();
 		
 		// remove all the current translations shown
-		main.translationsHolderPanel.removeAll();
+		if (main.getDocumentPane().isEnabled()) {
+			main.translationsHolderPanel.removeAll();
+		}
 		
 		if (Translator.noInternet) {
 			main.notTranslated.setText("Translations unavailable: No Internet connection\n\n" +
@@ -119,8 +121,7 @@ public class DriverTranslationsTab implements ActionListener {
 				// add final panel to the translations list panel
 				main.translationsHolderPanel.add(finalPanels[i], "");
 			}
-			
-		} else {
+		} else if (main.getDocumentPane().isEnabled()){
 			main.notTranslated.setText("Sentence has not been translated yet, please wait or work on already translated sentences.");
 			main.translationsHolderPanel.add(main.notTranslated, "");
 		}

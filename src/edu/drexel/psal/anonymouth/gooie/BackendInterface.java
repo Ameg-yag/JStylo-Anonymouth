@@ -198,6 +198,9 @@ public class BackendInterface {
 				DriverDocumentsTab.setAllDocTabUseable(true, main);		
 
 				DriverDocumentsTab.ignoreNumActions = 1; // must be set to 1, otherwise "....setDot(0)" (2 lines down) will screw things up when it fires the caretUpdate listener.
+				
+				if (!DriverDocumentsTab.isFirstRun)
+					InputFilter.ignoreTranslation = true;
 				main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
 				main.getDocumentPane().getCaret().setDot(0); // NOTE However, THIS DOES fire the caretUpdate, because we are messing with the caret itself.
 				main.getDocumentPane().setCaretPosition(0); // NOTE And then this, again, does not fire the caretUpdate
@@ -212,7 +215,7 @@ public class BackendInterface {
 				DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
 				DriverDocumentsTab.charsRemoved = 0;	
 				DriverDocumentsTab.caretPositionPriorToCharInsertion = 0;
-				DriverDocumentsTab.isFirstRun = false;	
+				DriverDocumentsTab.isFirstRun = true;
 
 				DictionaryBinding.init();//initializes the dictionary for wordNEt
 
@@ -221,11 +224,16 @@ public class BackendInterface {
 				main.processButton.setText("Re-Process");
 				main.resultsWindow.resultsLabel.setText("Re-Process your document to get updated ownership probability");
 				main.resultsMainPanel.setToolTipText("Re-Process your document to get updated ownership probability");
-
+				if (PropertiesUtil.getDoTranslations()) {
+					main.rightTabPane.setSelectedIndex(2);
+				} else {
+					main.rightTabPane.setSelectedIndex(1);
+				}
 				main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
+				
 				DriverDocumentsTab.backedUpTaggedDoc = new TaggedDocument(DriverDocumentsTab.taggedDoc);
 
-				GUIMain.processed = true; 			
+				GUIMain.processed = true;
 				pw.stop();
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -122,7 +122,7 @@ public class ThePresident {
 				public void handleAbout(ApplicationEvent e) {
 					e.setHandled(true); //Tells the system to not display their own "About" window since we've got this covered.
 					JOptionPane.showMessageDialog(null, 
-							"Anonymouth, Version 0.0.3\n\nAuthors: Andrew W.E. McDonald\n   -Marc Barrowclift\n   -Joe Muoio\n   -Jeff Ulman\n\nDrexel University, PSAL, Dr. Rachel Greenstadt - P.I.",
+							"Anonymouth, Version 0.5\n\nAuthors: Andrew W.E. McDonald\n   -Marc Barrowclift\n   -Joe Muoio\n   -Jeff Ulman\n\nDrexel University, PSAL, Dr. Rachel Greenstadt - P.I.",
 							"About Anonymouth",
 							JOptionPane.INFORMATION_MESSAGE,
 							LOGO);

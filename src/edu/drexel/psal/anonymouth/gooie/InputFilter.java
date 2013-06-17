@@ -52,7 +52,7 @@ public class InputFilter extends DocumentFilter{
 			DriverDocumentsTab.shouldUpdate = true; //If the user pasted in a massive chunk of text we want to update no matter what.
 			Logger.logln(NAME + "User pasted in text, will update");
 		}
-
+		
 		fb.replace(offset, length, text, attr);
 	}
 	

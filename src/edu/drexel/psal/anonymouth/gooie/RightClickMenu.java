@@ -139,7 +139,7 @@ public class RightClickMenu extends JPopupMenu {
 			public void actionPerformed(ActionEvent e) {
 				DriverDocumentsTab.taggedDoc.specialCharTracker.resetEOSCharacters();
 				DriverDocumentsTab.taggedDoc = new TaggedDocument(main.getDocumentPane().getText());
-				DriverDocumentsTab.firstRun = true;
+				DriverDocumentsTab.isFirstRun = true;
 				
 				int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(DriverDocumentsTab.currentCaretPosition)[0];
 				DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];

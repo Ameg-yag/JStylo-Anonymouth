@@ -116,7 +116,7 @@ public class ClusterAnalyzer {
 			double[] centroids = new double[numClusters];
 
 			for (j = 0; j < numClusters; j ++) {
-				System.out.println("document "+i+", cluster number "+j+" => "+clustersByDoc[i][j]);
+				//System.out.println("document "+i+", cluster number "+j+" => "+clustersByDoc[i][j]);
 				clusterNumsByRow[j] = clustersByDoc[i][j].getClusterNumber();
 				centroids[j] = clustersByDoc[i][j].getCentroid();
 			}
