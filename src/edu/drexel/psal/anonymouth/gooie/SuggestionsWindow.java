@@ -8,13 +8,14 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.Logger;
 
 public class SuggestionsWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
-	private final String filePath = "jsan_resources/suggestions.txt";
+	private final String filePath = JSANConstants.JSAN_EXTERNAL_RESOURCE_PACKAGE+"suggestions.txt";
 	private String text = "";
 	private JTextPane textPane;
 	private JScrollPane textScrollPane;

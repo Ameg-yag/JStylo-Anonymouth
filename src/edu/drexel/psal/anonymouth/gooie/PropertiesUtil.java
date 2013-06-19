@@ -8,6 +8,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 import edu.drexel.psal.jstylo.generics.*;
 
@@ -15,7 +16,7 @@ public class PropertiesUtil {
 	
 	private static final String NAME = "( PropertiesUtil ) - ";
 
-	protected static String propFileName = "jsan_resources/anonymouth_prop.prop";
+	protected static String propFileName = JSANConstants.JSAN_EXTERNAL_RESOURCE_PACKAGE+"anonymouth_prop.prop";
 	protected static File propFile = new File(propFileName);
 	protected static Properties prop = new Properties();
 	protected static JFileChooser load = new JFileChooser();

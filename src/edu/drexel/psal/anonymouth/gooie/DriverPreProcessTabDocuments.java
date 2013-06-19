@@ -280,7 +280,6 @@ public class DriverPreProcessTabDocuments {
 								continue;
 							main.ps.addTestDoc(new Document(path,ProblemSet.getDummyAuthor(),file.getName()));
 						}
-
 						GUIUpdateInterface.updateTestDocTable(main);
 						main.addTestDocJButton.setEnabled(false);
 						main.PPSP.addTestDocJButton.setEnabled(false);

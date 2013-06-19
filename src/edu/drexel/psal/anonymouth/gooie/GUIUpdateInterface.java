@@ -88,7 +88,6 @@ public class GUIUpdateInterface {
 	/**
 	 * Updates the test documents table with the current problem set. 
 	 */
-	@SuppressWarnings("unchecked")
 	protected static void updateTestDocTable(GUIMain main) 
 	{
 		DefaultListModel<String> dlm = (DefaultListModel<String>)main.prepMainDocList.getModel();
@@ -102,15 +101,20 @@ public class GUIUpdateInterface {
 			{
 				dlm.addElement(testDocs.get(i).getTitle());
 				dlm2.addElement(testDocs.get(i).getTitle());
+				System.out.println(testDocs.get(i).getTitle());
+				System.out.println(main.ps.testDocAt(0));
 				main.mainDocPreview = main.ps.testDocAt(0);
 				try {
 					main.mainDocPreview.load();
 				} catch (Exception e) {
+					System.err.println("ANOTHER PROBLEM!");
 					e.printStackTrace();
 				}
 				try {
+					System.out.println(main.mainDocPreview.stringify());
 					main.getDocumentPane().setText(main.mainDocPreview.stringify());
 				} catch (Exception e) {
+					System.err.println("PROBLEM!");
 					e.printStackTrace();
 				}
 			}
@@ -122,7 +126,6 @@ public class GUIUpdateInterface {
 	/**
 	 * Updates the User Sample documents table with the current problem set. 
 	 */
-	@SuppressWarnings("unchecked")
 	protected static void updateUserSampleDocTable(GUIMain main) {
 		DefaultListModel<String> dlm = (DefaultListModel<String>)main.prepSampleDocsList.getModel();
 		DefaultListModel<String> dlm2 = (DefaultListModel<String>)main.PPSP.prepSampleDocsList.getModel();
@@ -196,7 +199,6 @@ public class GUIUpdateInterface {
 	/**
 	 * Updates the feature set view when a new feature set is selected / created.
 	 */
-	@SuppressWarnings("unchecked")
 	protected static void updateFeatureSetView(GUIMain main) {
 		CumulativeFeatureDriver cfd = main.cfd;
 		
@@ -352,7 +354,6 @@ public class GUIUpdateInterface {
 	/**
 	 * Updates the list of selected classifiers with respect to the list of classifiers.
 	 */
-	@SuppressWarnings("unchecked")
 	protected static void updateClassList(GUIMain main) {
 //		DefaultListModel model = (DefaultListModel)main.classJList.getModel();
 		DefaultListModel<String> model2 = (DefaultListModel<String>)main.PPSP.classJList.getModel();

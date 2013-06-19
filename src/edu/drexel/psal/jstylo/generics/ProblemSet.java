@@ -12,6 +12,8 @@ import java.util.Collections;
 
 import com.jgaap.generics.*;
 
+import edu.drexel.psal.JSANConstants;
+
 public class ProblemSet {
 	
 	/* ======
@@ -784,7 +786,7 @@ public class ProblemSet {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		ProblemSet ps = new ProblemSet("jsan_resources/problem_sets/amt_imitation_short.xml");
+		ProblemSet ps = new ProblemSet(JSANConstants.JSAN_EXTERNAL_RESOURCE_PACKAGE+"problem_sets/amt_imitation_short.xml");
 		System.out.println(ps.toXMLString());
 		ps.writeToXML("d:/tmp/a.xml");
 	}

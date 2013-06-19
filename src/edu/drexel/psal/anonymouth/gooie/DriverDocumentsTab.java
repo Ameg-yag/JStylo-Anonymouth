@@ -7,6 +7,7 @@ import edu.drexel.psal.anonymouth.engine.FeatureList;
 import edu.drexel.psal.anonymouth.utils.ConsolidationStation;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 import edu.drexel.psal.anonymouth.utils.TaggedSentence;
+import edu.drexel.psal.anonymouth.utils.Word;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
 
@@ -47,12 +48,12 @@ import javax.swing.text.Highlighter;
  * 
  */
 public class DriverDocumentsTab {
-	
+
 	private final static String NAME = "( DriverDocumentsTab ) - ";
-	
-//	public final static int UNDOCHARACTERBUFFER = 5;
-//	public static int currentCharacterBuffer = 0;
-	
+
+	//	public final static int UNDOCHARACTERBUFFER = 5;
+	//	public static int currentCharacterBuffer = 0;
+
 	public static boolean isUsingNineFeatures = false;
 	protected static boolean hasBeenInitialized = false;
 	protected static String[] condensedSuggestions;
@@ -74,14 +75,14 @@ public class DriverDocumentsTab {
 	public static int oldStartSelection = -1;
 	public static int endSelection = -1;
 	public static int oldEndSelection = -1;
-//	private static int lastCaretPosition = -1;
+	//	private static int lastCaretPosition = -1;
 	private static int thisKeyCaretPosition = -1;
 	private static int lastKeyCaretPosition = -1;
 	protected static boolean okayToSelectSuggestion = false;
 	private static boolean keyJustTyped = false;
-//	private static boolean keyJustPressed = false;
-//	private static int mouseEndPosition;
-//	private static boolean checkForMouseInfluence =false;
+	//	private static boolean keyJustPressed = false;
+	//	private static int mouseEndPosition;
+	//	private static boolean checkForMouseInfluence =false;
 	protected static int selectedIndexTP;
 	protected static int sizeOfCfd;
 	protected static boolean consoleDead = true;
@@ -97,7 +98,7 @@ public class DriverDocumentsTab {
 	public static HashMap<FeatureList,Integer> attributesMappedByName;
 	public static HashMap<Integer,Integer> suggestionToAttributeMap;
 	protected static ConsolidationStation consolidator;
-	
+
 	private static String cleanWordRegex=".*([\\.,!?])+";//REFINE THIS??
 
 	private static final Color HILIT_COLOR = new Color(255,0,0,100);//Color.yellow; //new Color(50, 161,227);// Color.blue;
@@ -106,7 +107,7 @@ public class DriverDocumentsTab {
 	protected static DefaultHighlighter.DefaultHighlightPainter painterAdd = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,255,0,128));
 
 	protected static Translation translator = new Translation();
-	
+
 	public static TaggedDocument taggedDoc;
 	protected static Map<String, TaggedSentence> originals = new HashMap<String, TaggedSentence>();
 	protected static ArrayList<String> originalSents = new ArrayList<String>();
@@ -126,7 +127,7 @@ public class DriverDocumentsTab {
 	protected static int caretPositionPriorToAction = 0;
 	public static int[] oldSelectionInfo = new int[3];
 	protected static Map<String, int[]> wordsToRemove = new HashMap<String, int[]>();
-	
+
 	protected static SuggestionCalculator suggestionCalculator;
 	protected static Boolean shouldUpdate = false;
 	protected static Boolean EOSPreviouslyRemoved = false;
@@ -147,17 +148,17 @@ public class DriverDocumentsTab {
 	public static boolean skipDeletingEOSes = false;
 	public static boolean ignoreVersion = false;
 	public static TaggedDocument backedUpTaggedDoc;
-	
+
 	public static int getCurrentSentNum(){
 		return currentSentNum;
 	}
-	
+
 	protected static void doTranslations(ArrayList<TaggedSentence> sentences, GUIMain main)
 	{
 		GUIMain.GUITranslator.load(sentences);
 	}
-	
-	
+
+
 	protected static boolean checkSentFor(String currentSent, String str) 
 	{
 		@SuppressWarnings("resource")
@@ -169,7 +170,7 @@ public class DriverDocumentsTab {
 			tempStr = parser.next();
 			if(tempStr.matches(cleanWordRegex))
 				tempStr = tempStr.substring(0,tempStr.length()-1);
-			
+
 			if(tempStr.equalsIgnoreCase(str))
 			{
 				inSent = true;
@@ -178,7 +179,7 @@ public class DriverDocumentsTab {
 		}
 		return inSent;
 	}
-	
+
 	/**
 	 * Sets all the components within the editor inner tab spawner to disabled, except for the Process button.
 	 * @param b boolean determining if the components are enabled or disabled
@@ -195,7 +196,7 @@ public class DriverDocumentsTab {
 		main.elementsToRemovePane.setFocusable(b);
 		main.getDocumentPane().setEnabled(b);
 		main.clipboard.setEnabled(b);
-		
+
 		if (b) {
 			if (PropertiesUtil.getDoTranslations()) {
 				main.resetTranslator.setEnabled(true);
@@ -204,7 +205,7 @@ public class DriverDocumentsTab {
 			}
 		}
 	}
-	
+
 	/**
 	 * Removes the sentence at index sentenceNumberToRemove in the current TaggedDocument, and replaces it with the sentenceToReplaceWith.
 	 * Then, converts the updated TaggedDocument to a string, and puts the new version in the editor window.
@@ -232,7 +233,7 @@ public class DriverDocumentsTab {
 			originalSents.add(taggedDoc.getSentenceNumber(oldSelectionInfo[0]).getUntagged(false));
 			SuggestionCalculator.placeSuggestions(main);
 		}
-		
+
 		if (shouldUpdate) {
 			ignoreNumActions = 3;
 			main.getDocumentPane().setText(taggedDoc.getUntaggedDocument(false)); // NOTE should be false after testing!!!
@@ -248,7 +249,7 @@ public class DriverDocumentsTab {
 		moveHighlight(main,selectedSentIndexRange);
 		main.anonymityDrawingPanel.updateAnonymityBar();
 	}
-	
+
 	/**
 	 * Does the same thing as <code>removeReplaceAndUpdate</code>, except it doesn't remove and replace. 
 	 * It simply updates the text editor box with the contents of <code>taggedDoc</code>,
@@ -264,7 +265,7 @@ public class DriverDocumentsTab {
 			main.getDocumentPane().getCaret().setDot(caretPositionPriorToCharInsertion);
 			main.getDocumentPane().setCaretPosition(caretPositionPriorToCharInsertion);	
 		}
-		
+
 		int[] selectionInfo = calculateIndicesOfSentences(caretPositionPriorToCharInsertion)[0];
 		currentSentNum = selectionInfo[0];
 		selectedSentIndexRange[0] = selectionInfo[1]; //start highlight
@@ -285,7 +286,7 @@ public class DriverDocumentsTab {
 			main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 			return;
 		}
-		
+
 		if (currentHighlight != null)
 			main.getDocumentPane().getHighlighter().removeHighlight(currentHighlight);
 		try {
@@ -336,7 +337,7 @@ public class DriverDocumentsTab {
 		int numPositions = positions.length;
 		int currentPosition;
 		int[][] results = new int[numPositions][3];
-		
+
 		for (positionNumber = 0; positionNumber < numPositions; positionNumber++) {
 			int i = 0;
 			int lengthSoFar = 0;
@@ -364,7 +365,7 @@ public class DriverDocumentsTab {
 			}	
 			results[positionNumber] = new int[]{selectedSentence, startHighlight, endHighlight};
 		}
-		
+
 		//Checking to see if the user's deletion includes deleting a whole sentence at both the end of their selection and the beginning of their selection.
 		//This is because we need to handle the deletion process different depending on which one is true or false.
 		if (results.length > 1) {
@@ -373,7 +374,7 @@ public class DriverDocumentsTab {
 			if (results[1][0] - results[0][0] >= 4 && (results[0][2] == oldStartSelection + (results[0][2] - results[0][1]) || results[0][2] == oldEndSelection + (results[0][2] - results[0][1])))
 				wholeBeginningSentDeleted = true;
 		}
-		
+
 		return results; 
 	}
 
@@ -412,22 +413,22 @@ public class DriverDocumentsTab {
 					int[] currentSentSelectionInfo = null;
 					caretPositionPriorToCharInsertion = currentCaretPosition - charsInserted;
 					caretPositionPriorToCharRemoval = currentCaretPosition + charsRemoved;
-					
+
 					if (charsRemoved > 0) {	
 						caretPositionPriorToAction = caretPositionPriorToCharRemoval;
 						// update the EOSTracker, and from the value that it returns we can tell if sentences are being merged (EOS characters are being erased)
-						
+
 						/**
 						 * We must subtract all the indices by 1 because the InputFilter indices refuses to work with anything other than - 1, and as such
 						 * the indices here and in TaggedDocument must be adjustest as well.
 						 */						
-						
+
 						if (skipDeletingEOSes) {
 							skipDeletingEOSes = false;
 						} else {
 							EOSJustRemoved = taggedDoc.specialCharTracker.removeEOSesInRange( currentCaretPosition-1, caretPositionPriorToCharRemoval-1);
 						}
-						
+
 						if (EOSJustRemoved) {
 							try {
 								// note that 'currentCaretPosition' will always be less than 'caretPositionPriorToCharRemoval' if characters were removed!
@@ -440,7 +441,7 @@ public class DriverDocumentsTab {
 								if (rightSentInfo[0] != leftSentInfo[0]) {
 									int numToDelete = rightSentInfo[0] - (leftSentInfo[0]+1); // add '1' because we don't want to count the lower bound (e.g. if midway through sentence '6' down to midway through sentence '3' was deleted, we want to delete "6 - (3+1) = 2" TaggedSentences. 
 									int[] taggedSentsToDelete;
-									
+
 									// Now we list the indices of sentences that need to be removed, which are the ones between the left and right sentence (though not including either the left or the right sentence).
 									if (wholeLastSentDeleted) {
 										//We want to ignore the rightmost sentence from our deletion process since we didn't actually delete anything from it.
@@ -461,10 +462,10 @@ public class DriverDocumentsTab {
 									//First delete every sentence the user has deleted wholly (there's no extra concatenation or tricks, just delete). 
 									taggedDoc.removeTaggedSentences(taggedSentsToDelete);
 									System.out.println(NAME+"Ending whole sentence deletion, now handling left and right (if available) deletion");
-									
+
 									// Then read the remaining strings from "left" and "right" sentence:
-										// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
-										// for right: read from 'caretPositionPriorToCharRemoval' (where the "sentence" now begins) to 'rightSentInfo[2]' (the end of the sentence) 
+									// for left: read from 'leftSentInfo[1]' (the beginning of the sentence) to 'currentCaretPosition' (where the "sentence" now ends)
+									// for right: read from 'caretPositionPriorToCharRemoval' (where the "sentence" now begins) to 'rightSentInfo[2]' (the end of the sentence) 
 									// Once we have the string, we call removeAndReplace, once for each sentence (String)
 									String docText = main.getDocumentPane().getText();
 									String leftSentCurrent = docText.substring(leftSentInfo[1],currentCaretPosition);
@@ -475,7 +476,7 @@ public class DriverDocumentsTab {
 										rightSentInfo[0] = rightSentInfo[0]-1;
 									}
 									String rightSentCurrent = docText.substring((caretPositionPriorToCharRemoval-charsRemoved), (rightSentInfo[2]-charsRemoved));//we need to shift our indices over by the number of characters removed.
-									
+
 									if (wholeLastSentDeleted && wholeBeginningSentDeleted) {
 										wholeLastSentDeleted = false;
 										wholeBeginningSentDeleted = false;
@@ -492,7 +493,7 @@ public class DriverDocumentsTab {
 											taggedDoc.removeAndReplace(leftSentInfo[0], rightSentCurrent);
 										}
 									}
-																
+
 									// Now that we have internally gotten rid of the parts of left and right sentence that no longer exist in the editor box, we merge those two sentences so that they become a single TaggedSentence.
 									TaggedDocument.userDeletedSentence = false;
 								}
@@ -507,16 +508,16 @@ public class DriverDocumentsTab {
 										null);
 								return;
 							}
-							
+
 							// now update the EOSTracker
 							taggedDoc.specialCharTracker.shiftAllEOSChars(false, caretPositionPriorToCharRemoval, charsRemoved);
-							
+
 							// Then update the currentSentSelectionInfo, and fix variables
 							currentSentSelectionInfo = calculateIndicesOfSentences(currentCaretPosition)[0];
 							currentSentNum = currentSentSelectionInfo[0];
 							selectedSentIndexRange[0] = currentSentSelectionInfo[1];
 							selectedSentIndexRange[1] = currentSentSelectionInfo[2];
-							
+
 							// Now set the number of characters removed to zero because the action has been dealt with, and we don't want the statement further down to execute and screw up our indices. 
 							charsRemoved = 0; 
 							EOSJustRemoved = false;
@@ -531,7 +532,7 @@ public class DriverDocumentsTab {
 					} else {
 						caretPositionPriorToAction = currentCaretPosition;
 					}
-					
+
 					// Then update the selection information so that when we move the highlight, it highlights "both" sentences (well, what used to be both sentences, but is now a single sentence)
 					try {
 						//Try-catch in place just in case the user tried clicking on an area that does not contain sentences.
@@ -539,15 +540,15 @@ public class DriverDocumentsTab {
 					} catch (ArrayIndexOutOfBoundsException exception) {
 						return;
 					}
-					
+
 					if (currentSentSelectionInfo == null)
 						return; // don't do anything.
-					
+
 					lastSentNum = currentSentNum;
 					currentSentNum = currentSentSelectionInfo[0];
 
 					boolean inRange = false;
-					
+
 					//check to see if the current caret location is within the selectedSentIndexRange ([0] is min, [1] is max)
 					if ( caretPositionPriorToAction >= selectedSentIndexRange[0] && caretPositionPriorToAction < selectedSentIndexRange[1]) {
 						inRange = true;
@@ -588,9 +589,9 @@ public class DriverDocumentsTab {
 								translate = true;
 						}
 					}
-					
+
 					// selectionInfo is an int array with 3 values: {selectedSentNum, startHighlight, endHighlight}
-					
+
 					// xxx todo xxx get rid of this check (if possible... BEI sets the selectedSentIndexRange)....
 					if (isFirstRun) { //NOTE needed a way to make sure that the very first time a sentence is clicked (, we didn't break stuff... this may not be the best way...
 						isFirstRun = false;
@@ -604,7 +605,7 @@ public class DriverDocumentsTab {
 							setSelectionInfoAndHighlight = false;
 							GUIMain.saved = false;
 						}
-						
+
 						if ((currentCaretPosition-1 != lastCaretLocation && !charsWereRemoved && charsWereInserted) || (currentCaretPosition != lastCaretLocation-1) && !charsWereInserted && charsWereRemoved) {
 							charsWereInserted = false;
 							charsWereRemoved = false;
@@ -621,7 +622,7 @@ public class DriverDocumentsTab {
 								translate = true;
 						}
 					}
-					
+
 					if (setSelectionInfoAndHighlight) {
 						currentSentSelectionInfo = calculateIndicesOfSentences(caretPositionPriorToAction)[0];
 						selectedSentIndexRange[0] = currentSentSelectionInfo[1]; //start highlight
@@ -645,14 +646,14 @@ public class DriverDocumentsTab {
 						GUIMain.saved = false;
 						removeReplaceAndUpdate(main, lastSentNum, currentSentenceString, false);
 					}
-					
+
 					oldSelectionInfo = currentSentSelectionInfo;
 					oldStartSelection = startSelection;
 					oldEndSelection = endSelection;
 				}
 			}
 		});
-		
+
 		/**
 		 * Key listener for the documentPane. Allows tracking the cursor while typing to make sure that indices of sentence start and ends 
 		 */
@@ -671,10 +672,10 @@ public class DriverDocumentsTab {
 					deleting = true;
 				else
 					deleting = false;
-//				keyJustPressed = true;
+				//				keyJustPressed = true;
 				lastKeyCaretPosition = thisKeyCaretPosition;
 			}
-			
+
 			/*
 			 * TODO: make the highlighter and sentences track when people type. think about copy and paste and cut and paste too.
 			 */			
@@ -686,18 +687,18 @@ public class DriverDocumentsTab {
 				 *		10			|	Enter
 				 *		9			|	Tab
 				 *		27			|	Escape
- 				 *		32			|	Space
- 				 *
- 				 * Codes 
+				 *		32			|	Space
+				 *
+				 * Codes 
 				 */
 				thisKeyCaretPosition = main.getDocumentPane().getCaretPosition(); // todo maybe we dont need to call for this.. all we might have to do is get the dot position from the CaretListener
 				//System.out.println("Caret postion resitered at keyreleased:  "+currentCaretPosition);
 				if (keyJustTyped == true) {
 					keyJustTyped = false;
-//					char keyChar = arg0.getKeyChar();
-//					int keyCode = arg0.getKeyCode();
-//					int keyLocation = arg0.getKeyLocation();
-//					String keyText = KeyEvent.getKeyText(keyCode);
+					//					char keyChar = arg0.getKeyChar();
+					//					int keyCode = arg0.getKeyCode();
+					//					int keyLocation = arg0.getKeyLocation();
+					//					String keyText = KeyEvent.getKeyText(keyCode);
 					//System.out.printf("key char: <%c> key code: <%d> key location: <%d> key text: <%s>\n",keyChar, keyCode, keyLocation, keyText);
 					//System.out.printf("%c		%d		%d		%s\n",keyChar, keyCode, keyLocation, keyText);
 					//System.out.println("Should start present features continuous present value update thread..");
@@ -712,13 +713,13 @@ public class DriverDocumentsTab {
 						while (hloi.hasNext()) {
 							isGone = false;
 							HighlightMapper tempHm = hloi.next();
-							
+
 							if ((tempHm.getStart() <= thisKeyCaretPosition) && (lastKeyCaretPosition <= tempHm.getEnd())){
 								//System.out.println("FOUND object... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
 								main.getDocumentPane().getHighlighter().removeHighlight(tempHm.getHighlightedObject());
 								isGone = true;
 							}	
-							
+
 							if ((lastKeyCaretPosition <= tempHm.getStart() && !isGone))
 								tempHm.increment(thisKeyCaretPosition - lastKeyCaretPosition);
 						}
@@ -728,43 +729,47 @@ public class DriverDocumentsTab {
 						while (hloi.hasNext()) {
 							isGone = false;
 							HighlightMapper tempHm = hloi.next();
-							
+
 							if ((tempHm.getStart() <= thisKeyCaretPosition) && (thisKeyCaretPosition <= tempHm.getEnd())) {
 								//System.out.println("FOUND object ... start at: "+tempHm.getStart()+" end at: "+tempHm.getEnd());
 								main.getDocumentPane().getHighlighter().removeHighlight(tempHm.getHighlightedObject());
 								isGone = true;
 							}
-							
+
 							if ((lastKeyCaretPosition <= tempHm.getStart()) && !isGone)
 								tempHm.decrement(lastKeyCaretPosition - thisKeyCaretPosition);
 						}
-					
+
 					}
 				}
 			}
-			
+
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 				keyJustTyped = true;
 			}
 		});
-		
+
 		main.getDocumentPane().getDocument().addDocumentListener(new DocumentListener() {
-		
+
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				charsInserted = e.getLength();
+				if (!GUIMain.processed){
+					return;
+				}
 				
+				charsInserted = e.getLength();
+
 				if (main.versionControl.isUndoEmpty() && GUIMain.processed && !ignoreVersion) {
 					main.versionControl.addVersion(backedUpTaggedDoc, e.getOffset());
 					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
 				}
-				
-				if (ignoreVersion || !GUIMain.processed) {
+
+				if (ignoreVersion) {
 					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
 					return;
 				}
-				
+
 				if (e.getLength() > 1) {
 					main.versionControl.addVersion(backedUpTaggedDoc, e.getOffset());
 					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
@@ -778,21 +783,27 @@ public class DriverDocumentsTab {
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
+				if (!GUIMain.processed) {
+					return;
+				}
+				
 				if (InputFilter.ignoreDeletion)
 					InputFilter.ignoreDeletion = false;
 				else
 					charsRemoved = e.getLength();
-				
+
 				if (main.versionControl.isUndoEmpty() && GUIMain.processed && !ignoreVersion) {
 					main.versionControl.addVersion(backedUpTaggedDoc, e.getOffset());
 					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
 				}
-				
-				if (ignoreVersion || !GUIMain.processed) {
+
+				System.out.println(ignoreVersion);
+				System.out.println(GUIMain.processed);
+				if (ignoreVersion) {
 					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
 					return;
 				}
-				
+
 				if (e.getLength() > 1) {
 					main.versionControl.addVersion(backedUpTaggedDoc, e.getOffset());
 					backedUpTaggedDoc = new TaggedDocument(taggedDoc);
@@ -809,24 +820,24 @@ public class DriverDocumentsTab {
 				DriverDocumentsTab.displayEditInfo(e);
 			}
 		});	
-		
+
 		main.getDocumentPane().addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseClicked(MouseEvent me) {
-		
+
 			}
 
 			@Override
 			public void mousePressed(MouseEvent me) {
-				
+
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent me) {
 				changedCaret = true;
 				deleting = false;
-				
+
 				if (main.getDocumentPane().getCaret().getDot() == main.getDocumentPane().getCaret().getMark())
 					main.clipboard.setEnabled(false, false, true);
 				else
@@ -835,21 +846,21 @@ public class DriverDocumentsTab {
 
 			@Override
 			public void mouseEntered(MouseEvent me) {
-				
+
 			}
 
 			@Override
 			public void mouseExited(MouseEvent me) {
-				
+
 			}
 		});
-		
-/***********************************************************************************************************************************************
- *############################################################################################################*
- *###########################################   END EDITING HANDLERS   ########################################### *
- *############################################################################################################*
- ************************************************************************************************************************************************/
-		
+
+		/***********************************************************************************************************************************************
+		 *############################################################################################################*
+		 *###########################################   END EDITING HANDLERS   ########################################### *
+		 *############################################################################################################*
+		 ************************************************************************************************************************************************/
+
 		/**
 		 * ActionListener for process button (bar).
 		 */
@@ -868,11 +879,11 @@ public class DriverDocumentsTab {
 					errorMessage += "Feature set not chosen.\n";
 				if (!main.classifiersAreReady())
 					errorMessage += "Classifier not chosen.\n";
-				
+
 				// ----- display error message if there are errors
 				if (errorMessage != "") {
 					JOptionPane.showMessageDialog(main, errorMessage, "Settings Error!",
-						    JOptionPane.ERROR_MESSAGE);
+							JOptionPane.ERROR_MESSAGE);
 				} else {
 					main.leftTabPane.setSelectedIndex(0);
 					// ----- confirm they want to process
@@ -888,16 +899,16 @@ public class DriverDocumentsTab {
 							taggedDoc = ConsolidationStation.toModifyTaggedDocs.get(0);
 
 							Logger.logln(NAME+"Initial processing starting...");
-							
+
 							// initialize all arraylists needed for feature processing
 							sizeOfCfd = main.cfd.numOfFeatureDrivers();
 							featuresInCfd = new ArrayList<String>(sizeOfCfd);
 							noCalcHistFeatures = new ArrayList<FeatureList>(sizeOfCfd);
 							yesCalcHistFeatures = new ArrayList<FeatureList>(sizeOfCfd);
-							
+
 							for(int i = 0; i < sizeOfCfd; i++) {
 								String theName = main.cfd.featureDriverAt(i).getName();
-								
+
 								// capitalize the name and replace all " " and "-" with "_"
 								theName = theName.replaceAll("[ -]","_").toUpperCase(); 
 								if(isCalcHist == false) {
@@ -915,7 +926,7 @@ public class DriverDocumentsTab {
 							//TODO ASK ANDREW: Should we erase the user's "this is a single sentence" actions upon reprocessing? Only only when they reset the highlighter?
 							taggedDoc.specialCharTracker.resetEOSCharacters();
 							taggedDoc = new TaggedDocument(main.getDocumentPane().getText());
-							
+
 							Logger.logln(NAME+"Repeat processing starting....");
 							resetAll(main);
 						}
@@ -925,7 +936,7 @@ public class DriverDocumentsTab {
 						highlightedObjects.clear();
 						okayToSelectSuggestion = false;
 						Logger.logln(NAME+"calling backendInterface for preTargetSelectionProcessing");
-						
+
 						BackendInterface.preTargetSelectionProcessing(main,wizard,magician);
 					}
 				}
@@ -963,7 +974,7 @@ public class DriverDocumentsTab {
 								JOptionPane.ERROR_MESSAGE);
 					}
 				} else
-		            Logger.logln(NAME+"Save As contents of current tab canceled");
+					Logger.logln(NAME+"Save As contents of current tab canceled");
 			}
 		};
 		main.saveButton.addActionListener(saveAsTestDoc);
@@ -986,7 +997,7 @@ public class DriverDocumentsTab {
 		main.elementsToAdd.removeAllElements();
 		main.elementsToAdd.add(0, "Re-processing, please wait");
 	}
-	
+
 	public static void reset() {
 		currentCaretPosition = 0;
 		startSelection = -1;
@@ -1015,7 +1026,7 @@ public class DriverDocumentsTab {
 		oldSelectionInfo = new int[3];
 		wordsToRemove.clear();
 	}
-	
+
 	public static void save(GUIMain main) {
 		Logger.logln(NAME+"Save document button clicked.");
 
@@ -1058,7 +1069,7 @@ public class DriverDocumentsTab {
 		}
 		return 0;
 	}
-	
+
 	public static void setSuggestions() {
 		SuggestionCalculator.placeSuggestions(GUIMain.inst);
 	}
@@ -1073,6 +1084,7 @@ class TheHighlighter extends DefaultHighlighter.DefaultHighlightPainter{
 class SuggestionCalculator {
 
 	private final static String PUNCTUATION = "?!,.\"`'";
+	private final static String CLEANWORD=".*([\\.,!?])+";
 	protected static Highlighter editTracker;
 	protected static ArrayList<String> topToRemove;
 	protected static ArrayList<String> topToAdd;
@@ -1097,11 +1109,58 @@ class SuggestionCalculator {
 		topToRemove=ConsolidationStation.getPriorityWords(ConsolidationStation.toModifyTaggedDocs, true, .2);
 		topToAdd=ConsolidationStation.getPriorityWords(ConsolidationStation.authorSampleTaggedDocs, false, .02);
 		
+		ArrayList<String> sentences = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
+		int sentNum = DriverDocumentsTab.getCurrentSentNum();
+		String sentence = sentences.get(sentNum);
+
 		main.elementsToRemove.removeAllElements();
 
 		int arrSize = topToRemove.size();
 		int listIndex = 0;
-		for (int i=0;i<arrSize;i++) {//loops through top to remove list
+//		String setString = "";
+//		int fromIndex = 0;
+		String tempString;
+//		ArrayList<Integer> tempArray;
+//		int indexOfTemp;
+		
+		for (int i = 0; i < arrSize; i++) {//loops through top to remove list
+//			setString += topToRemove.get(i) + "\n";//sets the string to return
+			@SuppressWarnings("resource")
+			Scanner parser = new Scanner(sentence);
+//			fromIndex = 0;
+			
+			while (parser.hasNext()) {//finds if the given word to remove is in the current sentence
+				//loops through current sentence
+				tempString = parser.next();
+				
+				if (tempString.matches(CLEANWORD)) {//TODO: refine this.
+					tempString=tempString.substring(0,tempString.length()-1);
+					//Logger.logln("replaced a period in: "+tempString);
+				}
+				
+//				if (tempString.equals(topToRemove.get(i))) {
+//					tempArray = new ArrayList<Integer>(2);
+//					
+//					indexOfTemp = sentence.indexOf(tempString, fromIndex);
+//					tempArray.add(indexOfTemp + startHighlight);//-numberTimesFixTabs
+//					tempArray.add(indexOfTemp+tempString.length() + startHighlight);
+//
+//					added = false;
+//					for(int j=0;j<indexArray.size();j++){
+//						if(indexArray.get(j).get(0)>tempArray.get(0)){
+//							indexArray.add(j,tempArray);
+//							added=true;
+//							break;
+//						}
+//					}
+//					if(!added)
+//						indexArray.add(tempArray);
+//					//fromIndex=tempArray.get(1);
+//				}
+//				fromIndex+=tempString.length()+1;
+				
+			}
+			
 			if (!topToRemove.get(i).equals("''") && !topToRemove.get(i).equals("``")) {
 				if (PUNCTUATION.contains(topToRemove.get(i).trim()))
 					main.elementsToRemove.add(listIndex, "Reduce the number of " + topToRemove.get(i) + "'s you use");
@@ -1112,7 +1171,6 @@ class SuggestionCalculator {
 		}
 
 		main.elementsToRemovePane.clearSelection();
-
 		main.elementsToAdd.removeAllElements();
 
 		arrSize = topToAdd.size();
@@ -1120,143 +1178,132 @@ class SuggestionCalculator {
 			main.elementsToAdd.add(i, topToAdd.get(i));
 
 		main.elementsToAddPane.clearSelection();
+		//findSynonyms(main, sentence);
 	}
 
+	/**
+	 * Finds the synonyms of the words to remove in the words to add list
+	 */
+	protected static void findSynonyms(GUIMain main, String currentSent) {
+		String[] tempArr;
+		//addTracker = new DefaultHighlighter();
+		// TODO make new painter!!! (this one doesn't exist) anymore // painter3 = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,0,255,128));
+		String tempStr, synSetString = "";
+		int index;
+		synSetString = "";
+		boolean inSent;
+		Scanner parser;
+		HashMap<String,Integer> indexMap = new HashMap<String,Integer>();
 
+		for (String str : topToRemove) {
+			tempArr = DictionaryBinding.getSynonyms(str);
+			if (tempArr!=null) {
+				//inSent=currentSent.contains(str);
+				inSent = DriverDocumentsTab.checkSentFor(currentSent,str);
 
-		/**
-		 * Finds the synonyms of the words to remove in the words to add list
-		 */
-//		protected static void findSynonyms(GUIMain main,String currentSent) {
-//			String[] tempArr;
-//			//addTracker = new DefaultHighlighter();
-//			// TODO make new painter!!! (this one doesn't exist) anymore // painter3 = new DefaultHighlighter.DefaultHighlightPainter(new Color(0,0,255,128));
-//			String setString,tempStr,synSetString = "";
-//			main.addToSentencePane.setHighlighter(addTracker);
-//			//addTracker.removeAllHighlights();
-//
-//			main.elementsToAddPane.repaint();
-//
-//			setString="";
-//			int arrSize=topToAdd.size(), index;
-//			main.elementsToAdd.removeAllElements();
+				if (inSent)
+					synSetString+=str+"=>";
+				for (int i = 0; i < tempArr.length; i++) {//looks through synonyms
+					tempStr=tempArr[i];
+					if (inSent) {
+						synSetString += tempStr + ", ";
+						
+						for (String addString : topToAdd) {
+							if (addString.equalsIgnoreCase(tempStr)) {
+								index = synSetString.indexOf(tempStr);
+								indexMap.put(tempStr, index);
+							}
+						}
+					}
+				}
+				
+				if (inSent)
+					synSetString = synSetString.substring(0, synSetString.length()-2)+"\n";
+			}
+		}
+		
+		@SuppressWarnings("resource")
+		Scanner sentParser = new Scanner(currentSent);
+		String wordToSearch, wordSynMatch;
+		HashMap<String,String> wordsWithSynonyms = new HashMap<String,String>();
+		boolean added = false;
+		synSetString = "";
+		
+		while (sentParser.hasNext()) {//loops through every word in the sentence
+			wordToSearch = sentParser.next();
+			tempArr = DictionaryBinding.getSynonyms(wordToSearch);
+			wordSynMatch = "";
+
+			if (!wordsWithSynonyms.containsKey(wordToSearch.toLowerCase().trim())) {
+				if (tempArr != null) {
+					for (int i = 0; i < tempArr.length; i++) {//looks through synonyms
+						tempStr = tempArr[i];
+						wordSynMatch += tempStr + " ";
+						added = false;
+						for (String addString:topToAdd) {//loops through the toAdd list
+							if (addString.trim().equalsIgnoreCase(tempStr.trim())) {//there is a match in topToAdd!
+								if (!synSetString.contains(wordToSearch))
+									synSetString += wordToSearch + " => ";
+								synSetString = synSetString + addString + ", ";
+								//index=synSetString.indexOf(tempStr);
+								//indexMap.put(tempStr, index);
+								added=true;
+								break;
+							}
+						}
+
+						if (added) {
+							//do something if the word was added like print to the box.
+							synSetString=synSetString.substring(0, synSetString.length()-2)+"\n";
+						}
+					}
+					
+					if (wordSynMatch.length() > 2)
+						wordsWithSynonyms.put(wordToSearch.toLowerCase().trim(), wordSynMatch.substring(0, wordSynMatch.length()-1));
+					else
+						wordsWithSynonyms.put(wordToSearch.toLowerCase().trim(), "NO Synonyms");
+				}
+			}
+		}
+		
+		String tempStrToAdd;
+		Word possibleToAdd;
+		double topAnon = 0;
+		
+		for (String wordToRem : topToRemove) {//adds ALL the synonyms in the wordsToRemove
+			if (wordsWithSynonyms.containsKey(wordToRem)) {
+				tempStr = wordsWithSynonyms.get(wordToRem);
+				tempStrToAdd = "";
+				parser = new Scanner(tempStr);
+				topAnon = 0;
+				
+				while (parser.hasNext()) {
+					possibleToAdd = new Word(parser.next().trim());
+					ConsolidationStation.setWordFeatures(possibleToAdd);
+					
+					if (possibleToAdd.getAnonymityIndex() > topAnon) {
+						tempStrToAdd = possibleToAdd.getUntagged() + ", ";//changed for test
+						topAnon = possibleToAdd.getAnonymityIndex();
+					}
+				}
+				synSetString += wordToRem + " => " + tempStrToAdd + "\n";
+			}
+		}
+
+//		Iterator<String> iter = indexMap.keySet().iterator();
+//		String key;
+
+//		while (iter.hasNext()) {
+//			key = (String) iter.next();
+//			index = indexMap.get(key);
 //			
-//			for(int i=0;i<arrSize;i++){//Sets the topToAddElements box
-//				setString+=topToAdd.get(i)+"\n";
-//				main.elementsToAdd.add(i, topToAdd.get(i));
+//			try {
+//				addTracker.addHighlight(index, index+key.length(), painter3);
+//			} catch (BadLocationException e) {
+//				e.printStackTrace();
 //			}
-//			main.elementsToAddPane.clearSelection();
-//			main.elementsToAddPane.setText(setString);
-//			synSetString="";
-//			boolean inSent;
-//			Scanner parser;
-//			HashMap<String,Integer> indexMap=new HashMap<String,Integer>();
-//			for(String str:topToRemove){
-//				tempArr=DictionaryBinding.getSynonyms(str);
-//				if(tempArr!=null){
-//					//inSent=currentSent.contains(str);
-//					inSent = DriverDocumentsTab.checkSentFor(currentSent,str);
-//
-//					if(inSent)
-//						synSetString+=str+"=>";
-//					for(int i=0;i<tempArr.length;i++){//looks through synonyms
-//						tempStr=tempArr[i];
-//						if(inSent){
-//							synSetString+=tempStr+", ";
-//							for(String addString:topToAdd){
-//								if(addString.equalsIgnoreCase(tempStr)){
-//									index=synSetString.indexOf(tempStr);
-//									indexMap.put(tempStr, index);
-//								}
-//							}
-//						}
-//					}
-//					if(inSent)
-//						synSetString=synSetString.substring(0, synSetString.length()-2)+"\n";
-//				}
-//			}
-//			Scanner sentParser=new Scanner(currentSent);
-//			String wordToSearch, wordSynMatch;
-//			HashMap<String,String>wordsWithSynonyms=new HashMap<String,String>();
-//			boolean added=false;
-//			synSetString="";
-//			while(sentParser.hasNext()){//loops through every word in the sentence
-//				wordToSearch=sentParser.next();
-//				tempArr=DictionaryBinding.getSynonyms(wordToSearch);
-//				wordSynMatch="";
-//
-//				if(!wordsWithSynonyms.containsKey(wordToSearch.toLowerCase().trim())){
-//					if(tempArr!=null){
-//						for(int i=0;i<tempArr.length;i++){//looks through synonyms
-//							tempStr=tempArr[i];
-//							wordSynMatch+=tempStr+" ";
-//							added=false;
-//							for(String addString:topToAdd){//loops through the toAdd list
-//								if(addString.trim().equalsIgnoreCase(tempStr.trim())){//there is a match in topToAdd!
-//									if(!synSetString.contains(wordToSearch))
-//										synSetString+=wordToSearch+" => ";
-//									else{
-//										Logger.logln(NAME+"Did not add this again: "+wordToSearch);
-//									}
-//									synSetString=synSetString+addString+", ";
-//									//index=synSetString.indexOf(tempStr);
-//									//indexMap.put(tempStr, index);
-//									added=true;
-//									break;
-//								}
-//							}
-//
-//							if(added){
-//								//do something if the word was added like print to the box.
-//								synSetString=synSetString.substring(0, synSetString.length()-2)+"\n";
-//							}
-//						}
-//						if(wordSynMatch.length()>2)
-//							wordsWithSynonyms.put(wordToSearch.toLowerCase().trim(), wordSynMatch.substring(0, wordSynMatch.length()-1));
-//						else
-//							wordsWithSynonyms.put(wordToSearch.toLowerCase().trim(), "NO Synonyms");
-//					}
-//				}
-//			}
-//			String tempStrToAdd;
-//			Word possibleToAdd;
-//			double topAnon=0;
-//			for(String wordToRem:topToRemove){//adds ALL the synonyms in the wordsToRemove
-//				if(wordsWithSynonyms.containsKey(wordToRem)){
-//					tempStr=wordsWithSynonyms.get(wordToRem);
-//					tempStrToAdd="";
-//					parser=new Scanner(tempStr);
-//					topAnon=0;
-//					while(parser.hasNext()){
-//						possibleToAdd=new Word(parser.next().trim());
-//						ConsolidationStation.setWordFeatures(possibleToAdd);
-//						if(possibleToAdd.getAnonymityIndex()>topAnon){
-//							tempStrToAdd=possibleToAdd.getUntagged()+", ";//changed for test
-//							topAnon=possibleToAdd.getAnonymityIndex();
-//						}
-//					}
-//					synSetString+=wordToRem+" => "+tempStrToAdd+"\n";
-//				}
-//			}
-//			//main.addToSentencePane.setText(synSetString);
-//			//main.addToSentencePane.setCaretPosition(0);
-//
-//			Iterator iter=indexMap.keySet().iterator();
-//			String key;
-//
-//			while(iter.hasNext()){
-//				key=(String) iter.next();
-//				index=indexMap.get(key);
-//				try {
-//					addTracker.addHighlight(index, index+key.length(), painter3);
-//				} catch (BadLocationException e) {
-//					Logger.logln(NAME+"Problem highlighting the words To add list");
-//					e.printStackTrace();
-//				}
-//			}
-//
-//			//SynonymReplaceTest.replaceWords(eits);
 //		}
+	}
 }
 
 /*

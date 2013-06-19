@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.jgaap.JGAAPConstants;
 
+import edu.drexel.psal.JSANConstants;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 public class Tagger {
@@ -22,7 +23,7 @@ public class Tagger {
 	public static boolean initTagger(){
 		try {
 			//mt = new MaxentTagger("."+JGAAPConstants.JGAAP_RESOURCE_PACKAGE+"models/postagger/english-left3words-distsim.tagger");
-			mt = new MaxentTagger("./jsan_resources/english-left3words-distsim.tagger");
+			mt = new MaxentTagger(JSANConstants.JSAN_EXTERNAL_RESOURCE_PACKAGE+"english-left3words-distsim.tagger");
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();

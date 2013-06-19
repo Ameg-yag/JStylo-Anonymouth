@@ -26,15 +26,15 @@ public class ThePresident {
 	 */
 	//protected static ImageIcon buffImg;
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
+	//public final static String WORKING_DIR = System.getProperty("java.library.path") + "/";
+	public final static String WORKING_DIR = "./";
 	public static ImageIcon LOGO;
 	public static String sessionName;
-	public static final String DOC_MAGICIAN_WRITE_DIR = "./.edited_documents/";
-	public static final String LOG_DIR = "./anonymouth_log";
+	public static final String DOC_MAGICIAN_WRITE_DIR = WORKING_DIR + ".edited_documents/";
+	//public static final String LOG_DIR = WORKING_DIR + "anonymouth_log";
+	public static final String LOG_DIR = System.getProperty("user.home")+"/Desktop/anonymouth_log";
 	public static boolean IS_MAC = false;
-	public static String TEMP_DIR =  "temp/"; // TODO: put in "options"
-	public static String SER_DIR = "./.serialized_objects/";
-	public static String GRAMMAR_DIR = "grammar_data/";//TODO: put in "options"
-	//public static boolean SHOULD_KEEP_TEMP_CLEAN_DOCS = false; // TODO : put in "options" XXX not used!!
+	public static String SER_DIR = WORKING_DIR + ".serialized_objects/";
 	public static boolean SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = PropertiesUtil.getAutoSave();
 	public static boolean SAVE_TAGGED_DOCUMENTS = true; // TODO: put in "options
 	public static int MAX_FEATURES_TO_CONSIDER = PropertiesUtil.getMaximumFeatures(); // todo: put in 'options', and figure out an optimal number (maybe based upon info gain, total #, etc.)... basically, when the processing time outweighs the benefit, that should be our cutoff.
@@ -81,7 +81,6 @@ public class ThePresident {
 		if(OS.contains("mac")) {
 			IS_MAC = true;
 			Logger.logln(leader.NAME+"We're on a Mac!");
-			System.setProperty("com.apple.mrj.application.apple.menu.about.name","Anonymouth");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			app = Application.getApplication();
 			String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png";

@@ -15,6 +15,7 @@ import java.util.*;
 
 import com.jgaap.generics.*;
 
+import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.eventDrivers.CharCounterEventDriver;
 import edu.drexel.psal.jstylo.eventDrivers.LetterCounterEventDriver;
 import edu.drexel.psal.jstylo.eventDrivers.SentenceCounterEventDriver;
@@ -267,14 +268,14 @@ public class WekaInstancesBuilder {
 		for (int thread = 0; thread < numCalcThreadsToUse; thread++)
 			calcThreads[thread] = null;
 		calcThreads = null;
-		
+		Logger.logln("Got past here");
 //		for (i=0; i<knownDocs.size(); i++){
 //			known.add(cfd.createEventSets(knownDocs.get(i)));
 //		}
 
 		// apply event cullers
 		known = CumulativeEventCuller.cull(known, cfd);
-
+		Logger.logln("Line 227");
 		// initialize number of sets per document and number of vectors
 		//if (known.size() == 0) // TODO figure out why we need this! -AweM
 		//	return;
@@ -291,6 +292,7 @@ public class WekaInstancesBuilder {
 				authors.add(author);
 		}
 		Collections.sort(authors);
+		Logger.logln("Line 294");
 		//if (isSparse) authors.add(0,dummy);
 		if (useDummyAuthor)
 			authors.add(0,ProblemSet.getDummyAuthor());
@@ -301,7 +303,7 @@ public class WekaInstancesBuilder {
 		for (String name: authors)
 			authorNames.addElement(name);
 		Attribute authorNameAttribute = new Attribute("authorName", authorNames);
-		
+		Logger.logln("305");
 		// initialize document title attribute
 		if (hasDocTitles)
 			attributeList.addElement(new Attribute("title",(FastVector)null));
@@ -313,12 +315,13 @@ public class WekaInstancesBuilder {
 		
 		// initialize list of sets of events, which will eventually become the attributes
 		allEvents = new ArrayList<Set<Event>>(numOfFeatureClasses);
-			
+		Logger.logln("317");
 		// collect all histograms for all event sets for all TRAINING documents
 		// and update Weka attribute list
 		List<EventSet> list;
 		List<EventHistogram> histograms;
 		for (int currEventSet=0; currEventSet<numOfFeatureClasses; currEventSet++) {
+			Logger.logln("Line 323");
 			// initialize relevant list of event sets and histograms
 			list = new ArrayList<EventSet>(numOfVectors);
 			for (i=0; i<numOfVectors; i++)
@@ -326,18 +329,22 @@ public class WekaInstancesBuilder {
 			histograms = new ArrayList<EventHistogram>();
 			
 			Set<Event> events = new HashSet<Event>();
-			
+			Logger.logln("331");
 			if (cfd.featureDriverAt(currEventSet).isCalcHist()) {	// calculate histogram
 			
 				// generate event histograms and unique event list
+				Logger.logln("LIST.size() = " + list.size());
 				for (EventSet eventSet : list) {
 					EventHistogram currHist = new EventHistogram();
+					Logger.logln("EVENTSET.size() = " + eventSet.size());
 					for (Event event : eventSet) {
 						events.add(event);
 						currHist.add(event);
+						//Logger.logln("340");
 					}
 					histograms.add(currHist);
 					allEvents.add(currEventSet,events);
+					Logger.logln("344");
 				}
 				
 				// create attribute for each unique event
@@ -349,7 +356,7 @@ public class WekaInstancesBuilder {
 				// update histograms
 				for (i=0; i<numOfVectors; i++)
 					knownEventHists.get(i).add(currEventSet,histograms.get(i));
-				
+				Logger.logln("356");
 			} else {	// one unique numeric event
 				
 				// generate sole event (extract full event name and remove value)
@@ -363,6 +370,7 @@ public class WekaInstancesBuilder {
 				// update histogram to null at current position
 				for (i=0; i<numOfVectors; i++)
 					knownEventHists.get(i).add(currEventSet,null);
+				Logger.logln("370");
 			}			
 		}
 		
@@ -379,6 +387,7 @@ public class WekaInstancesBuilder {
 			featureClassAttrsFirstIndex[i] = vectorSize;
 			vectorSize += allEvents.get(i).size();
 		}
+		Logger.logln("387");
 		featureClassAttrsFirstIndex[i] = vectorSize;
 		vectorSize += 1; // one more for authorName
 		
@@ -392,7 +401,7 @@ public class WekaInstancesBuilder {
 			// initialize instance
 			if (isSparse) inst = new SparseInstance(vectorSize);
 			else inst = new Instance(vectorSize);
-			
+			Logger.logln("401");
 			// update document title
 			if (hasDocTitles)
 				inst.setValue((Attribute) attributeList.elementAt(0), knownDocs.get(i).getTitle());
@@ -401,7 +410,7 @@ public class WekaInstancesBuilder {
 			int index = (hasDocTitles ? 1 : 0);
 			for (j=0; j<numOfFeatureClasses; j++) {
 				Set<Event> events = allEvents.get(j);
-				
+				Logger.logln("410");
 				if (cfd.featureDriverAt(j).isCalcHist()) {
 					
 					// extract absolute frequency from histogram
@@ -412,7 +421,7 @@ public class WekaInstancesBuilder {
 								currHist.getAbsoluteFrequency(e));				// use absolute values, normalize later
 					}
 				} else {
-					
+					Logger.logln("421");
 					// extract numeric value from original sole event
 					double value = Double.parseDouble(known.get(i).get(j).eventAt(0).toString().replaceAll(".*\\{", "").replaceAll("\\}", ""));
 					inst.setValue(
@@ -426,7 +435,7 @@ public class WekaInstancesBuilder {
 			
 			trainingSet.add(inst);
 		}
-		
+		Logger.logln("END");
 		// normalization
 		initNormTrainBaselines();
 		normInstances(trainingSet);
@@ -1020,7 +1029,7 @@ public class WekaInstancesBuilder {
 	{
 		this.numCalcThreads = numCalcThreads;
 		
-		File jProps = new File("./jsan_resources/JStylo_prop.prop");
+		File jProps = new File(JSANConstants.JSAN_EXTERNAL_RESOURCE_PACKAGE+"JStylo_prop.prop");
 		
 		if (jProps.exists()){ //write numCalcThreads to the file
 	
@@ -1099,7 +1108,7 @@ public class WekaInstancesBuilder {
 	{
 		int nct=4; //default is 4
 		
-		File jProps = new File("./jsan_resources/JStylo_prop.prop");
+		File jProps = new File(JSANConstants.JSAN_EXTERNAL_RESOURCE_PACKAGE+"JStylo_prop.prop");
 		
 		if (jProps.exists()){ //if it already exists, read the calc thread variable
 			
@@ -1142,7 +1151,7 @@ public class WekaInstancesBuilder {
 	public static void generateDefaultPropsFile(){
 		
 		
-		File jProps = new File("./jsan_resources/JStylo_prop.prop");
+		File jProps = new File(JSANConstants.JSAN_EXTERNAL_RESOURCE_PACKAGE+"JStylo_prop.prop");
 		
 		try {
 			String[] contents = {"#JStylo Preferences","#Properties File Version: .1","numCalcThreads=4"};

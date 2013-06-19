@@ -4,14 +4,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
 import java.lang.Math;
 
+import edu.drexel.psal.JSANConstants;
 import edu.drexel.psal.jstylo.generics.Logger;
-import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.anonymouth.utils.Trie;
 
 /**
@@ -28,7 +26,7 @@ public class FunctionWord implements Runnable {
 	private final int fWordArrSize=486;//make this larger if more words are added
 	protected String[] functionWordArray=new String[fWordArrSize];
 	private ArrayList<String> functionWordList;
-	private static String filePath="./jsan_resources/koppel_function_words.txt";
+	private static String filePath = JSANConstants.JSAN_EXTERNAL_RESOURCE_PACKAGE+"koppel_function_words.txt";
 	private Trie node;
 
 	public FunctionWord() {

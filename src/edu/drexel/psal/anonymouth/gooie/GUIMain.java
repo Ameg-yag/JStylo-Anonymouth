@@ -668,6 +668,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			DriverClustersWindow.initListeners(this);
 			DriverResultsWindow.initListeners(this);
 			DriverTranslationsTab.initListeners(this);
+			DictionaryBinding.init();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
