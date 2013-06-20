@@ -83,7 +83,7 @@ public class GeneralSettingsFrame extends JDialog {
 	 */
 	private void init(final GUIMain main) {
 		this.main = main;
-		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
+		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_v2.png")).getImage());
 		initTabs();
 
 		generalSettingsFrame = this;

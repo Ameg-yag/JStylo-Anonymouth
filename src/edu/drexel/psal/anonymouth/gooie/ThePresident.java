@@ -31,8 +31,8 @@ public class ThePresident {
 	public static ImageIcon LOGO;
 	public static String sessionName;
 	public static final String DOC_MAGICIAN_WRITE_DIR = WORKING_DIR + ".edited_documents/";
-	//public static final String LOG_DIR = WORKING_DIR + "anonymouth_log";
-	public static final String LOG_DIR = System.getProperty("user.home")+"/Desktop/anonymouth_log";
+	public static final String LOG_DIR = WORKING_DIR + "anonymouth_log";
+	//public static final String LOG_DIR = System.getProperty("user.home")+"/Desktop/anonymouth_log";
 	public static boolean IS_MAC = false;
 	public static String SER_DIR = WORKING_DIR + ".serialized_objects/";
 	public static boolean SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = PropertiesUtil.getAutoSave();
