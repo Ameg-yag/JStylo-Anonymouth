@@ -24,7 +24,7 @@ import net.miginfocom.swing.MigLayout;
  * @author Marc Barrowclift
  *
  */
-public class GeneralSettingsFrame extends JDialog {	
+public class GeneralSettingsFrame extends JFrame {	
 
 	private static final long serialVersionUID = 1L;
 	private final String NAME = "( "+this.getClass().getName()+" ) - ";
@@ -72,7 +72,6 @@ public class GeneralSettingsFrame extends JDialog {
 	 * @param main - Instance of GUIMain
 	 */
 	public GeneralSettingsFrame(GUIMain main) {
-		super(main, "Preferences", Dialog.ModalityType.APPLICATION_MODAL);
 		init(main);
 		setVisible(false);
 	}
@@ -82,6 +81,7 @@ public class GeneralSettingsFrame extends JDialog {
 	 * @param main
 	 */
 	private void init(final GUIMain main) {
+		this.setTitle("Preferences");
 		this.main = main;
 		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_v2.png")).getImage());
 		initTabs();

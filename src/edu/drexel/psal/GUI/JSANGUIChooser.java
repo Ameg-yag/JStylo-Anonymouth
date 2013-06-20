@@ -34,7 +34,7 @@ public class JSANGUIChooser extends javax.swing.JFrame {
 				try {
 					UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 				} catch (Exception e) {
-					System.err.println("Look-and-Feel error!");
+					System.err.println("Look-and-Feel error! (Not on Windows)");
 				}
 				guiChooser = new JSANGUIChooser();
 				guiChooser.setLocationRelativeTo(null);
@@ -63,7 +63,7 @@ public class JSANGUIChooser extends javax.swing.JFrame {
 			}
 			
 			// Anonymouth
-			ImageIcon anonImage = new ImageIcon(Thread.currentThread().getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_gui_chooser.png"));
+			ImageIcon anonImage = new ImageIcon(Thread.currentThread().getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_gui_chooser_v2.png"));
 			{
 				anonLogo = new JLabel();
 				getContentPane().add(anonLogo);

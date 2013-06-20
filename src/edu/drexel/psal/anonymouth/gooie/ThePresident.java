@@ -26,13 +26,14 @@ public class ThePresident {
 	 */
 	//protected static ImageIcon buffImg;
 	private final String NAME = "( "+this.getClass().getSimpleName()+" ) - ";
-	//public final static String WORKING_DIR = System.getProperty("java.library.path") + "/";
-	public final static String WORKING_DIR = "./";
+	public final static String WORKING_DIR = System.getProperty("java.library.path") + "/";
+	//public final static String WORKING_DIR = "./";
 	public static ImageIcon LOGO;
+	public static ImageIcon ABOUTLOGO;
 	public static String sessionName;
 	public static final String DOC_MAGICIAN_WRITE_DIR = WORKING_DIR + ".edited_documents/";
-	public static final String LOG_DIR = WORKING_DIR + "anonymouth_log";
-	//public static final String LOG_DIR = System.getProperty("user.home")+"/Desktop/anonymouth_log";
+	//public static final String LOG_DIR = WORKING_DIR + "anonymouth_log";
+	public static final String LOG_DIR = System.getProperty("user.home")+"/Desktop/anonymouth_log";
 	public static boolean IS_MAC = false;
 	public static String SER_DIR = WORKING_DIR + ".serialized_objects/";
 	public static boolean SHOULD_KEEP_AUTO_SAVED_ANONYMIZED_DOCS = PropertiesUtil.getAutoSave();
@@ -46,12 +47,16 @@ public class ThePresident {
 	public static Application app;
 	public static Scanner in = new Scanner(System.in); // xxx just for testing. can be called anywhere in Anonymouth.
 
-	public void getLogo(String name){
+	public ImageIcon getLogo(String name) {
+		ImageIcon icon = null;
+		
 		try{
-			LOGO = new ImageIcon(getClass().getResource(name), "Anonymouth's Logo");
+			icon = new ImageIcon(getClass().getResource(name), "Anonymouth's Logo");
 		} catch (Exception e){
 			e.printStackTrace();
 		}
+		
+		return icon;
 	}
 	
 	/**
@@ -83,9 +88,11 @@ public class ThePresident {
 			Logger.logln(leader.NAME+"We're on a Mac!");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			app = Application.getApplication();
-			String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_v2.png";
+			//String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_v2.png";
+			String aboutName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGOsml_v2.png";
 			try{
-				leader.getLogo(logoName);
+				//LOGO = leader.getLogo(logoName);
+				ABOUTLOGO = leader.getLogo(aboutName);
 				app.setDockIconImage(LOGO.getImage());
 			}catch(Exception e){
 				Logger.logln("Error loading logos");
@@ -124,7 +131,7 @@ public class ThePresident {
 							"Anonymouth, Version 0.5\n\nAuthors: Andrew W.E. McDonald\n   -Marc Barrowclift\n   -Joe Muoio\n   -Jeff Ulman\n\nDrexel University, PSAL, Dr. Rachel Greenstadt - P.I.",
 							"About Anonymouth",
 							JOptionPane.INFORMATION_MESSAGE,
-							LOGO);
+							ABOUTLOGO);
 				}
 				
 				@Override
