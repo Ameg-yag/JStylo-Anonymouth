@@ -88,10 +88,10 @@ public class ThePresident {
 			Logger.logln(leader.NAME+"We're on a Mac!");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			app = Application.getApplication();
-			//String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_v2.png";
+			String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_v2.png";
 			String aboutName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGOsml_v2.png";
 			try{
-				//LOGO = leader.getLogo(logoName);
+				LOGO = leader.getLogo(logoName);
 				ABOUTLOGO = leader.getLogo(aboutName);
 				app.setDockIconImage(LOGO.getImage());
 			}catch(Exception e){
