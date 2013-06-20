@@ -25,7 +25,7 @@ public class GUIUpdateInterface {
 	protected static String version = "0.0.4";
 /*
 	protected static void showAbout(GUIMain main) {
-		ImageIcon logo = new ImageIcon("./Anonymouth_LOGO.png", "Anonymouth Logo");
+		ImageIcon logo = new ImageIcon("./anonymouth_LOGO_v2.png", "Anonymouth Logo");
 		String content =
 				"<html><p>" +
 				"<h3>Anonymouth</h3><br>" +

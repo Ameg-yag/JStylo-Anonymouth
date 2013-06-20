@@ -214,7 +214,7 @@ public class PreProcessSettingsFrame extends JDialog {
 	{
 		this.main = main;
 		this.setMinimumSize(new Dimension(800, 578));
-		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
+		this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_v2.png")).getImage());
 		initPanels();
 		
 		getContentPane().setLayout(new MigLayout(

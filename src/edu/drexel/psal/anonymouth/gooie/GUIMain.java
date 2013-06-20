@@ -413,15 +413,17 @@ public class GUIMain extends javax.swing.JFrame  {
 			public void run() {
 				mainThread = this;
 				Logger.initLogFile();
+				
 				try {
-					icon = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO_v2.png"),"logo");
-					iconNO = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_NO_v2.png"), "my 'no' icon");
+					icon = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_v2.png"),"logo");
+					iconNO = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_NO_v2.png"), "my 'no' icon");
 					arrow_up = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"arrow_up.png"), "arrow_up");
 					arrow_down = new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"arrow_down.png"), "arrow_down");
 					//javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 					System.err.println("Look-and-Feel error!");
 				}
+
 				inst = new GUIMain();
 				GUITranslator = new Translator(inst);
 
@@ -549,7 +551,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			this.setSize(new Dimension((int)(screensize.width*.75), (int)(screensize.height*.75)));
 			this.setMinimumSize(new Dimension(800, 578));
 			this.setTitle("Anonymouth");
-			this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"Anonymouth_LOGO.png")).getImage());
+			this.setIconImage(new ImageIcon(getClass().getResource(JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_v2.png")).getImage());
 
 			menuBar = new JMenuBar();
 
