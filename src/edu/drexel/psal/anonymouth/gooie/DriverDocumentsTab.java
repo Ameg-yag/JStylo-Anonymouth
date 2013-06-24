@@ -1083,6 +1083,7 @@ class TheHighlighter extends DefaultHighlighter.DefaultHighlightPainter{
 
 class SuggestionCalculator {
 
+	private final static String NAME = "( SuggestionCalculator ) - ";
 	private final static String PUNCTUATION = "?!,.\"`'";
 	private final static String CLEANWORD=".*([\\.,!?])+";
 	protected static Highlighter editTracker;
@@ -1161,11 +1162,15 @@ class SuggestionCalculator {
 				
 			}
 			
+			Logger.logln(NAME + "Adding elements to remove...");
 			if (!topToRemove.get(i).equals("''") && !topToRemove.get(i).equals("``")) {
-				if (PUNCTUATION.contains(topToRemove.get(i).trim()))
+				if (PUNCTUATION.contains(topToRemove.get(i).trim())) {
 					main.elementsToRemove.add(listIndex, "Reduce the number of " + topToRemove.get(i) + "'s you use");
-				else
+					Logger.logln("\t\t>\"" + topToRemove.get(i) + "\"");
+				} else {
 					main.elementsToRemove.add(listIndex, topToRemove.get(i));
+					Logger.logln("\t\t>\"" + topToRemove.get(i) + "\"");
+				}
 				listIndex++;
 			}		
 		}
@@ -1174,8 +1179,12 @@ class SuggestionCalculator {
 		main.elementsToAdd.removeAllElements();
 
 		arrSize = topToAdd.size();
-		for(int i=0;i<arrSize;i++)
+		
+		Logger.logln(NAME + "Adding elements to add...");
+		for (int i=0;i<arrSize;i++) {
 			main.elementsToAdd.add(i, topToAdd.get(i));
+			Logger.logln("\t\t>\"" + topToAdd.get(i) + "\"");
+		}
 
 		main.elementsToAddPane.clearSelection();
 		//findSynonyms(main, sentence);

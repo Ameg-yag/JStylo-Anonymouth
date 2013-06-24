@@ -1128,6 +1128,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToAddPane.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
+					Logger.logln(NAME+"Elements to add value changed");
 					elementsToRemovePane.clearSelection();
 
 					try {
@@ -1175,6 +1176,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemovePane.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent evt) {
+					Logger.logln(NAME+"Elements to remove value changed");
 					elementsToAddPane.clearSelection();
 					
 					try {
