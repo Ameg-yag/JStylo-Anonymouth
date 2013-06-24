@@ -1123,6 +1123,9 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToAddLabel.setOpaque(true);
 			elementsToAddLabel.setBackground(blue);
 			elementsToAddLabel.setBorder(rlborder);
+			elementsToAddLabel.setToolTipText("<html><center>Words in your document that Anonymouth believes may<br>" +
+											  "be helpful in masking your identity and that you should<br>" +
+											  "consider using more often (where applicable)</center></html>");
 
 			//--------- Elements to Add Text Pane ------------------
 			elementsToAddPane = new JList<String>();
@@ -1135,6 +1138,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToAddPane.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
+					Logger.logln(NAME+"Elements to add value changed");
 					elementsToRemovePane.clearSelection();
 
 					try {
@@ -1168,6 +1172,8 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemoveLabel.setOpaque(true);
 			elementsToRemoveLabel.setBackground(blue);
 			elementsToRemoveLabel.setBorder(rlborder);
+			elementsToRemoveLabel.setToolTipText("<html><center>Words that Anonymouth believes may be more likely to expose<br>" +
+												 "you and you should consider replacing.</center></html>");
 
 			//--------- Elements to Remove Text Pane ------------------
 			elementsToRemovePane = new JList<String>();
@@ -1180,6 +1186,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			elementsToRemovePane.addListSelectionListener(new ListSelectionListener() {
 				@Override
 				public void valueChanged(ListSelectionEvent evt) {
+					Logger.logln(NAME+"Elements to remove value changed");
 					elementsToAddPane.clearSelection();
 					
 					try {
