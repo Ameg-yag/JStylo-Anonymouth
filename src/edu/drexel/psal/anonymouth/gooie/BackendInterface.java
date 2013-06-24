@@ -117,7 +117,7 @@ public class BackendInterface {
 				DocumentMagician.numProcessRequests++;
 				String tempDoc = "";
 
-				if (DriverDocumentsTab.isFirstRun == true) {
+				if (DriverEditor.isFirstRun == true) {
 					ConsolidationStation.functionWords.run();
 					tempDoc = getDocFromCurrentTab();
 					Logger.logln(NAME+"Process button pressed for first time (initial run) in editor tab");
@@ -175,12 +175,12 @@ public class BackendInterface {
 
 				ConsolidationStation.toModifyTaggedDocs.get(0).setBaselinePercentChangeNeeded(); // todo figure out why this and/or the two percent change needed calls in TaggedDocument affect AnonymityBar
 
-				DriverDocumentsTab.theFeatures = wizard.getAllRelevantFeatures();
-				Logger.logln(NAME+"The Features are: "+DriverDocumentsTab.theFeatures.toString());
+				DriverEditor.theFeatures = wizard.getAllRelevantFeatures();
+				Logger.logln(NAME+"The Features are: "+DriverEditor.theFeatures.toString());
 
-				DriverDocumentsTab.okayToSelectSuggestion = true;
+				DriverEditor.okayToSelectSuggestion = true;
 
-				if(DriverDocumentsTab.isFirstRun)
+				if(DriverEditor.isFirstRun)
 					ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), true);
 				else
 					ConsolidationStation.toModifyTaggedDocs.get(0).makeAndTagSentences(main.getDocumentPane().getText(), false);
@@ -188,34 +188,34 @@ public class BackendInterface {
 				main.anonymityDrawingPanel.updateAnonymityBar();
 				main.anonymityDrawingPanel.showPointer(true);
 
-				for (int i = 0; i < DriverDocumentsTab.taggedDoc.getTaggedSentences().size(); i++)
-					DriverDocumentsTab.originals.put(DriverDocumentsTab.taggedDoc.getUntaggedSentences(false).get(i), DriverDocumentsTab.taggedDoc.getTaggedSentences().get(i));
+				for (int i = 0; i < DriverEditor.taggedDoc.getTaggedSentences().size(); i++)
+					DriverEditor.originals.put(DriverEditor.taggedDoc.getUntaggedSentences(false).get(i), DriverEditor.taggedDoc.getTaggedSentences().get(i));
 
-				DriverDocumentsTab.originalSents = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
+				DriverEditor.originalSents = DriverEditor.taggedDoc.getUntaggedSentences(false);
 				SuggestionCalculator.placeSuggestions(main);
 				GUIUpdateInterface.updateResultsPrepColor(main);
 
-				DriverDocumentsTab.setAllDocTabUseable(true, main);		
+				DriverEditor.setAllDocTabUseable(true, main);		
 
-				DriverDocumentsTab.ignoreNumActions = 1; // must be set to 1, otherwise "....setDot(0)" (2 lines down) will screw things up when it fires the caretUpdate listener.
+				DriverEditor.ignoreNumActions = 1; // must be set to 1, otherwise "....setDot(0)" (2 lines down) will screw things up when it fires the caretUpdate listener.
 				
-				if (!DriverDocumentsTab.isFirstRun)
+				if (!DriverEditor.isFirstRun)
 					InputFilter.ignoreTranslation = true;
-				main.getDocumentPane().setText(DriverDocumentsTab.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
+				main.getDocumentPane().setText(DriverEditor.taggedDoc.getUntaggedDocument(false));// NOTE this won't fire the caretListener because (I THINK) this method isn't in a listener, because setting the text from within a listener (directly or indirectly) DOES fire the caretUpdate.
 				main.getDocumentPane().getCaret().setDot(0); // NOTE However, THIS DOES fire the caretUpdate, because we are messing with the caret itself.
 				main.getDocumentPane().setCaretPosition(0); // NOTE And then this, again, does not fire the caretUpdate
-				DriverDocumentsTab.ignoreNumActions = 0; //We MUST reset this to 0 because, for whatever reason, sometimes setDot() does not fire the caret listener, so ignoreNumActions is never reset. This is to ensure it is.
+				DriverEditor.ignoreNumActions = 0; //We MUST reset this to 0 because, for whatever reason, sometimes setDot() does not fire the caret listener, so ignoreNumActions is never reset. This is to ensure it is.
 
-				int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(0)[0];
-				DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
-				DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
-				DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
+				int[] selectedSentInfo = DriverEditor.calculateIndicesOfSentences(0)[0];
+				DriverEditor.selectedSentIndexRange[0] = selectedSentInfo[1];
+				DriverEditor.selectedSentIndexRange[1] = selectedSentInfo[2];
+				DriverEditor.moveHighlight(main, DriverEditor.selectedSentIndexRange);
 
-				GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
-				DriverDocumentsTab.charsInserted = 0; // this gets updated when the document is loaded.
-				DriverDocumentsTab.charsRemoved = 0;	
-				DriverDocumentsTab.caretPositionPriorToCharInsertion = 0;
-				DriverDocumentsTab.isFirstRun = true;
+				GUIMain.GUITranslator.load(DriverEditor.taggedDoc.getTaggedSentences());
+				DriverEditor.charsInserted = 0; // this gets updated when the document is loaded.
+				DriverEditor.charsRemoved = 0;	
+				DriverEditor.caretPositionPriorToCharInsertion = 0;
+				DriverEditor.isFirstRun = true;
 
 				DictionaryBinding.init();//initializes the dictionary for wordNEt
 
@@ -231,7 +231,7 @@ public class BackendInterface {
 				}
 				main.documentScrollPane.getViewport().setViewPosition(new java.awt.Point(0, 0));
 				
-				DriverDocumentsTab.backedUpTaggedDoc = new TaggedDocument(DriverDocumentsTab.taggedDoc);
+				DriverEditor.backedUpTaggedDoc = new TaggedDocument(DriverEditor.taggedDoc);
 
 				GUIMain.processed = true;
 				pw.stop();
@@ -291,9 +291,9 @@ public class BackendInterface {
 			main.resultsWindow.addAttrib(predMap.get(predictions[i]).toString(), (int)(predictions[i] + .5));
 		}
 
-		DriverDocumentsTab.resultsMaxIndex = maxIndex;
-		DriverDocumentsTab.chosenAuthor = (String)authors[maxIndex];
-		DriverDocumentsTab.maxValue = (Object)biggest;
+		DriverEditor.resultsMaxIndex = maxIndex;
+		DriverEditor.chosenAuthor = (String)authors[maxIndex];
+		DriverEditor.maxValue = (Object)biggest;
 
 		main.resultsWindow.makeChart();
 		main.resultsWindow.drawingPanel.repaint();

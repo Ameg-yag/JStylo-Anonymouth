@@ -166,7 +166,7 @@ public class DictionaryBinding {
 			public void actionPerformed(ActionEvent e) {
 				Logger.logln(NAME+"Dictionary is being disposed of.. ");
 				dc.dispose();
-				DriverDocumentsTab.dictDead = true;
+				DriverEditor.dictDead = true;
 			}
 		});
 		
@@ -176,7 +176,7 @@ public class DictionaryBinding {
 			@Override
 			public void windowClosed(WindowEvent arg0) {
 				Logger.logln(NAME+"Window close killed poor dictionary");
-				DriverDocumentsTab.dictDead = true;
+				DriverEditor.dictDead = true;
 			}
 			@Override
 			public void windowClosing(WindowEvent arg0) {}
@@ -228,7 +228,7 @@ public class DictionaryBinding {
 	}
 	
 	//NOTE: Someone had begun work on passing in an additional String that represented the part of speech, but was not yet implemented in
-	//the body of the method. As such, I removed it from the parameters for now just to get the DriverDocumentsTab words to remove and add
+	//the body of the method. As such, I removed it from the parameters for now just to get the DriverEditor words to remove and add
 	//back online
 	@SuppressWarnings("unused")
 	public static String[] getSynonyms(String wordToFind) {

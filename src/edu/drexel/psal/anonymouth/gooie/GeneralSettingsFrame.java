@@ -417,8 +417,8 @@ public class GeneralSettingsFrame extends JFrame {
 								null, null, null);
 						
 						if (answer == JOptionPane.YES_OPTION) {
-							GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
-							DriverTranslationsTab.showTranslations(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate));
+							GUIMain.GUITranslator.load(DriverEditor.taggedDoc.getTaggedSentences());
+							DriverTranslationsTab.showTranslations(DriverEditor.taggedDoc.getSentenceNumber(DriverEditor.sentToTranslate));
 						}
 					} else {
 						main.notTranslated.setText("Please process your document to recieve translation suggestions.");

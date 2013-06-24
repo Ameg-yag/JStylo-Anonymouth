@@ -17,7 +17,7 @@ import java.util.concurrent.locks.Lock;
 import edu.drexel.psal.anonymouth.engine.Attribute;
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
 import edu.drexel.psal.anonymouth.engine.FeatureList;
-import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
+import edu.drexel.psal.anonymouth.gooie.DriverEditor;
 import edu.drexel.psal.anonymouth.gooie.ThePresident;
 import edu.drexel.psal.jstylo.generics.Logger;
 import edu.drexel.psal.jstylo.generics.Logger.LogOut;
@@ -341,8 +341,8 @@ public class ConsolidationStation {
 		int totalWords = 0;
 		ArrayList<Word> words = new ArrayList<Word>(totalWords);
 			
-		totalWords += DriverDocumentsTab.taggedDoc.getWordCount();
-		words.addAll(DriverDocumentsTab.taggedDoc.getWords());
+		totalWords += DriverEditor.taggedDoc.getWordCount();
+		words.addAll(DriverEditor.taggedDoc.getWords());
 		
 		int numToReturn = (int)(totalWords*percentToReturn);
 		ArrayList<String> toReturn = new ArrayList<String>(numToReturn);

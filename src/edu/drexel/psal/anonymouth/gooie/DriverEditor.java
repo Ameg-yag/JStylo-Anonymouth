@@ -47,9 +47,9 @@ import javax.swing.text.Highlighter;
  * @author Joe Muoio
  * 
  */
-public class DriverDocumentsTab {
+public class DriverEditor {
 
-	private final static String NAME = "( DriverDocumentsTab ) - ";
+	private final static String NAME = "( DriverEditor ) - ";
 
 	//	public final static int UNDOCHARACTERBUFFER = 5;
 	//	public static int currentCharacterBuffer = 0;
@@ -817,7 +817,7 @@ public class DriverDocumentsTab {
 
 			@Override
 			public void changedUpdate(DocumentEvent e) {
-				DriverDocumentsTab.displayEditInfo(e);
+				DriverEditor.displayEditInfo(e);
 			}
 		});	
 
@@ -868,21 +868,23 @@ public class DriverDocumentsTab {
 			@Override
 			public synchronized void actionPerformed(ActionEvent event) {
 				// ----- check if all requirements for processing are met
-				String errorMessage = "";
+				String errorMessage = "Oops! Found errors that must be taken care of prior to processing!\n\nErrors found:\n";
 				if (!main.mainDocReady())
-					errorMessage += "Main document not provided.\n";
+					errorMessage += "<html>&bull; Main document not provided.</html>\n";
 				if (!main.sampleDocsReady())
-					errorMessage += "Sample documents not provided.\n";
+					errorMessage += "<html>&bull; Sample documents not provided.</html>\n";
 				if (!main.trainDocsReady())
-					errorMessage += "Train documents not provided.\n";
+					errorMessage += "<html>&bull; Train documents not provided.</html>\n";
 				if (!main.featuresAreReady())
-					errorMessage += "Feature set not chosen.\n";
+					errorMessage += "<html>&bull; Feature set not chosen.</html>\n";
 				if (!main.classifiersAreReady())
-					errorMessage += "Classifier not chosen.\n";
+					errorMessage += "<html>&bull; Classifier not chosen.</html>\n";
+				if (!main.hasAtLeastThreeOtherAuthors())
+					errorMessage += "<html>&bull; You must have at least 3 other authors.</html>";
 
 				// ----- display error message if there are errors
-				if (errorMessage != "") {
-					JOptionPane.showMessageDialog(main, errorMessage, "Settings Error!",
+				if (errorMessage != "Oops! Found errors that must be taken care of prior to processing!\n\nErrors found:\n") {
+					JOptionPane.showMessageDialog(main, errorMessage, "Configuration Error!",
 							JOptionPane.ERROR_MESSAGE);
 				} else {
 					main.leftTabPane.setSelectedIndex(0);
@@ -1096,11 +1098,11 @@ class SuggestionCalculator {
 	protected static void placeSuggestions(GUIMain main) {
 		//We must first clear any existing highlights the user has and remove all existing suggestions
 		Highlighter highlight = main.getDocumentPane().getHighlighter();
-		int highlightedObjectsSize = DriverDocumentsTab.highlightedObjects.size();
+		int highlightedObjectsSize = DriverEditor.highlightedObjects.size();
 
 		for (int i = 0; i < highlightedObjectsSize; i++)
-			highlight.removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
-		DriverDocumentsTab.highlightedObjects.clear();
+			highlight.removeHighlight(DriverEditor.highlightedObjects.get(i).getHighlightedObject());
+		DriverEditor.highlightedObjects.clear();
 
 		main.elementsToRemove.removeAllElements();
 		main.elementsToAdd.removeAllElements();
@@ -1109,8 +1111,8 @@ class SuggestionCalculator {
 		topToRemove=ConsolidationStation.getPriorityWords(ConsolidationStation.toModifyTaggedDocs, true, .2);
 		topToAdd=ConsolidationStation.getPriorityWords(ConsolidationStation.authorSampleTaggedDocs, false, .02);
 		
-		ArrayList<String> sentences = DriverDocumentsTab.taggedDoc.getUntaggedSentences(false);
-		int sentNum = DriverDocumentsTab.getCurrentSentNum();
+		ArrayList<String> sentences = DriverEditor.taggedDoc.getUntaggedSentences(false);
+		int sentNum = DriverEditor.getCurrentSentNum();
 		String sentence = sentences.get(sentNum);
 
 		main.elementsToRemove.removeAllElements();
@@ -1199,7 +1201,7 @@ class SuggestionCalculator {
 			tempArr = DictionaryBinding.getSynonyms(str);
 			if (tempArr!=null) {
 				//inSent=currentSent.contains(str);
-				inSent = DriverDocumentsTab.checkSentFor(currentSent,str);
+				inSent = DriverEditor.checkSentFor(currentSent,str);
 
 				if (inSent)
 					synSetString+=str+"=>";

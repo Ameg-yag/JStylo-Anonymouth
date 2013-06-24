@@ -438,7 +438,7 @@ public class GUIMain extends javax.swing.JFrame  {
 								System.exit(0);
 							}
 						} else if (PropertiesUtil.getAutoSave()) {
-							DriverDocumentsTab.save(inst);
+							DriverEditor.save(inst);
 							System.exit(0);
 						} else {
 							System.exit(0);
@@ -642,7 +642,7 @@ public class GUIMain extends javax.swing.JFrame  {
 
 			// final property settings
 
-			DriverDocumentsTab.setAllDocTabUseable(false, this);
+			DriverEditor.setAllDocTabUseable(false, this);
 
 			// init all settings panes
 
@@ -662,7 +662,7 @@ public class GUIMain extends javax.swing.JFrame  {
 			// initialize listeners - except for EditorTabDriver!
 
 			DriverMenu.initListeners(this);
-			DriverDocumentsTab.initListeners(this);
+			DriverEditor.initListeners(this);
 			DriverPreProcessTab.initListeners(this);
 			DriverResultsTab.initListeners(this);
 			DriverSuggestionsTab.initListeners(this);
@@ -903,6 +903,16 @@ public class GUIMain extends javax.swing.JFrame  {
 
 		return ready;
 	}
+	
+	public boolean hasAtLeastThreeOtherAuthors(){
+		Set<String> trainAuthors = ps.getAuthors();
+		if ((trainAuthors == null) || (trainAuthors.size() < 3))
+			return false;
+		else
+			return true;
+	}
+	
+	
 
 	public boolean classifiersAreReady() {
 		boolean ready = true;
@@ -1129,18 +1139,18 @@ public class GUIMain extends javax.swing.JFrame  {
 
 					try {
 						Highlighter highlight = getDocumentPane().getHighlighter();
-						int highlightedObjectsSize = DriverDocumentsTab.highlightedObjects.size();
+						int highlightedObjectsSize = DriverEditor.highlightedObjects.size();
 
 						for (int i = 0; i < highlightedObjectsSize; i++)
-							highlight.removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
-						DriverDocumentsTab.highlightedObjects.clear();
+							highlight.removeHighlight(DriverEditor.highlightedObjects.get(i).getHighlightedObject());
+						DriverEditor.highlightedObjects.clear();
 
 						ArrayList<int[]> index = IndexFinder.findIndices(getDocumentPane().getText(), elementsToAddPane.getSelectedValue());
 
 						int indexSize = index.size();
 
 						for (int i = 0; i < indexSize; i++)
-							DriverDocumentsTab.highlightedObjects.add(new HighlightMapper(index.get(i)[0], index.get(i)[1], highlight.addHighlight(index.get(i)[0], index.get(i)[1], DriverDocumentsTab.painterAdd)));
+							DriverEditor.highlightedObjects.add(new HighlightMapper(index.get(i)[0], index.get(i)[1], highlight.addHighlight(index.get(i)[0], index.get(i)[1], DriverEditor.painterAdd)));
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
@@ -1174,18 +1184,18 @@ public class GUIMain extends javax.swing.JFrame  {
 					
 					try {
 						Highlighter highlight = getDocumentPane().getHighlighter();
-						int highlightedObjectsSize = DriverDocumentsTab.highlightedObjects.size();
+						int highlightedObjectsSize = DriverEditor.highlightedObjects.size();
 
 						for (int i = 0; i < highlightedObjectsSize; i++)
-							highlight.removeHighlight(DriverDocumentsTab.highlightedObjects.get(i).getHighlightedObject());
-						DriverDocumentsTab.highlightedObjects.clear();
+							highlight.removeHighlight(DriverEditor.highlightedObjects.get(i).getHighlightedObject());
+						DriverEditor.highlightedObjects.clear();
 
 						ArrayList<int[]> index = IndexFinder.findIndices(getDocumentPane().getText(), elementsToRemovePane.getSelectedValue());
 
 						int indexSize = index.size();
 
 						for (int i = 0; i < indexSize; i++)
-							DriverDocumentsTab.highlightedObjects.add(new HighlightMapper(index.get(i)[0], index.get(i)[1], highlight.addHighlight(index.get(i)[0], index.get(i)[1], DriverDocumentsTab.painterRemove)));
+							DriverEditor.highlightedObjects.add(new HighlightMapper(index.get(i)[0], index.get(i)[1], highlight.addHighlight(index.get(i)[0], index.get(i)[1], DriverEditor.painterRemove)));
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
@@ -1416,7 +1426,7 @@ public class GUIMain extends javax.swing.JFrame  {
 					resultsMainPanel.setPreferredSize(new Dimension(160, resultsHeight));
 					g2d.drawImage(resultsWindow.getPanelChart(170, resultsHeight), -10, -6, null);
 				} else {
-					if (DriverDocumentsTab.isFirstRun)
+					if (DriverEditor.isFirstRun)
 						resultsLabel.setText("<html><center>Please process your<br>document to<br>recieve results.</center></html>");
 					else
 						resultsLabel.setText("<html><center>Please wait while<br>re-processing</center></html>");
