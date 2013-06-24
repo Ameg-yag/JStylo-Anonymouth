@@ -1,7 +1,6 @@
 package edu.drexel.psal.anonymouth.gooie;
 
 import java.awt.Color;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -27,7 +26,7 @@ import net.miginfocom.swing.MigLayout;
 public class GeneralSettingsFrame extends JFrame {	
 
 	private static final long serialVersionUID = 1L;
-	private final String NAME = "( "+this.getClass().getName()+" ) - ";
+	private final String NAME = "( GeneralSettingsFrame ) - ";
 
 	protected GUIMain main;
 	public boolean panelsAreMade = false;
@@ -389,7 +388,6 @@ public class GeneralSettingsFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Logger.logln(NAME+"Warn on quit checkbox clicked");
-				
 				if (warnQuit.isSelected())
 					PropertiesUtil.setWarnQuit(true);
 				else

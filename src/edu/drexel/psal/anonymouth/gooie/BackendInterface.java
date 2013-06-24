@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import edu.drexel.psal.anonymouth.engine.DataAnalyzer;
@@ -251,6 +252,32 @@ public class BackendInterface {
 				Logger.logln(NAME+"Total: "+heapSize+" Max: "+heapMaxSize+" Free: "+heapFreeSize);
 			}
 
+			if (PropertiesUtil.showBarTutorial()) {
+				//Needed, without it the Progress bar window just sort of chills around and doesn't close itself like it should (If showing
+				//A JOptionPane, otherwise it's fine, weird.)
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				JOptionPane.showMessageDialog(null,
+						"<html><left>" +
+						"There are two main ways to identify how anonymous your document is, the <b>Anonymity Bar</b> and " +
+						"the <b>Ownership<br>Certainty Graph</b>. While they may seem similar, they serve two different purposes:<br>" +
+						"<ul><li><b>Anonymity Bar-</b> Tries to get you to move your document's features toward the best combination that<br>" +
+						"it could find.This doesn't necessarily guarantee that you will be anonymous if full, and likewise that you will<br>" +
+						"not be anonymous if low, but it will guarantee that the more full it is the closer your document will get to a<br>" +
+						"lower classification (which is good!) while at the same time taking care to not simply \"copy\" a single author's<br>" +
+						"style." +
+						"<li><b>Ownership Certainty Graph-</b> This is Anonymouth making an educated guess as to who was the most likely<br>" +
+						"author for the given test document with the given set of sample authors. This should give you a broad idea of<br>" +
+						"where your document stands in comparison to these particular authors, and while it is helpful in getting a<br>" +
+						"general idea it should not be used as an absolute confirmation.</ul>" +
+						"</left></html>",
+						"Understanding the Anonymity Bar and Ownership Certainity Graph",
+						JOptionPane.INFORMATION_MESSAGE);
+				PropertiesUtil.setBarTutorial(false);
+			}
 		}
 	}
 

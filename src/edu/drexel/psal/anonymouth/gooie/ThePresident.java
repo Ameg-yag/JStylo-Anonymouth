@@ -88,7 +88,7 @@ public class ThePresident {
 			Logger.logln(leader.NAME+"We're on a Mac!");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			app = Application.getApplication();
-			String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO.png";
+			String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_large.png";
 			String aboutName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO.png";
 			try{
 				LOGO = leader.getLogo(logoName);
