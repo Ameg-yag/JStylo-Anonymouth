@@ -433,11 +433,26 @@ public class DriverPreProcessTabDocuments {
 					if (answer == 0) {
 						int[] rows = main.prepSampleDocsList.getSelectedIndices();
 						String msg = "Removed test documents:\n";
-						for (int i=rows.length-1; i>=0; i--) {
-							msg += "\t\t> "+main.ps.trainDocAt(ProblemSet.getDummyAuthor(),rows[i]).getTitle()+"\n";
-							main.ps.removeTrainDocAt(ProblemSet.getDummyAuthor(),rows[i]);
-							titles.remove(main.ps.trainDocAt(ProblemSet.getDummyAuthor(),rows[i]).getTitle());
+						
+						System.out.println("size = " + main.ps.getTrainDocs(ProblemSet.getDummyAuthor()).size());
+						for (int i = 0; i < main.ps.getTrainDocs(ProblemSet.getDummyAuthor()).size(); i++) {
+							System.out.println(main.ps.getTrainDocs(ProblemSet.getDummyAuthor()).get(i));
 						}
+						
+						System.out.println("=======");
+						System.out.println("size = " + titles.size());
+						Object[] test = titles.toArray();
+						for (int i = 0; i < titles.size(); i++) {
+							System.out.println(test[i]);
+						}
+						
+						for (int i = rows.length-1; i >= 0; i--) {
+							System.out.println("\t\t> "+main.ps.trainDocAt(ProblemSet.getDummyAuthor(),rows[i]).getTitle()+"\n");
+							msg += "\t\t> "+main.ps.trainDocAt(ProblemSet.getDummyAuthor(),rows[i]).getTitle()+"\n";
+							titles.remove(main.ps.trainDocAt(ProblemSet.getDummyAuthor(),rows[i]).getTitle());
+							main.ps.removeTrainDocAt(ProblemSet.getDummyAuthor(), rows[i]);
+						}
+						
 						Logger.log(msg);
 
 						GUIUpdateInterface.updateUserSampleDocTable(main);
@@ -1092,8 +1107,8 @@ public class DriverPreProcessTabDocuments {
 						String msg = "Removed test documents:\n";
 						for (int i=rows.length-1; i>=0; i--) {
 							msg += "\t\t> "+main.ps.trainDocAt(ProblemSet.getDummyAuthor(),rows[i]).getTitle()+"\n";
-							main.ps.removeTrainDocAt(ProblemSet.getDummyAuthor(),rows[i]);
 							titles.remove(main.ps.trainDocAt(ProblemSet.getDummyAuthor(),rows[i]).getTitle());
+							main.ps.removeTrainDocAt(ProblemSet.getDummyAuthor(),rows[i]);
 						}
 						Logger.log(msg);
 
