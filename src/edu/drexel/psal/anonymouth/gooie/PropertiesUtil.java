@@ -28,6 +28,7 @@ public class PropertiesUtil {
 	protected static String defaultProbSet = "";
 	protected static Boolean defaultAutoSave = false;
 	protected static Boolean defaultWarnQuit = true;
+	protected static Boolean defaultBarTutorial = true;
 	protected static int defaultThreads = 4;
 	protected static int defaultFeatures = 500;
 	protected static Boolean defaultTranslation = true;
@@ -91,6 +92,42 @@ public class PropertiesUtil {
 		setProbSet(defaultProbSet);
 		setFeature(defaultFeat);
 		setClassifier(defaultClass);
+	}
+	
+	/**
+	 * Sets whether or not to display the anonymity bar and results tutorial after processing (so that it's only shown once)
+	 * @param barTutorial - whether or not to display the tutorial
+	 */
+	protected static void setBarTutorial(Boolean barTutorial) {
+		BufferedWriter writer;
+		
+		try {
+			prop.setProperty("barTutorial", barTutorial.toString());
+			writer = new BufferedWriter(new FileWriter(propFileName));
+			prop.store(writer, "User Preferences");
+		} catch (Exception e) {
+			Logger.logln(NAME + "Failed setting bar tutorial");
+		}
+	}
+	
+	protected static boolean showBarTutorial() {
+		String barTutorial = "";
+		
+		try {
+			barTutorial = prop.getProperty("barTutorial");
+			if (barTutorial == null) {
+				prop.setProperty("barTutorial", defaultBarTutorial.toString());
+				barTutorial = prop.getProperty("barTutorial");
+			}
+		} catch (NullPointerException e) {
+				prop.setProperty("barTutorial", barTutorial.toString());
+				barTutorial = prop.getProperty("barTutorial");
+		}
+		
+		if (barTutorial.equals("true"))
+			return true;
+		else
+			return false;
 	}
 	
 	/**
@@ -233,8 +270,9 @@ public class PropertiesUtil {
 	 * Gets the user's translate preference
 	 * @return
 	 */
-	protected static Boolean getDoTranslations() {
+	protected static boolean getDoTranslations() {
 		String translate = "";
+		
 		try {
 			translate = prop.getProperty("translate");
 			if (translate == null) {
@@ -344,7 +382,7 @@ public class PropertiesUtil {
 	 * Gets the user's warn on quit preference
 	 * @return
 	 */
-	protected static Boolean getWarnQuit() {
+	protected static boolean getWarnQuit() {
 		String warnQuit = "";
 		try {
 			warnQuit = prop.getProperty("warnQuit");
@@ -384,7 +422,7 @@ public class PropertiesUtil {
 	 * Gets the user's preference on auto-saving
 	 * @return
 	 */
-	protected static Boolean getAutoSave() {
+	protected static boolean getAutoSave() {
 		String autoSave = "";
 		try {
 			autoSave = prop.getProperty("autoSave");

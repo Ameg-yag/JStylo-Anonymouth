@@ -88,7 +88,7 @@ public class DriverMenu {
         saveTestDocListener = new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent e) {
-        		DriverDocumentsTab.save(main);
+        		DriverEditor.save(main);
         	}
         };
         main.fileSaveTestDocMenuItem.addActionListener(saveTestDocListener);
@@ -96,7 +96,7 @@ public class DriverMenu {
         saveAsTestDocListener = new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent e) {
-        		DriverDocumentsTab.saveAsTestDoc.actionPerformed(e);
+        		DriverEditor.saveAsTestDoc.actionPerformed(e);
         	}
         };
         main.fileSaveAsTestDocMenuItem.addActionListener(saveAsTestDocListener);

@@ -88,8 +88,8 @@ public class ThePresident {
 			Logger.logln(leader.NAME+"We're on a Mac!");
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			app = Application.getApplication();
-			String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_v2.png";
-			String aboutName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGOsml_v2.png";
+			String logoName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO_large.png";
+			String aboutName = JSANConstants.JSAN_GRAPHICS_PREFIX+"anonymouth_LOGO.png";
 			try{
 				LOGO = leader.getLogo(logoName);
 				ABOUTLOGO = leader.getLogo(aboutName);
@@ -117,7 +117,7 @@ public class ThePresident {
 							System.exit(0);
 						}
 					} else if (PropertiesUtil.getAutoSave()) {
-						DriverDocumentsTab.save(GUIMain.inst);
+						DriverEditor.save(GUIMain.inst);
 						System.exit(0);
 					} else {
 						System.exit(0);

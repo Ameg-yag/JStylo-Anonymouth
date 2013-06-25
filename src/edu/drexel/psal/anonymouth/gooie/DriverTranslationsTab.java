@@ -58,7 +58,7 @@ public class DriverTranslationsTab implements ActionListener {
 					GUIMain.inst.notTranslated.setText("Sentence has not been translated yet, please wait or work on already translated sentences.");
 					GUIMain.inst.translationsHolderPanel.add(GUIMain.inst.notTranslated, "");
 					GUIMain.GUITranslator.reset();
-					DriverDocumentsTab.taggedDoc.deleteTranslations();
+					DriverEditor.taggedDoc.deleteTranslations();
 					
 					try {
 						Thread.sleep(500);
@@ -66,7 +66,7 @@ public class DriverTranslationsTab implements ActionListener {
 						e1.printStackTrace();
 					}
 					
-					GUIMain.GUITranslator.load(DriverDocumentsTab.taggedDoc.getTaggedSentences());
+					GUIMain.GUITranslator.load(DriverEditor.taggedDoc.getTaggedSentences());
 				}
 			}
 		};
@@ -174,13 +174,13 @@ public class DriverTranslationsTab implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		DriverDocumentsTab.backedUpTaggedDoc = new TaggedDocument(DriverDocumentsTab.taggedDoc);
-		main.versionControl.addVersion(DriverDocumentsTab.backedUpTaggedDoc, main.getDocumentPane().getCaret().getDot());
+		DriverEditor.backedUpTaggedDoc = new TaggedDocument(DriverEditor.taggedDoc);
+		main.versionControl.addVersion(DriverEditor.backedUpTaggedDoc, main.getDocumentPane().getCaret().getDot());
 		
 		GUIMain.saved = false;
 		InputFilter.ignoreTranslation = true;
-		DriverDocumentsTab.removeReplaceAndUpdate(main, DriverDocumentsTab.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(false), true);
-		GUIMain.GUITranslator.replace(DriverDocumentsTab.taggedDoc.getSentenceNumber(DriverDocumentsTab.sentToTranslate), current);
+		DriverEditor.removeReplaceAndUpdate(main, DriverEditor.sentToTranslate, translationsMap.get(e.getActionCommand()).getUntagged(false), true);
+		GUIMain.GUITranslator.replace(DriverEditor.taggedDoc.getSentenceNumber(DriverEditor.sentToTranslate), current);
 		
 		main.anonymityDrawingPanel.updateAnonymityBar();
 		SuggestionCalculator.placeSuggestions(main);

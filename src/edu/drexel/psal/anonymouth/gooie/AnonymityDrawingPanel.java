@@ -199,8 +199,8 @@ public class AnonymityDrawingPanel extends JPanel {
 	 * for the first time) so that the arrow may move accordingly
 	 */
 	public void updateAnonymityBar() {
-		int current = (int)(DriverDocumentsTab.taggedDoc.getAnonymityIndex() + .5);
-		int max = (int)(DriverDocumentsTab.taggedDoc.getTargetAnonymityIndex() + .5);
+		int current = (int)(DriverEditor.taggedDoc.getAnonymityIndex() + .5);
+		int max = (int)(DriverEditor.taggedDoc.getTargetAnonymityIndex() + .5);
 
 		percentToGoal = ((double)current/max)*100;
 		pointer.setPercentages(current,max);

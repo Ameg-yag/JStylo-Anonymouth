@@ -219,7 +219,7 @@ public class Translation {
 						}
 
 						if (PropertiesUtil.getAutoSave()) {
-							DriverDocumentsTab.save(GUIMain.inst);
+							DriverEditor.save(GUIMain.inst);
 							System.exit(0);
 						}
 

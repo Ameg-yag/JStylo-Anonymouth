@@ -103,21 +103,21 @@ public class RightClickMenu extends JPopupMenu {
 					char character = main.getDocumentPane().getText().charAt(length-1+PopupListener.mark+pastLength);
 
 					if ((character == '.' || character == '!' || character == '?') && size-1 != i) {
-						DriverDocumentsTab.taggedDoc.specialCharTracker.setIgnore(length - 1 + PopupListener.mark+pastLength, true);
+						DriverEditor.taggedDoc.specialCharTracker.setIgnore(length - 1 + PopupListener.mark+pastLength, true);
 					}
 										
-					taggedSentences.add(DriverDocumentsTab.taggedDoc.getTaggedSentenceAtIndex(length + PopupListener.mark + pastLength));
+					taggedSentences.add(DriverEditor.taggedDoc.getTaggedSentenceAtIndex(length + PopupListener.mark + pastLength));
 					pastLength += length;
 				}
 				
-				//We're borrowing a variable used by translations to solve a similar purpose, we do not want the InputFilter to fire removeReplaceAndUpdate in the DriverDocumentsTab.
+				//We're borrowing a variable used by translations to solve a similar purpose, we do not want the InputFilter to fire removeReplaceAndUpdate in the DriverEditor.
 				InputFilter.ignoreTranslation = true;
 				
-				TaggedSentence replacement = DriverDocumentsTab.taggedDoc.concatSentences(taggedSentences);
-				DriverDocumentsTab.taggedDoc.removeMultipleAndReplace(taggedSentences, replacement);
-				DriverDocumentsTab.update(main, true);
+				TaggedSentence replacement = DriverEditor.taggedDoc.concatSentences(taggedSentences);
+				DriverEditor.taggedDoc.removeMultipleAndReplace(taggedSentences, replacement);
+				DriverEditor.update(main, true);
 				
-				int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(PopupListener.mark)[0];
+				int[] selectedSentInfo = DriverEditor.calculateIndicesOfSentences(PopupListener.mark)[0];
 
 				//We want to make sure we're setting the caret at the actual start of the sentence and not in white space (so it gets highlighted)
 				int space = 0;
@@ -127,9 +127,9 @@ public class RightClickMenu extends JPopupMenu {
 				}
 				
 				main.getDocumentPane().getCaret().setDot(selectedSentInfo[1]+space);
-				DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
-				DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
-				DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
+				DriverEditor.selectedSentIndexRange[0] = selectedSentInfo[1];
+				DriverEditor.selectedSentIndexRange[1] = selectedSentInfo[2];
+				DriverEditor.moveHighlight(main, DriverEditor.selectedSentIndexRange);
 			}
 		};
 		combineSentences.addActionListener(combineSentencesListener);
@@ -137,14 +137,14 @@ public class RightClickMenu extends JPopupMenu {
 		resetHighlighterListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				DriverDocumentsTab.taggedDoc.specialCharTracker.resetEOSCharacters();
-				DriverDocumentsTab.taggedDoc = new TaggedDocument(main.getDocumentPane().getText());
-				DriverDocumentsTab.isFirstRun = true;
+				DriverEditor.taggedDoc.specialCharTracker.resetEOSCharacters();
+				DriverEditor.taggedDoc = new TaggedDocument(main.getDocumentPane().getText());
+				DriverEditor.isFirstRun = true;
 				
-				int[] selectedSentInfo = DriverDocumentsTab.calculateIndicesOfSentences(DriverDocumentsTab.currentCaretPosition)[0];
-				DriverDocumentsTab.selectedSentIndexRange[0] = selectedSentInfo[1];
-				DriverDocumentsTab.selectedSentIndexRange[1] = selectedSentInfo[2];
-				DriverDocumentsTab.moveHighlight(main, DriverDocumentsTab.selectedSentIndexRange);
+				int[] selectedSentInfo = DriverEditor.calculateIndicesOfSentences(DriverEditor.currentCaretPosition)[0];
+				DriverEditor.selectedSentIndexRange[0] = selectedSentInfo[1];
+				DriverEditor.selectedSentIndexRange[1] = selectedSentInfo[2];
+				DriverEditor.moveHighlight(main, DriverEditor.selectedSentIndexRange);
 			}
 		};
 		resetHighlighter.addActionListener(resetHighlighterListener);

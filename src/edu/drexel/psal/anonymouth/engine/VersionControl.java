@@ -2,7 +2,7 @@ package edu.drexel.psal.anonymouth.engine;
 
 import java.util.Stack;
 
-import edu.drexel.psal.anonymouth.gooie.DriverDocumentsTab;
+import edu.drexel.psal.anonymouth.gooie.DriverEditor;
 import edu.drexel.psal.anonymouth.gooie.GUIMain;
 import edu.drexel.psal.anonymouth.utils.TaggedDocument;
 
@@ -35,7 +35,7 @@ public class VersionControl {
 	}
 	
 	/**
-	 * Must be called in DriverDocumentsTab or wherever you want a "version" to be backed up in the undo stack.
+	 * Must be called in DriverEditor or wherever you want a "version" to be backed up in the undo stack.
 	 * @param taggedDoc - The TaggedDocument instance you want to capture.
 	 */
 	
@@ -63,18 +63,18 @@ public class VersionControl {
 	/**
 	 * Should be called in the program whenever you want a undo action to occur.
 	 * 
-	 * Swaps the current taggedDoc in DriverDocumentsTab with the version on the top of the undo stack, updates the document text pane with
+	 * Swaps the current taggedDoc in DriverEditor with the version on the top of the undo stack, updates the document text pane with
 	 * the new taggedDoc, and pushed the taggedDoc that was just on the undo stack to the redo one. 
 	 */
 	public void undo() {
-		redo.push(new TaggedDocument(DriverDocumentsTab.taggedDoc));
+		redo.push(new TaggedDocument(DriverEditor.taggedDoc));
 		indicesRedo.push(main.getDocumentPane().getCaret().getDot());
 		
-		DriverDocumentsTab.ignoreVersion = true;
-		DriverDocumentsTab.taggedDoc = undo.pop();
-		DriverDocumentsTab.update(main, true);
+		DriverEditor.ignoreVersion = true;
+		DriverEditor.taggedDoc = undo.pop();
+		DriverEditor.update(main, true);
 		main.getDocumentPane().getCaret().setDot(indicesUndo.pop());
-		DriverDocumentsTab.ignoreVersion = false;
+		DriverEditor.ignoreVersion = false;
 		
 		main.enableRedo(true);
 		undoSize--;
@@ -85,24 +85,24 @@ public class VersionControl {
 		}
 		
 		main.anonymityDrawingPanel.updateAnonymityBar();
-		DriverDocumentsTab.setSuggestions();
+		DriverEditor.setSuggestions();
 	}
 	
 	/**
 	 * Should be called in the program whenever you want a redo action to occur.
 	 * 
-	 * Swaps the current taggedDoc in DriverDocumentsTab with the version on the top of the redo stack, updates the document text pane with
+	 * Swaps the current taggedDoc in DriverEditor with the version on the top of the redo stack, updates the document text pane with
 	 * the new taggedDoc, and pushed the taggedDoc that was just on the redo stack to the undo one. 
 	 */
 	public void redo() {
-		undo.push(new TaggedDocument(DriverDocumentsTab.taggedDoc));
+		undo.push(new TaggedDocument(DriverEditor.taggedDoc));
 		indicesUndo.push(main.getDocumentPane().getCaret().getDot());
 		
-		DriverDocumentsTab.ignoreVersion = true;
-		DriverDocumentsTab.taggedDoc = redo.pop();
-		DriverDocumentsTab.update(main, true);
+		DriverEditor.ignoreVersion = true;
+		DriverEditor.taggedDoc = redo.pop();
+		DriverEditor.update(main, true);
 		main.getDocumentPane().getCaret().setDot(indicesRedo.pop());
-		DriverDocumentsTab.ignoreVersion = false;
+		DriverEditor.ignoreVersion = false;
 
 		main.enableUndo(true);	
 		undoSize++;
@@ -113,7 +113,7 @@ public class VersionControl {
 		}
 		
 		main.anonymityDrawingPanel.updateAnonymityBar();
-		DriverDocumentsTab.setSuggestions();
+		DriverEditor.setSuggestions();
 	}
 	
 	/**
